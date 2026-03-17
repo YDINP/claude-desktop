@@ -656,16 +656,11 @@ export function CCFileBatchInspector({
       {sceneFile.root && (() => {
         const doFlip = async (axis: 'x' | 'y') => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const sc = n.scale as { x: number; y: number; z?: number }
             const newScale = axis === 'x' ? { ...sc, x: -sc.x } : { ...sc, y: -sc.y }
-            return { ...n, scale: newScale, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${uuids.length}개 노드 ${axis.toUpperCase()} 반전`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: newScale}
+          }, `${uuids.length}개 노드 ${axis.toUpperCase()} 반전`)
         }
         const fs: React.CSSProperties = { fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }
         return (
@@ -684,15 +679,12 @@ export function CCFileBatchInspector({
       {sceneFile.root && (() => {
         const doReset = async (what: 'pos' | 'rot' | 'scale' | 'color') => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            if (what === 'pos') return { ...n, position: { x: 0, y: 0, z: 0 }, children }
-            if (what === 'rot') return { ...n, rotation: typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 }, children }
-            if (what === 'color') return { ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 }, children }  // R2606
-            return { ...n, scale: { x: 1, y: 1, z: 1 }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await patchNodes(n => {
+            if (what === 'pos') return { ...n, position: { x: 0, y: 0, z: 0 }}
+            if (what === 'rot') return { ...n, rotation: typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 }}
+            if (what === 'color') return { ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 }}  // R2606
+            return { ...n, scale: { x: 1, y: 1, z: 1 }}
+          }, `patch`)
           const label = what === 'pos' ? '위치' : what === 'rot' ? '회전' : what === 'color' ? 'tint색상' : '스케일'
           setBatchMsg(`✓ ${uuids.length}개 ${label} 초기화`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -842,15 +834,10 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const nudge = async (dx: number, dy: number) => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const p = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...p, x: p.x + dx, y: p.y + dy }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ nudge Δ(${dx >= 0 ? '+' : ''}${dx},${dy >= 0 ? '+' : ''}${dy}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 1500)
+            return { ...n, position: { ...p, x: p.x + dx, y: p.y + dy }}
+          }, `nudge Δ(${dx >= 0 ? '+' : ''}${dx},${dy >= 0 ? '+' : ''}${dy}) (${uuids.length}개)`)
         }
         const btnS = mkBtnS('#34d399', { fontSize: 10, lineHeight: 1.2 })
         const niS = mkNiS(36)
@@ -1376,15 +1363,10 @@ export function CCFileBatchInspector({
           const ys = selNodes.map(n => (n.position as { y: number }).y)
           const cx = (Math.min(...xs) + Math.max(...xs)) / 2
           const cy = (Math.min(...ys) + Math.max(...ys)) / 2
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: Math.round(cx + (pos.x - cx) * factor), y: Math.round(cy + (pos.y - cy) * factor) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 산포 ×${factor} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: Math.round(cx + (pos.x - cx) * factor), y: Math.round(cy + (pos.y - cy) * factor) }}
+          }, `산포 ×${factor} (${uuids.length}개)`)
         }
         const niS = mkNiS(44)
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }
@@ -1432,15 +1414,10 @@ export function CCFileBatchInspector({
           const start = (sorted[0].position as { x: number; y: number })[axis]
           const uuidToPos = new Map<string, number>()
           sorted.forEach((n, i) => uuidToPos.set(n.uuid, start + i * evenSpacing))
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, [axis]: uuidToPos.get(n.uuid) ?? pos[axis] }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${axis.toUpperCase()}축 ${evenSpacing}px 간격 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, [axis]: uuidToPos.get(n.uuid) ?? pos[axis] }}
+          }, `${axis.toUpperCase()}축 ${evenSpacing}px 간격 (${uuids.length}개)`)
         }
         const niS = mkNiS(44)
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa', userSelect: 'none' }
@@ -1482,14 +1459,9 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyColorReset = async () => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, color: { r: 255, g: 255, b: 255, a: 255 }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ color → 흰색 리셋 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            return { ...n, color: { r: 255, g: 255, b: 255, a: 255 }}
+          }, `color → 흰색 리셋 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -1503,14 +1475,9 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRandomColor = async () => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, color: { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255), a: n.color?.a ?? 255 }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 랜덤 색상 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            return { ...n, color: { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255), a: n.color?.a ?? 255 }}
+          }, `랜덤 색상 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -1524,15 +1491,10 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyColorInvert = async () => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const c = n.color ?? { r: 255, g: 255, b: 255, a: 255 }
-            return { ...n, color: { r: 255 - c.r, g: 255 - c.g, b: 255 - c.b, a: c.a }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ color 반전 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, color: { r: 255 - c.r, g: 255 - c.g, b: 255 - c.b, a: c.a }}
+          }, `color 반전 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
@@ -1551,15 +1513,10 @@ export function CCFileBatchInspector({
           const tg = parseInt(hex.slice(2, 4), 16)
           const tb = parseInt(hex.slice(4, 6), 16)
           const t = Math.max(0, Math.min(100, colorBlendAmount)) / 100
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const c = n.color ?? { r: 255, g: 255, b: 255, a: 255 }
-            return { ...n, color: { r: Math.round(c.r + (tr - c.r) * t), g: Math.round(c.g + (tg - c.g) * t), b: Math.round(c.b + (tb - c.b) * t), a: c.a }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ color 블렌드 ${colorBlendAmount}% → ${colorBlendTarget} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, color: { r: Math.round(c.r + (tr - c.r) * t), g: Math.round(c.g + (tg - c.g) * t), b: Math.round(c.b + (tb - c.b) * t), a: c.a }}
+          }, `color 블렌드 ${colorBlendAmount}% → ${colorBlendTarget} (${uuids.length}개)`)
         }
         const niS = mkNiS(36)
         return (
@@ -1581,15 +1538,10 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyColorDelta = async () => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const c = n.color ?? { r: 255, g: 255, b: 255, a: 255 }
-            return { ...n, color: { r: Math.min(255, Math.max(0, c.r + colorDeltaR)), g: Math.min(255, Math.max(0, c.g + colorDeltaG)), b: Math.min(255, Math.max(0, c.b + colorDeltaB)), a: Math.min(255, Math.max(0, (c.a ?? 255) + colorDeltaA)) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ΔColor R${colorDeltaR} G${colorDeltaG} B${colorDeltaB} A${colorDeltaA} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, color: { r: Math.min(255, Math.max(0, c.r + colorDeltaR)), g: Math.min(255, Math.max(0, c.g + colorDeltaG)), b: Math.min(255, Math.max(0, c.b + colorDeltaB)), a: Math.min(255, Math.max(0, (c.a ?? 255) + colorDeltaA)) }}
+          }, `ΔColor R${colorDeltaR} G${colorDeltaG} B${colorDeltaB} A${colorDeltaA} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -1725,23 +1677,14 @@ export function CCFileBatchInspector({
         const applyFontSizeGrad = async () => {
           if (!sceneFile.root) return
           const count = uuids.length
-          const orderedUuids = uuids
-          let labelCounter = 0
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
+          await patchOrdered((n, idx, total) => {
             const hasLabelComp = n.components.some(c => c.type === 'cc.Label')
-            if (!hasLabelComp) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
+            if (!hasLabelComp) return n
+            const t = total > 1 ? idx / (total - 1) : 0
             const fs = Math.round(fontSizeFrom + (fontSizeTo - fontSizeFrom) * t)
-            labelCounter++
             const comps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontSize: fs, _fontSize: fs, _N$fontSize: fs } } : c)
-            return { ...n, components: comps, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ font 분배 ${fontSizeFrom}→${fontSizeTo} (${labelCounter}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, components: comps }
+          }, `font 분배 ${fontSizeFrom}→${fontSizeTo} (${count}개)`)
         }
         const niS = mkNiS(40)
         return (
@@ -1884,15 +1827,11 @@ export function CCFileBatchInspector({
                   onClick={async () => {
                     if (!sceneFile.root) return
                     const newEnabled = !allOn
-                    function patch(n: CCSceneNode): CCSceneNode {
-                      const children = n.children.map(patch)
-                      if (!uuidSet.has(n.uuid)) return { ...n, children }
-                      const comps = n.components.map(c => c.type === ct ? { ...c, props: { ...c.props, enabled: newEnabled, _enabled: newEnabled } } : c)
-                      return { ...n, components: comps, children }
-                    }
-                    await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-                    setBatchMsg(`✓ ${ct} ${newEnabled ? '활성화' : '비활성화'} (${nodesWithComp.length}개)`)
-                    setTimeout(() => setBatchMsg(null), 2000)
+                    await patchComponents(
+                      c => c.type === ct,
+                      c => { ...c, props: { ...c.props, enabled: newEnabled, _enabled: newEnabled } },
+                      `${ct} ${newEnabled ? '활성화' : '비활성화'} (${nodesWithComp.length}개)`,
+                    )
                   }}
                   style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${allOn ? 'rgba(52,211,153,0.4)' : 'rgba(248,113,113,0.4)'}`, borderRadius: 2, color: allOn ? '#34d399' : '#f87171', userSelect: 'none' }}
                   onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
@@ -1984,14 +1923,7 @@ export function CCFileBatchInspector({
             const base = mode === 'replace' ? n.name.replace(/_\d+$/, '') : n.name
             return [n.uuid, `${base}_${pad}`]
           }))
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!nameMap.has(n.uuid)) return { ...n, children }
-            return { ...n, name: nameMap.get(n.uuid)!, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 이름 ${ns.length}개 번호 매기기 완료`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, name: nameMap.get(n.uuid)! }), `이름 ${ns.length}개 번호 매기기 완료`)
         }
         const applyStrip = () => patchNodes(n => ({ ...n, name: n.name.replace(/_\d+$/, '') }), '접미어 제거 완료')
         const bs: React.CSSProperties = { fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.3)', background: 'rgba(251,146,60,0.07)', color: '#fb923c', lineHeight: 1.6 }
@@ -2028,14 +1960,11 @@ export function CCFileBatchInspector({
               targetMap.set(n.uuid, t)
             })
           }
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!targetMap.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const pos = { ...((n.position as object) ?? {}) } as Record<string, number>
             pos[axis] = Math.round(targetMap.get(n.uuid)!)
-            return { ...n, position: pos as CCSceneNode['position'], children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+            return { ...n, position: pos as CCSceneNode['position']}
+          }, `patch`)
         }
         const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(52,211,153,0.3)', background: 'rgba(52,211,153,0.08)', color: '#34d399', lineHeight: 1.6 }
         return (
@@ -2060,15 +1989,10 @@ export function CCFileBatchInspector({
         const doBatchAdd = async () => {
           const ct = batchAddComp.trim()
           if (!ct || !sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            if (n.components.some(c => c.type === ct)) return { ...n, children } // 이미 있으면 스킵
-            return { ...n, components: [...n.components, { type: ct, props: {} }], children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${ct} 일괄 추가 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            if (n.components.some(c => c.type === ct)) return { ...n} // 이미 있으면 스킵
+            return { ...n, components: [...n.components, { type: ct, props: {} }]}
+          }, `${ct} 일괄 추가 (${uuids.length}개)`)
           setBatchAddComp('')
         }
         const QUICK_COMPS = ['cc.Widget', 'cc.Layout', 'cc.Button', 'cc.Toggle', 'cc.Mask', 'cc.BlockInputEvents', 'cc.AudioSource']
@@ -2080,15 +2004,10 @@ export function CCFileBatchInspector({
                 <span key={ct} style={{ fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8', background: 'rgba(56,189,248,0.06)' }}
                   onClick={async () => {
                     if (!sceneFile.root) return
-                    function patch(n: CCSceneNode): CCSceneNode {
-                      const ch = n.children.map(patch)
-                      if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-                      if (n.components.some(c => c.type === ct)) return { ...n, children: ch }
-                      return { ...n, components: [...n.components, { type: ct, props: {} }], children: ch }
-                    }
-                    await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-                    setBatchMsg(`✓ ${ct.split('.').pop()} 일괄 추가`)
-                    setTimeout(() => setBatchMsg(null), 2000)
+                    await patchNodes(n => {
+                      if (n.components.some(c => c.type === ct)) return n
+                      return { ...n, components: [...n.components, { type: ct, props: {} }]}
+                    }, `${ct.split('.').pop()} 일괄 추가`)
                   }}
                   title={`${ct} 일괄 추가`}
                 >{ct.split('.').pop()}</span>
@@ -2108,14 +2027,9 @@ export function CCFileBatchInspector({
       {commonCompTypes.length > 0 && uuids.length >= 1 && sceneFile.root && (() => {
         const doBatchRem = async (ct: string) => {
           if (!ct || !sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, components: n.components.filter(c => c.type !== ct), children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${ct.split('.').pop()} 일괄 제거 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            return { ...n, components: n.components.filter(c => c.type !== ct)}
+          }, `${ct.split('.').pop()} 일괄 제거 (${uuids.length}개)`)
           setBatchRemComp('')
         }
         return (
@@ -2154,18 +2068,12 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeSize = async (w: number, h: number) => {
           if (!sceneFile.root) return
-          function patchNodeSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             // CC2.x uses size field; CC3.x uses UITransform component
             const newSize = { width: w, height: h }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
-            return { ...n, size: newSize, components: updComps, children }
-          }
-          const patchedRoot = patchNodeSize(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ size=${w}×${h} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: newSize, _contentSize: newSize } } : c)
+            return { ...n, components }
+          }, `size=${w}×${h} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2195,17 +2103,12 @@ export function CCFileBatchInspector({
           const step = (last - first) / (sorted.length - 1)
           const posMap = new Map<string, number>()
           sorted.forEach((n, i) => posMap.set(n.uuid, first + step * i))
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const newVal = posMap.get(n.uuid)
-            if (newVal == null) return { ...n, children: ch }
+            if (newVal == null) return n
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, [axis]: Math.round(newVal) }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ distribute ${axis.toUpperCase()} (${distNodes.length}개, step=${Math.round(step)})`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, [axis]: Math.round(newVal) }}
+          }, `distribute ${axis.toUpperCase()} (${distNodes.length}개, step=${Math.round(step)})`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2252,17 +2155,12 @@ export function CCFileBatchInspector({
             else if (mode === 'CY') ny = midY
             newPosMap.set(b.uuid, { x: Math.round(nx), y: Math.round(ny) })
           }
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const np = newPosMap.get(n.uuid)
-            if (!np) return { ...n, children: ch }
+            if (!np) return n
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: np.x, y: np.y }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ align ${mode} (${alnNodes.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: np.x, y: np.y }}
+          }, `align ${mode} (${alnNodes.length}개)`)
         }
         const modes: [AlnMode, string][] = [['L','⊢L'],['R','R⊣'],['T','⊤T'],['B','B⊥'],['CX','↔X'],['CY','↕Y']]
         return (
@@ -2293,17 +2191,12 @@ export function CCFileBatchInspector({
           const positions = sorted.map(n => (n.position as { x: number; y: number })[axis])
           const newPosMap = new Map<string, number>()
           sorted.forEach((n, i) => newPosMap.set(n.uuid, positions[positions.length - 1 - i]))
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const np = newPosMap.get(n.uuid)
-            if (np === undefined) return { ...n, children: ch }
+            if (np === undefined) return n
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, [axis]: np }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ reverse ${axis.toUpperCase()} (${revNodes.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, [axis]: np }}
+          }, `reverse ${axis.toUpperCase()} (${revNodes.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2348,13 +2241,10 @@ export function CCFileBatchInspector({
         const applyMirror = async (axis: 'x' | 'y') => {
           if (!sceneFile.root) return
           const center = axis === 'x' ? cx : cy
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, [axis]: 2 * center - pos[axis] }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+            return { ...n, position: { ...pos, [axis]: 2 * center - pos[axis] }}
+          }, `patch`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2407,14 +2297,9 @@ export function CCFileBatchInspector({
             [positions[i], positions[j]] = [positions[j], positions[i]]
           }
           const posMap = new Map(selNodes.map((n, i) => [n.uuid, positions[i]]))
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, position: { ...(n.position as object), ...posMap.get(n.uuid)! }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 위치 셔플 (${selNodes.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            return { ...n, position: { ...(n.position as object), ...posMap.get(n.uuid)! }}
+          }, `위치 셔플 (${selNodes.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2477,19 +2362,14 @@ export function CCFileBatchInspector({
           const cx = collected.reduce((s, n) => s + ((n.position as { x: number }).x ?? 0), 0) / count
           const cy = collected.reduce((s, n) => s + ((n.position as { y: number }).y ?? 0), 0) / count
           let idx = 0
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const angle = (idx / count) * Math.PI * 2 - Math.PI / 2
             const nx = Math.round(cx + circleRadius * Math.cos(angle))
             const ny = Math.round(cy + circleRadius * Math.sin(angle))
             idx++
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: nx, y: ny }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 원형 배치 r=${circleRadius} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: nx, y: ny }}
+          }, `원형 배치 r=${circleRadius} (${count}개)`)
         }
         const niS = mkNiS(46)
         return (
@@ -2566,24 +2446,21 @@ export function CCFileBatchInspector({
           }
           findParents(sceneFile.root!)
           if (parentMap.size === 0) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!parentMap.has(n.uuid)) return { ...n, children: ch }
-            // 선택된 자식만 position 순으로 정렬, 비선택 자식은 원래 위치 유지
-            const selected = ch.filter(c => uuidSet.has(c.uuid))
-            const others = ch.filter(c => !uuidSet.has(c.uuid))
+          function walkSort(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(walkSort)
+            if (!parentMap.has(n.uuid)) return { ...n, children }
+            const selected = children.filter(c => uuidSet.has(c.uuid))
             selected.sort((a, b) => {
               const pa = a.position as { x: number; y: number }
               const pb = b.position as { x: number; y: number }
               return axis === 'x' ? pa.x - pb.x : pa.y - pb.y
             })
-            // 원본 children에서 선택된 것들의 인덱스에 정렬된 순서 삽입
-            const result: CCSceneNode[] = [...ch]
-            const indices = ch.map((c, i) => uuidSet.has(c.uuid) ? i : -1).filter(i => i >= 0)
+            const result: CCSceneNode[] = [...children]
+            const indices = children.map((c, i) => uuidSet.has(c.uuid) ? i : -1).filter(i => i >= 0)
             indices.forEach((idx, i) => { result[idx] = selected[i] })
             return { ...n, children: result }
           }
-          await saveScene(patch(sceneFile.root))
+          await saveScene({ ...sceneFile, root: walkSort(sceneFile.root!) } as unknown as CCSceneNode)
           setBatchMsg(`✓ ${axis.toUpperCase()}축 위치 순 Z-order 정렬 — R2582`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -2635,17 +2512,17 @@ export function CCFileBatchInspector({
           }
           findParents(sceneFile.root!)
           if (parentMap.size === 0) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!parentMap.has(n.uuid)) return { ...n, children: ch }
-            const selected = ch.filter(c => uuidSet.has(c.uuid))
+          function walkNameSort(n: CCSceneNode): CCSceneNode {
+            const children = n.children.map(walkNameSort)
+            if (!parentMap.has(n.uuid)) return { ...n, children }
+            const selected = children.filter(c => uuidSet.has(c.uuid))
             selected.sort((a, b) => dir === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name))
-            const result: CCSceneNode[] = [...ch]
-            const indices = ch.map((c, i) => uuidSet.has(c.uuid) ? i : -1).filter(i => i >= 0)
+            const result: CCSceneNode[] = [...children]
+            const indices = children.map((c, i) => uuidSet.has(c.uuid) ? i : -1).filter(i => i >= 0)
             indices.forEach((idx, i) => { result[idx] = selected[i] })
             return { ...n, children: result }
           }
-          await saveScene(patch(sceneFile.root))
+          await saveScene({ ...sceneFile, root: walkNameSort(sceneFile.root!) } as unknown as CCSceneNode)
           setBatchMsg(`✓ 이름 ${dir === 'asc' ? 'A→Z' : 'Z→A'} Z-order 정렬`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -2754,17 +2631,12 @@ export function CCFileBatchInspector({
               curBottom = ny - h * ay
             }
           }
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const np = newPosMap.get(n.uuid)
-            if (!np) return { ...n, children: ch }
+            if (!np) return n
             const pos = n.position as { x: number; y: number; z?: number }
-            return { ...n, position: { ...pos, x: np.x, y: np.y }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ stack ${axis.toUpperCase()} gap=${gap} (${sorted.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: np.x, y: np.y }}
+          }, `stack ${axis.toUpperCase()} gap=${gap} (${sorted.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2790,17 +2662,12 @@ export function CCFileBatchInspector({
         const refPos = refNode.position as { x: number; y: number }
         const applyMatchPos = async (axis: 'x' | 'y' | 'xy') => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid) || n.uuid === refNode.uuid) return { ...n, children: ch }
+          await patchNodes(n => {
             const pos = n.position as { x: number; y: number; z?: number }
             const nx = axis === 'y' ? pos.x : refPos.x
             const ny = axis === 'x' ? pos.y : refPos.y
-            return { ...n, position: { ...pos, x: nx, y: ny }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ matchPos(${axis.toUpperCase()}) → (${Math.round(refPos.x)}, ${Math.round(refPos.y)}) (${uuids.length - 1}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...pos, x: nx, y: ny }}
+          }, `matchPos(${axis.toUpperCase()}) → (${Math.round(refPos.x)}, ${Math.round(refPos.y)}) (${uuids.length - 1}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2824,20 +2691,15 @@ export function CCFileBatchInspector({
         const refH = Math.round(ref.size?.y ?? ref.size?.height ?? 100)
         const applyMatchSize = async (mode: 'both' | 'w' | 'h') => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid) || n.uuid === ref.uuid) return { ...n, children: ch }
+          await patchNodes(n => {
             const curW = n.size?.x ?? n.size?.width ?? 100
             const curH = n.size?.y ?? n.size?.height ?? 100
             const nw = mode === 'h' ? curW : refW
             const nh = mode === 'w' ? curH : refH
             const newSize = { width: nw, height: nh, x: nw, y: nh }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: nw, height: nh }, _contentSize: { width: nw, height: nh } } } : c)
-            return { ...n, size: newSize, components: updComps, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ matchSize(${mode === 'both' ? `${refW}×${refH}` : mode === 'w' ? `W=${refW}` : `H=${refH}`}) (${uuids.length - 1}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: nw, height: nh }, _contentSize: { width: nw, height: nh } } } : c)
+            return { ...n, components }
+          }, `matchSize(${mode === 'both' ? `${refW}×${refH}` : mode === 'w' ? `W=${refW}` : `H=${refH}`}) (${uuids.length - 1}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2854,22 +2716,17 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyScaleBySize = async (factor: number) => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sz = n.size as { x: number; y: number } | undefined
-            if (!sz) return { ...n, children: ch }
+            if (!sz) return n
             const newSz = { x: Math.round(sz.x * factor), y: Math.round(sz.y * factor) }
             // UITransform contentSize도 함께 업데이트
             const comps = n.components.map(c => {
-              if (c.type === 'cc.UITransform') return { ...c, props: { ...c.props, '_contentSize': { width: newSz.x, height: newSz.y } } }
-              return c
+            if (c.type === 'cc.UITransform') return { ...c, props: { ...c.props, '_contentSize': { width: newSz.x, height: newSz.y } } }
+            return c
             })
-            return { ...n, size: newSz, components: comps, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 크기 ×${factor} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: newSz, components: comps}
+          }, `크기 ×${factor} (${uuids.length}개)`)
         }
         const niS = mkNiS(44)
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(34,211,238,0.4)', color: '#22d3ee', userSelect: 'none' }
@@ -2886,15 +2743,10 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyAbsScale = async () => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sc = n.scale as { x: number; y: number; z?: number }
-            return { ...n, scale: { ...sc, x: absScaleX, y: absScaleY }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ scale = (${absScaleX}, ${absScaleY}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: { ...sc, x: absScaleX, y: absScaleY }}
+          }, `scale = (${absScaleX}, ${absScaleY}) (${uuids.length}개)`)
         }
         const niS = mkNiS(40)
         return (
@@ -2917,19 +2769,14 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applySquarify = async (basis: 'max' | 'min' | 'w' | 'h') => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const cw = n.size?.x ?? n.size?.width ?? 100
             const ch2 = n.size?.y ?? n.size?.height ?? 100
             const side = basis === 'max' ? Math.max(cw, ch2) : basis === 'min' ? Math.min(cw, ch2) : basis === 'w' ? cw : ch2
             const newSize = { width: side, height: side, x: side, y: side }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: side, height: side }, _contentSize: { width: side, height: side } } } : c)
-            return { ...n, size: newSize, components: updComps, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 정사각형화(${basis}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: side, height: side }, _contentSize: { width: side, height: side } } } : c)
+            return { ...n, components }
+          }, `정사각형화(${basis}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -2946,20 +2793,15 @@ export function CCFileBatchInspector({
         const applyAspectRatio = async (basis: 'w' | 'h') => {
           if (!sceneFile.root || aspectRatioW <= 0 || aspectRatioH <= 0) return
           const ratio = aspectRatioW / aspectRatioH
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const cw = n.size?.x ?? n.size?.width ?? 100
             const cht = n.size?.y ?? n.size?.height ?? 100
             const nw = basis === 'w' ? cw : Math.round(cht * ratio)
             const nh = basis === 'h' ? cht : Math.round(cw / ratio)
             const newSize = { width: nw, height: nh, x: nw, y: nh }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: nw, height: nh }, _contentSize: { width: nw, height: nh } } } : c)
-            return { ...n, size: newSize, components: updComps, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${aspectRatioW}:${aspectRatioH} 비율 적용 (${basis.toUpperCase()}기준, ${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: nw, height: nh }, _contentSize: { width: nw, height: nh } } } : c)
+            return { ...n, components }
+          }, `${aspectRatioW}:${aspectRatioH} 비율 적용 (${basis.toUpperCase()}기준, ${uuids.length}개)`)
         }
         const niS = mkNiS(30, '1px 2px')
         return (
@@ -3036,35 +2878,19 @@ export function CCFileBatchInspector({
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyAnchorXGrad = async () => {
           if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
+          await patchOrdered((n, idx, total) => {
+            const t = total > 1 ? idx / (total - 1) : 0
             const ax = parseFloat((anchorXFrom + (anchorXTo - anchorXFrom) * t).toFixed(3))
-            return { ...n, anchor: { x: ax, y: n.anchor?.y ?? 0.5 }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ anchor.X ${anchorXFrom}→${anchorXTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, anchor: { x: ax, y: n.anchor?.y ?? 0.5 } }
+          }, `anchor.X ${anchorXFrom}→${anchorXTo} (${uuids.length}개)`)
         }
         const applyAnchorYGrad = async () => {
           if (!sceneFile.root) return
-          const count = uuids.length
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children }
-            const t = count > 1 ? idx / (count - 1) : 0
+          await patchOrdered((n, idx, total) => {
+            const t = total > 1 ? idx / (total - 1) : 0
             const ay = parseFloat((anchorYFrom + (anchorYTo - anchorYFrom) * t).toFixed(3))
-            return { ...n, anchor: { x: n.anchor?.x ?? 0.5, y: ay }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ anchor.Y ${anchorYFrom}→${anchorYTo} (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, anchor: { x: n.anchor?.x ?? 0.5, y: ay } }
+          }, `anchor.Y ${anchorYFrom}→${anchorYTo} (${uuids.length}개)`)
         }
         const niS = mkNiS(36)
         const btnS = mkBtnS('#fb923c')
@@ -3097,15 +2923,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodePos = async (x: number, y: number) => {
           if (!sceneFile.root) return
-          function patchNodePos(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodePos)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, position: { x, y, z: n.position?.z ?? 0 }, children }
-          }
-          const patchedRoot = patchNodePos(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ pos=(${x},${y}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, position: { x, y, z: n.position?.z ?? 0 } }), `pos=(${x},${y}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3123,14 +2941,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodePosX = async (x: number) => {
           if (!sceneFile.root) return
-          function patchNodePosX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodePosX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, position: { ...(n.position || { x: 0, y: 0, z: 0 }), x }, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodePosX(sceneFile.root) })
-          setBatchMsg(`✓ posX=${x} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, position: { ...(n.position || { x: 0, y: 0, z: 0 }), x } }), `posX=${x} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3147,14 +2958,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodePosY = async (y: number) => {
           if (!sceneFile.root) return
-          function patchNodePosY(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodePosY)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, position: { ...(n.position || { x: 0, y: 0, z: 0 }), y }, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodePosY(sceneFile.root) })
-          setBatchMsg(`✓ posY=${y} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, position: { ...(n.position || { x: 0, y: 0, z: 0 }), y } }), `posY=${y} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3171,14 +2975,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyRest = async (restitution: number) => {
           if (!sceneFile.root) return
-          function patchPolyRest(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPolyRest)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPolyRest(sceneFile.root) })
-          setBatchMsg(`✓ PolygonCollider restitution=${restitution} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
+            c => { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } },
+            `PolygonCollider restitution=${restitution} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3196,14 +2997,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyFric = async (friction: number) => {
           if (!sceneFile.root) return
-          function patchPolyFric(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPolyFric)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPolyFric(sceneFile.root) })
-          setBatchMsg(`✓ PolygonCollider friction=${friction} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
+            c => { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } },
+            `PolygonCollider friction=${friction} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3221,14 +3019,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyDens = async (density: number) => {
           if (!sceneFile.root) return
-          function patchPolyDens(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPolyDens)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, density, _density: density, _N$density: density } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPolyDens(sceneFile.root) })
-          setBatchMsg(`✓ PolygonCollider density=${density} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
+            c => { ...c, props: { ...c.props, density, _density: density, _N$density: density } },
+            `PolygonCollider density=${density} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3246,16 +3041,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.BoxCollider2D') || commonCompTypes.includes('cc.BoxCollider')) && (() => {
         const applyBoxColliderEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchBoxColliderEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxColliderEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider2D' || c.type === 'cc.BoxCollider')
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBoxColliderEnabled(sceneFile.root) })
-          setBatchMsg(`✓ BoxCollider2D enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.BoxCollider2D' || c.type === 'cc.BoxCollider'),
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `BoxCollider2D enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3272,16 +3062,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.CircleCollider2D') || commonCompTypes.includes('cc.CircleCollider')) && (() => {
         const applyCircleColliderEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchCircleColliderEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleColliderEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider2D' || c.type === 'cc.CircleCollider')
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCircleColliderEnabled(sceneFile.root) })
-          setBatchMsg(`✓ CircleCollider2D enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.CircleCollider2D' || c.type === 'cc.CircleCollider'),
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `CircleCollider2D enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3298,16 +3083,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyColliderEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchPolyColliderEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPolyColliderEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D')
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPolyColliderEnabled(sceneFile.root) })
-          setBatchMsg(`✓ PolygonCollider2D enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `PolygonCollider2D enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3324,15 +3104,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyOffset = async (ox: number, oy: number) => {
           if (!sceneFile.root) return
-          function patchPolyOffset(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPolyOffset)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPolyOffset(sceneFile.root) })
-          setBatchMsg(`✓ PolyCollider offset=(${ox},${oy}) (${uuids.length}개)`)
+            const components = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
+            return { ...n, components }
+          }, `PolyCollider offset=(${ox},${oy}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3348,14 +3124,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyThreshold = async (threshold: number) => {
           if (!sceneFile.root) return
-          function patchPolyThreshold(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPolyThreshold)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, threshold, _threshold: threshold, _N$threshold: threshold } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPolyThreshold(sceneFile.root) })
-          setBatchMsg(`✓ PolygonCollider threshold=${threshold} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
+            c => { ...c, props: { ...c.props, threshold, _threshold: threshold, _N$threshold: threshold } },
+            `PolygonCollider threshold=${threshold} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3371,15 +3144,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.BoxCollider2D') && (() => {
         const applyBoxOffset = async (ox: number, oy: number) => {
           if (!sceneFile.root) return
-          function patchBoxOffset(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxOffset)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBoxOffset(sceneFile.root) })
-          setBatchMsg(`✓ BoxCollider2D offset=(${ox},${oy}) (${uuids.length}개)`)
+            const components = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
+            return { ...n, components }
+          }, `BoxCollider2D offset=(${ox},${oy}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3395,15 +3164,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.CircleCollider2D') && (() => {
         const applyCircleOffset = async (ox: number, oy: number) => {
           if (!sceneFile.root) return
-          function patchCircleOffset(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleOffset)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider2D' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCircleOffset(sceneFile.root) })
-          setBatchMsg(`✓ CircleCollider2D offset=(${ox},${oy}) (${uuids.length}개)`)
+            const components = n.components.map(c => c.type === 'cc.CircleCollider2D' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
+            return { ...n, components }
+          }, `CircleCollider2D offset=(${ox},${oy}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3419,16 +3184,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.BoxCollider2D') && (() => {
         const applyBoxCollSize = async (w: number, h: number) => {
           if (!sceneFile.root) return
-          function patchBoxCollSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxCollSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const size = { width: w, height: h }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, size, _size: size, _N$size: size } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBoxCollSize(sceneFile.root) })
-          setBatchMsg(`✓ BoxCollider2D size=(${w},${h}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.BoxCollider2D' ? { ...c, props: { ...c.props, size, _size: size, _N$size: size } } : c)
+            return { ...n, components }
+          }, `BoxCollider2D size=(${w},${h}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3444,15 +3204,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.CircleCollider2D') && (() => {
         const applyCircleCollRadius = async (radius: number) => {
           if (!sceneFile.root) return
-          function patchCircleCollRadius(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleCollRadius)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider2D' ? { ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCircleCollRadius(sceneFile.root) })
-          setBatchMsg(`✓ CircleCollider2D radius=${radius} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.CircleCollider2D',
+            c => { ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } },
+            `CircleCollider2D radius=${radius} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3468,14 +3224,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.PolygonCollider') || commonCompTypes.includes('cc.PolygonCollider2D')) && (() => {
         const applyPolyColliderSensor = async (sensor: boolean) => {
           if (!sceneFile.root) return
-          function patchPolyColliderSensor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPolyColliderSensor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D') ? { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPolyColliderSensor(sceneFile.root) })
-          setBatchMsg(`✓ PolygonCollider sensor=${sensor} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
+            c => { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } },
+            `PolygonCollider sensor=${sensor} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3493,14 +3246,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleRestitution = async (restitution: number) => {
           if (!sceneFile.root) return
-          function patchCircleRestitution(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleRestitution)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCircleRestitution(sceneFile.root) })
-          setBatchMsg(`✓ CircleCollider restitution=${restitution} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
+            c => { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } },
+            `CircleCollider restitution=${restitution} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3518,14 +3268,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleFriction = async (friction: number) => {
           if (!sceneFile.root) return
-          function patchCircleFriction(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleFriction)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCircleFriction(sceneFile.root) })
-          setBatchMsg(`✓ CircleCollider friction=${friction} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
+            c => { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } },
+            `CircleCollider friction=${friction} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3543,14 +3290,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleDensity = async (density: number) => {
           if (!sceneFile.root) return
-          function patchCircleDensity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleDensity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, density, _density: density, _N$density: density } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCircleDensity(sceneFile.root) })
-          setBatchMsg(`✓ CircleCollider density=${density} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
+            c => { ...c, props: { ...c.props, density, _density: density, _N$density: density } },
+            `CircleCollider density=${density} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3568,14 +3312,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleSensor = async (sensor: boolean) => {
           if (!sceneFile.root) return
-          function patchCircleSensor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleSensor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCircleSensor(sceneFile.root) })
-          setBatchMsg(`✓ CircleCollider sensor=${sensor} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
+            c => { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } },
+            `CircleCollider sensor=${sensor} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3593,14 +3334,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const applyBoxRestitution = async (restitution: number) => {
           if (!sceneFile.root) return
-          function patchBoxRestitution(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxRestitution)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBoxRestitution(sceneFile.root) })
-          setBatchMsg(`✓ BoxCollider restitution=${restitution} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
+            c => { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } },
+            `BoxCollider restitution=${restitution} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3618,14 +3356,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const applyBoxFriction = async (friction: number) => {
           if (!sceneFile.root) return
-          function patchBoxFriction(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxFriction)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBoxFriction(sceneFile.root) })
-          setBatchMsg(`✓ BoxCollider friction=${friction} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
+            c => { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } },
+            `BoxCollider friction=${friction} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3643,14 +3378,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const applyBoxDensity = async (density: number) => {
           if (!sceneFile.root) return
-          function patchBoxDensity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxDensity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, density, _density: density, _N$density: density } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBoxDensity(sceneFile.root) })
-          setBatchMsg(`✓ BoxCollider density=${density} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
+            c => { ...c, props: { ...c.props, density, _density: density, _N$density: density } },
+            `BoxCollider density=${density} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3668,14 +3400,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.BoxCollider') || commonCompTypes.includes('cc.BoxCollider2D')) && (() => {
         const applyBoxSensor = async (sensor: boolean) => {
           if (!sceneFile.root) return
-          function patchBoxSensor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxSensor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBoxSensor(sceneFile.root) })
-          setBatchMsg(`✓ BoxCollider sensor=${sensor} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
+            c => { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } },
+            `BoxCollider sensor=${sensor} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3693,14 +3422,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeTag = async (tag: number) => {
           if (!sceneFile.root) return
-          function patchNodeTag(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeTag)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, _tag: tag, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeTag(sceneFile.root) })
-          setBatchMsg(`✓ _tag=${tag} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, _tag: tag }), `_tag=${tag} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3716,14 +3438,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeGroup = async (group: string) => {
           if (!sceneFile.root) return
-          function patchNodeGroup(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeGroup)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, _group: group, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeGroup(sceneFile.root) })
-          setBatchMsg(`✓ _group="${group}" (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, _group: group }), `_group="${group}" (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3739,14 +3454,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyZIndex = async (zIndex: number) => {
           if (!sceneFile.root) return
-          function patchZIndex(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchZIndex)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, _zIndex: zIndex, children }
-          }
-          await saveScene({ ...sceneFile, root: patchZIndex(sceneFile.root) })
-          setBatchMsg(`✓ _zIndex=${zIndex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, _zIndex: zIndex }), `_zIndex=${zIndex} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3762,14 +3470,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeCascadeColor = async (cascadeColorEnabled: boolean) => {
           if (!sceneFile.root) return
-          function patchNodeCascadeColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeCascadeColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, cascadeColorEnabled, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeCascadeColor(sceneFile.root) })
-          setBatchMsg(`✓ cascadeColorEnabled=${cascadeColorEnabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, cascadeColorEnabled }), `cascadeColorEnabled=${cascadeColorEnabled} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3785,14 +3486,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeCascadeOpacity = async (cascadeOpacityEnabled: boolean) => {
           if (!sceneFile.root) return
-          function patchNodeCascadeOpacity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeCascadeOpacity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, cascadeOpacityEnabled, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeCascadeOpacity(sceneFile.root) })
-          setBatchMsg(`✓ cascadeOpacity=${cascadeOpacityEnabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, cascadeOpacityEnabled }), `cascadeOpacity=${cascadeOpacityEnabled} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3808,14 +3502,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applySkewX = async (skewX: number) => {
           if (!sceneFile.root) return
-          function patchSkewX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkewX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, _skewX: skewX, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSkewX(sceneFile.root) })
-          setBatchMsg(`✓ _skewX=${skewX} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, _skewX: skewX }), `_skewX=${skewX} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3831,14 +3518,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applySkewY = async (skewY: number) => {
           if (!sceneFile.root) return
-          function patchSkewY(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkewY)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, _skewY: skewY, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSkewY(sceneFile.root) })
-          setBatchMsg(`✓ _skewY=${skewY} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, _skewY: skewY }), `_skewY=${skewY} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3854,14 +3534,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeRotX = async (rotationX: number) => {
           if (!sceneFile.root) return
-          function patchNodeRotX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeRotX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, _rotationX: rotationX, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeRotX(sceneFile.root) })
-          setBatchMsg(`✓ _rotationX=${rotationX} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, _rotationX: rotationX }), `_rotationX=${rotationX} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3877,14 +3550,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeRotY = async (rotationY: number) => {
           if (!sceneFile.root) return
-          function patchNodeRotY(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeRotY)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, _rotationY: rotationY, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeRotY(sceneFile.root) })
-          setBatchMsg(`✓ _rotationY=${rotationY} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, _rotationY: rotationY }), `_rotationY=${rotationY} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3900,17 +3566,11 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeRotation = async (deg: number) => {
           if (!sceneFile.root) return
-          function patchNodeRotation(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeRotation)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             // CC2.x: rotation is a number (z-euler); CC3.x: {x,y,z} euler
             const rotation = typeof n.rotation === 'number' ? deg : { x: 0, y: 0, z: deg }
-            return { ...n, rotation, children }
-          }
-          const patchedRoot = patchNodeRotation(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ rotation=${deg}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation}
+          }, `rotation=${deg}° (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3926,15 +3586,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeScale = async (s: number) => {
           if (!sceneFile.root) return
-          function patchNodeScale(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeScale)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, scale: { x: s, y: s, z: s }, children }
-          }
-          const patchedRoot = patchNodeScale(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ scale=${s} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, scale: { x: s, y: s, z: s } }), `scale=${s} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3950,14 +3602,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeScaleX = async (sx: number) => {
           if (!sceneFile.root) return
-          function patchNodeScaleX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeScaleX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, scale: { ...(n.scale || { x: 1, y: 1, z: 1 }), x: sx }, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeScaleX(sceneFile.root) })
-          setBatchMsg(`✓ scaleX=${sx} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, scale: { ...(n.scale || { x: 1, y: 1, z: 1 }), x: sx } }), `scaleX=${sx} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3974,14 +3619,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeScaleY = async (sy: number) => {
           if (!sceneFile.root) return
-          function patchNodeScaleY(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeScaleY)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, scale: { ...(n.scale || { x: 1, y: 1, z: 1 }), y: sy }, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeScaleY(sceneFile.root) })
-          setBatchMsg(`✓ scaleY=${sy} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, scale: { ...(n.scale || { x: 1, y: 1, z: 1 }), y: sy } }), `scaleY=${sy} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -3999,15 +3637,7 @@ export function CCFileBatchInspector({
         const applyNodeTint = async (hex: string) => {
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
-          function patchNodeTint(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeTint)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, color: { r, g, b, a: n.color?.a ?? 255 }, children }
-          }
-          const patchedRoot = patchNodeTint(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ node tint=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, color: { r, g, b, a: n.color?.a ?? 255 } }), `node tint=${hex} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4026,13 +3656,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeLayer = async (layer: number) => {
           if (!sceneFile.root) return
-          function patchNodeLayer(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeLayer)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, layer, children }
-          }
-          const patchedRoot = patchNodeLayer(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchNodes(n => ({ ...n, layer }), `Node Layer`)
           const names: Record<number, string> = { 2: 'Dflt', 32: 'UI', 33554432: 'UI2D' }
           setBatchMsg(`✓ layer=${names[layer] ?? layer} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -4053,15 +3677,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeOpacity = async (opacity: number) => {
           if (!sceneFile.root) return
-          function patchNodeOpacity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeOpacity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, opacity, children }
-          }
-          const patchedRoot = patchNodeOpacity(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ opacity=${opacity} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, opacity }), `opacity=${opacity} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4079,13 +3695,7 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const color = { r, g, b, a: 255 }
-          function patchNodeColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, color, children }
-          }
-          await saveScene({ ...sceneFile, root: patchNodeColor(sceneFile.root) })
-          setBatchMsg(`✓ node color=${hex} (${uuids.length}개)`)
+          await patchNodes(n => ({ ...n, color }), `node color=${hex} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4106,15 +3716,7 @@ export function CCFileBatchInspector({
       {(() => {
         const applyNodeActive = async (active: boolean) => {
           if (!sceneFile.root) return
-          function patchNodeActive(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchNodeActive)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            return { ...n, active, children }
-          }
-          const patchedRoot = patchNodeActive(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ node active=${active} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => ({ ...n, active }), `node active=${active} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4136,15 +3738,11 @@ export function CCFileBatchInspector({
             onBlur={async e => {
               const fs = parseInt(e.target.value)
               if (isNaN(fs) || fs <= 0 || !sceneFile.root) return
-              function patchFs(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchFs)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontSize: fs, _fontSize: fs, _N$fontSize: fs } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene(patchFs(sceneFile.root))
-              setBatchMsg(`✓ Label fontSize ${fs} (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchComponents(
+                c => c.type === 'cc.Label',
+                c => { ...c, props: { ...c.props, fontSize: fs, _fontSize: fs, _N$fontSize: fs } },
+                `Label fontSize ${fs} (${uuids.length}개)`,
+              )
             }}
           />
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
@@ -4160,15 +3758,11 @@ export function CCFileBatchInspector({
             onBlur={async e => {
               const lh = parseInt(e.target.value)
               if (isNaN(lh) || !sceneFile.root) return
-              function patchLH(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchLH)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene(patchLH(sceneFile.root))
-              setBatchMsg(`✓ Label lineHeight ${lh} (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchComponents(
+                c => c.type === 'cc.Label',
+                c => { ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } },
+                `Label lineHeight ${lh} (${uuids.length}개)`,
+              )
             }}
           />
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
@@ -4184,15 +3778,11 @@ export function CCFileBatchInspector({
               onClick={async () => {
                 if (!sceneFile.root) return
                 const val = label.startsWith('✓')
-                function patchWrap(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchWrap)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, enableWrapText: val, _enableWrapText: val, _N$enableWrapText: val } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchWrap(sceneFile.root))
-                setBatchMsg(`✓ wrap ${val} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Label',
+                  c => { ...c, props: { ...c.props, enableWrapText: val, _enableWrapText: val, _N$enableWrapText: val } },
+                  `wrap ${val} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: label.startsWith('✓') ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
             >{label}</span>
@@ -4215,15 +3805,11 @@ export function CCFileBatchInspector({
                   onClick={async () => {
                     if (!sceneFile.root) return
                     const val = v === 'on'
-                    function patchStyle(n: CCSceneNode): CCSceneNode {
-                      const children = n.children.map(patchStyle)
-                      if (!uuidSet.has(n.uuid)) return { ...n, children }
-                      const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } } : c)
-                      return { ...n, components: updComps, children }
-                    }
-                    await saveScene(patchStyle(sceneFile.root))
-                    setBatchMsg(`✓ ${key} ${v} (${uuids.length}개)`)
-                    setTimeout(() => setBatchMsg(null), 2000)
+                    await patchComponents(
+                      c => c.type === 'cc.Label',
+                      c => { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } },
+                      `${key} ${v} (${uuids.length}개)`,
+                    )
                   }}
                   style={{ fontSize: v === 'on' ? 9 : 7, fontWeight: label === 'B' ? 700 : 400, fontStyle: label === 'I' ? 'italic' : 'normal', textDecoration: label === 'U' ? 'underline' : 'none', cursor: 'pointer', padding: '1px 3px', borderRadius: 2, border: `1px solid ${v === 'on' ? 'rgba(88,166,255,0.4)' : 'var(--border)'}`, color: v === 'on' ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
                 >{label}{v === 'on' ? '✓' : '✕'}</span>
@@ -4240,15 +3826,11 @@ export function CCFileBatchInspector({
             <span key={v} title={`vAlign = ${l}`}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchVAlign(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchVAlign)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, verticalAlign: v, _verticalAlign: v, _N$verticalAlign: v } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene({ ...sceneFile, root: patchVAlign(sceneFile.root) }) // R2253: _verticalAlign CC3.x
-                setBatchMsg(`✓ vAlign ${l} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Label',
+                  c => { ...c, props: { ...c.props, verticalAlign: v, _verticalAlign: v, _N$verticalAlign: v } },
+                  `vAlign ${l} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 8px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
@@ -4265,15 +3847,11 @@ export function CCFileBatchInspector({
             <span key={v} title={`hAlign = ${l}`}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchHAlign(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchHAlign)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, horizontalAlign: v, _horizontalAlign: v, _N$horizontalAlign: v } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene({ ...sceneFile, root: patchHAlign(sceneFile.root) }) // R2253: _horizontalAlign CC3.x
-                setBatchMsg(`✓ hAlign ${l} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Label',
+                  c => { ...c, props: { ...c.props, horizontalAlign: v, _horizontalAlign: v, _N$horizontalAlign: v } },
+                  `hAlign ${l} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 8px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
@@ -4286,15 +3864,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelStyle = async (key: 'isBold' | 'isItalic' | 'isUnderline', value: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelStyle(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelStyle)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchLabelStyle(sceneFile.root))
-          setBatchMsg(`✓ Label ${key}=${value} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } },
+            `Label ${key}=${value} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4323,15 +3897,11 @@ export function CCFileBatchInspector({
             <span key={v} title={`overflow = ${l}`}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchOverflow(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchOverflow)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchOverflow(sceneFile.root))
-                setBatchMsg(`✓ overflow ${l} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Label',
+                  c => { ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } },
+                  `overflow ${l} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
@@ -4344,15 +3914,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelLH = async (lh: number) => {
           if (!sceneFile.root) return
-          function patchLH(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLH)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchLH(sceneFile.root))
-          setBatchMsg(`✓ Label lineH ${lh} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } },
+            `Label lineH ${lh} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4370,15 +3936,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyWrapText = async (enableWrapText: boolean) => {
           if (!sceneFile.root) return
-          function patchWrapText(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWrapText)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, enableWrapText, _enableWrapText: enableWrapText, _N$enableWrapText: enableWrapText } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchWrapText(sceneFile.root))
-          setBatchMsg(`✓ Label wrap=${enableWrapText} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, enableWrapText, _enableWrapText: enableWrapText, _N$enableWrapText: enableWrapText } },
+            `Label wrap=${enableWrapText} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -4396,15 +3958,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelSpX = async (sx: number) => {
           if (!sceneFile.root) return
-          function patchSpX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, spacingX: sx, _spacingX: sx, _N$spacingX: sx } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSpX(sceneFile.root))
-          setBatchMsg(`✓ Label spacingX ${sx} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, spacingX: sx, _spacingX: sx, _N$spacingX: sx } },
+            `Label spacingX ${sx} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4422,29 +3980,19 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelBold = async (isBold: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelBold(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelBold)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isBold, _isBold: isBold, _N$isBold: isBold } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelBold(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Label bold=${isBold} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, isBold, _isBold: isBold, _N$isBold: isBold } },
+            `Label bold=${isBold} (${uuids.length}개)`,
+          )
         }
         const applyLabelItalic = async (isItalic: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelItalic(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelItalic)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isItalic, _isItalic: isItalic, _N$isItalic: isItalic } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelItalic(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Label italic=${isItalic} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, isItalic, _isItalic: isItalic, _N$isItalic: isItalic } },
+            `Label italic=${isItalic} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4464,16 +4012,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelStrike = async (isStrike: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelStrike(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelStrike)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isStrike, _isStrike: isStrike, _N$isStrike: isStrike } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelStrike(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Label strike=${isStrike} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, isStrike, _isStrike: isStrike, _N$isStrike: isStrike } },
+            `Label strike=${isStrike} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4489,16 +4032,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelUnderline = async (isUnderline: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelUnderline(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelUnderline)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isUnderline, _isUnderline: isUnderline, _N$isUnderline: isUnderline } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelUnderline(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Label underline=${isUnderline} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, isUnderline, _isUnderline: isUnderline, _N$isUnderline: isUnderline } },
+            `Label underline=${isUnderline} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4514,16 +4052,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelULHeight = async (underlineHeight: number) => {
           if (!sceneFile.root) return
-          function patchLabelULHeight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelULHeight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, underlineHeight, _underlineHeight: underlineHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelULHeight(sceneFile.root) })
-          setBatchMsg(`✓ Label underlineHeight=${underlineHeight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, underlineHeight, _underlineHeight: underlineHeight } },
+            `Label underlineHeight=${underlineHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4540,16 +4073,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelSpacingX = async (spacingX: number) => {
           if (!sceneFile.root) return
-          function patchLabelSpacingX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelSpacingX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, spacingX, _spacingX: spacingX } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelSpacingX(sceneFile.root) })
-          setBatchMsg(`✓ Label spacingX=${spacingX} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, spacingX, _spacingX: spacingX } },
+            `Label spacingX=${spacingX} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4566,16 +4094,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelCharSpacing = async (charSpacing: number) => {
           if (!sceneFile.root) return
-          function patchLabelCharSpacing(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelCharSpacing)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, charSpacing, _charSpacing: charSpacing, _N$charSpacing: charSpacing } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelCharSpacing(sceneFile.root) })
-          setBatchMsg(`✓ Label charSpacing=${charSpacing} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, charSpacing, _charSpacing: charSpacing, _N$charSpacing: charSpacing } },
+            `Label charSpacing=${charSpacing} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4594,16 +4117,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 255 }
-          function patchLabelColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelColor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Label color (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } },
+            `Label color (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4624,14 +4142,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelVAlign = async (verticalAlign: number) => {
           if (!sceneFile.root) return
-          function patchLabelVAlign(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelVAlign)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelVAlign(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } },
+            `Label V Align`,
+          )
           const names = ['T','C','B']
           setBatchMsg(`✓ Label vAlign=${names[verticalAlign]??verticalAlign} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -4650,14 +4165,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelHAlign = async (horizontalAlign: number) => {
           if (!sceneFile.root) return
-          function patchLabelHAlign(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelHAlign)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelHAlign(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } },
+            `Label H Align`,
+          )
           const names = ['L','C','R']
           setBatchMsg(`✓ Label hAlign=${names[horizontalAlign]??horizontalAlign} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -4676,14 +4188,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelOverflow = async (overflow: number) => {
           if (!sceneFile.root) return
-          function patchLabelOverflow(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelOverflow)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelOverflow(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } },
+            `Label Overflow`,
+          )
           const names = ['None','Clamp','Shrink','Resize']
           setBatchMsg(`✓ Label overflow=${names[overflow]??overflow} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -4702,14 +4211,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelFontFamily = async (fontFamily: string) => {
           if (!sceneFile.root) return
-          function patchLabelFontFamily(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelFontFamily)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontFamily, _fontFamily: fontFamily, _N$fontFamily: fontFamily } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelFontFamily(sceneFile.root) })
-          setBatchMsg(`✓ Label fontFamily=${fontFamily} (${uuids.length}개)`) // R2235: _fontFamily CC3.x
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, fontFamily, _fontFamily: fontFamily, _N$fontFamily: fontFamily } },
+            `Label fontFamily=${fontFamily} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4727,16 +4233,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelLineHeight = async (lineHeight: number) => {
           if (!sceneFile.root) return
-          function patchLabelLineHeight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelLineHeight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelLineHeight(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Label lineHeight=${lineHeight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } },
+            `Label lineHeight=${lineHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4752,14 +4253,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelSpacingY = async (spacingY: number) => {
           if (!sceneFile.root) return
-          function patchLabelSpacingY(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelSpacingY)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelSpacingY(sceneFile.root) })
-          setBatchMsg(`✓ Label spacingY=${spacingY} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } },
+            `Label spacingY=${spacingY} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4775,16 +4273,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelFontSize = async (fontSize: number) => {
           if (!sceneFile.root) return
-          function patchLabelFontSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelFontSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelFontSize(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Label fontSize=${fontSize} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } },
+            `Label fontSize=${fontSize} (${uuids.length}개)`,
+          )
         }
         // R2712: 프리셋 확장 + 커스텀 입력
         const niSFont = mkNiS(50)
@@ -4816,14 +4309,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelOverflow = async (overflow: number) => {
           if (!sceneFile.root) return
-          function patchLabelOverflow(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelOverflow)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelOverflow(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } },
+            `Label Overflow`,
+          )
           const names: Record<number,string> = { 0:'None', 1:'Clamp', 2:'Shrink', 3:'Resize' }
           setBatchMsg(`✓ Label overflow=${names[overflow]??overflow} (${uuids.length}개)`) // R2238: _overflow CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
@@ -4844,13 +4334,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyCacheMode = async (cacheMode: number) => {
           if (!sceneFile.root) return
-          function patchCacheMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCacheMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, cacheMode, _cacheMode: cacheMode, _N$cacheMode: cacheMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchCacheMode(sceneFile.root))
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, cacheMode, _cacheMode: cacheMode, _N$cacheMode: cacheMode } },
+            `Cache Mode`,
+          )
           const names = ['None', 'Bitmap', 'Char']
           setBatchMsg(`✓ Label cacheMode=${names[cacheMode] ?? cacheMode} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -4871,14 +4359,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelSysFont = async (isSystemFontUsed: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelSysFont(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelSysFont)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, isSystemFontUsed, _isSystemFontUsed: isSystemFontUsed, _N$isSystemFontUsed: isSystemFontUsed } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelSysFont(sceneFile.root) })
-          setBatchMsg(`✓ Label isSystemFontUsed=${isSystemFontUsed} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, isSystemFontUsed, _isSystemFontUsed: isSystemFontUsed, _N$isSystemFontUsed: isSystemFontUsed } },
+            `Label isSystemFontUsed=${isSystemFontUsed} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4896,15 +4381,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelPlatFont = async (platformFont: string) => {
           if (!sceneFile.root) return
-          function patchLabelPlatFont(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelPlatFont)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, platformFont, _platformFont: platformFont, _N$platformFont: platformFont } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelPlatFont(sceneFile.root) })
-          setBatchMsg(`✓ Label platformFont="${platformFont}" (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, platformFont, _platformFont: platformFont, _N$platformFont: platformFont } },
+            `Label platformFont="${platformFont}" (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4920,16 +4401,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Label enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Label enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4946,16 +4422,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelEnableOutline = async (enableOutline: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelEnableOutline(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelEnableOutline)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, enableOutline, _enableOutline: enableOutline } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelEnableOutline(sceneFile.root) })
-          setBatchMsg(`✓ Label enableOutline=${enableOutline} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, enableOutline, _enableOutline: enableOutline } },
+            `Label enableOutline=${enableOutline} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -4972,16 +4443,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelOW = async (outlineWidth: number) => {
           if (!sceneFile.root) return
-          function patchLabelOW(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelOW)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, outlineWidth, _outlineWidth: outlineWidth } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelOW(sceneFile.root) })
-          setBatchMsg(`✓ Label outlineWidth=${outlineWidth} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, outlineWidth, _outlineWidth: outlineWidth } },
+            `Label outlineWidth=${outlineWidth} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5000,16 +4466,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const outlineColor = { r, g, b, a: 255 }
-          function patchLabelOutlineClr(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelOutlineClr)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, outlineColor, _outlineColor: outlineColor } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelOutlineClr(sceneFile.root) })
-          setBatchMsg(`✓ Label outlineColor=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, outlineColor, _outlineColor: outlineColor } },
+            `Label outlineColor=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5029,19 +4490,14 @@ export function CCFileBatchInspector({
           const hex = labelFontColor
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const colorObj = { r, g, b, a: 255 }
-          function patchLabelFontColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelFontColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const updComps = n.components.map(c => {
-              if (c.type !== 'cc.Label' && c.type !== 'cc.RichText') return c
-              // CC2.x: color prop as {r,g,b,a}; CC3.x: fontColor as hex string
-              return { ...c, props: { ...c.props, color: colorObj, _color: colorObj, fontColor: hex, _fontColor: hex } }
+            if (c.type !== 'cc.Label' && c.type !== 'cc.RichText') return c
+            // CC2.x: color prop as {r,g,b,a}; CC3.x: fontColor as hex string
+            return { ...c, props: { ...c.props, color: colorObj, _color: colorObj, fontColor: hex, _fontColor: hex } }
             })
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelFontColor(sceneFile.root) })
-          setBatchMsg(`✓ Label fontColor=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, components: updComps}
+          }, `Label fontColor=${hex} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5063,16 +4519,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelEnableShadow = async (enableShadow: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelEnableShadow(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelEnableShadow)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, enableShadow, _enableShadow: enableShadow } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelEnableShadow(sceneFile.root) })
-          setBatchMsg(`✓ Label enableShadow=${enableShadow} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, enableShadow, _enableShadow: enableShadow } },
+            `Label enableShadow=${enableShadow} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5091,16 +4542,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const shadowColor = { r, g, b, a: 255 }
-          function patchLabelShadowClr(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelShadowClr)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, shadowColor, _shadowColor: shadowColor } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelShadowClr(sceneFile.root) })
-          setBatchMsg(`✓ Label shadowColor=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, shadowColor, _shadowColor: shadowColor } },
+            `Label shadowColor=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5117,16 +4563,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelShadowBlu = async (shadowBlur: number) => {
           if (!sceneFile.root) return
-          function patchLabelShadowBlu(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelShadowBlu)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, shadowBlur, _shadowBlur: shadowBlur } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelShadowBlu(sceneFile.root) })
-          setBatchMsg(`✓ Label shadowBlur=${shadowBlur} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, shadowBlur, _shadowBlur: shadowBlur } },
+            `Label shadowBlur=${shadowBlur} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5144,16 +4585,11 @@ export function CCFileBatchInspector({
         const applyLabelShdOff = async (x: number, y: number) => {
           if (!sceneFile.root) return
           const shadowOffset = { x, y }
-          function patchLabelShdOff(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelShdOff)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, shadowOffset, _shadowOffset: shadowOffset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelShdOff(sceneFile.root) })
-          setBatchMsg(`✓ Label shadowOffset=(${x},${y}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, shadowOffset, _shadowOffset: shadowOffset } },
+            `Label shadowOffset=(${x},${y}) (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5172,16 +4608,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const colorObj = { r, g, b, a: 255 }
-          function patchEBPlaceholderClr(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEBPlaceholderClr)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox'
-              ? { ...c, props: { ...c.props, placeholderFontColor: colorObj, _placeholderFontColor: colorObj, _N$placeholderFontColor: colorObj } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEBPlaceholderClr(sceneFile.root) })
-          setBatchMsg(`✓ EditBox placeholderFontColor=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, placeholderFontColor: colorObj, _placeholderFontColor: colorObj, _N$placeholderFontColor: colorObj } },
+            `EditBox placeholderFontColor=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5198,15 +4629,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelGradient = async (enableGradient: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelGradient(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelGradient)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, enableGradient, _enableGradient: enableGradient } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelGradient(sceneFile.root) })
-          setBatchMsg(`✓ Label enableGradient=${enableGradient} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, enableGradient, _enableGradient: enableGradient } },
+            `Label enableGradient=${enableGradient} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5224,16 +4651,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const colorTop = { r, g, b, a: 255 }
-          function patchLabelColorTop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelColorTop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, colorTop, _colorTop: colorTop } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelColorTop(sceneFile.root) })
-          setBatchMsg(`✓ Label colorTop=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, colorTop, _colorTop: colorTop } },
+            `Label colorTop=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5252,16 +4674,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const colorBottom = { r, g, b, a: 255 }
-          function patchLabelColorBot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelColorBot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label'
-              ? { ...c, props: { ...c.props, colorBottom, _colorBottom: colorBottom } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelColorBot(sceneFile.root) })
-          setBatchMsg(`✓ Label colorBottom=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, colorBottom, _colorBottom: colorBottom } },
+            `Label colorBottom=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5278,15 +4695,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Label') && (() => {
         const applyLabelDashLine = async (enableDashLine: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelDashLine(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelDashLine)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, enableDashLine, _enableDashLine: enableDashLine } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelDashLine(sceneFile.root) })
-          setBatchMsg(`✓ Label enableDashLine=${enableDashLine} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => { ...c, props: { ...c.props, enableDashLine, _enableDashLine: enableDashLine } },
+            `Label enableDashLine=${enableDashLine} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5302,16 +4715,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRTLineHeight = async (lineHeight: number) => {
           if (!sceneFile.root) return
-          function patchRTLineHeight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRTLineHeight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText'
-              ? { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRTLineHeight(sceneFile.root) })
-          setBatchMsg(`✓ RichText lineHeight=${lineHeight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } },
+            `RichText lineHeight=${lineHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5328,13 +4736,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxW = async (w: number) => {
           if (!sceneFile.root) return
-          function patchRichMaxW(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichMaxW)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, maxWidth: w, _maxWidth: w, _N$maxWidth: w } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRichMaxW(sceneFile.root) }) // R2252: _maxWidth CC3.x
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, maxWidth: w, _maxWidth: w, _N$maxWidth: w } },
+            `Rich Max W`,
+          ) // R2252: _maxWidth CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -5352,13 +4758,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichFS = async (fontSize: number) => {
           if (!sceneFile.root) return
-          function patchRichFS(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichFS)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRichFS(sceneFile.root) }) // R2252: _fontSize CC3.x
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } },
+            `Rich F S`,
+          ) // R2252: _fontSize CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -5376,13 +4780,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichAlign = async (horizontalAlign: number) => {
           if (!sceneFile.root) return
-          function patchRichAlign(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichAlign)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRichAlign(sceneFile.root))
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } },
+            `Rich Align`,
+          )
           const names = ['L', 'C', 'R']
           setBatchMsg(`✓ RichText align=${names[horizontalAlign] ?? horizontalAlign} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -5405,16 +4807,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 255 }
-          function patchRichFontColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichFontColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRichFontColor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RichText fontColor (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } },
+            `RichText fontColor (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5435,16 +4832,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichTextEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchRichTextEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichTextEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRichTextEnabled(sceneFile.root) })
-          setBatchMsg(`✓ RichText enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `RichText enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5461,15 +4853,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichImgLineH = async (imageLineHeight: number) => {
           if (!sceneFile.root) return
-          function patchRichImgLineH(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichImgLineH)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, imageLineHeight, _imageLineHeight: imageLineHeight, _N$imageLineHeight: imageLineHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRichImgLineH(sceneFile.root) })
-          setBatchMsg(`✓ RichText imageLineHeight=${imageLineHeight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, imageLineHeight, _imageLineHeight: imageLineHeight, _N$imageLineHeight: imageLineHeight } },
+            `RichText imageLineHeight=${imageLineHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5485,16 +4873,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichLineH = async (lineHeight: number) => {
           if (!sceneFile.root) return
-          function patchRichLineH(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichLineH)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRichLineH(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RichText lineH=${lineHeight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } },
+            `RichText lineH=${lineHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5512,14 +4895,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichVAlign = async (verticalAlign: number) => {
           if (!sceneFile.root) return
-          function patchRichVAlign(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichVAlign)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRichVAlign(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } },
+            `Rich V Align`,
+          )
           const names = ['Top', 'Ctr', 'Bot']
           setBatchMsg(`✓ RichText vAlign=${names[verticalAlign] ?? verticalAlign} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -5538,14 +4918,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichFontSize = async (fontSize: number) => {
           if (!sceneFile.root) return
-          function patchRichFontSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichFontSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRichFontSize(sceneFile.root) })
-          setBatchMsg(`✓ RichText fontSize=${fontSize} (${uuids.length}개)`) // R2252: _fontSize CC3.x
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } },
+            `RichText fontSize=${fontSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5563,14 +4940,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichOverflow = async (overflow: number) => {
           if (!sceneFile.root) return
-          function patchRichOverflow(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichOverflow)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRichOverflow(sceneFile.root) })
-          setBatchMsg(`✓ RichText overflow=${overflow} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } },
+            `RichText overflow=${overflow} (${uuids.length}개)`,
+          )
         }
         const labels = ['None', 'Clamp', 'Shrink', 'Resize']
         return (
@@ -5587,16 +4961,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichLineH = async (lineHeight: number) => {
           if (!sceneFile.root) return
-          function patchRichLineH(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichLineH)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRichLineH(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RichText lineHeight=${lineHeight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } },
+            `RichText lineHeight=${lineHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5612,14 +4981,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichTouch = async (handleTouchEvent: boolean) => {
           if (!sceneFile.root) return
-          function patchRichTouch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichTouch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, handleTouchEvent, _handleTouchEvent: handleTouchEvent } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRichTouch(sceneFile.root) })
-          setBatchMsg(`✓ RichText handleTouchEvent=${handleTouchEvent} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, handleTouchEvent, _handleTouchEvent: handleTouchEvent } },
+            `RichText handleTouchEvent=${handleTouchEvent} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5637,16 +5003,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRichMaxWidth = async (maxWidth: number) => {
           if (!sceneFile.root) return
-          function patchRichMaxWidth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRichMaxWidth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText' ? { ...c, props: { ...c.props, maxWidth, _maxWidth: maxWidth, _N$maxWidth: maxWidth } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRichMaxWidth(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RichText maxWidth=${maxWidth} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, maxWidth, _maxWidth: maxWidth, _N$maxWidth: maxWidth } },
+            `RichText maxWidth=${maxWidth} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5662,16 +5023,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.DirectionalLight') || commonCompTypes.includes('cc.PointLight')) && (() => {
         const applyLightEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchLightEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLightEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight')
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLightEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Light enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight'),
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Light enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5689,14 +5045,11 @@ export function CCFileBatchInspector({
         const lightType = commonCompTypes.includes('cc.DirectionalLight') ? 'cc.DirectionalLight' : 'cc.PointLight'
         const applyLightIntensity = async (intensity: number) => {
           if (!sceneFile.root) return
-          function patchLightIntensity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLightIntensity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight') ? { ...c, props: { ...c.props, intensity, _intensity: intensity } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLightIntensity(sceneFile.root) })
-          setBatchMsg(`✓ ${lightType} intensity=${intensity} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight'),
+            c => { ...c, props: { ...c.props, intensity, _intensity: intensity } },
+            `${lightType} intensity=${intensity} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5714,14 +5067,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const color = { r, g, b, a: 255 }
-          function patchLightColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLightColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight') ? { ...c, props: { ...c.props, color, _color: color } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLightColor(sceneFile.root) })
-          setBatchMsg(`✓ Light color=${hex} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight'),
+            c => { ...c, props: { ...c.props, color, _color: color } },
+            `Light color=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5742,14 +5092,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Graphics') && (() => {
         const applyGraphicsLineWidth = async (lineWidth: number) => {
           if (!sceneFile.root) return
-          function patchGraphicsLineWidth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGraphicsLineWidth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, lineWidth, _lineWidth: lineWidth } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGraphicsLineWidth(sceneFile.root) })
-          setBatchMsg(`✓ Graphics lineWidth=${lineWidth} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, lineWidth, _lineWidth: lineWidth } },
+            `Graphics lineWidth=${lineWidth} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5767,14 +5114,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const fillColor = { r, g, b, a: 255 }
-          function patchGraphicsFillColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGraphicsFillColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, fillColor, _fillColor: fillColor } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGraphicsFillColor(sceneFile.root) })
-          setBatchMsg(`✓ Graphics fillColor=${hex} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, fillColor, _fillColor: fillColor } },
+            `Graphics fillColor=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5797,14 +5141,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const strokeColor = { r, g, b, a: 255 }
-          function patchGraphicsStrokeColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGraphicsStrokeColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, strokeColor, _strokeColor: strokeColor } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGraphicsStrokeColor(sceneFile.root) })
-          setBatchMsg(`✓ Graphics strokeColor=${hex} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, strokeColor, _strokeColor: strokeColor } },
+            `Graphics strokeColor=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5825,14 +5166,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Graphics') && (() => {
         const applyGraphicsLineJoin = async (lineJoin: number) => {
           if (!sceneFile.root) return
-          function patchGraphicsLineJoin(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGraphicsLineJoin)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, lineJoin, _lineJoin: lineJoin } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGraphicsLineJoin(sceneFile.root) })
-          setBatchMsg(`✓ Graphics lineJoin=${['miter','round','bevel'][lineJoin] ?? lineJoin} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, lineJoin, _lineJoin: lineJoin } },
+            `Graphics lineJoin=${['miter','round','bevel'][lineJoin] ?? lineJoin} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5848,14 +5186,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Graphics') && (() => {
         const applyGraphicsLineCap = async (lineCap: number) => {
           if (!sceneFile.root) return
-          function patchGraphicsLineCap(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGraphicsLineCap)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, lineCap, _lineCap: lineCap } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGraphicsLineCap(sceneFile.root) })
-          setBatchMsg(`✓ Graphics lineCap=${['butt','round','square'][lineCap] ?? lineCap} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, lineCap, _lineCap: lineCap } },
+            `Graphics lineCap=${['butt','round','square'][lineCap] ?? lineCap} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5871,15 +5206,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Graphics') && (() => {
         const applyGraphicsMiterLimit = async (miterLimit: number) => {
           if (!sceneFile.root) return
-          function patchGraphicsMiterLimit(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGraphicsMiterLimit)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, miterLimit, _miterLimit: miterLimit } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGraphicsMiterLimit(sceneFile.root) })
-          setBatchMsg(`✓ Graphics miterLimit=${miterLimit} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, miterLimit, _miterLimit: miterLimit } },
+            `Graphics miterLimit=${miterLimit} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5895,16 +5226,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Graphics') && (() => {
         const applyGraphicsEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchGraphicsEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGraphicsEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGraphicsEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Graphics enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Graphics enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5921,27 +5247,19 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Graphics') && (() => {
         const applyGfxFillOpacity = async (fillOpacity: number) => {
           if (!sceneFile.root) return
-          function patchGfxFillOpacity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGfxFillOpacity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, fillOpacity, _fillOpacity: fillOpacity } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGfxFillOpacity(sceneFile.root) })
-          setBatchMsg(`✓ Graphics fillOpacity=${fillOpacity} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, fillOpacity, _fillOpacity: fillOpacity } },
+            `Graphics fillOpacity=${fillOpacity} (${uuids.length}개)`,
+          )
         }
         const applyGfxStrokeOpacity = async (strokeOpacity: number) => {
           if (!sceneFile.root) return
-          function patchGfxStrokeOpacity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchGfxStrokeOpacity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Graphics' ? { ...c, props: { ...c.props, strokeOpacity, _strokeOpacity: strokeOpacity } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchGfxStrokeOpacity(sceneFile.root) })
-          setBatchMsg(`✓ Graphics strokeOpacity=${strokeOpacity} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Graphics',
+            c => { ...c, props: { ...c.props, strokeOpacity, _strokeOpacity: strokeOpacity } },
+            `Graphics strokeOpacity=${strokeOpacity} (${uuids.length}개)`,
+          )
         }
         return (
           <>
@@ -5966,15 +5284,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchWidgetEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Widget enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Widget enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -5990,15 +5304,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.UITransform') && (() => {
         const applyUITransPriority = async (priority: number) => {
           if (!sceneFile.root) return
-          function patchUITransPriority(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchUITransPriority)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, priority, _priority: priority } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchUITransPriority(sceneFile.root) })
-          setBatchMsg(`✓ UITransform priority=${priority} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.UITransform',
+            c => { ...c, props: { ...c.props, priority, _priority: priority } },
+            `UITransform priority=${priority} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6014,17 +5324,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.UITransform') && (() => {
         const applyUITransAnchor = async (ax: number, ay: number) => {
           if (!sceneFile.root) return
-          function patchUITransAnchor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchUITransAnchor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const _anchorPoint = { x: ax, y: ay }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform'
-              ? { ...c, props: { ...c.props, _anchorPoint } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchUITransAnchor(sceneFile.root) })
-          setBatchMsg(`✓ UITransform anchorPoint=(${ax},${ay}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, _anchorPoint } } : c)
+            return { ...n, components }
+          }, `UITransform anchorPoint=(${ax},${ay}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6041,13 +5345,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacity = async (opacity: number) => {
           if (!sceneFile.root) return
-          function patchUIOpacity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchUIOpacity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.UIOpacity' ? { ...c, props: { ...c.props, opacity, _opacity: opacity } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchUIOpacity(sceneFile.root) })
+          await patchComponents(
+            c => c.type === 'cc.UIOpacity',
+            c => { ...c, props: { ...c.props, opacity, _opacity: opacity } },
+            `U I Opacity`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -6065,16 +5367,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.UIOpacity') && (() => {
         const applyUIOpacityEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchUIOpacityEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchUIOpacityEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.UIOpacity'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchUIOpacityEnabled(sceneFile.root) })
-          setBatchMsg(`✓ UIOpacity enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.UIOpacity',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `UIOpacity enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6091,16 +5388,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Toggle') && (() => {
         const applyToggleEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchToggleEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchToggleEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Toggle'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchToggleEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Toggle enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Toggle',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Toggle enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6123,15 +5415,11 @@ export function CCFileBatchInspector({
               onClick={async () => {
                 if (!sceneFile.root) return
                 const checked = v === 'checked'
-                function patchToggle(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchToggle)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, isChecked: checked, _isChecked: checked, _N$isChecked: checked } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchToggle(sceneFile.root))
-                setBatchMsg(`✓ Toggle ${v} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Toggle',
+                  c => { ...c, props: { ...c.props, isChecked: checked, _isChecked: checked, _N$isChecked: checked } },
+                  `Toggle ${v} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: v === 'checked' ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
             >{v === 'checked' ? '✓ 체크' : '○ 해제'}</span>
@@ -6142,14 +5430,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Toggle') && (() => {
         const applyToggleCheck = async (isChecked: boolean) => {
           if (!sceneFile.root) return
-          function patchToggleCheck(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchToggleCheck)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, isChecked, _isChecked: isChecked } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchToggleCheck(sceneFile.root) })
-          setBatchMsg(`✓ Toggle isChecked=${isChecked} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Toggle',
+            c => { ...c, props: { ...c.props, isChecked, _isChecked: isChecked } },
+            `Toggle isChecked=${isChecked} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -6165,13 +5450,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Toggle') && (() => {
         const applyToggleInteract = async (interactable: boolean) => {
           if (!sceneFile.root) return
-          function patchToggleInteract(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchToggleInteract)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Toggle' ? { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchToggleInteract(sceneFile.root) })
+          await patchComponents(
+            c => c.type === 'cc.Toggle',
+            c => { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } },
+            `Toggle Interact`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -6185,16 +5468,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ToggleContainer') && (() => {
         const applyTCEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchTCEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchTCEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ToggleContainer'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchTCEnabled(sceneFile.root) })
-          setBatchMsg(`✓ ToggleContainer enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ToggleContainer',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `ToggleContainer enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6211,15 +5489,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ToggleContainer') && (() => {
         const applyTCAutoCheck = async (autoCheckToggle: boolean) => {
           if (!sceneFile.root) return
-          function patchTCAutoCheck(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchTCAutoCheck)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ToggleContainer' ? { ...c, props: { ...c.props, autoCheckToggle, _autoCheckToggle: autoCheckToggle } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchTCAutoCheck(sceneFile.root) })
-          setBatchMsg(`✓ ToggleContainer autoCheckToggle=${autoCheckToggle} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ToggleContainer',
+            c => { ...c, props: { ...c.props, autoCheckToggle, _autoCheckToggle: autoCheckToggle } },
+            `ToggleContainer autoCheckToggle=${autoCheckToggle} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6235,14 +5509,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ToggleContainer') && (() => {
         const applyTCAllowSwitchOff = async (allowSwitchOff: boolean) => {
           if (!sceneFile.root) return
-          function patchTCAllowSwitchOff(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchTCAllowSwitchOff)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ToggleContainer' ? { ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchTCAllowSwitchOff(sceneFile.root) })
-          setBatchMsg(`✓ ToggleContainer allowSwitchOff=${allowSwitchOff} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.ToggleContainer',
+            c => { ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } },
+            `ToggleContainer allowSwitchOff=${allowSwitchOff} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -6258,13 +5529,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditBoxMode = async (inputMode: number) => {
           if (!sceneFile.root) return
-          function patchEditBoxMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditBoxMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputMode, _inputMode: inputMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditBoxMode(sceneFile.root) })
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, inputMode, _inputMode: inputMode } },
+            `Edit Box Mode`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6282,15 +5551,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditBoxMax = async (maxLength: number) => {
           if (!sceneFile.root) return
-          function patchEditBoxMax(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditBoxMax)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, maxLength, _maxLength: maxLength } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditBoxMax(sceneFile.root) })
-          setBatchMsg(`✓ EditBox maxLength ${maxLength} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, maxLength, _maxLength: maxLength } },
+            `EditBox maxLength ${maxLength} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6308,16 +5573,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditBoxFontSize = async (fontSize: number) => {
           if (!sceneFile.root) return
-          function patchEditBoxFontSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditBoxFontSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchEditBoxFontSize(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ EditBox fontSize=${fontSize} (${uuids.length}개)`) // R2251: _fontSize CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } },
+            `EditBox fontSize=${fontSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6335,16 +5595,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditBoxEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchEditBoxEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditBoxEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditBoxEnabled(sceneFile.root) })
-          setBatchMsg(`✓ EditBox enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `EditBox enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6361,14 +5616,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditInputFlag = async (inputFlag: number) => {
           if (!sceneFile.root) return
-          function patchEditInputFlag(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditInputFlag)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputFlag, _inputFlag: inputFlag, _N$inputFlag: inputFlag } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditInputFlag(sceneFile.root) })
-          setBatchMsg(`✓ EditBox inputFlag=${inputFlag} (${uuids.length}개)`) // R2235: _inputFlag CC3.x
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, inputFlag, _inputFlag: inputFlag, _N$inputFlag: inputFlag } },
+            `EditBox inputFlag=${inputFlag} (${uuids.length}개)`,
+          )
         }
         // 0=Default, 1=InitialCapsFWord, 2=InitialCapsSentence, 3=InitialCapsAllChars, 4=Sensitive
         return (
@@ -6387,16 +5639,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEBPlaceholderFS = async (placeholderFontSize: number) => {
           if (!sceneFile.root) return
-          function patchEBPlaceholderFS(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEBPlaceholderFS)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox'
-              ? { ...c, props: { ...c.props, placeholderFontSize, _placeholderFontSize: placeholderFontSize, _N$placeholderFontSize: placeholderFontSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEBPlaceholderFS(sceneFile.root) })
-          setBatchMsg(`✓ EditBox placeholderFontSize=${placeholderFontSize} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, placeholderFontSize, _placeholderFontSize: placeholderFontSize, _N$placeholderFontSize: placeholderFontSize } },
+            `EditBox placeholderFontSize=${placeholderFontSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6415,16 +5662,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const colorObj = { r, g, b, a: 255 }
-          function patchEBFontColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEBFontColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox'
-              ? { ...c, props: { ...c.props, fontColor: colorObj, _fontColor: colorObj, _N$fontColor: colorObj } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEBFontColor(sceneFile.root) })
-          setBatchMsg(`✓ EditBox fontColor=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, fontColor: colorObj, _fontColor: colorObj, _N$fontColor: colorObj } },
+            `EditBox fontColor=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6441,15 +5683,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditLineCount = async (lineCount: number) => {
           if (!sceneFile.root) return
-          function patchEditLineCount(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditLineCount)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, lineCount, _lineCount: lineCount, _N$lineCount: lineCount } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditLineCount(sceneFile.root) })
-          setBatchMsg(`✓ EditBox lineCount=${lineCount} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, lineCount, _lineCount: lineCount, _N$lineCount: lineCount } },
+            `EditBox lineCount=${lineCount} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6465,14 +5703,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditMaxLen = async (maxLength: number) => {
           if (!sceneFile.root) return
-          function patchEditMaxLen(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditMaxLen)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, maxLength, _maxLength: maxLength } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditMaxLen(sceneFile.root) })
-          setBatchMsg(`✓ EditBox maxLength=${maxLength} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, maxLength, _maxLength: maxLength } },
+            `EditBox maxLength=${maxLength} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6488,14 +5723,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditTabIndex = async (tabIndex: number) => {
           if (!sceneFile.root) return
-          function patchEditTabIndex(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditTabIndex)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, tabIndex, _tabIndex: tabIndex } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditTabIndex(sceneFile.root) })
-          setBatchMsg(`✓ EditBox tabIndex=${tabIndex} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, tabIndex, _tabIndex: tabIndex } },
+            `EditBox tabIndex=${tabIndex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6511,14 +5743,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditInputMode = async (inputMode: number) => {
           if (!sceneFile.root) return
-          function patchEditInputMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditInputMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, inputMode, _inputMode: inputMode, _N$inputMode: inputMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditInputMode(sceneFile.root) })
-          setBatchMsg(`✓ EditBox inputMode=${inputMode} (${uuids.length}개)`) // R2236: _inputMode CC3.x
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, inputMode, _inputMode: inputMode, _N$inputMode: inputMode } },
+            `EditBox inputMode=${inputMode} (${uuids.length}개)`,
+          )
         }
         // 0=Any, 1=EmailAddr, 2=Numeric, 3=PhoneNum, 4=URL, 5=Decimal, 6=SingleLine
         return (
@@ -6537,14 +5766,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditReturnType = async (returnType: number) => {
           if (!sceneFile.root) return
-          function patchEditReturnType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditReturnType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox' ? { ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchEditReturnType(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } },
+            `Edit Return Type`,
+          )
           const names = ['Dflt', 'Done', 'Send', 'Srch', 'Go', 'Next']
           setBatchMsg(`✓ EditBox returnType=${names[returnType] ?? returnType} (${uuids.length}개)`) // R2238: _returnType CC3.x
           setTimeout(() => setBatchMsg(null), 2000)
@@ -6563,13 +5789,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnTransition = async (transition: number) => {
           if (!sceneFile.root) return
-          function patchBtnTransition(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnTransition)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, transition, _transition: transition } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchBtnTransition(sceneFile.root))
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, transition, _transition: transition } },
+            `Btn Transition`,
+          )
           const names = ['None', 'Color', 'Sprite', 'Scale']
           setBatchMsg(`✓ Button transition=${names[transition] ?? transition} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -6590,13 +5814,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnZoom = async (zoom: number) => {
           if (!sceneFile.root) return
-          function patchBtnZoom(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnZoom)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom, _N$zoomScale: zoom } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBtnZoom(sceneFile.root) })
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom, _N$zoomScale: zoom } },
+            `Btn Zoom`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6614,16 +5836,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnInteract = async (interactable: boolean) => {
           if (!sceneFile.root) return
-          function patchBtnInteract(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnInteract)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchBtnInteract(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Button interactable=${interactable} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } },
+            `Button interactable=${interactable} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6639,16 +5856,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyButtonEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchButtonEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchButtonEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchButtonEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Button enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Button enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6665,14 +5877,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnAutoGray = async (autoGrayEffect: boolean) => {
           if (!sceneFile.root) return
-          function patchBtnAutoGray(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnAutoGray)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, autoGrayEffect, _autoGrayEffect: autoGrayEffect, _N$autoGrayEffect: autoGrayEffect } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBtnAutoGray(sceneFile.root) })
-          setBatchMsg(`✓ Button autoGray=${autoGrayEffect} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, autoGrayEffect, _autoGrayEffect: autoGrayEffect, _N$autoGrayEffect: autoGrayEffect } },
+            `Button autoGray=${autoGrayEffect} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6692,16 +5901,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 255 }
-          function patchBtnNormalColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnNormalColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, normalColor: col, _normalColor: col, _N$normalColor: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchBtnNormalColor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Button normalColor (${uuids.length}개)`) // R2250: _normalColor CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, normalColor: col, _normalColor: col, _N$normalColor: col } },
+            `Button normalColor (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6724,16 +5928,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 255 }
-          function patchBtnPressedColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnPressedColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, pressedColor: col, _pressedColor: col, _N$pressedColor: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchBtnPressedColor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Button pressedColor (${uuids.length}개)`) // R2250: _pressedColor CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, pressedColor: col, _pressedColor: col, _N$pressedColor: col } },
+            `Button pressedColor (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6756,16 +5955,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 200 }
-          function patchBtnDisabledColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnDisabledColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, disabledColor: col, _disabledColor: col, _N$disabledColor: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchBtnDisabledColor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Button disabledColor (${uuids.length}개)`) // R2251: _disabledColor CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, disabledColor: col, _disabledColor: col, _N$disabledColor: col } },
+            `Button disabledColor (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6787,14 +5981,11 @@ export function CCFileBatchInspector({
         const applyBtnHoverColor = async (hex: string) => {
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
-          function patchBtnHoverColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnHoverColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, hoverColor: { r, g, b, a: 255 }, _hoverColor: { r, g, b, a: 255 }, _N$hoverColor: { r, g, b, a: 255 } } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBtnHoverColor(sceneFile.root) })
-          setBatchMsg(`✓ Button hoverColor=${hex} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, hoverColor: { r, g, b, a: 255 }, _hoverColor: { r, g, b, a: 255 }, _N$hoverColor: { r, g, b, a: 255 } } },
+            `Button hoverColor=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6815,16 +6006,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnDuration = async (duration: number) => {
           if (!sceneFile.root) return
-          function patchBtnDuration(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnDuration)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, duration, _duration: duration } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchBtnDuration(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Button duration=${duration}s (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, duration, _duration: duration } },
+            `Button duration=${duration}s (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6848,15 +6034,11 @@ export function CCFileBatchInspector({
               onClick={async () => {
                 if (!sceneFile.root) return
                 const interact = v === 'on'
-                function patchInteract(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchInteract)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Button' ? { ...c, props: { ...c.props, interactable: interact, _interactable: interact, _N$interactable: interact } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchInteract(sceneFile.root))
-                setBatchMsg(`✓ Button ${v === 'on' ? '활성' : '비활성'} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Button',
+                  c => { ...c, props: { ...c.props, interactable: interact, _interactable: interact, _N$interactable: interact } },
+                  `Button ${v === 'on' ? '활성' : '비활성'} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: v === 'on' ? '#4ade80' : '#f87171', userSelect: 'none' }}
             >{v === 'on' ? '✓ 활성' : '✕ 비활성'}</span>
@@ -6867,16 +6049,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchAudioEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAudioEnabled(sceneFile.root) })
-          setBatchMsg(`✓ AudioSource enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `AudioSource enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6897,15 +6074,11 @@ export function CCFileBatchInspector({
             onMouseUp={async e => {
               const vol = parseFloat((e.target as HTMLInputElement).value)
               if (!sceneFile.root) return
-              function patchVol(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchVol)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, volume: vol, _volume: vol, _N$volume: vol } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene(patchVol(sceneFile.root))
-              setBatchMsg(`✓ volume ${Math.round(vol * 100)}% (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchComponents(
+                c => c.type === 'cc.AudioSource',
+                c => { ...c, props: { ...c.props, volume: vol, _volume: vol, _N$volume: vol } },
+                `volume ${Math.round(vol * 100)}% (${uuids.length}개)`,
+              )
             }}
             style={{ flex: 1 }}
           />
@@ -6915,16 +6088,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.LabelOutline') && (() => {
         const applyLabelOutlineEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelOutlineEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelOutlineEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.LabelOutline'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelOutlineEnabled(sceneFile.root) })
-          setBatchMsg(`✓ LabelOutline enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.LabelOutline',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `LabelOutline enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6941,16 +6109,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.LabelShadow') && (() => {
         const applyLabelShadowEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchLabelShadowEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelShadowEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.LabelShadow'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLabelShadowEnabled(sceneFile.root) })
-          setBatchMsg(`✓ LabelShadow enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.LabelShadow',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `LabelShadow enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6967,15 +6130,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.LabelShadow') && (() => {
         const applyShadowBlur = async (blur: number) => {
           if (!sceneFile.root) return
-          function patchShadow(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchShadow)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, blur, _blur: blur } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchShadow(sceneFile.root))
-          setBatchMsg(`✓ LabelShadow blur=${blur} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.LabelShadow',
+            c => { ...c, props: { ...c.props, blur, _blur: blur } },
+            `LabelShadow blur=${blur} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -6993,15 +6152,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.LabelOutline') && (() => {
         const applyOutlineWidth = async (width: number) => {
           if (!sceneFile.root) return
-          function patchOL(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchOL)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.LabelOutline' ? { ...c, props: { ...c.props, width, _width: width, _N$width: width } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchOL(sceneFile.root) }) // R2259: _width CC3.x + saveScene 버그 수정
-          setBatchMsg(`✓ LabelOutline w=${width} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.LabelOutline',
+            c => { ...c, props: { ...c.props, width, _width: width, _N$width: width } },
+            `LabelOutline w=${width} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7025,13 +6180,11 @@ export function CCFileBatchInspector({
               if (!sceneFile.root) return
               const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
               const col = { r, g, b, a: 255 }
-              function patchOLColor(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchOLColor)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.LabelOutline' ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene({ ...sceneFile, root: patchOLColor(sceneFile.root) })
+              await patchComponents(
+                c => c.type === 'cc.LabelOutline',
+                c => { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } },
+                `O L Color`,
+              )
             }}
             style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
             title="cc.LabelOutline 색상 일괄 설정"
@@ -7042,16 +6195,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.LabelOutline') && (() => {
         const applyLabelOutlineWidth = async (width: number) => {
           if (!sceneFile.root) return
-          function patchLabelOutlineWidth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelOutlineWidth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.LabelOutline' ? { ...c, props: { ...c.props, width, _width: width, _N$width: width } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelOutlineWidth(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ LabelOutline width=${width} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.LabelOutline',
+            c => { ...c, props: { ...c.props, width, _width: width, _N$width: width } },
+            `LabelOutline width=${width} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7075,13 +6223,11 @@ export function CCFileBatchInspector({
               if (!sceneFile.root) return
               const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
               const col = { r, g, b, a: 255 }
-              function patchShadowColor(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchShadowColor)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene({ ...sceneFile, root: patchShadowColor(sceneFile.root) })
+              await patchComponents(
+                c => c.type === 'cc.LabelShadow',
+                c => { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } },
+                `Shadow Color`,
+              )
             }}
             style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
             title="cc.LabelShadow 색상 일괄 설정"
@@ -7092,16 +6238,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.LabelShadow') && (() => {
         const applyLabelShadowBlur = async (blur: number) => {
           if (!sceneFile.root) return
-          function patchLabelShadowBlur(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelShadowBlur)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, blur, _blur: blur, _N$blur: blur } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelShadowBlur(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ LabelShadow blur=${blur} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.LabelShadow',
+            c => { ...c, props: { ...c.props, blur, _blur: blur, _N$blur: blur } },
+            `LabelShadow blur=${blur} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7120,16 +6261,11 @@ export function CCFileBatchInspector({
         const applyLabelShadowOffset = async (x: number, y: number) => {
           if (!sceneFile.root) return
           const offset = { x, y }
-          function patchLabelShadowOffset(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLabelShadowOffset)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.LabelShadow' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLabelShadowOffset(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ LabelShadow offset=(${x},${y}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.LabelShadow',
+            c => { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } },
+            `LabelShadow offset=(${x},${y}) (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7147,15 +6283,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollToggle = async (key: 'horizontal' | 'vertical' | 'inertia', value: boolean) => {
           if (!sceneFile.root) return
-          function patchSV(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSV)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSV(sceneFile.root))
-          setBatchMsg(`✓ ScrollView ${key}=${value} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } },
+            `ScrollView ${key}=${value} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7173,15 +6305,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollBrake = async (brake: number) => {
           if (!sceneFile.root) return
-          function patchScrollBrake(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchScrollBrake)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchScrollBrake(sceneFile.root) }) // R2254: _brake CC3.x
-          setBatchMsg(`✓ ScrollView brake=${brake} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } },
+            `ScrollView brake=${brake} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7199,15 +6327,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollElastic = async (elastic: boolean) => {
           if (!sceneFile.root) return
-          function patchScrollElastic(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchScrollElastic)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, elastic, _elastic: elastic, _N$elastic: elastic } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchScrollElastic(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView elastic=${elastic} (${uuids.length}개)`) // R2236: _elastic CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, elastic, _elastic: elastic, _N$elastic: elastic } },
+            `ScrollView elastic=${elastic} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -7225,15 +6349,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyElasticDur = async (elasticDuration: number) => {
           if (!sceneFile.root) return
-          function patchElasticDur(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchElasticDur)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, elasticDuration, _elasticDuration: elasticDuration, _N$elasticDuration: elasticDuration } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchElasticDur(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView elasticDuration=${elasticDuration} (${uuids.length}개)`) // R2237: _elasticDuration CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, elasticDuration, _elasticDuration: elasticDuration, _N$elasticDuration: elasticDuration } },
+            `ScrollView elasticDuration=${elasticDuration} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7251,16 +6371,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVBounceDur = async (bounceDuration: number) => {
           if (!sceneFile.root) return
-          function patchSVBounceDur(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVBounceDur)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounceDuration, _bounceDuration: bounceDuration, _N$bounceDuration: bounceDuration } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSVBounceDur(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ScrollView bounceDur=${bounceDuration}s (${uuids.length}개)`) // R2237: _bounceDuration CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, bounceDuration, _bounceDuration: bounceDuration, _N$bounceDuration: bounceDuration } },
+            `ScrollView bounceDur=${bounceDuration}s (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7278,14 +6393,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVScrollDur = async (scrollDuration: number) => {
           if (!sceneFile.root) return
-          function patchSVScrollDur(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVScrollDur)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, scrollDuration, _scrollDuration: scrollDuration, _N$scrollDuration: scrollDuration } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSVScrollDur(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView scrollDuration=${scrollDuration}s (${uuids.length}개)`) // R2240: _scrollDuration CC3.x
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, scrollDuration, _scrollDuration: scrollDuration, _N$scrollDuration: scrollDuration } },
+            `ScrollView scrollDuration=${scrollDuration}s (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7301,15 +6413,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVMouseWheelSens = async (mouseWheelScrollSensitivity: number) => {
           if (!sceneFile.root) return
-          function patchSVMouseWheelSens(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVMouseWheelSens)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, mouseWheelScrollSensitivity, _mouseWheelScrollSensitivity: mouseWheelScrollSensitivity, _N$mouseWheelScrollSensitivity: mouseWheelScrollSensitivity } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSVMouseWheelSens(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView mouseWheelSens=${mouseWheelScrollSensitivity} (${uuids.length}개)`) // R2254: _mouseWheelScrollSensitivity CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, mouseWheelScrollSensitivity, _mouseWheelScrollSensitivity: mouseWheelScrollSensitivity, _N$mouseWheelScrollSensitivity: mouseWheelScrollSensitivity } },
+            `ScrollView mouseWheelSens=${mouseWheelScrollSensitivity} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7325,16 +6433,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchSVEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSVEnabled(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `ScrollView enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7351,15 +6454,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVHideScrollBar = async (hideScrollBar: boolean) => {
           if (!sceneFile.root) return
-          function patchSVHideScrollBar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVHideScrollBar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, hideScrollBar, _hideScrollBar: hideScrollBar, _N$hideScrollBar: hideScrollBar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSVHideScrollBar(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView hideScrollBar=${hideScrollBar} (${uuids.length}개)`) // R2255: _hideScrollBar CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, hideScrollBar, _hideScrollBar: hideScrollBar, _N$hideScrollBar: hideScrollBar } },
+            `ScrollView hideScrollBar=${hideScrollBar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7375,27 +6474,19 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Scrollbar') && (() => {
         const applySBAutoHide = async (enableAutoHide: boolean) => {
           if (!sceneFile.root) return
-          function patchSBAutoHide(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSBAutoHide)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, enableAutoHide, _enableAutoHide: enableAutoHide, _N$enableAutoHide: enableAutoHide } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSBAutoHide(sceneFile.root) })
-          setBatchMsg(`✓ Scrollbar enableAutoHide=${enableAutoHide} (${uuids.length}개)`) // R2239: _enableAutoHide CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Scrollbar',
+            c => { ...c, props: { ...c.props, enableAutoHide, _enableAutoHide: enableAutoHide, _N$enableAutoHide: enableAutoHide } },
+            `Scrollbar enableAutoHide=${enableAutoHide} (${uuids.length}개)`,
+          )
         }
         const applySBAutoHideTime = async (autoHideTime: number) => {
           if (!sceneFile.root) return
-          function patchSBAutoHideTime(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSBAutoHideTime)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSBAutoHideTime(sceneFile.root) })
-          setBatchMsg(`✓ Scrollbar autoHideTime=${autoHideTime} (${uuids.length}개)`) // R2242: _autoHideTime CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Scrollbar',
+            c => { ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } },
+            `Scrollbar autoHideTime=${autoHideTime} (${uuids.length}개)`,
+          )
         }
         return (
           <>
@@ -7420,16 +6511,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Scrollbar') && (() => {
         const applyScrollbarEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchScrollbarEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchScrollbarEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Scrollbar'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchScrollbarEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Scrollbar enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Scrollbar',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Scrollbar enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7446,15 +6532,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Scrollbar') && (() => {
         const applySBDir = async (direction: number) => {
           if (!sceneFile.root) return
-          function patchSBDir(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSBDir)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Scrollbar' ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSBDir(sceneFile.root) })
-          setBatchMsg(`✓ Scrollbar direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`) // R2242: _direction CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Scrollbar',
+            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            `Scrollbar direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7470,15 +6552,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVBounceTime = async (bounceTime: number) => {
           if (!sceneFile.root) return
-          function patchSVBounceTime(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVBounceTime)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounceTime, _bounceTime: bounceTime, _N$bounceTime: bounceTime } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSVBounceTime(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView bounceTime=${bounceTime} (${uuids.length}개)`) // R2243: _bounceTime CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, bounceTime, _bounceTime: bounceTime, _N$bounceTime: bounceTime } },
+            `ScrollView bounceTime=${bounceTime} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7494,14 +6572,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollBounce = async (bounce: boolean) => {
           if (!sceneFile.root) return
-          function patchScrollBounce(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchScrollBounce)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, bounce, _bounce: bounce, _N$bounce: bounce } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchScrollBounce(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView bounce=${bounce} (${uuids.length}개)`) // R2243: _bounce CC3.x
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, bounce, _bounce: bounce, _N$bounce: bounce } },
+            `ScrollView bounce=${bounce} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7519,14 +6594,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applyScrollInertia = async (inertia: boolean) => {
           if (!sceneFile.root) return
-          function patchScrollInertia(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchScrollInertia)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, inertia, _inertia: inertia } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchScrollInertia(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView inertia=${inertia} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, inertia, _inertia: inertia } },
+            `ScrollView inertia=${inertia} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7542,14 +6614,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVHoriz = async (horizontal: boolean) => {
           if (!sceneFile.root) return
-          function patchSVHoriz(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVHoriz)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, horizontal, _horizontal: horizontal, _N$horizontal: horizontal } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSVHoriz(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView horizontal=${horizontal} (${uuids.length}개)`) // R2240: _horizontal CC3.x
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, horizontal, _horizontal: horizontal, _N$horizontal: horizontal } },
+            `ScrollView horizontal=${horizontal} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -7565,14 +6634,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVVert = async (vertical: boolean) => {
           if (!sceneFile.root) return
-          function patchSVVert(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVVert)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, vertical, _vertical: vertical, _N$vertical: vertical } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSVVert(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView vertical=${vertical} (${uuids.length}개)`) // R2241: _vertical CC3.x
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, vertical, _vertical: vertical, _N$vertical: vertical } },
+            `ScrollView vertical=${vertical} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -7588,14 +6654,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVCancelInner = async (cancelInnerEvents: boolean) => {
           if (!sceneFile.root) return
-          function patchSVCancelInner(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVCancelInner)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, cancelInnerEvents, _cancelInnerEvents: cancelInnerEvents, _N$cancelInnerEvents: cancelInnerEvents } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSVCancelInner(sceneFile.root) })
-          setBatchMsg(`✓ ScrollView cancelInnerEvents=${cancelInnerEvents} (${uuids.length}개)`) // R2241: _cancelInnerEvents CC3.x
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, cancelInnerEvents, _cancelInnerEvents: cancelInnerEvents, _N$cancelInnerEvents: cancelInnerEvents } },
+            `ScrollView cancelInnerEvents=${cancelInnerEvents} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -7611,16 +6674,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVPaging = async (pagingEnabled: boolean) => {
           if (!sceneFile.root) return
-          function patchSVPaging(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVPaging)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, pagingEnabled, _pagingEnabled: pagingEnabled, _N$pagingEnabled: pagingEnabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSVPaging(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ScrollView paging=${pagingEnabled} (${uuids.length}개)`) // R2244: _pagingEnabled CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, pagingEnabled, _pagingEnabled: pagingEnabled, _N$pagingEnabled: pagingEnabled } },
+            `ScrollView paging=${pagingEnabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7636,16 +6694,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVSpeed = async (speedAmplifier: number) => {
           if (!sceneFile.root) return
-          function patchSVSpeed(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVSpeed)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView' ? { ...c, props: { ...c.props, speedAmplifier, _speedAmplifier: speedAmplifier, _N$speedAmplifier: speedAmplifier } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSVSpeed(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ScrollView speedAmplifier=${speedAmplifier} (${uuids.length}개)`) // R2244: _speedAmplifier CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, speedAmplifier, _speedAmplifier: speedAmplifier, _N$speedAmplifier: speedAmplifier } },
+            `ScrollView speedAmplifier=${speedAmplifier} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7661,14 +6714,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVTurnSpeed = async (pageTurningSpeed: number) => {
           if (!sceneFile.root) return
-          function patchPVTurnSpeed(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVTurnSpeed)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, pageTurningSpeed, _pageTurningSpeed: pageTurningSpeed, _N$pageTurningSpeed: pageTurningSpeed } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPVTurnSpeed(sceneFile.root) })
-          setBatchMsg(`✓ PageView pageTurningSpeed=${pageTurningSpeed} (${uuids.length}개)`) // R2245: _pageTurningSpeed CC3.x
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, pageTurningSpeed, _pageTurningSpeed: pageTurningSpeed, _N$pageTurningSpeed: pageTurningSpeed } },
+            `PageView pageTurningSpeed=${pageTurningSpeed} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7686,16 +6736,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchPVEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPVEnabled(sceneFile.root) })
-          setBatchMsg(`✓ PageView enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `PageView enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7712,15 +6757,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVEffectType = async (effectType: number) => {
           if (!sceneFile.root) return
-          function patchPVEffectType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVEffectType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, effectType, _effectType: effectType, _N$effectType: effectType } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPVEffectType(sceneFile.root) })
-          setBatchMsg(`✓ PageView effectType=${['NONE','SCROLL','FADE'][effectType] ?? effectType} (${uuids.length}개)`) // R2245: _effectType CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, effectType, _effectType: effectType, _N$effectType: effectType } },
+            `PageView effectType=${['NONE','SCROLL','FADE'][effectType] ?? effectType} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7736,14 +6777,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPageViewDir = async (direction: number) => {
           if (!sceneFile.root) return
-          function patchPageViewDir(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPageViewDir)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPageViewDir(sceneFile.root) })
-          setBatchMsg(`✓ PageView direction=${direction} (${uuids.length}개)`) // R2246: _direction CC3.x
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            `PageView direction=${direction} (${uuids.length}개)`,
+          )
         }
         // 0=Horizontal, 1=Vertical
         return (
@@ -7762,16 +6800,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVBounce = async (v: boolean) => {
           if (!sceneFile.root) return
-          function patchPVBounce(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVBounce)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPVBounce(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PageView bounce=${v} (${uuids.length}개)`) // R2259: _bounceEnabled CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } },
+            `PageView bounce=${v} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7789,14 +6822,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVAutoThresh = async (threshold: number) => {
           if (!sceneFile.root) return
-          function patchPVAutoThresh(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVAutoThresh)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, autoPageTurningThreshold: threshold, _autoPageTurningThreshold: threshold, _N$autoPageTurningThreshold: threshold } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPVAutoThresh(sceneFile.root) })
-          setBatchMsg(`✓ PageView autoPageTurningThreshold=${threshold} (${uuids.length}개)`) // R2246: _autoPageTurningThreshold CC3.x
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, autoPageTurningThreshold: threshold, _autoPageTurningThreshold: threshold, _N$autoPageTurningThreshold: threshold } },
+            `PageView autoPageTurningThreshold=${threshold} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7812,16 +6842,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVScrollThresh = async (threshold: number) => {
           if (!sceneFile.root) return
-          function patchPVScrollThresh(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVScrollThresh)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, scrollThreshold: threshold, _scrollThreshold: threshold, _N$scrollThreshold: threshold } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPVScrollThresh(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PageView scrollThresh=${threshold} (${uuids.length}개)`) // R2247: _scrollThreshold CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, scrollThreshold: threshold, _scrollThreshold: threshold, _N$scrollThreshold: threshold } },
+            `PageView scrollThresh=${threshold} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7839,16 +6864,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVAutoPlay = async (autoPlay: boolean) => {
           if (!sceneFile.root) return
-          function patchPVAutoPlay(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVAutoPlay)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView'
-              ? { ...c, props: { ...c.props, autoPlay, _autoPlay: autoPlay } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPVAutoPlay(sceneFile.root) })
-          setBatchMsg(`✓ PageView autoPlay=${autoPlay} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, autoPlay, _autoPlay: autoPlay } },
+            `PageView autoPlay=${autoPlay} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7865,16 +6885,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVAutoInterval = async (interval: number) => {
           if (!sceneFile.root) return
-          function patchPVAutoInterval(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVAutoInterval)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, autoPageTurningInterval: interval, _autoPageTurningInterval: interval, _N$autoPageTurningInterval: interval } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPVAutoInterval(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PageView autoInterval=${interval}s (${uuids.length}개)`) // R2247: _autoPageTurningInterval CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, autoPageTurningInterval: interval, _autoPageTurningInterval: interval, _N$autoPageTurningInterval: interval } },
+            `PageView autoInterval=${interval}s (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7892,16 +6907,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVEventTiming = async (pageTurningEventTiming: number) => {
           if (!sceneFile.root) return
-          function patchPVEventTiming(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVEventTiming)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, pageTurningEventTiming, _pageTurningEventTiming: pageTurningEventTiming, _N$pageTurningEventTiming: pageTurningEventTiming } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPVEventTiming(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PageView eventTiming=${pageTurningEventTiming} (${uuids.length}개)`) // R2248: _pageTurningEventTiming CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, pageTurningEventTiming, _pageTurningEventTiming: pageTurningEventTiming, _N$pageTurningEventTiming: pageTurningEventTiming } },
+            `PageView eventTiming=${pageTurningEventTiming} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7917,15 +6927,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVSlideDur = async (dur: number) => {
           if (!sceneFile.root) return
-          function patchPVSlideDur(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVSlideDur)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, slideDuration: dur, _slideDuration: dur, _N$slideDuration: dur } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPVSlideDur(sceneFile.root) }) // R2248: _slideDuration CC3.x + saveScene 버그 수정
-          setBatchMsg(`✓ PageView slideDur ${dur}s (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, slideDuration: dur, _slideDuration: dur, _N$slideDuration: dur } },
+            `PageView slideDur ${dur}s (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7943,15 +6949,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVDir = async (direction: number) => {
           if (!sceneFile.root) return
-          function patchPVDir(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVDir)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView' ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchPVDir(sceneFile.root))
-          setBatchMsg(`✓ PageView dir=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            `PageView dir=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -7975,15 +6977,11 @@ export function CCFileBatchInspector({
               title={`${key} = ${val} (모든 선택 노드)`}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchAudio(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchAudio)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchAudio(sceneFile.root))
-                setBatchMsg(`✓ ${key} ${val} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.AudioSource',
+                  c => { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } },
+                  `${key} ${val} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: val ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
             >{label}</span>
@@ -8002,15 +7000,11 @@ export function CCFileBatchInspector({
               title={`${key} = ${val}`}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchAnim(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchAnim)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchAnim(sceneFile.root))
-                setBatchMsg(`✓ Animation ${key} ${val} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Animation',
+                  c => { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } },
+                  `Animation ${key} ${val} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: val ? '#fbbf24' : 'var(--text-muted)', userSelect: 'none' }}
             >{label}</span>
@@ -8021,16 +7015,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Animation') && (() => {
         const applyAnimEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchAnimEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAnimEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Animation'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAnimEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Animation enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Animation',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Animation enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8047,15 +7036,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Animation') && (() => {
         const applyAnimSample = async (sample: number) => {
           if (!sceneFile.root) return
-          function patchAnimSample(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAnimSample)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, sample, _sample: sample, _N$sample: sample } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAnimSample(sceneFile.root) })
-          setBatchMsg(`✓ Animation sample=${sample} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Animation',
+            c => { ...c, props: { ...c.props, sample, _sample: sample, _N$sample: sample } },
+            `Animation sample=${sample} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8071,16 +7056,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Animation') && (() => {
         const applyAnimSpeed = async (speed: number) => {
           if (!sceneFile.root) return
-          function patchAnimSpeed(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAnimSpeed)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchAnimSpeed(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Animation speed=${speed}x (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Animation',
+            c => { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } },
+            `Animation speed=${speed}x (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8096,14 +7076,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Animation') && (() => {
         const applyAnimWrapMode = async (wrapMode: number) => {
           if (!sceneFile.root) return
-          function patchAnimWrapMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAnimWrapMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Animation' ? { ...c, props: { ...c.props, defaultClipSettings: { ...(c.props.defaultClipSettings as object ?? {}), wrapMode } } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchAnimWrapMode(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Animation',
+            c => { ...c, props: { ...c.props, defaultClipSettings: { ...(c.props.defaultClipSettings as object ?? {}), wrapMode } } },
+            `Anim Wrap Mode`,
+          )
           const names: Record<number, string> = { 0: 'Default', 1: 'Normal', 2: 'Loop', 3: 'PingPong', 4: 'Reverse', 5: 'LoopRev' }
           setBatchMsg(`✓ Anim wrapMode=${names[wrapMode] ?? wrapMode} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -8122,16 +7099,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.WebView') && (() => {
         const applyWebViewEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchWebViewEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWebViewEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.WebView'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWebViewEnabled(sceneFile.root) })
-          setBatchMsg(`✓ WebView enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.WebView',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `WebView enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8148,16 +7120,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchVideoEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchVideoEnabled(sceneFile.root) })
-          setBatchMsg(`✓ VideoPlayer enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `VideoPlayer enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8174,15 +7141,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoToggle = async (key: 'loop' | 'muted', value: boolean) => {
           if (!sceneFile.root) return
-          function patchVideo(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideo)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchVideo(sceneFile.root))
-          setBatchMsg(`✓ VideoPlayer ${key}=${value} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } },
+            `VideoPlayer ${key}=${value} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8198,15 +7161,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoPBRate = async (rate: number) => {
           if (!sceneFile.root) return
-          function patchVideoPB(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoPB)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, playbackRate: rate, _playbackRate: rate, _N$playbackRate: rate } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchVideoPB(sceneFile.root))
-          setBatchMsg(`✓ VideoPlayer ×${rate} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, playbackRate: rate, _playbackRate: rate, _N$playbackRate: rate } },
+            `VideoPlayer ×${rate} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8224,16 +7183,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoFullscreen = async (fullScreenEnabled: boolean) => {
           if (!sceneFile.root) return
-          function patchVideoFullscreen(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoFullscreen)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, fullScreenEnabled, _fullScreenEnabled: fullScreenEnabled, _N$fullScreenEnabled: fullScreenEnabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchVideoFullscreen(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ VideoPlayer fullscreen=${fullScreenEnabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, fullScreenEnabled, _fullScreenEnabled: fullScreenEnabled, _N$fullScreenEnabled: fullScreenEnabled } },
+            `VideoPlayer fullscreen=${fullScreenEnabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8249,14 +7203,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoVol = async (volume: number) => {
           if (!sceneFile.root) return
-          function patchVideoVol(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoVol)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchVideoVol(sceneFile.root) })
-          setBatchMsg(`✓ VideoPlayer volume=${volume} (${uuids.length}개)`) // R2239: _volume CC3.x
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } },
+            `VideoPlayer volume=${volume} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8274,16 +7225,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoKeepAspect = async (keepAspectRatio: boolean) => {
           if (!sceneFile.root) return
-          function patchVideoKeepAspect(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoKeepAspect)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer'
-              ? { ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchVideoKeepAspect(sceneFile.root) })
-          setBatchMsg(`✓ VideoPlayer keepAspectRatio=${keepAspectRatio} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio } },
+            `VideoPlayer keepAspectRatio=${keepAspectRatio} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8300,14 +7246,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoMuted = async (muted: boolean) => {
           if (!sceneFile.root) return
-          function patchVideoMuted(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoMuted)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, muted, _muted: muted } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchVideoMuted(sceneFile.root) })
-          setBatchMsg(`✓ VideoPlayer muted=${muted} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, muted, _muted: muted } },
+            `VideoPlayer muted=${muted} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8323,14 +7266,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoResType = async (resourceType: number) => {
           if (!sceneFile.root) return
-          function patchVideoResType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoResType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, resourceType, _resourceType: resourceType, _N$resourceType: resourceType } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchVideoResType(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, resourceType, _resourceType: resourceType, _N$resourceType: resourceType } },
+            `Video Res Type`,
+          )
           const names = ['Local','Remote']
           setBatchMsg(`✓ VideoPlayer resourceType=${names[resourceType]??resourceType} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -8349,16 +7289,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoKeepAspect = async (keepAspectRatio: boolean) => {
           if (!sceneFile.root) return
-          function patchVideoKeepAspect(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoKeepAspect)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio, _N$keepAspectRatio: keepAspectRatio } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchVideoKeepAspect(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ VideoPlayer keepAspect=${keepAspectRatio} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio, _N$keepAspectRatio: keepAspectRatio } },
+            `VideoPlayer keepAspect=${keepAspectRatio} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8374,15 +7309,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.VideoPlayer') && (() => {
         const applyVideoStart = async (startTime: number) => {
           if (!sceneFile.root) return
-          function patchVideoStart(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchVideoStart)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.VideoPlayer' ? { ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchVideoStart(sceneFile.root) })
-          setBatchMsg(`✓ VideoPlayer startTime=${startTime}s (${uuids.length}개)`) // R2249: _startTime CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.VideoPlayer',
+            c => { ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } },
+            `VideoPlayer startTime=${startTime}s (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8400,14 +7331,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMSFastMode = async (fastMode: boolean) => {
           if (!sceneFile.root) return
-          function patchMSFastMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMSFastMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, fastMode, _fastMode: fastMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMSFastMode(sceneFile.root) })
-          setBatchMsg(`✓ MotionStreak fastMode=${fastMode} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, fastMode, _fastMode: fastMode } },
+            `MotionStreak fastMode=${fastMode} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -8424,14 +7352,11 @@ export function CCFileBatchInspector({
         const applyMSColor = async (hex: string) => {
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
-          function patchMSColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMSColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 }, _N$color: { r, g, b, a: 255 } } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMSColor(sceneFile.root) })
-          setBatchMsg(`✓ MotionStreak color=${hex} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 }, _N$color: { r, g, b, a: 255 } } },
+            `MotionStreak color=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8452,14 +7377,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMSStroke = async (stroke: number) => {
           if (!sceneFile.root) return
-          function patchMSStroke(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMSStroke)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMSStroke(sceneFile.root) })
-          setBatchMsg(`✓ MotionStreak stroke=${stroke} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } },
+            `MotionStreak stroke=${stroke} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8477,14 +7399,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMSFade = async (fade: number) => {
           if (!sceneFile.root) return
-          function patchMSFade(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMSFade)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMSFade(sceneFile.root) })
-          setBatchMsg(`✓ MotionStreak fade=${fade} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } },
+            `MotionStreak fade=${fade} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8502,16 +7421,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMSMinSeg = async (minSeg: number) => {
           if (!sceneFile.root) return
-          function patchMSMinSeg(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMSMinSeg)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchMSMinSeg(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ MotionStreak minSeg=${minSeg} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } },
+            `MotionStreak minSeg=${minSeg} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8527,16 +7441,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMotionEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchMotionEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMotionEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMotionEnabled(sceneFile.root) })
-          setBatchMsg(`✓ MotionStreak enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `MotionStreak enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8553,16 +7462,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMSTtl = async (time: number) => {
           if (!sceneFile.root) return
-          function patchMSTtl(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMSTtl)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak'
-              ? { ...c, props: { ...c.props, timeToLive: time, _timeToLive: time } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMSTtl(sceneFile.root) })
-          setBatchMsg(`✓ MotionStreak timeToLive=${time} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, timeToLive: time, _timeToLive: time } },
+            `MotionStreak timeToLive=${time} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8579,15 +7483,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMSSpeedThresh = async (speedThreshold: number) => {
           if (!sceneFile.root) return
-          function patchMSSpeedThresh(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMSSpeedThresh)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, speedThreshold, _speedThreshold: speedThreshold, _N$speedThreshold: speedThreshold } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMSSpeedThresh(sceneFile.root) })
-          setBatchMsg(`✓ MotionStreak speedThreshold=${speedThreshold} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, speedThreshold, _speedThreshold: speedThreshold, _N$speedThreshold: speedThreshold } },
+            `MotionStreak speedThreshold=${speedThreshold} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8603,15 +7503,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMotionStroke = async (stroke: number) => {
           if (!sceneFile.root) return
-          function patchMotionStroke(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMotionStroke)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchMotionStroke(sceneFile.root))
-          setBatchMsg(`✓ MotionStreak stroke=${stroke} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } },
+            `MotionStreak stroke=${stroke} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8629,15 +7525,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMotionFade = async (fade: number) => {
           if (!sceneFile.root) return
-          function patchMotionFade(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMotionFade)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchMotionFade(sceneFile.root))
-          setBatchMsg(`✓ MotionStreak fade=${fade} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } },
+            `MotionStreak fade=${fade} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8655,15 +7547,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.MotionStreak') && (() => {
         const applyMotionSeg = async (minSeg: number) => {
           if (!sceneFile.root) return
-          function patchMotionSeg(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMotionSeg)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMotionSeg(sceneFile.root) })
-          setBatchMsg(`✓ MotionStreak minSeg ${minSeg} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } },
+            `MotionStreak minSeg ${minSeg} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8683,16 +7571,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 255 }
-          function patchMotionColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMotionColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.MotionStreak' ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchMotionColor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ MotionStreak color (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.MotionStreak',
+            c => { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } },
+            `MotionStreak color (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8713,15 +7596,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBSpeed = async (timeScale: number) => {
           if (!sceneFile.root) return
-          function patchDB(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchDB)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchDB(sceneFile.root))
-          setBatchMsg(`✓ DragonBones ×${timeScale} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'dragonBones.ArmatureDisplay',
+            c => { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } },
+            `DragonBones ×${timeScale} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8739,15 +7618,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBPlayOnLoad = async (playOnLoad: boolean) => {
           if (!sceneFile.root) return
-          function patchDBPlayOnLoad(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchDBPlayOnLoad)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad, _N$playOnLoad: playOnLoad } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchDBPlayOnLoad(sceneFile.root) })
-          setBatchMsg(`✓ DragonBones playOnLoad=${playOnLoad} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'dragonBones.ArmatureDisplay',
+            c => { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad, _N$playOnLoad: playOnLoad } },
+            `DragonBones playOnLoad=${playOnLoad} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -8765,14 +7640,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBPlayTimes = async (playTimes: number) => {
           if (!sceneFile.root) return
-          function patchDBPlayTimes(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchDBPlayTimes)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, playTimes, _playTimes: playTimes, _N$playTimes: playTimes } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchDBPlayTimes(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'dragonBones.ArmatureDisplay',
+            c => { ...c, props: { ...c.props, playTimes, _playTimes: playTimes, _N$playTimes: playTimes } },
+            `D B Play Times`,
+          )
           const label = playTimes === -1 ? '∞' : `${playTimes}x`
           setBatchMsg(`✓ DB playTimes=${label} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -8791,16 +7663,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBLoop = async (loop: boolean) => {
           if (!sceneFile.root) return
-          function patchDBLoop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchDBLoop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchDBLoop(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ DragonBones loop=${loop} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'dragonBones.ArmatureDisplay',
+            c => { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } },
+            `DragonBones loop=${loop} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8816,14 +7683,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBDebugBones = async (debugBones: boolean) => {
           if (!sceneFile.root) return
-          function patchDBDebugBones(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchDBDebugBones)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchDBDebugBones(sceneFile.root) })
-          setBatchMsg(`✓ DragonBones debugBones=${debugBones} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'dragonBones.ArmatureDisplay',
+            c => { ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } },
+            `DragonBones debugBones=${debugBones} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -8839,16 +7703,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchDBEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchDBEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchDBEnabled(sceneFile.root) })
-          setBatchMsg(`✓ dragonBones.ArmatureDisplay enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'dragonBones.ArmatureDisplay',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `dragonBones.ArmatureDisplay enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8865,15 +7724,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('dragonBones.ArmatureDisplay') && (() => {
         const applyDBBlendMode = async (blendMode: number) => {
           if (!sceneFile.root) return
-          function patchDBBlendMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchDBBlendMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'dragonBones.ArmatureDisplay' ? { ...c, props: { ...c.props, blendMode, _blendMode: blendMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchDBBlendMode(sceneFile.root) })
-          setBatchMsg(`✓ DragonBones blendMode=${['NORM','ADD','MULT'][blendMode] ?? blendMode} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'dragonBones.ArmatureDisplay',
+            c => { ...c, props: { ...c.props, blendMode, _blendMode: blendMode } },
+            `DragonBones blendMode=${['NORM','ADD','MULT'][blendMode] ?? blendMode} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8889,15 +7744,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineSpeed = async (timeScale: number) => {
           if (!sceneFile.root) return
-          function patchSpine(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpine)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSpine(sceneFile.root))
-          setBatchMsg(`✓ Spine ×${timeScale} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } },
+            `Spine ×${timeScale} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8915,15 +7766,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineLoop = async (loop: boolean) => {
           if (!sceneFile.root) return
-          function patchSpineLoop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpineLoop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpineLoop(sceneFile.root) })
-          setBatchMsg(`✓ Spine loop=${loop} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } },
+            `Spine loop=${loop} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -8941,16 +7788,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineTimeScale = async (timeScale: number) => {
           if (!sceneFile.root) return
-          function patchSpineTimeScale(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpineTimeScale)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSpineTimeScale(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Skeleton timeScale=${timeScale}x (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } },
+            `Skeleton timeScale=${timeScale}x (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8966,16 +7808,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpinePremult = async (premultipliedAlpha: boolean) => {
           if (!sceneFile.root) return
-          function patchSpinePremult(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpinePremult)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, premultipliedAlpha, _premultipliedAlpha: premultipliedAlpha, _N$premultipliedAlpha: premultipliedAlpha } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSpinePremult(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Spine premultAlpha=${premultipliedAlpha} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, premultipliedAlpha, _premultipliedAlpha: premultipliedAlpha, _N$premultipliedAlpha: premultipliedAlpha } },
+            `Spine premultAlpha=${premultipliedAlpha} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -8991,14 +7828,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpinePaused = async (paused: boolean) => {
           if (!sceneFile.root) return
-          function patchSpinePaused(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpinePaused)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, paused, _paused: paused, _N$paused: paused } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpinePaused(sceneFile.root) })
-          setBatchMsg(`✓ Spine paused=${paused} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, paused, _paused: paused, _N$paused: paused } },
+            `Spine paused=${paused} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9014,14 +7848,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineDebugBones = async (debugBones: boolean) => {
           if (!sceneFile.root) return
-          function patchSpineDebugBones(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpineDebugBones)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpineDebugBones(sceneFile.root) })
-          setBatchMsg(`✓ Spine debugBones=${debugBones} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } },
+            `Spine debugBones=${debugBones} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9037,14 +7868,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineDebugSlots = async (debugSlots: boolean) => {
           if (!sceneFile.root) return
-          function patchSpineDebugSlots(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpineDebugSlots)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, debugSlots, _debugSlots: debugSlots, _N$debugSlots: debugSlots } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpineDebugSlots(sceneFile.root) })
-          setBatchMsg(`✓ Spine debugSlots=${debugSlots} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, debugSlots, _debugSlots: debugSlots, _N$debugSlots: debugSlots } },
+            `Spine debugSlots=${debugSlots} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9060,14 +7888,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineUseTint = async (useTint: boolean) => {
           if (!sceneFile.root) return
-          function patchSpineUseTint(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpineUseTint)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, useTint, _useTint: useTint, _N$useTint: useTint } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpineUseTint(sceneFile.root) })
-          setBatchMsg(`✓ Spine useTint=${useTint} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, useTint, _useTint: useTint, _N$useTint: useTint } },
+            `Spine useTint=${useTint} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9083,16 +7908,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchParticleEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D')
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchParticleEnabled(sceneFile.root) })
-          setBatchMsg(`✓ ParticleSystem enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `ParticleSystem enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9109,16 +7929,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchSpineEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpineEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpineEnabled(sceneFile.root) })
-          setBatchMsg(`✓ sp.Skeleton enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `sp.Skeleton enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9135,15 +7950,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('sp.Skeleton') && (() => {
         const applySpineEnableBatch = async (enableBatch: boolean) => {
           if (!sceneFile.root) return
-          function patchSpineEnableBatch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpineEnableBatch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'sp.Skeleton' ? { ...c, props: { ...c.props, enableBatch, _enableBatch: enableBatch, _N$enableBatch: enableBatch } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpineEnableBatch(sceneFile.root) })
-          setBatchMsg(`✓ Spine enableBatch=${enableBatch} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'sp.Skeleton',
+            c => { ...c, props: { ...c.props, enableBatch, _enableBatch: enableBatch, _N$enableBatch: enableBatch } },
+            `Spine enableBatch=${enableBatch} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9159,16 +7970,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticlePosX = async (x: number) => {
           if (!sceneFile.root) return
-          function patchParticlePosX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticlePosX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D')
-              ? { ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), x }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), x } } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchParticlePosX(sceneFile.root) })
-          setBatchMsg(`✓ ParticleSystem sourcePos.x=${x} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), x }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), x } } },
+            `ParticleSystem sourcePos.x=${x} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9185,16 +7991,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticlePosY = async (y: number) => {
           if (!sceneFile.root) return
-          function patchParticlePosY(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticlePosY)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D')
-              ? { ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), y }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), y } } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchParticlePosY(sceneFile.root) })
-          setBatchMsg(`✓ ParticleSystem sourcePos.y=${y} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), y }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), y } } },
+            `ParticleSystem sourcePos.y=${y} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9211,17 +8012,12 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleLoop = async (loop: boolean) => {
           if (!sceneFile.root) return
-          function patchParticleLoop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleLoop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             // loop is achieved by setting duration = -1 or duration = positive
             const dur = loop ? -1 : 1
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchParticleLoop(sceneFile.root) })
-          setBatchMsg(`✓ ParticleSystem loop=${loop} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } } : c)
+            return { ...n, components }
+          }, `ParticleSystem loop=${loop} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9239,14 +8035,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEmitterMode = async (emitterMode: number) => {
           if (!sceneFile.root) return
-          function patchPSEmitterMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEmitterMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, emitterMode, _emitterMode: emitterMode, _N$emitterMode: emitterMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSEmitterMode(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, emitterMode, _emitterMode: emitterMode, _N$emitterMode: emitterMode } },
+            `P S Emitter Mode`,
+          )
           const names = ['Gravity', 'Radius']
           setBatchMsg(`✓ PS emitterMode=${names[emitterMode] ?? emitterMode} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -9265,16 +8058,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSAutoRemove = async (autoRemoveOnFinish: boolean) => {
           if (!sceneFile.root) return
-          function patchPSAutoRemove(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSAutoRemove)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, autoRemoveOnFinish, _autoRemoveOnFinish: autoRemoveOnFinish } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSAutoRemove(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS autoRemove=${autoRemoveOnFinish} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, autoRemoveOnFinish, _autoRemoveOnFinish: autoRemoveOnFinish } },
+            `PS autoRemove=${autoRemoveOnFinish} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9290,16 +8078,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSBlend = async (src: number, dst: number, label: string) => {
           if (!sceneFile.root) return
-          function patchPSBlend(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSBlend)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSBlend(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS blend=${label} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } },
+            `PS blend=${label} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9317,14 +8100,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSPosType = async (positionType: number) => {
           if (!sceneFile.root) return
-          function patchPSPosType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSPosType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, positionType, _positionType: positionType, _N$positionType: positionType } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSPosType(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, positionType, _positionType: positionType, _N$positionType: positionType } },
+            `P S Pos Type`,
+          )
           const names = ['Free', 'Relative', 'Group']
           setBatchMsg(`✓ PS positionType=${names[positionType] ?? positionType} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -9343,15 +8123,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleSize = async (startSize: number) => {
           if (!sceneFile.root) return
-          function patchPSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchPSize(sceneFile.root))
-          setBatchMsg(`✓ Particle startSize ${startSize} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } },
+            `Particle startSize ${startSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9369,15 +8145,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleRate = async (rate: number) => {
           if (!sceneFile.root) return
-          function patchParticle(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticle)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, emissionRate: rate, _emissionRate: rate, _N$emissionRate: rate } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchParticle(sceneFile.root))
-          setBatchMsg(`✓ Particle emitRate ${rate} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, emissionRate: rate, _emissionRate: rate, _N$emissionRate: rate } },
+            `Particle emitRate ${rate} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9395,15 +8167,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleMax = async (max: number) => {
           if (!sceneFile.root) return
-          function patchParticleMax(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleMax)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, maxParticles: max, _maxParticles: max, _N$maxParticles: max, totalParticles: max, _totalParticles: max, _N$totalParticles: max } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchParticleMax(sceneFile.root))
-          setBatchMsg(`✓ Particle maxParticles ${max} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, maxParticles: max, _maxParticles: max, _N$maxParticles: max, totalParticles: max, _totalParticles: max, _N$totalParticles: max } },
+            `Particle maxParticles ${max} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9421,15 +8189,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleDur = async (dur: number) => {
           if (!sceneFile.root) return
-          function patchParticleDur(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleDur)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchParticleDur(sceneFile.root))
-          setBatchMsg(`✓ Particle duration ${dur < 0 ? '∞' : `${dur}s`} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } },
+            `Particle duration ${dur < 0 ? '∞' : `${dur}s`} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9447,13 +8211,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleSpeed = async (speed: number) => {
           if (!sceneFile.root) return
-          function patchParticleSpeed(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleSpeed)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchParticleSpeed(sceneFile.root) })
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } },
+            `Particle Speed`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9471,16 +8233,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSAngleVar = async (angleVar: number) => {
           if (!sceneFile.root) return
-          function patchPSAngleVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSAngleVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, angleVar, _angleVar: angleVar, _N$angleVar: angleVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSAngleVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS angleVar=${angleVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, angleVar, _angleVar: angleVar, _N$angleVar: angleVar } },
+            `PS angleVar=${angleVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9496,13 +8253,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleAngle = async (angle: number) => {
           if (!sceneFile.root) return
-          function patchParticleAngle(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleAngle)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchParticleAngle(sceneFile.root) })
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } },
+            `Particle Angle`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9520,15 +8275,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyMaxParticles = async (maxParticles: number) => {
           if (!sceneFile.root) return
-          function patchMaxParticles(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMaxParticles)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, maxParticles, _maxParticles: maxParticles, _N$maxParticles: maxParticles } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMaxParticles(sceneFile.root) })
-          setBatchMsg(`✓ ParticleSystem maxParticles ${maxParticles} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, maxParticles, _maxParticles: maxParticles, _N$maxParticles: maxParticles } },
+            `ParticleSystem maxParticles ${maxParticles} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9546,16 +8297,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleEmission = async (emissionRate: number) => {
           if (!sceneFile.root) return
-          function patchParticleEmission(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleEmission)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, emissionRate, _emissionRate: emissionRate, _N$emissionRate: emissionRate } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchParticleEmission(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ParticleSystem emissionRate=${emissionRate} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, emissionRate, _emissionRate: emissionRate, _N$emissionRate: emissionRate } },
+            `ParticleSystem emissionRate=${emissionRate} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9573,16 +8319,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSAngle = async (angle: number) => {
           if (!sceneFile.root) return
-          function patchPSAngle(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSAngle)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSAngle(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS angle=${angle}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } },
+            `PS angle=${angle}° (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9598,16 +8339,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndSpin = async (endSpin: number) => {
           if (!sceneFile.root) return
-          function patchPSEndSpin(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndSpin)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSpin, _endSpin: endSpin, _N$endSpin: endSpin } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSEndSpin(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS endSpin=${endSpin}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endSpin, _endSpin: endSpin, _N$endSpin: endSpin } },
+            `PS endSpin=${endSpin}° (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9623,16 +8359,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndSizeVar = async (endSizeVar: number) => {
           if (!sceneFile.root) return
-          function patchPSEndSizeVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndSizeVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSizeVar, _endSizeVar: endSizeVar, _N$endSizeVar: endSizeVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSEndSizeVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS endSizeVar=${endSizeVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endSizeVar, _endSizeVar: endSizeVar, _N$endSizeVar: endSizeVar } },
+            `PS endSizeVar=${endSizeVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9648,16 +8379,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndSpinVar = async (endSpinVar: number) => {
           if (!sceneFile.root) return
-          function patchPSEndSpinVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndSpinVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSpinVar, _endSpinVar: endSpinVar, _N$endSpinVar: endSpinVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSEndSpinVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS endSpinVar=${endSpinVar}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endSpinVar, _endSpinVar: endSpinVar, _N$endSpinVar: endSpinVar } },
+            `PS endSpinVar=${endSpinVar}° (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9673,16 +8399,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartSpinVar = async (startSpinVar: number) => {
           if (!sceneFile.root) return
-          function patchPSStartSpinVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartSpinVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSpinVar, _startSpinVar: startSpinVar, _N$startSpinVar: startSpinVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSStartSpinVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS startSpinVar=${startSpinVar}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startSpinVar, _startSpinVar: startSpinVar, _N$startSpinVar: startSpinVar } },
+            `PS startSpinVar=${startSpinVar}° (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9698,16 +8419,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartSpin = async (startSpin: number) => {
           if (!sceneFile.root) return
-          function patchPSStartSpin(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartSpin)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSpin, _startSpin: startSpin, _N$startSpin: startSpin } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSStartSpin(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS startSpin=${startSpin}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startSpin, _startSpin: startSpin, _N$startSpin: startSpin } },
+            `PS startSpin=${startSpin}° (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9723,16 +8439,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSTangAccelVar = async (tangentialAccelVar: number) => {
           if (!sceneFile.root) return
-          function patchPSTangAccelVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSTangAccelVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, tangentialAccelVar, _tangentialAccelVar: tangentialAccelVar, _N$tangentialAccelVar: tangentialAccelVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSTangAccelVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS tangentialAccelVar=${tangentialAccelVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, tangentialAccelVar, _tangentialAccelVar: tangentialAccelVar, _N$tangentialAccelVar: tangentialAccelVar } },
+            `PS tangentialAccelVar=${tangentialAccelVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9748,16 +8459,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSTangAccel = async (tangentialAccel: number) => {
           if (!sceneFile.root) return
-          function patchPSTangAccel(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSTangAccel)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, tangentialAccel, _tangentialAccel: tangentialAccel, _N$tangentialAccel: tangentialAccel } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSTangAccel(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS tangentialAccel=${tangentialAccel} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, tangentialAccel, _tangentialAccel: tangentialAccel, _N$tangentialAccel: tangentialAccel } },
+            `PS tangentialAccel=${tangentialAccel} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9773,16 +8479,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRadialAccelVar = async (radialAccelVar: number) => {
           if (!sceneFile.root) return
-          function patchPSRadialAccelVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSRadialAccelVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, radialAccelVar, _radialAccelVar: radialAccelVar, _N$radialAccelVar: radialAccelVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSRadialAccelVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS radialAccelVar=${radialAccelVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, radialAccelVar, _radialAccelVar: radialAccelVar, _N$radialAccelVar: radialAccelVar } },
+            `PS radialAccelVar=${radialAccelVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9798,16 +8499,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRadialAccel = async (radialAccel: number) => {
           if (!sceneFile.root) return
-          function patchPSRadialAccel(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSRadialAccel)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, radialAccel, _radialAccel: radialAccel, _N$radialAccel: radialAccel } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSRadialAccel(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS radialAccel=${radialAccel} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, radialAccel, _radialAccel: radialAccel, _N$radialAccel: radialAccel } },
+            `PS radialAccel=${radialAccel} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9823,16 +8519,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSSpeed = async (speed: number) => {
           if (!sceneFile.root) return
-          function patchPSSpeed(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSSpeed)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSSpeed(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS speed=${speed} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } },
+            `PS speed=${speed} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9848,14 +8539,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSDuration = async (duration: number) => {
           if (!sceneFile.root) return
-          function patchPSDuration(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSDuration)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, duration, _duration: duration, _N$duration: duration } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSDuration(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, duration, _duration: duration, _N$duration: duration } },
+            `P S Duration`,
+          )
           const label = duration === -1 ? '∞' : `${duration}s`
           setBatchMsg(`✓ PS duration=${label} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -9874,16 +8562,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSTotalPart = async (totalParticles: number) => {
           if (!sceneFile.root) return
-          function patchPSTotalPart(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSTotalPart)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, totalParticles, _totalParticles: totalParticles, _N$totalParticles: totalParticles } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSTotalPart(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS totalParticles=${totalParticles} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, totalParticles, _totalParticles: totalParticles, _N$totalParticles: totalParticles } },
+            `PS totalParticles=${totalParticles} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9899,14 +8582,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSSimSpace = async (simulationSpace: number) => {
           if (!sceneFile.root) return
-          function patchPSSimSpace(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSSimSpace)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, simulationSpace, _simulationSpace: simulationSpace, _N$simulationSpace: simulationSpace } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSSimSpace(sceneFile.root) })
-          setBatchMsg(`✓ PS simulationSpace=${simulationSpace === 0 ? 'World' : 'Local'} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, simulationSpace, _simulationSpace: simulationSpace, _N$simulationSpace: simulationSpace } },
+            `PS simulationSpace=${simulationSpace === 0 ? 'World' : 'Local'} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -9922,16 +8602,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRotIsDir = async (rotationIsDir: boolean) => {
           if (!sceneFile.root) return
-          function patchPSRotIsDir(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSRotIsDir)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, rotationIsDir, _rotationIsDir: rotationIsDir, _N$rotationIsDir: rotationIsDir } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSRotIsDir(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS rotationIsDir=${rotationIsDir} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, rotationIsDir, _rotationIsDir: rotationIsDir, _N$rotationIsDir: rotationIsDir } },
+            `PS rotationIsDir=${rotationIsDir} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9947,14 +8622,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndRadiusVar = async (endRadiusVar: number) => {
           if (!sceneFile.root) return
-          function patchPSEndRadiusVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndRadiusVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endRadiusVar, _endRadiusVar: endRadiusVar, _N$endRadiusVar: endRadiusVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSEndRadiusVar(sceneFile.root) })
-          setBatchMsg(`✓ PS endRadiusVar=${endRadiusVar} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endRadiusVar, _endRadiusVar: endRadiusVar, _N$endRadiusVar: endRadiusVar } },
+            `PS endRadiusVar=${endRadiusVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9970,16 +8642,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartRadiusVar = async (startRadiusVar: number) => {
           if (!sceneFile.root) return
-          function patchPSStartRadiusVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartRadiusVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startRadiusVar, _startRadiusVar: startRadiusVar, _N$startRadiusVar: startRadiusVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSStartRadiusVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS startRadiusVar=${startRadiusVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startRadiusVar, _startRadiusVar: startRadiusVar, _N$startRadiusVar: startRadiusVar } },
+            `PS startRadiusVar=${startRadiusVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -9995,16 +8662,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndRadius = async (endRadius: number) => {
           if (!sceneFile.root) return
-          function patchPSEndRadius(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndRadius)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endRadius, _endRadius: endRadius, _N$endRadius: endRadius } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSEndRadius(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS endRadius=${endRadius} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endRadius, _endRadius: endRadius, _N$endRadius: endRadius } },
+            `PS endRadius=${endRadius} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10020,16 +8682,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartRadius = async (startRadius: number) => {
           if (!sceneFile.root) return
-          function patchPSStartRadius(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartRadius)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startRadius, _startRadius: startRadius, _N$startRadius: startRadius } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSStartRadius(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS startRadius=${startRadius} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startRadius, _startRadius: startRadius, _N$startRadius: startRadius } },
+            `PS startRadius=${startRadius} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10045,16 +8702,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRotPerSVar = async (rotatePerSVar: number) => {
           if (!sceneFile.root) return
-          function patchPSRotPerSVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSRotPerSVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, rotatePerSVar, _rotatePerSVar: rotatePerSVar, _N$rotatePerSVar: rotatePerSVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSRotPerSVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS rotatePerSVar=${rotatePerSVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, rotatePerSVar, _rotatePerSVar: rotatePerSVar, _N$rotatePerSVar: rotatePerSVar } },
+            `PS rotatePerSVar=${rotatePerSVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10070,16 +8722,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSRotPerS = async (rotatePerS: number) => {
           if (!sceneFile.root) return
-          function patchPSRotPerS(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSRotPerS)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, rotatePerS, _rotatePerS: rotatePerS, _N$rotatePerS: rotatePerS } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSRotPerS(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS rotatePerS=${rotatePerS} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, rotatePerS, _rotatePerS: rotatePerS, _N$rotatePerS: rotatePerS } },
+            `PS rotatePerS=${rotatePerS} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10095,14 +8742,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndRotVar = async (endRotationVar: number) => {
           if (!sceneFile.root) return
-          function patchPSEndRotVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndRotVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endRotationVar, _endRotationVar: endRotationVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSEndRotVar(sceneFile.root) })
-          setBatchMsg(`✓ PS endRotationVar=${endRotationVar} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endRotationVar, _endRotationVar: endRotationVar } },
+            `PS endRotationVar=${endRotationVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10118,14 +8762,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartRotVar = async (startRotationVar: number) => {
           if (!sceneFile.root) return
-          function patchPSStartRotVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartRotVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startRotationVar, _startRotationVar: startRotationVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSStartRotVar(sceneFile.root) })
-          setBatchMsg(`✓ PS startRotationVar=${startRotationVar} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startRotationVar, _startRotationVar: startRotationVar } },
+            `PS startRotationVar=${startRotationVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10141,14 +8782,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndRot = async (endRotation: number) => {
           if (!sceneFile.root) return
-          function patchPSEndRot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndRot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endRotation, _endRotation: endRotation } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSEndRot(sceneFile.root) })
-          setBatchMsg(`✓ PS endRotation=${endRotation} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endRotation, _endRotation: endRotation } },
+            `PS endRotation=${endRotation} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10164,14 +8802,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartRot = async (startRotation: number) => {
           if (!sceneFile.root) return
-          function patchPSStartRot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartRot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startRotation, _startRotation: startRotation } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSStartRot(sceneFile.root) })
-          setBatchMsg(`✓ PS startRotation=${startRotation} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startRotation, _startRotation: startRotation } },
+            `PS startRotation=${startRotation} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10188,16 +8823,11 @@ export function CCFileBatchInspector({
         const applyPSPosVar = async (v: number) => {
           if (!sceneFile.root) return
           const posVar = { x: v, y: v }
-          function patchPSPosVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSPosVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, posVar, _posVar: posVar, _N$posVar: posVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSPosVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS posVar=(${v},${v}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, posVar, _posVar: posVar, _N$posVar: posVar } },
+            `PS posVar=(${v},${v}) (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10213,18 +8843,14 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSGravY = async (gy: number) => {
           if (!sceneFile.root) return
-          function patchPSGravY(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSGravY)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const updComps = n.components.map(c => {
-              if (c.type !== 'cc.ParticleSystem') return c
-              const grav = (c.props?.gravity as { x?: number; y?: number } | undefined) ?? {}
-              const newGrav = { x: grav.x ?? 0, y: gy }; return { ...c, props: { ...c.props, gravity: newGrav, _gravity: newGrav, _N$gravity: newGrav } }
+            if (c.type !== 'cc.ParticleSystem') return c
+            const grav = (c.props?.gravity as { x?: number; y?: number } | undefined) ?? {}
+            const newGrav = { x: grav.x ?? 0, y: gy }; return { ...c, props: { ...c.props, gravity: newGrav, _gravity: newGrav, _N$gravity: newGrav } }
             })
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSGravY(sceneFile.root) })
-          setBatchMsg(`✓ PS gravity.y=${gy} (${uuids.length}개)`)
+            return { ...n, components: updComps}
+          }, `PS gravity.y=${gy} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10240,19 +8866,13 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSGravityX = async (gx: number) => {
           if (!sceneFile.root) return
-          function patchPSGravityX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSGravityX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const comp = n.components.find(c => c.type === 'cc.ParticleSystem')
             const prevGy = (comp?.props?.gravity as {x:number,y:number}|undefined)?.y ?? 0
             const grav = { x: gx, y: prevGy }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, gravity: grav, _gravity: grav, _N$gravity: grav } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSGravityX(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS gravity.x=${gx} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, gravity: grav, _gravity: grav, _N$gravity: grav } } : c)
+            return { ...n, components }
+          }, `PS gravity.x=${gx} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10268,17 +8888,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSGravity = async (gy: number) => {
           if (!sceneFile.root) return
-          function patchPSGravity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSGravity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const grav = { x: 0, y: gy }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, gravity: grav, _gravity: grav, _N$gravity: grav } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSGravity(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS gravity.y=${gy} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, gravity: grav, _gravity: grav, _N$gravity: grav } } : c)
+            return { ...n, components }
+          }, `PS gravity.y=${gy} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10294,14 +8908,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSLife = async (life: number) => {
           if (!sceneFile.root) return
-          function patchPSLife(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSLife)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, life, _life: life, _N$life: life } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSLife(sceneFile.root) })
-          setBatchMsg(`✓ PS life=${life} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, life, _life: life, _N$life: life } },
+            `PS life=${life} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10319,16 +8930,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSLifeVar = async (lifeVar: number) => {
           if (!sceneFile.root) return
-          function patchPSLifeVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSLifeVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, lifeVar, _lifeVar: lifeVar, _N$lifeVar: lifeVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSLifeVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS lifeVar=${lifeVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, lifeVar, _lifeVar: lifeVar, _N$lifeVar: lifeVar } },
+            `PS lifeVar=${lifeVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10344,16 +8950,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSSpeedVar = async (speedVar: number) => {
           if (!sceneFile.root) return
-          function patchPSSpeedVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSSpeedVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, speedVar, _speedVar: speedVar, _N$speedVar: speedVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSSpeedVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS speedVar=${speedVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, speedVar, _speedVar: speedVar, _N$speedVar: speedVar } },
+            `PS speedVar=${speedVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10369,14 +8970,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSEndSize = async (endSize: number) => {
           if (!sceneFile.root) return
-          function patchPSEndSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSEndSize(sceneFile.root) })
-          setBatchMsg(`✓ PS endSize=${endSize} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } },
+            `PS endSize=${endSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10394,14 +8992,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartSize = async (startSize: number) => {
           if (!sceneFile.root) return
-          function patchPSStartSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSStartSize(sceneFile.root) })
-          setBatchMsg(`✓ PS startSize=${startSize} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } },
+            `PS startSize=${startSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10419,16 +9014,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyPSStartSizeVar = async (startSizeVar: number) => {
           if (!sceneFile.root) return
-          function patchPSStartSizeVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartSizeVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSizeVar, _startSizeVar: startSizeVar, _N$startSizeVar: startSizeVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPSStartSizeVar(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ PS startSizeVar=${startSizeVar} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startSizeVar, _startSizeVar: startSizeVar, _N$startSizeVar: startSizeVar } },
+            `PS startSizeVar=${startSizeVar} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10444,16 +9034,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleStartSize = async (startSize: number) => {
           if (!sceneFile.root) return
-          function patchParticleStartSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleStartSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchParticleStartSize(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ParticleSystem startSize=${startSize} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } },
+            `ParticleSystem startSize=${startSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10471,16 +9056,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleLife = async (life: number) => {
           if (!sceneFile.root) return
-          function patchParticleLife(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleLife)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, life, _life: life, _N$life: life } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchParticleLife(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ParticleSystem life=${life}s (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, life, _life: life, _N$life: life } },
+            `ParticleSystem life=${life}s (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10498,16 +9078,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.ParticleSystem') || commonCompTypes.includes('cc.ParticleSystem2D')) && (() => {
         const applyParticleEndSize = async (endSize: number) => {
           if (!sceneFile.root) return
-          function patchParticleEndSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleEndSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchParticleEndSize(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ParticleSystem endSize=${endSize} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } },
+            `ParticleSystem endSize=${endSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10527,16 +9102,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 255 }
-          function patchParticleStartColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleStartColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startColor: col, _startColor: col, _N$startColor: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchParticleStartColor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ParticleSystem startColor (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startColor: col, _startColor: col, _N$startColor: col } },
+            `ParticleSystem startColor (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10559,16 +9129,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 0 }
-          function patchParticleEndColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchParticleEndColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endColor: col, _endColor: col, _N$endColor: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchParticleEndColor(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ ParticleSystem endColor (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endColor: col, _endColor: col, _N$endColor: col } },
+            `ParticleSystem endColor (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10591,14 +9156,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const startColorVar = { r, g, b, a: 255 }
-          function patchPSStartColorVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSStartColorVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, startColorVar, _startColorVar: startColorVar, _N$startColorVar: startColorVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSStartColorVar(sceneFile.root) })
-          setBatchMsg(`✓ PS startColorVar (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, startColorVar, _startColorVar: startColorVar, _N$startColorVar: startColorVar } },
+            `PS startColorVar (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10621,14 +9183,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const endColorVar = { r, g, b, a: 255 }
-          function patchPSEndColorVar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPSEndColorVar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D') ? { ...c, props: { ...c.props, endColorVar, _endColorVar: endColorVar, _N$endColorVar: endColorVar } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPSEndColorVar(sceneFile.root) })
-          setBatchMsg(`✓ PS endColorVar (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
+            c => { ...c, props: { ...c.props, endColorVar, _endColorVar: endColorVar, _N$endColorVar: endColorVar } },
+            `PS endColorVar (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10649,16 +9208,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.TiledLayer') && (() => {
         const applyTiledLayerEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchTiledLayerEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchTiledLayerEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.TiledLayer'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchTiledLayerEnabled(sceneFile.root) })
-          setBatchMsg(`✓ TiledLayer enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.TiledLayer',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `TiledLayer enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10675,14 +9229,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.TiledLayer') && (() => {
         const applyTiledLayerOpacity = async (opacity: number) => {
           if (!sceneFile.root) return
-          function patchTiledLayerOpacity(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchTiledLayerOpacity)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.TiledLayer' ? { ...c, props: { ...c.props, opacity, _opacity: opacity, _N$opacity: opacity } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchTiledLayerOpacity(sceneFile.root) })
-          setBatchMsg(`✓ TiledLayer opacity=${opacity} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.TiledLayer',
+            c => { ...c, props: { ...c.props, opacity, _opacity: opacity, _N$opacity: opacity } },
+            `TiledLayer opacity=${opacity} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10698,14 +9249,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.TiledLayer') && (() => {
         const applyTiledLayerVisible = async (visible: boolean) => {
           if (!sceneFile.root) return
-          function patchTiledLayerVisible(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchTiledLayerVisible)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.TiledLayer' ? { ...c, props: { ...c.props, visible, _visible: visible, _N$visible: visible } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchTiledLayerVisible(sceneFile.root) })
-          setBatchMsg(`✓ TiledLayer visible=${visible} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.TiledLayer',
+            c => { ...c, props: { ...c.props, visible, _visible: visible, _N$visible: visible } },
+            `TiledLayer visible=${visible} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -10721,16 +9269,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.BlockInputEvents') && (() => {
         const applyBIEEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchBIEEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBIEEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.BlockInputEvents'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBIEEnabled(sceneFile.root) })
-          setBatchMsg(`✓ BlockInputEvents enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.BlockInputEvents',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `BlockInputEvents enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10747,16 +9290,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Canvas') && (() => {
         const applyCanvasEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchCanvasEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCanvasEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCanvasEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Canvas enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Canvas',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Canvas enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10773,14 +9311,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Canvas') && (() => {
         const applyCanvasFitWidth = async (fitWidth: boolean) => {
           if (!sceneFile.root) return
-          function patchCanvasFitWidth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCanvasFitWidth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, _N$fitWidth: fitWidth } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCanvasFitWidth(sceneFile.root) })
-          setBatchMsg(`✓ Canvas fitWidth=${fitWidth} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Canvas',
+            c => { ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, _N$fitWidth: fitWidth } },
+            `Canvas fitWidth=${fitWidth} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -10796,15 +9331,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Canvas') && (() => {
         const applyCanvasResizeWithBrowser = async (resizeWithBrowserSize: boolean) => {
           if (!sceneFile.root) return
-          function patchCanvasResize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCanvasResize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, resizeWithBrowserSize, _resizeWithBrowserSize: resizeWithBrowserSize, _N$resizeWithBrowserSize: resizeWithBrowserSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCanvasResize(sceneFile.root) })
-          setBatchMsg(`✓ Canvas resizeWithBrowserSize=${resizeWithBrowserSize} (${uuids.length}개)`) // R2249: _resizeWithBrowserSize CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Canvas',
+            c => { ...c, props: { ...c.props, resizeWithBrowserSize, _resizeWithBrowserSize: resizeWithBrowserSize, _N$resizeWithBrowserSize: resizeWithBrowserSize } },
+            `Canvas resizeWithBrowserSize=${resizeWithBrowserSize} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10820,14 +9351,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Canvas') && (() => {
         const applyCanvasFitHeight = async (fitHeight: boolean) => {
           if (!sceneFile.root) return
-          function patchCanvasFitHeight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCanvasFitHeight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, fitHeight, _fitHeight: fitHeight, _N$fitHeight: fitHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCanvasFitHeight(sceneFile.root) })
-          setBatchMsg(`✓ Canvas fitHeight=${fitHeight} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Canvas',
+            c => { ...c, props: { ...c.props, fitHeight, _fitHeight: fitHeight, _N$fitHeight: fitHeight } },
+            `Canvas fitHeight=${fitHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -10843,13 +9371,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Canvas') && (() => {
         const applyCanvasResPolicy = async (resolutionPolicy: number) => {
           if (!sceneFile.root) return
-          function patchCanvasResPolicy(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCanvasResPolicy)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, resolutionPolicy, _resolutionPolicy: resolutionPolicy, _N$resolutionPolicy: resolutionPolicy } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCanvasResPolicy(sceneFile.root) })
+          await patchComponents(
+            c => c.type === 'cc.Canvas',
+            c => { ...c, props: { ...c.props, resolutionPolicy, _resolutionPolicy: resolutionPolicy, _N$resolutionPolicy: resolutionPolicy } },
+            `Canvas Res Policy`,
+          )
           const labels = ['SHOW_ALL', 'NO_BORDER', 'EXACT_FIT', 'FIX_H', 'FIX_W']
           setBatchMsg(`✓ Canvas policy=${labels[resolutionPolicy] ?? resolutionPolicy} (${uuids.length}개)`) // R2255: _resolutionPolicy CC3.x
         }
@@ -10870,15 +9396,11 @@ export function CCFileBatchInspector({
         const [drH, setDrH] = React.useState(640)
         const applyCanvasDesignRes = async (w: number, h: number) => {
           if (!sceneFile.root) return
-          function patchCanvasDesignRes(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCanvasDesignRes)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const dr = { width: w, height: h }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, _N$designResolution: dr, _designResolution: dr } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCanvasDesignRes(sceneFile.root) })
-          setBatchMsg(`✓ Canvas designRes=${w}×${h} (${uuids.length}개)`)
+            const components = n.components.map(c => c.type === 'cc.Canvas' ? { ...c, props: { ...c.props, _N$designResolution: dr, _designResolution: dr } } : c)
+            return { ...n, components }
+          }, `Canvas designRes=${w}×${h} (${uuids.length}개)`)
         }
         const presets: [string, number, number][] = [['960×640', 960, 640], ['1280×720', 1280, 720], ['1920×1080', 1920, 1080], ['375×667', 375, 667]]
         return (
@@ -10906,15 +9428,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalSpeed = async (speedRatio: number) => {
           if (!sceneFile.root) return
-          function patchSkeletal(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkeletal)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, speedRatio, _speedRatio: speedRatio } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSkeletal(sceneFile.root))
-          setBatchMsg(`✓ SkeletalAnim ×${speedRatio} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.SkeletalAnimation',
+            c => { ...c, props: { ...c.props, speedRatio, _speedRatio: speedRatio } },
+            `SkeletalAnim ×${speedRatio} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10932,15 +9450,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkelPlayOnLoad = async (playOnLoad: boolean) => {
           if (!sceneFile.root) return
-          function patchSkelPOL(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkelPOL)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSkelPOL(sceneFile.root))
-          setBatchMsg(`✓ SkeletalAnim playOnLoad=${playOnLoad} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.SkeletalAnimation',
+            c => { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } },
+            `SkeletalAnim playOnLoad=${playOnLoad} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10954,16 +9468,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkelSpeed = async (speed: number) => {
           if (!sceneFile.root) return
-          function patchSkelSpeed(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkelSpeed)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSkelSpeed(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ SkeletalAnim speed=${speed}x (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.SkeletalAnimation',
+            c => { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } },
+            `SkeletalAnim speed=${speed}x (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -10979,14 +9488,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkelWrapMode = async (wrapMode: number) => {
           if (!sceneFile.root) return
-          function patchSkelWrapMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkelWrapMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSkelWrapMode(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.SkeletalAnimation',
+            c => { ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } },
+            `Skel Wrap Mode`,
+          )
           const names: Record<number,string> = {1:'Dflt',2:'Norm',3:'Loop',4:'PingPong',8:'Rev'}
           setBatchMsg(`✓ Skel wrapMode=${names[wrapMode]??wrapMode} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -11005,16 +9511,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalLoop = async (loop: boolean) => {
           if (!sceneFile.root) return
-          function patchSkeletalLoop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkeletalLoop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, loop, _loop: loop } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSkeletalLoop(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ SkeletalAnim loop=${loop} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.SkeletalAnimation',
+            c => { ...c, props: { ...c.props, loop, _loop: loop } },
+            `SkeletalAnim loop=${loop} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11030,16 +9531,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalAnimEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchSkeletalAnimEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkeletalAnimEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSkeletalAnimEnabled(sceneFile.root) })
-          setBatchMsg(`✓ SkeletalAnimation enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.SkeletalAnimation',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `SkeletalAnimation enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11056,14 +9552,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.SkeletalAnimation') && (() => {
         const applySkeletalCaching = async (defaultCachingMode: number) => {
           if (!sceneFile.root) return
-          function patchSkeletalCaching(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSkeletalCaching)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.SkeletalAnimation' ? { ...c, props: { ...c.props, defaultCachingMode, _defaultCachingMode: defaultCachingMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSkeletalCaching(sceneFile.root) })
-          setBatchMsg(`✓ SkeletalAnimation cachingMode=${defaultCachingMode} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.SkeletalAnimation',
+            c => { ...c, props: { ...c.props, defaultCachingMode, _defaultCachingMode: defaultCachingMode } },
+            `SkeletalAnimation cachingMode=${defaultCachingMode} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11079,16 +9572,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchSliderEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSliderEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSliderEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Slider enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Slider enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11105,15 +9593,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderProg = async (progress: number) => {
           if (!sceneFile.root) return
-          function patchSlider(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSlider)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSlider(sceneFile.root) }) // R2256: _progress CC3.x + saveScene 버그 수정
-          setBatchMsg(`✓ Slider progress ${Math.round(progress * 100)}% (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } },
+            `Slider progress ${Math.round(progress * 100)}% (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11131,15 +9615,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderDir = async (direction: number) => {
           if (!sceneFile.root) return
-          function patchSliderDir(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSliderDir)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSliderDir(sceneFile.root) }) // R2256: _direction CC3.x + saveScene 버그 수정
-          setBatchMsg(`✓ Slider direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            `Slider direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11153,13 +9633,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderInteract = async (interactable: boolean) => {
           if (!sceneFile.root) return
-          function patchSliderInteract(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSliderInteract)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSliderInteract(sceneFile.root) }) // R2257: _interactable CC3.x
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } },
+            `Slider Interact`,
+          ) // R2257: _interactable CC3.x
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -11173,16 +9651,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderVal = async (progress: number) => {
           if (!sceneFile.root) return
-          function patchSliderVal(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSliderVal)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSliderVal(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Slider value=${progress} (${uuids.length}개)`) // R2260: _progress CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } },
+            `Slider value=${progress} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11198,16 +9671,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderRange = async (min: number, max: number) => {
           if (!sceneFile.root) return
-          function patchSliderRange(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSliderRange)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, minValue: min, maxValue: max, _minValue: min, _maxValue: max, _N$minValue: min, _N$maxValue: max } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSliderRange(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Slider [${min}~${max}] (${uuids.length}개)`) // R2258: _minValue/_maxValue CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, minValue: min, maxValue: max, _minValue: min, _maxValue: max, _N$minValue: min, _N$maxValue: max } },
+            `Slider [${min}~${max}] (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11225,16 +9693,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderStep = async (step: number) => {
           if (!sceneFile.root) return
-          function patchSliderStep(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSliderStep)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider' ? { ...c, props: { ...c.props, step, _step: step, _N$step: step } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSliderStep(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Slider step=${step} (${uuids.length}개)`) // R2257: _step CC3.x
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, step, _step: step, _N$step: step } },
+            `Slider step=${step} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11252,16 +9715,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioPitch = async (pitch: number) => {
           if (!sceneFile.root) return
-          function patchAudioPitch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioPitch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource'
-              ? { ...c, props: { ...c.props, pitch, _pitch: pitch } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAudioPitch(sceneFile.root) })
-          setBatchMsg(`✓ AudioSource pitch=${pitch} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, pitch, _pitch: pitch } },
+            `AudioSource pitch=${pitch} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11278,14 +9736,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioLoop = async (loop: boolean) => {
           if (!sceneFile.root) return
-          function patchAudioLoop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioLoop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, loop, _loop: loop } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAudioLoop(sceneFile.root) })
-          setBatchMsg(`✓ AudioSource loop=${loop} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, loop, _loop: loop } },
+            `AudioSource loop=${loop} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -11301,14 +9756,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioPlayOnLoad = async (playOnLoad: boolean) => {
           if (!sceneFile.root) return
-          function patchAudioPlayOnLoad(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioPlayOnLoad)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAudioPlayOnLoad(sceneFile.root) })
-          setBatchMsg(`✓ AudioSource playOnLoad=${playOnLoad} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } },
+            `AudioSource playOnLoad=${playOnLoad} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -11324,15 +9776,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioVol = async (volume: number) => {
           if (!sceneFile.root) return
-          function patchAudioVol(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioVol)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchAudioVol(sceneFile.root))
-          setBatchMsg(`✓ AudioSource volume ${Math.round(volume * 100)}% (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } },
+            `AudioSource volume ${Math.round(volume * 100)}% (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11350,15 +9798,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioPitch = async (pitch: number) => {
           if (!sceneFile.root) return
-          function patchAudioPitch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioPitch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, pitch, _pitch: pitch } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchAudioPitch(sceneFile.root))
-          setBatchMsg(`✓ AudioSource pitch ${pitch} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, pitch, _pitch: pitch } },
+            `AudioSource pitch ${pitch} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11376,15 +9820,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioPreload = async (preload: boolean) => {
           if (!sceneFile.root) return
-          function patchAudioPreload(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioPreload)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, preload, _preload: preload, _N$preload: preload } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchAudioPreload(sceneFile.root))
-          setBatchMsg(`✓ AudioSource preload ${preload} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, preload, _preload: preload, _N$preload: preload } },
+            `AudioSource preload ${preload} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -11402,16 +9842,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioStart = async (startTime: number) => {
           if (!sceneFile.root) return
-          function patchAudioStart(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioStart)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchAudioStart(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ AudioSource startTime=${startTime}s (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } },
+            `AudioSource startTime=${startTime}s (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11429,15 +9864,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioEnd = async (endTime: number) => {
           if (!sceneFile.root) return
-          function patchAudioEnd(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioEnd)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource' ? { ...c, props: { ...c.props, endTime, _endTime: endTime, _N$endTime: endTime } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAudioEnd(sceneFile.root) })
-          setBatchMsg(`✓ AudioSource endTime=${endTime < 0 ? '∞' : endTime + 's'} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, endTime, _endTime: endTime, _N$endTime: endTime } },
+            `AudioSource endTime=${endTime < 0 ? '∞' : endTime + 's'} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11455,16 +9886,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCameraEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchCameraEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCameraEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCameraEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Camera enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Camera enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11481,15 +9907,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamDepth = async (depth: number) => {
           if (!sceneFile.root) return
-          function patchCamDepth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamDepth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, depth, _depth: depth } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchCamDepth(sceneFile.root))
-          setBatchMsg(`✓ Camera depth ${depth} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, depth, _depth: depth } },
+            `Camera depth ${depth} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11509,15 +9931,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const col = { r, g, b, a: 255 }
-          function patchCamBg(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamBg)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, backgroundColor: col, _backgroundColor: col, _N$backgroundColor: col } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCamBg(sceneFile.root) })
-          setBatchMsg(`✓ Camera bgColor ${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, backgroundColor: col, _backgroundColor: col, _N$backgroundColor: col } },
+            `Camera bgColor ${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -11539,15 +9957,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamFlags = async (clearFlags: number) => {
           if (!sceneFile.root) return
-          function patchCamFlags(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamFlags)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, clearFlags, _clearFlags: clearFlags } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCamFlags(sceneFile.root) })
-          setBatchMsg(`✓ Camera clearFlags ${clearFlags} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, clearFlags, _clearFlags: clearFlags } },
+            `Camera clearFlags ${clearFlags} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11565,16 +9979,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamZoom = async (zoomRatio: number) => {
           if (!sceneFile.root) return
-          function patchCamZoom(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamZoom)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, zoomRatio, _zoomRatio: zoomRatio } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchCamZoom(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Camera zoom=${zoomRatio} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, zoomRatio, _zoomRatio: zoomRatio } },
+            `Camera zoom=${zoomRatio} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11592,16 +10001,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamFov = async (fov: number) => {
           if (!sceneFile.root) return
-          function patchCamFov(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamFov)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, fov, _fov: fov } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchCamFov(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Camera fov=${fov}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, fov, _fov: fov } },
+            `Camera fov=${fov}° (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11619,15 +10023,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamClearDepth = async (clearDepth: number) => {
           if (!sceneFile.root) return
-          function patchCamClearDepth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamClearDepth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, clearDepth, _clearDepth: clearDepth } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCamClearDepth(sceneFile.root) })
-          setBatchMsg(`✓ Camera clearDepth=${clearDepth} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, clearDepth, _clearDepth: clearDepth } },
+            `Camera clearDepth=${clearDepth} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11643,15 +10043,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamOrthoHeight = async (orthoHeight: number) => {
           if (!sceneFile.root) return
-          function patchCamOrthoHeight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamOrthoHeight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, orthoHeight, _orthoHeight: orthoHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCamOrthoHeight(sceneFile.root) })
-          setBatchMsg(`✓ Camera orthoHeight=${orthoHeight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, orthoHeight, _orthoHeight: orthoHeight } },
+            `Camera orthoHeight=${orthoHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11667,16 +10063,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamOrtho = async (ortho: boolean) => {
           if (!sceneFile.root) return
-          function patchCamOrtho(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamOrtho)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, ortho, _ortho: ortho } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchCamOrtho(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Camera ortho=${ortho} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, ortho, _ortho: ortho } },
+            `Camera ortho=${ortho} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11692,14 +10083,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamCulling = async (cullingMask: number) => {
           if (!sceneFile.root) return
-          function patchCamCulling(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamCulling)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, cullingMask, _cullingMask: cullingMask } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchCamCulling(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, cullingMask, _cullingMask: cullingMask } },
+            `Cam Culling`,
+          )
           const labels: Record<number, string> = { [-1 >>> 0]: 'All', 0: 'None', 1: 'Dflt' }
           setBatchMsg(`✓ Camera cullingMask=${labels[cullingMask >>> 0] ?? cullingMask} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -11720,14 +10108,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamTargetDisplay = async (targetDisplay: number) => {
           if (!sceneFile.root) return
-          function patchCamTargetDisplay(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamTargetDisplay)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, targetDisplay, _targetDisplay: targetDisplay } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCamTargetDisplay(sceneFile.root) })
-          setBatchMsg(`✓ Camera targetDisplay=${targetDisplay} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, targetDisplay, _targetDisplay: targetDisplay } },
+            `Camera targetDisplay=${targetDisplay} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11743,14 +10128,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamNear = async (near: number) => {
           if (!sceneFile.root) return
-          function patchCamNear(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamNear)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, near, _near: near } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCamNear(sceneFile.root) })
-          setBatchMsg(`✓ Camera near=${near} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, near, _near: near } },
+            `Camera near=${near} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11766,14 +10148,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Camera') && (() => {
         const applyCamFar = async (far: number) => {
           if (!sceneFile.root) return
-          function patchCamFar(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCamFar)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Camera' ? { ...c, props: { ...c.props, far, _far: far } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchCamFar(sceneFile.root) })
-          setBatchMsg(`✓ Camera far=${far} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Camera',
+            c => { ...c, props: { ...c.props, far, _far: far } },
+            `Camera far=${far} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11793,15 +10172,11 @@ export function CCFileBatchInspector({
             <span key={v} title={`layout type = ${l}`}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchLayoutType(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchLayoutType)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, type: v, layoutType: v, _type: v, _layoutType: v, _N$type: v, _N$layoutType: v } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchLayoutType(sceneFile.root))
-                setBatchMsg(`✓ Layout type ${l} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Layout',
+                  c => { ...c, props: { ...c.props, type: v, layoutType: v, _type: v, _layoutType: v, _N$type: v, _N$layoutType: v } },
+                  `Layout type ${l} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
             >{l}</span>
@@ -11812,14 +10187,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutChildAlign = async (childAlignment: number) => {
           if (!sceneFile.root) return
-          function patchLayoutChildAlign(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutChildAlign)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, childAlignment, _childAlignment: childAlignment } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutChildAlign(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, childAlignment, _childAlignment: childAlignment } },
+            `Layout Child Align`,
+          )
           const names: Record<number,string> = { 0:'None', 1:'LT', 2:'CT', 3:'RT', 4:'LC', 5:'C', 6:'RC', 7:'LB', 8:'CB', 9:'RB' }
           setBatchMsg(`✓ Layout align=${names[childAlignment]??childAlignment} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -11840,16 +10212,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutHorDir = async (horizontalDirection: number) => {
           if (!sceneFile.root) return
-          function patchLayoutHorDir(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutHorDir)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, horizontalDirection, _horizontalDirection: horizontalDirection } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutHorDir(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Layout horDir=${horizontalDirection===0?'L':'R'} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, horizontalDirection, _horizontalDirection: horizontalDirection } },
+            `Layout horDir=${horizontalDirection===0?'L':'R'} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11865,16 +10232,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutVerDir = async (verticalDirection: number) => {
           if (!sceneFile.root) return
-          function patchLayoutVerDir(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutVerDir)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, verticalDirection, _verticalDirection: verticalDirection } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutVerDir(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Layout verDir=${verticalDirection===0?'T':'B'} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, verticalDirection, _verticalDirection: verticalDirection } },
+            `Layout verDir=${verticalDirection===0?'T':'B'} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11890,16 +10252,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchLayoutEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Layout enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Layout enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11916,16 +10273,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPadRight = async (paddingRight: number) => {
           if (!sceneFile.root) return
-          function patchLayoutPadRight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutPadRight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, paddingRight, _paddingRight: paddingRight, _N$paddingRight: paddingRight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutPadRight(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Layout paddingRight=${paddingRight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, paddingRight, _paddingRight: paddingRight, _N$paddingRight: paddingRight } },
+            `Layout paddingRight=${paddingRight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11941,16 +10293,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPadLeft = async (paddingLeft: number) => {
           if (!sceneFile.root) return
-          function patchLayoutPadLeft(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutPadLeft)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, paddingLeft, _paddingLeft: paddingLeft, _N$paddingLeft: paddingLeft } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutPadLeft(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Layout paddingLeft=${paddingLeft} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, paddingLeft, _paddingLeft: paddingLeft, _N$paddingLeft: paddingLeft } },
+            `Layout paddingLeft=${paddingLeft} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11966,16 +10313,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPadBot = async (paddingBottom: number) => {
           if (!sceneFile.root) return
-          function patchLayoutPadBot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutPadBot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, paddingBottom, _paddingBottom: paddingBottom, _N$paddingBottom: paddingBottom } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutPadBot(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Layout paddingBottom=${paddingBottom} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, paddingBottom, _paddingBottom: paddingBottom, _N$paddingBottom: paddingBottom } },
+            `Layout paddingBottom=${paddingBottom} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -11991,16 +10333,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPadTop = async (paddingTop: number) => {
           if (!sceneFile.root) return
-          function patchLayoutPadTop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutPadTop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, paddingTop, _paddingTop: paddingTop, _N$paddingTop: paddingTop } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutPadTop(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Layout paddingTop=${paddingTop} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, paddingTop, _paddingTop: paddingTop, _N$paddingTop: paddingTop } },
+            `Layout paddingTop=${paddingTop} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12016,15 +10353,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPad = async (pad: number) => {
           if (!sceneFile.root) return
-          function patchLayoutPad(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutPad)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, paddingLeft: pad, paddingRight: pad, paddingTop: pad, paddingBottom: pad, _paddingLeft: pad, _paddingRight: pad, _paddingTop: pad, _paddingBottom: pad, _N$paddingLeft: pad, _N$paddingRight: pad, _N$paddingTop: pad, _N$paddingBottom: pad } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchLayoutPad(sceneFile.root))
-          setBatchMsg(`✓ Layout padding=${pad} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, paddingLeft: pad, paddingRight: pad, paddingTop: pad, paddingBottom: pad, _paddingLeft: pad, _paddingRight: pad, _paddingTop: pad, _paddingBottom: pad, _N$paddingLeft: pad, _N$paddingRight: pad, _N$paddingTop: pad, _N$paddingBottom: pad } },
+            `Layout padding=${pad} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12042,16 +10375,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutSpacingY = async (spacingY: number) => {
           if (!sceneFile.root) return
-          function patchLayoutSpacingY(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutSpacingY)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutSpacingY(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Layout spacingY=${spacingY} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } },
+            `Layout spacingY=${spacingY} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12067,14 +10395,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutResizeMode = async (resizeMode: number) => {
           if (!sceneFile.root) return
-          function patchLayoutResizeMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutResizeMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutResizeMode(sceneFile.root) })
-          setBatchMsg(`✓ Layout resizeMode=${resizeMode} (${uuids.length}개)`) // R2258: _resizeMode CC3.x
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } },
+            `Layout resizeMode=${resizeMode} (${uuids.length}개)`,
+          )
         }
         // 0=NONE, 1=CONTAINER, 2=CHILDREN
         return (
@@ -12093,16 +10418,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutPad = async (pt: number, pb: number, pl: number, pr: number) => {
           if (!sceneFile.root) return
-          function patchLayoutPad(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutPad)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout'
-              ? { ...c, props: { ...c.props, paddingTop: pt, _paddingTop: pt, _N$paddingTop: pt, paddingBottom: pb, _paddingBottom: pb, _N$paddingBottom: pb, paddingLeft: pl, _paddingLeft: pl, _N$paddingLeft: pl, paddingRight: pr, _paddingRight: pr, _N$paddingRight: pr } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutPad(sceneFile.root) })
-          setBatchMsg(`✓ Layout padding=${pt}/${pb}/${pl}/${pr} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, paddingTop: pt, _paddingTop: pt, _N$paddingTop: pt, paddingBottom: pb, _paddingBottom: pb, _N$paddingBottom: pb, paddingLeft: pl, _paddingLeft: pl, _N$paddingLeft: pl, paddingRight: pr, _paddingRight: pr, _N$paddingRight: pr } },
+            `Layout padding=${pt}/${pb}/${pl}/${pr} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12119,14 +10439,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutAutoWrap = async (autoWrap: boolean) => {
           if (!sceneFile.root) return
-          function patchLayoutAutoWrap(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutAutoWrap)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, autoWrap, _autoWrap: autoWrap } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutAutoWrap(sceneFile.root) })
-          setBatchMsg(`✓ Layout autoWrap=${autoWrap} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, autoWrap, _autoWrap: autoWrap } },
+            `Layout autoWrap=${autoWrap} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12142,14 +10459,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutAffected = async (affectedByScale: boolean) => {
           if (!sceneFile.root) return
-          function patchLayoutAffected(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutAffected)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutAffected(sceneFile.root) })
-          setBatchMsg(`✓ Layout affectedByScale=${affectedByScale} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } },
+            `Layout affectedByScale=${affectedByScale} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12165,14 +10479,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutConstraint = async (constraint: number) => {
           if (!sceneFile.root) return
-          function patchLayoutConstraint(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutConstraint)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, constraint, _constraint: constraint, _N$constraint: constraint } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutConstraint(sceneFile.root) })
-          setBatchMsg(`✓ Layout constraint=${constraint} (${uuids.length}개)`) // R2260: _constraint CC3.x
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, constraint, _constraint: constraint, _N$constraint: constraint } },
+            `Layout constraint=${constraint} (${uuids.length}개)`,
+          )
         }
         // 0=NONE, 1=FIXED_ROW, 2=FIXED_COL
         return (
@@ -12191,14 +10502,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyConstraintNum = async (constraintNum: number) => {
           if (!sceneFile.root) return
-          function patchConstraintNum(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchConstraintNum)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, constraintNum, _constraintNum: constraintNum, _N$constraintNum: constraintNum } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchConstraintNum(sceneFile.root) })
-          setBatchMsg(`✓ Layout constraintNum=${constraintNum} (${uuids.length}개)`) // R2261: _constraintNum CC3.x
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, constraintNum, _constraintNum: constraintNum, _N$constraintNum: constraintNum } },
+            `Layout constraintNum=${constraintNum} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12214,14 +10522,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutStartAxis = async (startAxis: number) => {
           if (!sceneFile.root) return
-          function patchLayoutStartAxis(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutStartAxis)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, startAxis, _startAxis: startAxis, _N$startAxis: startAxis } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutStartAxis(sceneFile.root) })
-          setBatchMsg(`✓ Layout startAxis=${startAxis} (${uuids.length}개)`) // R2261: _startAxis CC3.x
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, startAxis, _startAxis: startAxis, _N$startAxis: startAxis } },
+            `Layout startAxis=${startAxis} (${uuids.length}개)`,
+          )
         }
         // 0=HORIZONTAL, 1=VERTICAL
         return (
@@ -12240,15 +10545,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutCell = async (size: number) => {
           if (!sceneFile.root) return
-          function patchLayoutCell(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutCell)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const cellSize = { width: size, height: size }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, cellSize, _cellSize: cellSize, _N$cellSize: cellSize } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutCell(sceneFile.root) })
-          setBatchMsg(`✓ Layout cellSize=${size}x${size} (${uuids.length}개)`) // R2262: _cellSize CC3.x
+            const components = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, cellSize, _cellSize: cellSize, _N$cellSize: cellSize } } : c)
+            return { ...n, components }
+          }, `Layout cellSize=${size}x${size} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12266,16 +10567,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutSpacingX = async (spacingX: number) => {
           if (!sceneFile.root) return
-          function patchLayoutSpacingX(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutSpacingX)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, spacingX, _spacingX: spacingX, _N$spacingX: spacingX } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutSpacingX(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Layout spacingX=${spacingX} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, spacingX, _spacingX: spacingX, _N$spacingX: spacingX } },
+            `Layout spacingX=${spacingX} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12291,15 +10587,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutSpacing = async (sp: number) => {
           if (!sceneFile.root) return
-          function patchLayoutSpacing(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutSpacing)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, spacingX: sp, spacingY: sp, _spacingX: sp, _spacingY: sp, _N$spacingX: sp, _N$spacingY: sp } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchLayoutSpacing(sceneFile.root))
-          setBatchMsg(`✓ Layout spacing=${sp} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, spacingX: sp, spacingY: sp, _spacingX: sp, _spacingY: sp, _N$spacingX: sp, _N$spacingY: sp } },
+            `Layout spacing=${sp} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12317,13 +10609,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutResize = async (resizeMode: number) => {
           if (!sceneFile.root) return
-          function patchLayoutResize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutResize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutResize(sceneFile.root) })
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } },
+            `Layout Resize`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12341,15 +10631,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutScale = async (affectedByScale: boolean) => {
           if (!sceneFile.root) return
-          function patchLayoutScale(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutScale)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchLayoutScale(sceneFile.root) })
-          setBatchMsg(`✓ Layout affectedByScale=${affectedByScale} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } },
+            `Layout affectedByScale=${affectedByScale} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12376,15 +10662,11 @@ export function CCFileBatchInspector({
               title={`Widget ${label}`}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchWidget(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchWidget)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, ...patch } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchWidget(sceneFile.root))
-                setBatchMsg(`✓ Widget ${label} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => c.type === 'cc.Widget',
+                  c => { ...c, props: { ...c.props, ...patch } },
+                  `Widget ${label} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
             >{label}</span>
@@ -12395,14 +10677,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Layout') && (() => {
         const applyLayoutWrap = async (wrapMode: number) => {
           if (!sceneFile.root) return
-          function patchLayoutWrap(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchLayoutWrap)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Layout' ? { ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchLayoutWrap(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Layout',
+            c => { ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } },
+            `Layout Wrap`,
+          )
           const names = ['NoWrap','Wrap','SingleLine']
           setBatchMsg(`✓ Layout wrapMode=${names[wrapMode]??wrapMode} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -12421,21 +10700,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAbs = async (isAbs: boolean) => {
           if (!sceneFile.root) return
-          function patchWidgetIsAbs(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetIsAbs)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props,
-              isAbsTop: isAbs, _isAbsTop: isAbs, _N$isAbsTop: isAbs,
-              isAbsBottom: isAbs, _isAbsBottom: isAbs, _N$isAbsBottom: isAbs,
-              isAbsLeft: isAbs, _isAbsLeft: isAbs, _N$isAbsLeft: isAbs,
-              isAbsRight: isAbs, _isAbsRight: isAbs, _N$isAbsRight: isAbs,
-              isAbsHorizontalCenter: isAbs, _isAbsHorizontalCenter: isAbs, _N$isAbsHorizontalCenter: isAbs,
-              isAbsVerticalCenter: isAbs, _isAbsVerticalCenter: isAbs, _N$isAbsVerticalCenter: isAbs,
-            } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetIsAbs(sceneFile.root) })
-          setBatchMsg(`✓ Widget isAbs*=${isAbs} (${uuids.length}개)`) // R2262: _isAbs* CC3.x
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, isAbsTop: isAbs, _isAbsTop: isAbs, _N$isAbsTop: isAbs, isAbsBottom: isAbs, _isAbsBottom: isAbs, _N$isAbsBottom: isAbs, isAbsLeft: isAbs, _isAbsLeft: isAbs, _N$isAbsLeft: isAbs, isAbsRight: isAbs, _isAbsRight: isAbs, _N$isAbsRight: isAbs, isAbsHorizontalCenter: isAbs, _isAbsHorizontalCenter: isAbs, _N$isAbsHorizontalCenter: isAbs, isAbsVerticalCenter: isAbs, _isAbsVerticalCenter: isAbs, _N$isAbsVerticalCenter: isAbs, } },
+            `Widget isAbs*=${isAbs} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12451,14 +10720,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetVCenter = async (verticalCenter: number) => {
           if (!sceneFile.root) return
-          function patchWidgetVCenter(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetVCenter)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, verticalCenter, _verticalCenter: verticalCenter, _N$verticalCenter: verticalCenter } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetVCenter(sceneFile.root) })
-          setBatchMsg(`✓ Widget verticalCenter=${verticalCenter} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, verticalCenter, _verticalCenter: verticalCenter, _N$verticalCenter: verticalCenter } },
+            `Widget verticalCenter=${verticalCenter} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12476,14 +10742,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetHCenter = async (horizontalCenter: number) => {
           if (!sceneFile.root) return
-          function patchWidgetHCenter(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetHCenter)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, horizontalCenter, _horizontalCenter: horizontalCenter, _N$horizontalCenter: horizontalCenter } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetHCenter(sceneFile.root) })
-          setBatchMsg(`✓ Widget horizontalCenter=${horizontalCenter} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, horizontalCenter, _horizontalCenter: horizontalCenter, _N$horizontalCenter: horizontalCenter } },
+            `Widget horizontalCenter=${horizontalCenter} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12501,14 +10764,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetRight = async (right: number) => {
           if (!sceneFile.root) return
-          function patchWidgetRight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetRight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, right, _right: right, _N$right: right } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetRight(sceneFile.root) })
-          setBatchMsg(`✓ Widget right=${right} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, right, _right: right, _N$right: right } },
+            `Widget right=${right} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12526,14 +10786,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetLeft = async (left: number) => {
           if (!sceneFile.root) return
-          function patchWidgetLeft(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetLeft)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, left, _left: left, _N$left: left } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetLeft(sceneFile.root) })
-          setBatchMsg(`✓ Widget left=${left} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, left, _left: left, _N$left: left } },
+            `Widget left=${left} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12551,14 +10808,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetBot = async (bottom: number) => {
           if (!sceneFile.root) return
-          function patchWidgetBot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetBot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, bottom, _bottom: bottom, _N$bottom: bottom } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetBot(sceneFile.root) })
-          setBatchMsg(`✓ Widget bottom=${bottom} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, bottom, _bottom: bottom, _N$bottom: bottom } },
+            `Widget bottom=${bottom} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12576,14 +10830,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignRight = async (isAlignRight: boolean) => {
           if (!sceneFile.root) return
-          function patchWidgetIsAlignRight(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetIsAlignRight)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignRight, _isAlignRight: isAlignRight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetIsAlignRight(sceneFile.root) })
-          setBatchMsg(`✓ Widget isAlignRight=${isAlignRight} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, isAlignRight, _isAlignRight: isAlignRight } },
+            `Widget isAlignRight=${isAlignRight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12599,14 +10850,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignVCenter = async (isAlignVerticalCenter: boolean) => {
           if (!sceneFile.root) return
-          function patchWidgetIsAlignVCenter(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetIsAlignVCenter)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignVerticalCenter, _isAlignVerticalCenter: isAlignVerticalCenter, _N$isAlignVerticalCenter: isAlignVerticalCenter } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetIsAlignVCenter(sceneFile.root) })
-          setBatchMsg(`✓ Widget isAlignVerticalCenter=${isAlignVerticalCenter} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, isAlignVerticalCenter, _isAlignVerticalCenter: isAlignVerticalCenter, _N$isAlignVerticalCenter: isAlignVerticalCenter } },
+            `Widget isAlignVerticalCenter=${isAlignVerticalCenter} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12622,14 +10870,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignHCenter = async (isAlignHorizontalCenter: boolean) => {
           if (!sceneFile.root) return
-          function patchWidgetIsAlignHCenter(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetIsAlignHCenter)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignHorizontalCenter, _isAlignHorizontalCenter: isAlignHorizontalCenter, _N$isAlignHorizontalCenter: isAlignHorizontalCenter } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetIsAlignHCenter(sceneFile.root) })
-          setBatchMsg(`✓ Widget isAlignHorizontalCenter=${isAlignHorizontalCenter} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, isAlignHorizontalCenter, _isAlignHorizontalCenter: isAlignHorizontalCenter, _N$isAlignHorizontalCenter: isAlignHorizontalCenter } },
+            `Widget isAlignHorizontalCenter=${isAlignHorizontalCenter} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12645,14 +10890,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignLeft = async (isAlignLeft: boolean) => {
           if (!sceneFile.root) return
-          function patchWidgetIsAlignLeft(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetIsAlignLeft)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignLeft, _isAlignLeft: isAlignLeft } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetIsAlignLeft(sceneFile.root) })
-          setBatchMsg(`✓ Widget isAlignLeft=${isAlignLeft} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, isAlignLeft, _isAlignLeft: isAlignLeft } },
+            `Widget isAlignLeft=${isAlignLeft} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12668,14 +10910,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignBot = async (isAlignBottom: boolean) => {
           if (!sceneFile.root) return
-          function patchWidgetIsAlignBot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetIsAlignBot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignBottom, _isAlignBottom: isAlignBottom } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetIsAlignBot(sceneFile.root) })
-          setBatchMsg(`✓ Widget isAlignBottom=${isAlignBottom} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, isAlignBottom, _isAlignBottom: isAlignBottom } },
+            `Widget isAlignBottom=${isAlignBottom} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12691,14 +10930,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetIsAlignTop = async (isAlignTop: boolean) => {
           if (!sceneFile.root) return
-          function patchWidgetIsAlignTop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetIsAlignTop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, isAlignTop, _isAlignTop: isAlignTop } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetIsAlignTop(sceneFile.root) })
-          setBatchMsg(`✓ Widget isAlignTop=${isAlignTop} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, isAlignTop, _isAlignTop: isAlignTop } },
+            `Widget isAlignTop=${isAlignTop} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12714,14 +10950,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetTop = async (top: number) => {
           if (!sceneFile.root) return
-          function patchWidgetTop(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetTop)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, top, _top: top, _N$top: top } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchWidgetTop(sceneFile.root) })
-          setBatchMsg(`✓ Widget top=${top} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, top, _top: top, _N$top: top } },
+            `Widget top=${top} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12739,14 +10972,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetAlignMode = async (alignMode: number) => {
           if (!sceneFile.root) return
-          function patchWidgetAlignMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetAlignMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, alignMode, _alignMode: alignMode, _N$alignMode: alignMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchWidgetAlignMode(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, alignMode, _alignMode: alignMode, _N$alignMode: alignMode } },
+            `Widget Align Mode`,
+          )
           const names = ['Once','OnResize','Always']
           setBatchMsg(`✓ Widget alignMode=${names[alignMode]??alignMode} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -12765,16 +10995,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Widget') && (() => {
         const applyWidgetMargin = async (v: number) => {
           if (!sceneFile.root) return
-          function patchWidgetMargin(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchWidgetMargin)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Widget' ? { ...c, props: { ...c.props, top: v, _top: v, bottom: v, _bottom: v, left: v, _left: v, right: v, _right: v, _N$top: v, _N$bottom: v, _N$left: v, _N$right: v } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchWidgetMargin(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Widget margin=${v} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Widget',
+            c => { ...c, props: { ...c.props, top: v, _top: v, bottom: v, _bottom: v, left: v, _left: v, right: v, _right: v, _N$top: v, _N$bottom: v, _N$left: v, _N$right: v } },
+            `Widget margin=${v} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12790,13 +11015,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBType = async (type: number) => {
           if (!sceneFile.root) return
-          function patchRBType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, type, _type: type, _N$type: type } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRBType(sceneFile.root))
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, type, _type: type, _N$type: type } },
+            `R B Type`,
+          )
           const names = ['Dynamic', 'Static', 'Kinematic']
           setBatchMsg(`✓ RigidBody type=${names[type] ?? type} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -12817,15 +11040,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBMass = async (mass: number) => {
           if (!sceneFile.root) return
-          function patchRBMass(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBMass)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, mass, _mass: mass, _N$mass: mass } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRBMass(sceneFile.root))
-          setBatchMsg(`✓ RigidBody mass ${mass} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, mass, _mass: mass, _N$mass: mass } },
+            `RigidBody mass ${mass} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12843,15 +11062,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBGravScale = async (gs: number) => {
           if (!sceneFile.root) return
-          function patchRBGS(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBGS)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, gravityScale: gs, _gravityScale: gs, _N$gravityScale: gs } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRBGS(sceneFile.root))
-          setBatchMsg(`✓ RigidBody gravityScale ${gs} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, gravityScale: gs, _gravityScale: gs, _N$gravityScale: gs } },
+            `RigidBody gravityScale ${gs} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12869,15 +11084,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBFixRot = async (fixedRotation: boolean) => {
           if (!sceneFile.root) return
-          function patchRBFixRot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBFixRot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation, _N$fixedRotation: fixedRotation } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRBFixRot(sceneFile.root))
-          setBatchMsg(`✓ RigidBody fixedRotation=${fixedRotation} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation, _N$fixedRotation: fixedRotation } },
+            `RigidBody fixedRotation=${fixedRotation} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12891,15 +11102,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBDamp = async (linearDamping: number) => {
           if (!sceneFile.root || isNaN(linearDamping)) return
-          function patchRBDamp(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBDamp)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRBDamp(sceneFile.root))
-          setBatchMsg(`✓ RigidBody linearDamping ${linearDamping} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } },
+            `RigidBody linearDamping ${linearDamping} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12923,13 +11130,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyAngularDamp = async (angularDamping: number) => {
           if (!sceneFile.root) return
-          function patchAngularDamp(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAngularDamp)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAngularDamp(sceneFile.root) })
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } },
+            `Angular Damp`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -12947,15 +11152,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBBullet = async (bullet: boolean) => {
           if (!sceneFile.root) return
-          function patchRBBullet(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBBullet)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, bullet, _bullet: bullet, _N$bullet: bullet } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBBullet(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody bullet=${bullet} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, bullet, _bullet: bullet, _N$bullet: bullet } },
+            `RigidBody bullet=${bullet} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12973,15 +11174,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBSleep = async (allowSleep: boolean) => {
           if (!sceneFile.root) return
-          function patchRBSleep(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBSleep)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, allowSleep, _allowSleep: allowSleep, _N$allowSleep: allowSleep } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBSleep(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody allowSleep=${allowSleep} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, allowSleep, _allowSleep: allowSleep, _N$allowSleep: allowSleep } },
+            `RigidBody allowSleep=${allowSleep} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -12999,17 +11196,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBLinearVel = async (x: number, y: number) => {
           if (!sceneFile.root) return
-          function patchRBLinearVel(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBLinearVel)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const vel = { x, y }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel, _N$linearVelocity: vel } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRBLinearVel(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RigidBody vel=(${x},${y}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel, _N$linearVelocity: vel } } : c)
+            return { ...n, components }
+          }, `RigidBody vel=(${x},${y}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13029,16 +11220,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBAngVel = async (angularVelocity: number) => {
           if (!sceneFile.root) return
-          function patchRBAngVel(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBAngVel)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularVelocity, _angularVelocity: angularVelocity } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRBAngVel(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RigidBody angVel=${angularVelocity} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, angularVelocity, _angularVelocity: angularVelocity } },
+            `RigidBody angVel=${angularVelocity} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13056,16 +11242,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBFixedRot = async (fixedRotation: boolean) => {
           if (!sceneFile.root) return
-          function patchRBFixedRot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBFixedRot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRBFixedRot(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RigidBody fixedRotation=${fixedRotation} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation } },
+            `RigidBody fixedRotation=${fixedRotation} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13081,14 +11262,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBAngDamp = async (angularDamping: number) => {
           if (!sceneFile.root) return
-          function patchRBAngDamp(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBAngDamp)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBAngDamp(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody angularDamping=${angularDamping} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } },
+            `RigidBody angularDamping=${angularDamping} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13106,14 +11284,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBLinearDamp = async (linearDamping: number) => {
           if (!sceneFile.root) return
-          function patchRBLinearDamp(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBLinearDamp)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBLinearDamp(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody linearDamping=${linearDamping} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } },
+            `RigidBody linearDamping=${linearDamping} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13131,16 +11306,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchRBEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D')
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBEnabled(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `RigidBody enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13157,16 +11327,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBContactListener = async (enabledContactListener: boolean) => {
           if (!sceneFile.root) return
-          function patchRBContactListener(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBContactListener)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, enabledContactListener, _enabledContactListener: enabledContactListener, _N$enabledContactListener: enabledContactListener } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRBContactListener(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RigidBody contactListener=${enabledContactListener} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, enabledContactListener, _enabledContactListener: enabledContactListener, _N$enabledContactListener: enabledContactListener } },
+            `RigidBody contactListener=${enabledContactListener} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13182,16 +11347,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBAwake = async (awake: boolean) => {
           if (!sceneFile.root) return
-          function patchRBAwake(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBAwake)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, awake, _awake: awake, _N$awake: awake } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRBAwake(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RigidBody awake=${awake} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, awake, _awake: awake, _N$awake: awake } },
+            `RigidBody awake=${awake} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13207,16 +11367,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBSleepThresh = async (sleepThreshold: number) => {
           if (!sceneFile.root) return
-          function patchRBSleepThresh(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBSleepThresh)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, sleepThreshold, _sleepThreshold: sleepThreshold, _N$sleepThreshold: sleepThreshold } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchRBSleepThresh(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ RigidBody sleepThreshold=${sleepThreshold} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, sleepThreshold, _sleepThreshold: sleepThreshold, _N$sleepThreshold: sleepThreshold } },
+            `RigidBody sleepThreshold=${sleepThreshold} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13232,14 +11387,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBAngVelLim = async (angularVelocityLimit: number) => {
           if (!sceneFile.root) return
-          function patchRBAngVelLim(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBAngVelLim)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, angularVelocityLimit, _angularVelocityLimit: angularVelocityLimit } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBAngVelLim(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody angularVelocityLimit=${angularVelocityLimit} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, angularVelocityLimit, _angularVelocityLimit: angularVelocityLimit } },
+            `RigidBody angularVelocityLimit=${angularVelocityLimit} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13255,14 +11407,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBLinVelLim = async (linearVelocityLimit: number) => {
           if (!sceneFile.root) return
-          function patchRBLinVelLim(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBLinVelLim)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, linearVelocityLimit, _linearVelocityLimit: linearVelocityLimit } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBLinVelLim(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody linearVelocityLimit=${linearVelocityLimit} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, linearVelocityLimit, _linearVelocityLimit: linearVelocityLimit } },
+            `RigidBody linearVelocityLimit=${linearVelocityLimit} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13278,14 +11427,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBGroup = async (group: number) => {
           if (!sceneFile.root) return
-          function patchRBGroup(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBGroup)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, group, _group: group } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBGroup(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody group=${group} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, group, _group: group } },
+            `RigidBody group=${group} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13301,14 +11447,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBRotOffset = async (rotationOffset: number) => {
           if (!sceneFile.root) return
-          function patchRBRotOffset(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBRotOffset)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D') ? { ...c, props: { ...c.props, rotationOffset, _rotationOffset: rotationOffset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchRBRotOffset(sceneFile.root) })
-          setBatchMsg(`✓ RigidBody rotationOffset=${rotationOffset} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, rotationOffset, _rotationOffset: rotationOffset } },
+            `RigidBody rotationOffset=${rotationOffset} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13325,27 +11468,19 @@ export function CCFileBatchInspector({
         const COLLIDER_TYPES_176 = ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D']
         const applyColliderCategory = async (category: number) => {
           if (!sceneFile.root) return
-          function patchColliderCategory(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchColliderCategory)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => COLLIDER_TYPES_176.includes(c.type) ? { ...c, props: { ...c.props, category, _category: category } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchColliderCategory(sceneFile.root) })
-          setBatchMsg(`✓ Collider category=${category} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => COLLIDER_TYPES_176.includes(c.type),
+            c => { ...c, props: { ...c.props, category, _category: category } },
+            `Collider category=${category} (${uuids.length}개)`,
+          )
         }
         const applyColliderMask = async (mask: number) => {
           if (!sceneFile.root) return
-          function patchColliderMask(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchColliderMask)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => COLLIDER_TYPES_176.includes(c.type) ? { ...c, props: { ...c.props, mask, _mask: mask } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchColliderMask(sceneFile.root) })
-          setBatchMsg(`✓ Collider mask=${mask} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => COLLIDER_TYPES_176.includes(c.type),
+            c => { ...c, props: { ...c.props, mask, _mask: mask } },
+            `Collider mask=${mask} (${uuids.length}개)`,
+          )
         }
         return (
           <>
@@ -13371,14 +11506,11 @@ export function CCFileBatchInspector({
         const COLLIDER_TYPES = ['cc.BoxCollider','cc.BoxCollider2D','cc.CircleCollider','cc.CircleCollider2D','cc.PolygonCollider','cc.PolygonCollider2D']
         const applyColliderTag = async (tag: number) => {
           if (!sceneFile.root) return
-          function patchColliderTag(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchColliderTag)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => COLLIDER_TYPES.includes(c.type) ? { ...c, props: { ...c.props, tag, _tag: tag } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchColliderTag(sceneFile.root) })
-          setBatchMsg(`✓ Collider tag=${tag} (${uuids.length}개)`)
+          await patchComponents(
+            c => COLLIDER_TYPES.includes(c.type),
+            c => { ...c, props: { ...c.props, tag, _tag: tag } },
+            `Collider tag=${tag} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13394,16 +11526,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchMaskEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMaskEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Mask'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchMaskEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Mask enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Mask',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Mask enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13420,13 +11547,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskType = async (type: number) => {
           if (!sceneFile.root) return
-          function patchMaskType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMaskType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, type, _type: type, _N$type: type } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchMaskType(sceneFile.root))
+          await patchComponents(
+            c => c.type === 'cc.Mask',
+            c => { ...c, props: { ...c.props, type, _type: type, _N$type: type } },
+            `Mask Type`,
+          )
           const names = ['Rect','Ellipse','Image']
           setBatchMsg(`✓ Mask type=${names[type] ?? type} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -13447,15 +11572,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskInvert = async (inverted: boolean) => {
           if (!sceneFile.root) return
-          function patchMask(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMask)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, inverted, _inverted: inverted, _N$inverted: inverted } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchMask(sceneFile.root))
-          setBatchMsg(`✓ Mask inverted=${inverted} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Mask',
+            c => { ...c, props: { ...c.props, inverted, _inverted: inverted, _N$inverted: inverted } },
+            `Mask inverted=${inverted} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13469,16 +11590,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Mask') && (() => {
         const applyMaskAlpha = async (alphaThreshold: number) => {
           if (!sceneFile.root) return
-          function patchMaskAlpha(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchMaskAlpha)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Mask' ? { ...c, props: { ...c.props, alphaThreshold, _alphaThreshold: alphaThreshold, _N$alphaThreshold: alphaThreshold } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchMaskAlpha(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Mask alphaThreshold=${alphaThreshold} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Mask',
+            c => { ...c, props: { ...c.props, alphaThreshold, _alphaThreshold: alphaThreshold, _N$alphaThreshold: alphaThreshold } },
+            `Mask alphaThreshold=${alphaThreshold} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13500,15 +11616,11 @@ export function CCFileBatchInspector({
         ]
         const applyColliderSensor = async (sensor: boolean) => {
           if (!sceneFile.root) return
-          function patchColliderSensor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchColliderSensor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => colliderTypes.includes(c.type) ? { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchColliderSensor(sceneFile.root))
-          setBatchMsg(`✓ Collider sensor=${sensor} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => colliderTypes.includes(c.type),
+            c => { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } },
+            `Collider sensor=${sensor} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13522,17 +11634,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.CircleCollider') && (() => {
         const applyCircleOffset = async (ox: number, oy: number) => {
           if (!sceneFile.root) return
-          function patchCircleOffset(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleOffset)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchCircleOffset(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ CircleCollider offset=(${ox},${oy}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.CircleCollider' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
+            return { ...n, components }
+          }, `CircleCollider offset=(${ox},${oy}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13548,16 +11654,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.CircleCollider') || commonCompTypes.includes('cc.CircleCollider2D')) && (() => {
         const applyCircleRadius = async (radius: number) => {
           if (!sceneFile.root) return
-          function patchCircleRadius(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCircleRadius)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D') ? { ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchCircleRadius(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ CircleCollider radius=${radius} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
+            c => { ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } },
+            `CircleCollider radius=${radius} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13573,17 +11674,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.BoxCollider') && (() => {
         const applyBoxOffset = async (ox: number, oy: number) => {
           if (!sceneFile.root) return
-          function patchBoxOffset(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxOffset)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const offset = { x: ox, y: oy }
-            const updComps = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchBoxOffset(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ BoxCollider offset=(${ox},${oy}) (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.BoxCollider' ? { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } } : c)
+            return { ...n, components }
+          }, `BoxCollider offset=(${ox},${oy}) (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13600,16 +11695,11 @@ export function CCFileBatchInspector({
         const boxType = commonCompTypes.includes('cc.BoxCollider') ? 'cc.BoxCollider' : 'cc.BoxCollider2D'
         const applyBoxSize = async (w: number, h: number) => {
           if (!sceneFile.root) return
-          function patchBoxSize(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBoxSize)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D') ? { ...c, props: { ...c.props, size: { width: w, height: h }, _size: { width: w, height: h }, _N$size: { width: w, height: h } } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchBoxSize(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ BoxCollider size=${w}×${h} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
+            c => { ...c, props: { ...c.props, size: { width: w, height: h }, _size: { width: w, height: h }, _N$size: { width: w, height: h } } },
+            `BoxCollider size=${w}×${h} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13625,15 +11715,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBLength = async (totalLength: number) => {
           if (!sceneFile.root) return
-          function patchPBLength(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBLength)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchPBLength(sceneFile.root))
-          setBatchMsg(`✓ ProgressBar totalLength=${totalLength} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } },
+            `ProgressBar totalLength=${totalLength} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13651,16 +11737,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchPBEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar'
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPBEnabled(sceneFile.root) })
-          setBatchMsg(`✓ ProgressBar enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `ProgressBar enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13681,15 +11762,11 @@ export function CCFileBatchInspector({
             onMouseUp={async e => {
               const prog = parseFloat((e.target as HTMLInputElement).value)
               if (!sceneFile.root) return
-              function patchProgress(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchProgress)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, progress: prog, _progress: prog, _N$progress: prog } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene(patchProgress(sceneFile.root))
-              setBatchMsg(`✓ progress ${Math.round(prog * 100)}% (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchComponents(
+                c => c.type === 'cc.ProgressBar',
+                c => { ...c, props: { ...c.props, progress: prog, _progress: prog, _N$progress: prog } },
+                `progress ${Math.round(prog * 100)}% (${uuids.length}개)`,
+              )
             }}
             style={{ flex: 1 }}
           />
@@ -13699,15 +11776,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBReverse = async (reverse: boolean) => {
           if (!sceneFile.root) return
-          function patchPBRev(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBRev)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchPBRev(sceneFile.root))
-          setBatchMsg(`✓ ProgressBar reverse=${reverse} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } },
+            `ProgressBar reverse=${reverse} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13721,14 +11794,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBMode = async (mode: number) => {
           if (!sceneFile.root) return
-          function patchPBMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, mode, _mode: mode, _N$mode: mode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchPBMode(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, mode, _mode: mode, _N$mode: mode } },
+            `P B Mode`,
+          )
           const names = ['Horiz', 'Vert', 'Filled']
           setBatchMsg(`✓ ProgressBar mode=${names[mode] ?? mode} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -13747,15 +11817,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBStartWidth = async (startWidth: number) => {
           if (!sceneFile.root) return
-          function patchPBStartWidth(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBStartWidth)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, startWidth, _startWidth: startWidth, _N$startWidth: startWidth } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPBStartWidth(sceneFile.root) })
-          setBatchMsg(`✓ ProgressBar startWidth=${startWidth} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, startWidth, _startWidth: startWidth, _N$startWidth: startWidth } },
+            `ProgressBar startWidth=${startWidth} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13771,14 +11837,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBTotalLength = async (totalLength: number) => {
           if (!sceneFile.root) return
-          function patchPBTotalLength(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBTotalLength)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPBTotalLength(sceneFile.root) })
-          setBatchMsg(`✓ ProgressBar totalLength=${totalLength} (${uuids.length}개)`)
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } },
+            `ProgressBar totalLength=${totalLength} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13796,13 +11859,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBProgress = async (progress: number) => {
           if (!sceneFile.root) return
-          function patchPBProgress(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBProgress)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPBProgress(sceneFile.root) })
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } },
+            `P B Progress`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13820,15 +11881,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBReverse = async (reverse: boolean) => {
           if (!sceneFile.root) return
-          function patchPBReverse(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBReverse)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar' ? { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchPBReverse(sceneFile.root) })
-          setBatchMsg(`✓ ProgressBar reverse=${reverse} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } },
+            `ProgressBar reverse=${reverse} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -13846,13 +11903,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySpriteType = async (type: number) => {
           if (!sceneFile.root) return
-          function patchSprType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSprType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, type, _type: type } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSprType(sceneFile.root))
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, type, _type: type } },
+            `Spr Type`,
+          )
           const names = ['Simple','Sliced','Tiled','Filled']
           setBatchMsg(`✓ Sprite type=${names[type]} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -13873,13 +11928,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySpriteSizeMode = async (sizeMode: number) => {
           if (!sceneFile.root) return
-          function patchSpriteSizeMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpriteSizeMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, sizeMode, _sizeMode: sizeMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSpriteSizeMode(sceneFile.root))
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, sizeMode, _sizeMode: sizeMode } },
+            `Sprite Size Mode`,
+          )
           const names = ['Custom', 'Trimmed', 'Raw']
           setBatchMsg(`✓ Sprite sizeMode=${names[sizeMode] ?? sizeMode} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -13901,13 +11954,11 @@ export function CCFileBatchInspector({
         const applySprFlip = async (axis: 'X' | 'Y', value: boolean) => {
           if (!sceneFile.root) return
           const key = `flip${axis}`
-          function patchSprFlip(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSprFlip)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSprFlip(sceneFile.root) })
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } },
+            `Spr Flip`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -13930,13 +11981,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprGray = async (grayscale: boolean) => {
           if (!sceneFile.root) return
-          function patchSprGray(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSprGray)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale, _grayscale: grayscale, _N$grayscale: grayscale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSprGray(sceneFile.root) })
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, grayscale, _grayscale: grayscale, _N$grayscale: grayscale } },
+            `Spr Gray`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -13952,16 +12001,11 @@ export function CCFileBatchInspector({
           if (!sceneFile.root) return
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           const colorObj = { r, g, b, a: 255 }
-          function patchSpriteClr(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpriteClr)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, _color: colorObj } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpriteClr(sceneFile.root) })
-          setBatchMsg(`✓ Sprite _color=${hex} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, _color: colorObj } },
+            `Sprite _color=${hex} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -13978,16 +12022,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
         const applySpriteEnabled = async (enabled: boolean) => {
           if (!sceneFile.root) return
-          function patchSpriteEnabled(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpriteEnabled)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, enabled, _enabled: enabled } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpriteEnabled(sceneFile.root) })
-          setBatchMsg(`✓ Sprite enabled=${enabled} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            `Sprite enabled=${enabled} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14004,16 +12043,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
         const applySpUseGray = async (useGrayscale: boolean) => {
           if (!sceneFile.root) return
-          function patchSpUseGray(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpUseGray)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, _useGrayscale: useGrayscale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpUseGray(sceneFile.root) })
-          setBatchMsg(`✓ Sprite _useGrayscale=${useGrayscale} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, _useGrayscale: useGrayscale } },
+            `Sprite _useGrayscale=${useGrayscale} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14030,15 +12064,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
         const applySpritePackable = async (packable: boolean) => {
           if (!sceneFile.root) return
-          function patchSpritePackable(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpritePackable)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, packable, _packable: packable } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpritePackable(sceneFile.root) })
-          setBatchMsg(`✓ Sprite packable=${packable} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, packable, _packable: packable } },
+            `Sprite packable=${packable} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14054,15 +12084,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
         const applySpriteMeshType = async (meshType: number) => {
           if (!sceneFile.root) return
-          function patchSpriteMeshType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpriteMeshType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, meshType, _meshType: meshType } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpriteMeshType(sceneFile.root) })
-          setBatchMsg(`✓ Sprite meshType=${['NORMAL','POLYGON'][meshType] ?? meshType} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, meshType, _meshType: meshType } },
+            `Sprite meshType=${['NORMAL','POLYGON'][meshType] ?? meshType} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14078,14 +12104,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySpriteTrim = async (trim: boolean) => {
           if (!sceneFile.root) return
-          function patchSpriteTrim(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpriteTrim)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, trim, _trim: trim } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpriteTrim(sceneFile.root) })
-          setBatchMsg(`✓ Sprite trim=${trim} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, trim, _trim: trim } },
+            `Sprite trim=${trim} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -14101,16 +12124,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
         const applySpBlend = async (src: number, dst: number, label: string) => {
           if (!sceneFile.root) return
-          function patchSpBlend(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpBlend)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpBlend(sceneFile.root) })
-          setBatchMsg(`✓ Sprite blend=${label} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } },
+            `Sprite blend=${label} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14127,14 +12145,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprFillType = async (fillType: number) => {
           if (!sceneFile.root) return
-          function patchSprFillType(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSprFillType)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, fillType, _fillType: fillType } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSprFillType(sceneFile.root) })
-          setBatchMsg(`✓ Sprite fillType=${fillType} (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, fillType, _fillType: fillType } },
+            `Sprite fillType=${fillType} (${uuids.length}개)`,
+          )
         }
         // 0=Horizontal, 1=Vertical, 2=Radial
         return (
@@ -14153,15 +12168,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applyFillRange = async (fillRange: number) => {
           if (!sceneFile.root) return
-          function patchFillRange(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchFillRange)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, fillRange, _fillRange: fillRange } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchFillRange(sceneFile.root) })
-          setBatchMsg(`✓ Sprite fillRange ${fillRange} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, fillRange, _fillRange: fillRange } },
+            `Sprite fillRange ${fillRange} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14179,15 +12190,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applyFillStart = async (fillStart: number) => {
           if (!sceneFile.root) return
-          function patchFillStart(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchFillStart)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, fillStart, _fillStart: fillStart } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchFillStart(sceneFile.root) })
-          setBatchMsg(`✓ Sprite fillStart ${fillStart} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, fillStart, _fillStart: fillStart } },
+            `Sprite fillStart ${fillStart} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14206,14 +12213,11 @@ export function CCFileBatchInspector({
         const applySpriteFillCenter = async (x: number, y: number) => {
           if (!sceneFile.root) return
           const fillCenter = { x, y }
-          function patchFillCenter(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchFillCenter)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, fillCenter, _fillCenter: fillCenter } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchFillCenter(sceneFile.root) })
-          setBatchMsg(`✓ Sprite fillCenter=(${x},${y}) (${uuids.length}개)`)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, fillCenter, _fillCenter: fillCenter } },
+            `Sprite fillCenter=(${x},${y}) (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14229,16 +12233,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprGray = async (grayscale: boolean) => {
           if (!sceneFile.root) return
-          function patchSprGray(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSprGray)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale, _grayscale: grayscale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSprGray(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Sprite grayscale=${grayscale} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, grayscale, _grayscale: grayscale } },
+            `Sprite grayscale=${grayscale} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14254,16 +12253,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
         const applySprTrimmed = async (isTrimmedMode: boolean) => {
           if (!sceneFile.root) return
-          function patchSprTrimmed(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSprTrimmed)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, isTrimmedMode, _isTrimmedMode: isTrimmedMode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          const patchedRoot = patchSprTrimmed(sceneFile.root)
-          await saveScene({ ...sceneFile, root: patchedRoot })
-          setBatchMsg(`✓ Sprite isTrimmed=${isTrimmedMode} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, isTrimmedMode, _isTrimmedMode: isTrimmedMode } },
+            `Sprite isTrimmed=${isTrimmedMode} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14279,16 +12273,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
         const applySpriteTrimMode = async (mode: number) => {
           if (!sceneFile.root) return
-          function patchSpriteTrimMode(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpriteTrimMode)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, _isTrimmedMode: mode } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpriteTrimMode(sceneFile.root) })
-          setBatchMsg(`✓ Sprite _isTrimmedMode=${mode} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, _isTrimmedMode: mode } },
+            `Sprite _isTrimmedMode=${mode} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14305,16 +12294,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.Sprite') || commonCompTypes.includes('cc.Sprite2D')) && (() => {
         const applySpriteCap = async (inset: number) => {
           if (!sceneFile.root) return
-          function patchSpriteCap(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSpriteCap)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-              ? { ...c, props: { ...c.props, insetTop: inset, _insetTop: inset, _N$insetTop: inset, insetBottom: inset, _insetBottom: inset, _N$insetBottom: inset, insetLeft: inset, _insetLeft: inset, _N$insetLeft: inset, insetRight: inset, _insetRight: inset, _N$insetRight: inset } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSpriteCap(sceneFile.root) })
-          setBatchMsg(`✓ Sprite capInset=${inset} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, insetTop: inset, _insetTop: inset, _N$insetTop: inset, insetBottom: inset, _insetBottom: inset, _N$insetBottom: inset, insetLeft: inset, _insetLeft: inset, _N$insetLeft: inset, insetRight: inset, _insetRight: inset, _N$insetRight: inset } },
+            `Sprite capInset=${inset} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14334,19 +12318,11 @@ export function CCFileBatchInspector({
           const m = batchSolidColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
           if (!m) return
           const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16)
-          function patchSolidColor(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSolidColor)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c =>
-              (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D')
-                ? { ...c, props: { ...c.props, spriteFrame: null, _spriteFrame: null, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } }
-                : c
-            )
-            return { ...n, color: { r, g, b, a: n.color?.a ?? 255 }, components: updComps, children }
-          }
-          await saveScene(patchSolidColor(sceneFile.root))
-          setBatchMsg(`✓ 단색 Sprite (${batchSolidColor}) 적용 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, spriteFrame: null, _spriteFrame: null, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } },
+            `단색 Sprite (${batchSolidColor}) 적용 (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14365,16 +12341,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBGravScale3 = async (gravityScale: number) => {
           if (!sceneFile.root) return
-          function patchRBGravScale3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBGravScale3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D')
-              ? { ...c, props: { ...c.props, gravityScale, _gravityScale: gravityScale } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRBGravScale3(sceneFile.root))
-          setBatchMsg(`✓ RigidBody _gravityScale=${gravityScale} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, gravityScale, _gravityScale: gravityScale } },
+            `RigidBody _gravityScale=${gravityScale} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14391,16 +12362,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Scrollbar') && (() => {
         const applySBAutoHideTime3 = async (autoHideTime: number) => {
           if (!sceneFile.root) return
-          function patchSBAutoHideTime3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSBAutoHideTime3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Scrollbar'
-              ? { ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSBAutoHideTime3(sceneFile.root))
-          setBatchMsg(`✓ Scrollbar _autoHideTime=${autoHideTime} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Scrollbar',
+            c => { ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } },
+            `Scrollbar _autoHideTime=${autoHideTime} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14417,16 +12383,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.PageView') && (() => {
         const applyPVBounce3 = async (v: boolean) => {
           if (!sceneFile.root) return
-          function patchPVBounce3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPVBounce3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.PageView'
-              ? { ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchPVBounce3(sceneFile.root))
-          setBatchMsg(`✓ PageView _bounceEnabled=${v} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.PageView',
+            c => { ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } },
+            `PageView _bounceEnabled=${v} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14443,16 +12404,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ToggleContainer') && (() => {
         const applyTCAllowSwitch3 = async (allowSwitchOff: boolean) => {
           if (!sceneFile.root) return
-          function patchTCAllowSwitch3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchTCAllowSwitch3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ToggleContainer'
-              ? { ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchTCAllowSwitch3(sceneFile.root))
-          setBatchMsg(`✓ ToggleContainer _allowSwitchOff=${allowSwitchOff} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ToggleContainer',
+            c => { ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } },
+            `ToggleContainer _allowSwitchOff=${allowSwitchOff} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14469,16 +12425,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.RichText') && (() => {
         const applyRTOverflow3 = async (overflow: number) => {
           if (!sceneFile.root) return
-          function patchRTOverflow3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRTOverflow3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.RichText'
-              ? { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRTOverflow3(sceneFile.root))
-          setBatchMsg(`✓ RichText _overflow=${overflow} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.RichText',
+            c => { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } },
+            `RichText _overflow=${overflow} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14495,16 +12446,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Canvas') && (() => {
         const applyCanvasFit3 = async (fitWidth: boolean, fitHeight: boolean) => {
           if (!sceneFile.root) return
-          function patchCanvasFit3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchCanvasFit3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Canvas'
-              ? { ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, fitHeight, _fitHeight: fitHeight } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchCanvasFit3(sceneFile.root))
-          setBatchMsg(`✓ Canvas _fitWidth=${fitWidth} _fitHeight=${fitHeight} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Canvas',
+            c => { ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, fitHeight, _fitHeight: fitHeight } },
+            `Canvas _fitWidth=${fitWidth} _fitHeight=${fitHeight} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14528,16 +12474,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderDir3 = async (direction: number) => {
           if (!sceneFile.root) return
-          function patchSliderDir3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSliderDir3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider'
-              ? { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSliderDir3(sceneFile.root))
-          setBatchMsg(`✓ Slider _direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            `Slider _direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14555,16 +12496,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Slider') && (() => {
         const applySliderInteract3 = async (interactable: boolean) => {
           if (!sceneFile.root) return
-          function patchSliderInteract3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSliderInteract3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Slider'
-              ? { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchSliderInteract3(sceneFile.root) })
-          setBatchMsg(`✓ Slider _interactable=${interactable} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Slider',
+            c => { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } },
+            `Slider _interactable=${interactable} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -14582,14 +12518,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.EditBox') && (() => {
         const applyEditRetType3 = async (returnType: number) => {
           if (!sceneFile.root) return
-          function patchEditRetType3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEditRetType3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.EditBox'
-              ? { ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchEditRetType3(sceneFile.root) })
+          await patchComponents(
+            c => c.type === 'cc.EditBox',
+            c => { ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } },
+            `Edit Ret Type3`,
+          )
           const names = ['Dflt', 'Done', 'Send', 'Srch', 'Go', 'Next']
           setBatchMsg(`✓ EditBox _returnType=${names[returnType] ?? returnType} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -14609,16 +12542,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Animation') && (() => {
         const applyAnimPOL3 = async (playOnLoad: boolean) => {
           if (!sceneFile.root) return
-          function patchAnimPOL3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAnimPOL3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Animation'
-              ? { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchAnimPOL3(sceneFile.root) })
-          setBatchMsg(`✓ Animation _playOnLoad=${playOnLoad} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Animation',
+            c => { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } },
+            `Animation _playOnLoad=${playOnLoad} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -14636,16 +12564,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.TiledLayer') && (() => {
         const applyTiledLayerOpa3 = async (opacity: number) => {
           if (!sceneFile.root) return
-          function patchTiledLayerOpa3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchTiledLayerOpa3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.TiledLayer'
-              ? { ...c, props: { ...c.props, opacity, _opacity: opacity } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchTiledLayerOpa3(sceneFile.root) })
-          setBatchMsg(`✓ TiledLayer _opacity=${opacity} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.TiledLayer',
+            c => { ...c, props: { ...c.props, opacity, _opacity: opacity } },
+            `TiledLayer _opacity=${opacity} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14662,16 +12585,11 @@ export function CCFileBatchInspector({
       {(commonCompTypes.includes('cc.RigidBody') || commonCompTypes.includes('cc.RigidBody2D')) && (() => {
         const applyRBType3 = async (type: number) => {
           if (!sceneFile.root) return
-          function patchRBType3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRBType3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D')
-              ? { ...c, props: { ...c.props, type, _type: type } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchRBType3(sceneFile.root))
-          setBatchMsg(`✓ RigidBody _type=${['Dynamic','Static','Kinematic'][type] ?? type} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
+            c => { ...c, props: { ...c.props, type, _type: type } },
+            `RigidBody _type=${['Dynamic','Static','Kinematic'][type] ?? type} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14689,16 +12607,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Toggle') && (() => {
         const applyToggleInteract3 = async (interactable: boolean) => {
           if (!sceneFile.root) return
-          function patchToggleInteract3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchToggleInteract3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Toggle'
-              ? { ...c, props: { ...c.props, interactable, _interactable: interactable } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchToggleInteract3(sceneFile.root) })
-          setBatchMsg(`✓ Toggle _interactable=${interactable} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Toggle',
+            c => { ...c, props: { ...c.props, interactable, _interactable: interactable } },
+            `Toggle _interactable=${interactable} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -14716,16 +12629,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ProgressBar') && (() => {
         const applyPBReverse3 = async (reverse: boolean) => {
           if (!sceneFile.root) return
-          function patchPBReverse3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchPBReverse3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ProgressBar'
-              ? { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchPBReverse3(sceneFile.root))
-          setBatchMsg(`✓ ProgressBar _reverse=${reverse} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ProgressBar',
+            c => { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } },
+            `ProgressBar _reverse=${reverse} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
@@ -14743,16 +12651,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Button') && (() => {
         const applyBtnZoom3 = async (zoom: number) => {
           if (!sceneFile.root) return
-          function patchBtnZoom3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchBtnZoom3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.Button'
-              ? { ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene({ ...sceneFile, root: patchBtnZoom3(sceneFile.root) })
-          setBatchMsg(`✓ Button _zoomScale=${zoom} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.Button',
+            c => { ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom } },
+            `Button _zoomScale=${zoom} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14770,16 +12673,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.ScrollView') && (() => {
         const applySVBrake3 = async (brake: number) => {
           if (!sceneFile.root) return
-          function patchSVBrake3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSVBrake3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.ScrollView'
-              ? { ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSVBrake3(sceneFile.root))
-          setBatchMsg(`✓ ScrollView _brake=${brake} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.ScrollView',
+            c => { ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } },
+            `ScrollView _brake=${brake} (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14797,16 +12695,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.AudioSource') && (() => {
         const applyAudioVol3 = async (volume: number) => {
           if (!sceneFile.root) return
-          function patchAudioVol3(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchAudioVol3)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => c.type === 'cc.AudioSource'
-              ? { ...c, props: { ...c.props, volume, _volume: volume } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchAudioVol3(sceneFile.root))
-          setBatchMsg(`✓ AudioSource _volume=${Math.round(volume * 100)}% (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchComponents(
+            c => c.type === 'cc.AudioSource',
+            c => { ...c, props: { ...c.props, volume, _volume: volume } },
+            `AudioSource _volume=${Math.round(volume * 100)}% (${uuids.length}개)`,
+          )
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -14824,13 +12717,11 @@ export function CCFileBatchInspector({
       {commonCompTypes.includes('cc.Sprite') && (() => {
         const applySprBlend = async (src: number, dst: number) => {
           if (!sceneFile.root) return
-          function patchSprBlend(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSprBlend)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
-            const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c)
-            return { ...n, components: updComps, children }
-          }
-          await saveScene(patchSprBlend(sceneFile.root))
+          await patchComponents(
+            c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+            c => { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } },
+            `Spr Blend`,
+          )
           const names: Record<string, string> = {'770/771': 'Normal', '770/1': 'Add', '774/771': 'Mul'}
           setBatchMsg(`✓ Sprite blend=${names[`${src}/${dst}`] ?? `${src}/${dst}`} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
@@ -14856,15 +12747,11 @@ export function CCFileBatchInspector({
               const hex = e.target.value
               if (!sceneFile.root) return
               const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
-              function patchSpriteColor(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchSpriteColor)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene(patchSpriteColor(sceneFile.root))
-              setBatchMsg(`✓ Sprite tint (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchComponents(
+                c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+                c => { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } },
+                `Sprite tint (${uuids.length}개)`,
+              )
             }}
             style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
             title="cc.Sprite tint 색상 일괄 설정"
@@ -14882,15 +12769,11 @@ export function CCFileBatchInspector({
               onClick={async () => {
                 if (!sceneFile.root) return
                 const val = label.startsWith('✓')
-                function patchGray(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchGray)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, grayscale: val, _grayscale: val, _N$grayscale: val } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchGray(sceneFile.root))
-                setBatchMsg(`✓ grayscale ${val} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+                  c => { ...c, props: { ...c.props, grayscale: val, _grayscale: val, _N$grayscale: val } },
+                  `grayscale ${val} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: label.startsWith('✓') ? '#94a3b8' : 'var(--text-muted)', userSelect: 'none' }}
             >{label}</span>
@@ -14905,15 +12788,11 @@ export function CCFileBatchInspector({
             <span key={v} title={['Simple', 'Sliced', 'Tiled', 'Filled'][v]}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchSpriteType(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchSpriteType)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  const updComps = n.components.map(c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D') ? { ...c, props: { ...c.props, type: v, _type: v, _N$type: v } } : c)
-                  return { ...n, components: updComps, children }
-                }
-                await saveScene(patchSpriteType(sceneFile.root))
-                setBatchMsg(`✓ Sprite type ${['Simple','Sliced','Tiled','Filled'][v]} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchComponents(
+                  c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
+                  c => { ...c, props: { ...c.props, type: v, _type: v, _N$type: v } },
+                  `Sprite type ${['Simple','Sliced','Tiled','Filled'][v]} (${uuids.length}개)`,
+                )
               }}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#4ade80')}
@@ -14932,15 +12811,11 @@ export function CCFileBatchInspector({
             onBlur={async e => {
               const ff = e.target.value.trim()
               if (!sceneFile.root) return
-              function patchFont(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchFont)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontFamily: ff, _fontFamily: ff, _N$fontFamily: ff } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene(patchFont(sceneFile.root))
-              setBatchMsg(`✓ fontFamily "${ff}" (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchComponents(
+                c => c.type === 'cc.Label',
+                c => { ...c, props: { ...c.props, fontFamily: ff, _fontFamily: ff, _N$fontFamily: ff } },
+                `fontFamily "${ff}" (${uuids.length}개)`,
+              )
             }}
           />
         </div>
@@ -14954,15 +12829,11 @@ export function CCFileBatchInspector({
               const hex = e.target.value
               if (!sceneFile.root) return
               const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
-              function patchColor(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchColor)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                const updComps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } } : c)
-                return { ...n, components: updComps, children }
-              }
-              await saveScene(patchColor(sceneFile.root))
-              setBatchMsg(`✓ Label 색상 (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchComponents(
+                c => c.type === 'cc.Label',
+                c => { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } },
+                `Label 색상 (${uuids.length}개)`,
+              )
             }}
             style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
             title="cc.Label 텍스트 색상 일괄 설정"
@@ -14980,14 +12851,7 @@ export function CCFileBatchInspector({
               setBatchLayer(val)
               if (!val || !sceneFile.root) return
               const layer = parseInt(val)
-              function patchLayer(n: CCSceneNode): CCSceneNode {
-                const children = n.children.map(patchLayer)
-                if (!uuidSet.has(n.uuid)) return { ...n, children }
-                return { ...n, layer, children }
-              }
-              await saveScene(patchLayer(sceneFile.root))
-              setBatchMsg(`✓ Layer ${layer} (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchNodes(n => ({ ...n, layer }), `Layer ${layer} (${uuids.length}개)`)
               setBatchLayer('')
             }}
             style={{ flex: 1, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px' }}
@@ -15019,14 +12883,9 @@ export function CCFileBatchInspector({
           title={`선택 ${uuids.length}개 노드 active 개별 반전 (R2602)`}
           onClick={async () => {
             if (!sceneFile.root) return
-            function patch(n: CCSceneNode): CCSceneNode {
-              const ch = n.children.map(patch)
-              if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-              return { ...n, active: !n.active, children: ch }
-            }
-            await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-            setBatchMsg(`✓ active 반전 (${uuids.length}개)`)
-            setTimeout(() => setBatchMsg(null), 2000)
+            await patchNodes(n => {
+              return { ...n, active: !n.active}
+            }, `active 반전 (${uuids.length}개)`)
           }}
           style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', background: 'none' }}
         >반전</button>
@@ -15036,16 +12895,9 @@ export function CCFileBatchInspector({
             title={`선택 ${uuids.length}개 노드 active 교차 패턴 설정 (홀수=on, 짝수=off) (R2622)`}
             onClick={async () => {
               if (!sceneFile.root) return
-              const orderedUuids = uuids
-              function patch(n: CCSceneNode): CCSceneNode {
-                const ch = n.children.map(patch)
-                const idx = orderedUuids.indexOf(n.uuid)
-                if (idx < 0) return { ...n, children: ch }
-                return { ...n, active: idx % 2 === 0, children: ch }
-              }
-              await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-              setBatchMsg(`✓ active 교차 (${uuids.length}개)`)
-              setTimeout(() => setBatchMsg(null), 2000)
+              await patchOrdered((n, idx) => {
+                return { ...n, active: idx % 2 === 0 }
+              }, `active 교차 (${uuids.length}개)`)
             }}
             style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', background: 'none' }}
           >교차</button>
@@ -15184,15 +13036,10 @@ export function CCFileBatchInspector({
       {sceneFile.root && (() => {
         const applyScaleMult = async (m: number) => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const sc = n.scale as { x: number; y: number; z?: number }
-            return { ...n, scale: { ...sc, x: sc.x * m, y: sc.y * m }, children }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 스케일 ×${m} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: { ...sc, x: sc.x * m, y: sc.y * m }}
+          }, `스케일 ×${m} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
@@ -15212,20 +13059,15 @@ export function CCFileBatchInspector({
       {sceneFile.root && uuids.length > 0 && (() => {
         const applySzInt = async () => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const w = n.size?.x ?? n.size?.width ?? 0
             const h = n.size?.y ?? n.size?.height ?? 0
             const rw = Math.round(w), rh = Math.round(h)
-            if (rw === w && rh === h) return { ...n, children: ch }
+            if (rw === w && rh === h) return n
             const newSize = { ...(n.size ?? {}), x: rw, y: rh, width: rw, height: rh }
-            const updComps = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: rw, height: rh }, _contentSize: { width: rw, height: rh } } } : c)
-            return { ...n, size: newSize, components: updComps, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 사이즈 정수화 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            const components = n.components.map(c => c.type === 'cc.UITransform' ? { ...c, props: { ...c.props, contentSize: { width: rw, height: rh }, _contentSize: { width: rw, height: rh } } } : c)
+            return { ...n, components }
+          }, `사이즈 정수화 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
@@ -15239,21 +13081,16 @@ export function CCFileBatchInspector({
       {sceneFile.root && uuids.length > 0 && (() => {
         const applyReset = async (mode: 'scale' | 'rot') => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             if (mode === 'scale') {
               const sc = n.scale as { x: number; y: number; z?: number }
-              return { ...n, scale: { ...sc, x: 1, y: 1 }, children: ch }
+              return { ...n, scale: { ...sc, x: 1, y: 1 } }
             } else {
               const rot = n.rotation
-              if (typeof rot === 'number') return { ...n, rotation: 0, children: ch }
-              return { ...n, rotation: { ...(rot as object), z: 0 } as typeof rot, children: ch }
+              if (typeof rot === 'number') return { ...n, rotation: 0 }
+              return { ...n, rotation: { ...(rot as object), z: 0 } as typeof rot }
             }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ ${mode === 'scale' ? 'scale 1:1' : '회전 0°'} 리셋 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          }, `${mode === 'scale' ? 'scale 1:1' : '회전 0°'} 리셋 (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
@@ -15302,15 +13139,10 @@ export function CCFileBatchInspector({
       {sceneFile.root && uuids.length > 0 && (() => {
         const applyFlip = async (axis: 'x' | 'y') => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sc = n.scale as { x: number; y: number; z?: number }
-            return { ...n, scale: { ...sc, [axis]: -sc[axis] }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ flip${axis.toUpperCase()} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: { ...sc, [axis]: -sc[axis] }}
+          }, `flip${axis.toUpperCase()} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
@@ -15327,15 +13159,10 @@ export function CCFileBatchInspector({
         // R1809: 커스텀 배율 입력
         const applyMult = async (m: number) => {
           if (!sceneFile.root || isNaN(m) || m <= 0) return
-          function patchSizeMult(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSizeMult)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const sz = n.size as { x?: number; y?: number } | undefined
-            return { ...n, size: { x: (sz?.x ?? 0) * m, y: (sz?.y ?? 0) * m }, children }
-          }
-          await saveScene(patchSizeMult(sceneFile.root))
-          setBatchMsg(`✓ 크기 ×${m} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: { x: (sz?.x ?? 0) * m, y: (sz?.y ?? 0) * m }}
+          }, `크기 ×${m} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
@@ -15374,16 +13201,11 @@ export function CCFileBatchInspector({
         const maxH = Math.max(...hs), minH = Math.min(...hs), avgH = Math.round(hs.reduce((a, b) => a + b, 0) / hs.length)
         const applyEqSize = async (axis: 'w' | 'h', value: number) => {
           if (!sceneFile.root) return
-          function patchEq(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchEq)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const sz = n.size as { x?: number; y?: number } | undefined
             const newSz = axis === 'w' ? { x: value, y: sz?.y ?? 0 } : { x: sz?.x ?? 0, y: value }
-            return { ...n, size: newSz, children }
-          }
-          await saveScene(patchEq(sceneFile.root))
-          setBatchMsg(`✓ ${axis === 'w' ? 'W' : 'H'}=${value} 균등화`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: newSz}
+          }, `${axis === 'w' ? 'W' : 'H'}=${value} 균등화`)
         }
         const bs = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#7dd3fc', userSelect: 'none' } as React.CSSProperties
         return (
@@ -15403,15 +13225,10 @@ export function CCFileBatchInspector({
       {uuids.length >= 2 && (() => {
         const applyRotDelta = async (delta: number) => {
           if (!sceneFile.root) return
-          function patchRot(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchRot)
-            if (!uuidSet.has(n.uuid)) return { ...n, children }
+          await patchNodes(n => {
             const cur = (n.rotation as number | undefined) ?? 0
-            return { ...n, rotation: cur + delta, children }
-          }
-          const result = await saveScene(patchRot(sceneFile.root))
-          setBatchMsg(result.success ? `✓ 회전 ${delta > 0 ? '+' : ''}${delta}° (R2494)` : '✗ 오류')
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: cur + delta}
+          }, `회전 ${delta > 0 ? '+' : ''}${delta}° (R2494)`)
         }
         const bs = { fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#86efac', userSelect: 'none' } as React.CSSProperties
         return (
@@ -15444,17 +13261,12 @@ export function CCFileBatchInspector({
         <span title="선택 노드 회전 일괄 정규화 (-180~180 범위)"
           onClick={async () => {
             if (!sceneFile.root) return
-            function patchNorm(n: CCSceneNode): CCSceneNode {
-              const children = n.children.map(patchNorm)
-              if (!uuidSet.has(n.uuid)) return { ...n, children }
+            await patchNodes(n => {
               const r = typeof n.rotation === 'number' ? n.rotation : (n.rotation as { z?: number }).z ?? 0
               const norm = ((r % 360) + 540) % 360 - 180
               const newRot = typeof n.rotation === 'number' ? norm : { ...(n.rotation as object), z: norm } as CCSceneNode['rotation']
-              return { ...n, rotation: newRot, children }
-            }
-            await saveScene(patchNorm(sceneFile.root))
-            setBatchMsg(`✓ 회전 정규화 (${uuids.length}개)`)
-            setTimeout(() => setBatchMsg(null), 2000)
+              return { ...n, rotation: newRot}
+            }, `회전 정규화 (${uuids.length}개)`)
           }}
           style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 3, border: '1px solid rgba(248,113,113,0.4)', color: '#f87171', userSelect: 'none' }}
           onMouseEnter={e => (e.currentTarget.style.color = '#fca5a5')}
@@ -15496,19 +13308,14 @@ export function CCFileBatchInspector({
               onKeyDown={async e => {
                 if (e.key !== 'Enter' || !sceneFile.root) return
                 const text = (e.target as HTMLInputElement).value
-                function patch(n: CCSceneNode): CCSceneNode {
-                  const ch = n.children.map(patch)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+                await patchNodes(n => {
                   const comps = n.components.map(c => {
-                    if (c.type === 'cc.Label') return { ...c, props: { ...c.props, string: text } }
-                    if (c.type === 'cc.RichText') return { ...c, props: { ...c.props, string: text } }
-                    return c
+                  if (c.type === 'cc.Label') return { ...c, props: { ...c.props, string: text } }
+                  if (c.type === 'cc.RichText') return { ...c, props: { ...c.props, string: text } }
+                  return c
                   })
-                  return { ...n, components: comps, children: ch }
-                }
-                await saveScene({ ...sceneFile, root: patch(sceneFile.root!) })
-                setBatchMsg(`✓ 레이블 텍스트 (R2548)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                  return { ...n, components: comps}
+                }, `레이블 텍스트 (R2548)`)
                 ;(e.target as HTMLInputElement).value = ''
               }}
             />
@@ -15526,26 +13333,18 @@ export function CCFileBatchInspector({
         if (!hasLabelNode) return null
         const applyLabelSerial = async (mode: 'append' | 'replace') => {
           if (!sceneFile.root) return
-          let counter = 1
-          const orderedUuids = uuids
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            const idx = orderedUuids.indexOf(n.uuid)
-            if (idx < 0) return { ...n, children: ch }
+          await patchOrdered((n, idx) => {
             const hasLabel = n.components.some(c => c.type === 'cc.Label')
-            if (!hasLabel) return { ...n, children: ch }
-            const num = counter++
+            if (!hasLabel) return n
+            const num = idx + 1
             const comps = n.components.map(c => {
               if (c.type !== 'cc.Label') return c
               const cur = (c.props?.string as string | undefined) ?? ''
               const newStr = mode === 'append' ? `${cur}${num}` : String(num)
               return { ...c, props: { ...c.props, string: newStr } }
             })
-            return { ...n, components: comps, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ Label 순번 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, components: comps }
+          }, `Label 순번 (${uuids.length}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#67e8f9', userSelect: 'none' }
         return (
@@ -15561,14 +13360,9 @@ export function CCFileBatchInspector({
         const applyNamePatch = async () => {
           if (!sceneFile.root) return
           if (!namePrefix && !nameSuffix) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, name: `${namePrefix}${n.name}${nameSuffix}`, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 이름 패치: ${namePrefix}*${nameSuffix} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            return { ...n, name: `${namePrefix}${n.name}${nameSuffix}`}
+          }, `이름 패치: ${namePrefix}*${nameSuffix} (${uuids.length}개)`)
         }
         const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
         return (
@@ -15588,14 +13382,9 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyFindReplace = async () => {
           if (!sceneFile.root || !nameFind) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, name: n.name.split(nameFind).join(nameReplace), children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 이름 치환 "${nameFind}"→"${nameReplace}" (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            return { ...n, name: n.name.split(nameFind).join(nameReplace)}
+          }, `이름 치환 "${nameFind}"→"${nameReplace}" (${uuids.length}개)`)
         }
         const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
         return (
@@ -15615,14 +13404,9 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyNameTrim = async () => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, name: n.name.trim().replace(/\s+/g, ' '), children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 이름 공백 정리 (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            return { ...n, name: n.name.trim().replace(/\s+/g, ' ')}
+          }, `이름 공백 정리 (${uuids.length}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
         return (
@@ -15637,15 +13421,10 @@ export function CCFileBatchInspector({
         const applyNameCase = async (mode: 'upper' | 'lower' | 'title') => {
           if (!sceneFile.root) return
           function toTitle(s: string) { return s.replace(/\b\w/g, c => c.toUpperCase()) }
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const newName = mode === 'upper' ? n.name.toUpperCase() : mode === 'lower' ? n.name.toLowerCase() : toTitle(n.name)
-            return { ...n, name: newName, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 이름 ${mode === 'upper' ? 'UPPER' : mode === 'lower' ? 'lower' : 'Title'} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, name: newName}
+          }, `이름 ${mode === 'upper' ? 'UPPER' : mode === 'lower' ? 'lower' : 'Title'} (${uuids.length}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
         return (
@@ -15704,14 +13483,9 @@ export function CCFileBatchInspector({
         const applyNameSerial = async () => {
           if (!sceneFile.root) return
           let idx = nameSerialStart
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            return { ...n, name: `${nameSerialBase}${idx++}`, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 이름 일련번호 ${nameSerialBase}${nameSerialStart}… (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+          await patchNodes(n => {
+            return { ...n, name: `${nameSerialBase}${idx++}`}
+          }, `이름 일련번호 ${nameSerialBase}${nameSerialStart}… (${uuids.length}개)`)
         }
         const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
         const niS = mkNiS(30, '1px 2px')
@@ -15741,15 +13515,10 @@ export function CCFileBatchInspector({
             const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
             colorMap.set(n.uuid, { r, g, b, a: 255 })
           })
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const c = colorMap.get(n.uuid)
-            return c ? { ...n, color: c, children: ch } : { ...n, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 랜덤 색상 (${collected.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return c ? { ...n, color: c} : { ...n}
+          }, `랜덤 색상 (${collected.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 4, marginBottom: 4, paddingLeft: 52, alignItems: 'center' }}>
@@ -15817,13 +13586,10 @@ export function CCFileBatchInspector({
         const refSz = selNodes[0].size as { x: number; y: number }
         const applyMatchSize = async (matchW: boolean, matchH: boolean) => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sz = n.size as { x: number; y: number }
-            return { ...n, size: { x: matchW ? refSz.x : sz.x, y: matchH ? refSz.y : sz.y }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+            return { ...n, size: { x: matchW ? refSz.x : sz.x, y: matchH ? refSz.y : sz.y }}
+          }, `patch`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -15841,15 +13607,10 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyScaleMul = async (mul: number) => {
           if (!sceneFile.root || isNaN(mul) || mul === 0) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sc = n.scale as { x: number; y: number; z?: number }
-            return { ...n, scale: { ...sc, x: Math.round(sc.x * mul * 1000) / 1000, y: Math.round(sc.y * mul * 1000) / 1000 }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ scale ×${mul} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, scale: { ...sc, x: Math.round(sc.x * mul * 1000) / 1000, y: Math.round(sc.y * mul * 1000) / 1000 }}
+          }, `scale ×${mul} (${uuids.length}개)`)
         }
         const btnS = mkBtnTint('251,191,36', '#fbbf24')
         const mul = parseFloat(scaleMulInput)
@@ -15872,15 +13633,10 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applySizeMul = async (mul: number) => {
           if (!sceneFile.root || isNaN(mul) || mul === 0) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const sz = n.size as { x: number; y: number }
-            return { ...n, size: { x: Math.round(sz.x * mul * 100) / 100, y: Math.round(sz.y * mul * 100) / 100 }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ size ×${mul} (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: { x: Math.round(sz.x * mul * 100) / 100, y: Math.round(sz.y * mul * 100) / 100 }}
+          }, `size ×${mul} (${uuids.length}개)`)
         }
         const btnS = mkBtnTint('52,211,153', '#34d399')
         const mul = parseFloat(sizeMulInput)
@@ -15912,19 +13668,14 @@ export function CCFileBatchInspector({
         const rs = refSize as { x: number; y: number }
         const applyMatchSize = async (mode: 'both' | 'w' | 'h') => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid) || n.uuid === uuids[0]) return { ...n, children: ch }
+          await patchNodes(n => {
             const sz = n.size as { x: number; y: number }
             const newSz = {
-              x: (mode === 'both' || mode === 'w') ? rs.x : sz.x,
-              y: (mode === 'both' || mode === 'h') ? rs.y : sz.y,
+            x: (mode === 'both' || mode === 'w') ? rs.x : sz.x,
+            y: (mode === 'both' || mode === 'h') ? rs.y : sz.y,
             }
-            return { ...n, size: newSz, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 크기 통일 (${uuids.length - 1}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, size: newSz}
+          }, `크기 통일 (${uuids.length - 1}개)`)
         }
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }
         return (
@@ -15999,16 +13750,11 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRotSnap = async (step: number) => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const cur = typeof n.rotation === 'number' ? n.rotation : ((n.rotation as { z?: number })?.z ?? 0)
             const snapped = Math.round(cur / step) * step
-            return { ...n, rotation: typeof n.rotation === 'number' ? snapped : { ...(n.rotation as object), z: snapped }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 회전 스냅 ${step}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: typeof n.rotation === 'number' ? snapped : { ...(n.rotation as object), z: snapped }}
+          }, `회전 스냅 ${step}° (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -16026,16 +13772,11 @@ export function CCFileBatchInspector({
       {uuids.length >= 1 && sceneFile.root && (() => {
         const addRot = async (deg: number) => {
           if (!sceneFile.root) return
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
+          await patchNodes(n => {
             const cur = typeof n.rotation === 'number' ? n.rotation : ((n.rotation as { z?: number })?.z ?? 0)
             const next = Math.round(cur + deg)
-            return { ...n, rotation: typeof n.rotation === 'number' ? next : { ...(n.rotation as object), z: next }, children: ch }
-          }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ 회전 +${deg}° (${uuids.length}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, rotation: typeof n.rotation === 'number' ? next : { ...(n.rotation as object), z: next }}
+          }, `회전 +${deg}° (${uuids.length}개)`)
         }
         const deg = parseFloat(rotOffsetInput) || 0
         const btnS = mkBtnTint('167,139,250', '#a78bfa')
@@ -16055,25 +13796,14 @@ export function CCFileBatchInspector({
       })()}
       {/* R2638: 회전 균등 분배 */}
       {uuids.length >= 2 && sceneFile.root && (() => {
-        const applyRotGrad = async () => {
-          if (!sceneFile.root) return
-          const count = uuids.length
-          let idx = 0
-          function patch(n: CCSceneNode): CCSceneNode {
-            const ch = n.children.map(patch)
-            if (!uuidSet.has(n.uuid)) return { ...n, children: ch }
-            const t = count > 1 ? idx / (count - 1) : 0
-            const rot = Math.round(rotGradFrom + (rotGradTo - rotGradFrom) * t)
-            idx++
-            return {
-              ...n,
-              rotation: typeof n.rotation === 'number' ? rot : { ...(n.rotation as object), z: rot },
-              children: ch,
-            }
+        const applyRotGrad = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0
+          const rot = Math.round(rotGradFrom + (rotGradTo - rotGradFrom) * t)
+          return {
+            ...n,
+            rotation: typeof n.rotation === 'number' ? rot : { ...(n.rotation as object), z: rot },
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
-          setBatchMsg(`✓ rot 분배 ${rotGradFrom}°→${rotGradTo}° (${count}개)`)
-          setTimeout(() => setBatchMsg(null), 2000)
+        }, `rot 분배 ${rotGradFrom}°→${rotGradTo}° (${uuids.length}개)`)
         }
         const niS = mkNiS(40)
         return (
@@ -16683,14 +14413,9 @@ export function CCFileBatchInspector({
             <span key={label} title={title}
               onClick={async () => {
                 if (!sceneFile.root) return
-                function patchInt(n: CCSceneNode): CCSceneNode {
-                  const children = n.children.map(patchInt)
-                  if (!uuidSet.has(n.uuid)) return { ...n, children }
-                  return { ...fn(n), children }
-                }
-                await saveScene(patchInt(sceneFile.root))
-                setBatchMsg(`✓ ${title} (${uuids.length}개)`)
-                setTimeout(() => setBatchMsg(null), 2000)
+                await patchNodes(n => {
+                  return { ...fn(n)}
+                }, `${title} (${uuids.length}개)`)
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#c4b5fd')}
@@ -16876,16 +14601,11 @@ export function CCFileBatchInspector({
         const [snapGrid, setSnapGrid] = React.useState(10)
         const applySnap = async () => {
           if (!sceneFile.root) return
-          function patchSnap(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchSnap)
-            if (!uuidSet.has(n.uuid) || !n.position) return { ...n, children }
+          await patchNodes(n => {
             const sx = Math.round((n.position.x ?? 0) / snapGrid) * snapGrid
             const sy = Math.round((n.position.y ?? 0) / snapGrid) * snapGrid
-            return { ...n, position: { ...n.position, x: sx, y: sy }, children }
-          }
-          const result = await saveScene(patchSnap(sceneFile.root))
-          setBatchMsg(result.success ? `✓ 그리드 스냅 ${snapGrid}px (R2495)` : '✗ 오류')
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...n.position, x: sx, y: sy }}
+          }, `그리드 스냅 ${snapGrid}px (R2495)`)
         }
         const bs2 = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fbbf24', userSelect: 'none' } as React.CSSProperties
         return (
@@ -16904,16 +14624,11 @@ export function CCFileBatchInspector({
         const [scatterAmt, setScatterAmt] = React.useState(30)
         const applyScatter = async () => {
           if (!sceneFile.root) return
-          function patchScatter(n: CCSceneNode): CCSceneNode {
-            const children = n.children.map(patchScatter)
-            if (!uuidSet.has(n.uuid) || !n.position) return { ...n, children }
+          await patchNodes(n => {
             const dx = Math.round((Math.random() * 2 - 1) * scatterAmt)
             const dy = Math.round((Math.random() * 2 - 1) * scatterAmt)
-            return { ...n, position: { ...n.position, x: (n.position.x ?? 0) + dx, y: (n.position.y ?? 0) + dy }, children }
-          }
-          const result = await saveScene(patchScatter(sceneFile.root))
-          setBatchMsg(result.success ? `✓ 흩뿌리기 ±${scatterAmt}px (R2496)` : '✗ 오류')
-          setTimeout(() => setBatchMsg(null), 2000)
+            return { ...n, position: { ...n.position, x: (n.position.x ?? 0) + dx, y: (n.position.y ?? 0) + dy }}
+          }, `흩뿌리기 ±${scatterAmt}px (R2496)`)
         }
         const bs3 = { fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#f9a8d4', userSelect: 'none' } as React.CSSProperties
         return (
@@ -16940,8 +14655,8 @@ export function CCFileBatchInspector({
           function patchCircle(node: CCSceneNode): CCSceneNode {
             const move = moves.find(m => m.uuid === node.uuid)
             const children = node.children.map(patchCircle)
-            if (!move) return { ...node, children }
-            return { ...node, position: { ...(node.position || { z: 0 }), x: move.x, y: move.y }, children }
+            if (!move) return { ...node}
+            return { ...node, position: { ...(node.position || { z: 0 }), x: move.x, y: move.y }}
           }
           const result = await saveScene(patchCircle(sceneFile.root))
           setBatchMsg(result.success ? `✓ 원형 배치 r=${circleRadius} (${n}개)` : `✗ 오류`)
