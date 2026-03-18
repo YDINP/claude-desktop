@@ -1,5 +1,6 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
 import http from 'http'
+import { readFile } from 'fs/promises'
 import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene, parseCCSceneChunked, isLargeScene } from '../cc/cc-file-parser'
 import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile, recordSceneMtime, forceOverwriteScene } from '../cc/cc-file-saver'
@@ -179,10 +180,20 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     return obj
   })
 
-  /** UUID → 텍스처 URL 변환 */
+  /** UUID → 텍스처 data URL 변환 (base64) */
   ipcMain.handle('cc:file:resolveTexture', async (_e, uuid: string, assetsDir: string) => {
     const map = buildUUIDMap(assetsDir)
-    return resolveTextureUrl(uuid, map)
+    const asset = map.get(uuid)
+    if (!asset) return null
+    if (asset.type !== 'texture' && asset.type !== 'sprite-atlas') return null
+    try {
+      const data = await readFile(asset.path)
+      const ext = asset.path.split('.').pop()?.toLowerCase() ?? 'png'
+      const mime: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif' }
+      return `data:${mime[ext] ?? 'image/png'};base64,${data.toString('base64')}`
+    } catch {
+      return null
+    }
   })
 
   /** 씬 raw 배열에서 참조 UUID 목록 추출 */
