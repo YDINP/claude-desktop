@@ -48,6 +48,10 @@ interface CCFileSceneViewProps {
   onOpacity?: (uuid: string, opacity: number) => void
   /** R2549: 형제 순서를 맨 앞(first) / 맨 뒤(last)로 이동 */
   onReorderExtreme?: (uuid: string, to: 'first' | 'last') => void
+  /** R2705: Alt+drag 노드 복제 — 원본 uuid + 드래그 목적지 x/y */
+  onAltDrag?: (uuid: string, x: number, y: number) => void
+  /** R2726: 씬 트리 접힌 노드 — 자식을 SceneView에서 숨김 */
+  collapsedUuids?: Set<string>
 }
 
 /**
@@ -60,7 +64,7 @@ function sceneViewKey(scenePath: string) {
   return 'sv-view2-' + scenePath.replace(/[^a-zA-Z0-9]/g, '_').slice(-60)
 }
 
-export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme }: CCFileSceneViewProps) {
+export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme, onAltDrag, collapsedUuids }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [view, setView] = useState<ViewTransform>(() => {
     // R2486: 씬 전환 시 이전 뷰 상태 복원
@@ -74,7 +78,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   viewRef.current = view
   const [isPanning, setIsPanning] = useState(false)
   const panStart = useRef<{ mouseX: number; mouseY: number; offX: number; offY: number } | null>(null)
-  const dragRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number } | null>(null)
+  // R2705: isAltDrag — Alt 누른 채 드래그 시 복제
+  const dragRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number; isAltDrag?: boolean } | null>(null)
   const [dragOverride, setDragOverride] = useState<{ uuid: string; x: number; y: number } | null>(null)
   // R1683: 드래그 ghost (원래 위치 반투명 표시) — worldX/worldY 기준
   const [dragGhost, setDragGhost] = useState<{ uuid: string; worldX: number; worldY: number; w: number; h: number; anchorX: number; anchorY: number } | null>(null)
@@ -139,6 +144,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R1705: 선택 이력 (Alt+← / Alt+→)
   const selHistoryRef = useRef<string[]>([])
   const selHistoryIdxRef = useRef(-1)
+  // R2707: 선택 히스토리 팝업
+  const [histPopupOpen, setHistPopupOpen] = useState(false)
+  const histPopupBtnRef = useRef<HTMLButtonElement | null>(null)
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
@@ -257,6 +265,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSafeZone, setShowSafeZone] = useState(false)
   // R2630: 삼분법(Rule of Thirds) 가이드 오버레이
   const [showRuleOfThirds, setShowRuleOfThirds] = useState(false)
+  // R2709: 커스텀 비율 가이드 오버레이
+  const [showCustomRatio, setShowCustomRatio] = useState(false)
+  const [customRatioW, setCustomRatioW] = useState(16)
+  const [customRatioH, setCustomRatioH] = useState(9)
   // R2636: 캔버스 경계 초과 노드 강조 오버레이
   const [showOOBHighlight, setShowOOBHighlight] = useState(false)
   // R2637: 씬 전체 바운딩박스 오버레이
@@ -311,15 +323,31 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showSelAxisLine, setShowSelAxisLine] = useState(false)
   // R2700: 선택 노드 형제 강조 오버레이
   const [showSiblingHighlight, setShowSiblingHighlight] = useState(false)
+  // R2717: 선택 노드 opacity HUD 배지
+  const [showOpacityHud, setShowOpacityHud] = useState(false)
+  // R2718: 선택 노드 uuid 참조 화살표 오버레이
+  const [showRefArrows, setShowRefArrows] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
+  const [showShortcutOverlay, setShowShortcutOverlay] = useState(false)
   const measureStartRef = useRef<{ svgX: number; svgY: number } | null>(null)
 
   // R1516: 다중 선택 변경 → 부모에 알림
   useEffect(() => {
     onMultiSelectChange?.(Array.from(multiSelected))
   }, [multiSelected, onMultiSelectChange])
+
+  // R2715: 단축키 오버레이 외부 클릭 닫기
+  useEffect(() => {
+    if (!showShortcutOverlay) return
+    const handler = (e: MouseEvent) => {
+      const el = document.getElementById('sc-shortcut-popup')
+      if (el && !el.contains(e.target as Node)) setShowShortcutOverlay(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showShortcutOverlay])
 
   // R2486: 씬 전환 시 해당 씬의 저장된 뷰 상태 복원
   const prevScenePath = useRef(sceneFile.scenePath)
@@ -403,6 +431,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const x = worldX + (typeof node.position === 'object' ? (node.position as { x: number }).x : 0)
       const y = worldY + (typeof node.position === 'object' ? (node.position as { y: number }).y : 0)
       result.push({ node, worldX: x, worldY: y, depth, parentUuid, siblingIdx, siblingTotal })
+      // R2726: 씬 트리에서 접힌 노드는 자식을 SceneView에서도 숨김
+      if (collapsedUuids?.has(node.uuid)) return
       for (let i = 0; i < node.children.length; i++) {
         walk(node.children[i], x, y, depth + 1, node.uuid, i, node.children.length)
       }
@@ -412,10 +442,33 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       walk(sceneFile.root.children[i], 0, 0, 0, null, i, sceneFile.root.children.length)
     }
     return result
-  }, [sceneFile])
+  }, [sceneFile, collapsedUuids])
 
   // 다중 선택 UUID 배열 (multiSelected Set → string[])
   const uuids = useMemo(() => Array.from(multiSelected), [multiSelected])
+
+  // R2718: uuid → FlatNode 맵
+  const nodeMap = useMemo(() => {
+    const m = new Map<string, FlatNode>()
+    flatNodes.forEach(fn => m.set(fn.node.uuid, fn))
+    return m
+  }, [flatNodes])
+
+  // R2718: 선택 노드 컴포넌트 props에서 uuid 참조 수집
+  const UUID_RE = /^[0-9a-f]{14,36}$/
+  const refUuids = useMemo(() => {
+    const selFn = selectedUuid ? nodeMap.get(selectedUuid) : null
+    if (!selFn || !showRefArrows) return []
+    const refs: string[] = []
+    for (const comp of selFn.node.components) {
+      for (const v of Object.values(comp.props ?? {})) {
+        if (typeof v === 'string' && UUID_RE.test(v) && nodeMap.has(v) && v !== selectedUuid) {
+          refs.push(v)
+        }
+      }
+    }
+    return [...new Set(refs)]
+  }, [selectedUuid, showRefArrows, nodeMap])
 
   // R2651: 선택 노드 부모 UUID 집합
   const parentUuidSet = useMemo(() => {
@@ -755,7 +808,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     hoverClientPosRef.current = { x: e.clientX, y: e.clientY }  // R1693
   }, [isPanning, cx, cy, snapSize, flatNodes])
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback((e?: React.MouseEvent) => {
     // R2465: 측정 도구 — 드래그 완료 시 start ref 해제 (측정 선은 유지)
     if (measureStartRef.current) {
       measureStartRef.current = null
@@ -787,7 +840,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     resizeRef.current = null
     setResizeOverride(null)
     if (dragRef.current && dragOverride) {
-      onMove?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
+      // R2705: altDrag — 복제 후 이동
+      if (dragRef.current.isAltDrag) {
+        onAltDrag?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
+      } else {
+        onMove?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
+      }
       dragRef.current = null
       setDragOverride(null)
       setSnapIndicator(null)
@@ -834,7 +892,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             picked.add(fn.node.uuid)
           }
         }
-        setMultiSelected(picked)
+        // R2701: Shift 키 누른 채 마르키 선택 시 기존 선택 병합
+        if (e?.shiftKey) {
+          setMultiSelected(prev => new Set([...prev, ...picked]))
+        } else {
+          setMultiSelected(picked)
+        }
         if (picked.size > 0) onSelect([...picked][0])
       }
     }
@@ -1145,6 +1208,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     selHistoryRef.current = [selectedUuid, ...newHist].slice(0, 30)
     selHistoryIdxRef.current = 0
   }, [selectedUuid])
+
+  // R2707: 히스토리 팝업 외부 클릭 닫기
+  useEffect(() => {
+    if (!histPopupOpen) return
+    const handler = (e: MouseEvent) => {
+      if (histPopupBtnRef.current && histPopupBtnRef.current.contains(e.target as Node)) return
+      setHistPopupOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [histPopupOpen])
 
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   // R1708: Shift+클릭 → PNG 로컬 다운로드
@@ -1525,6 +1599,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={viewLock ? '편집 잠금 해제 (R1605)' : '편집 잠금 — 보기 전용 모드 (R1605)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${viewLock ? '#f85149' : 'var(--border)'}`, background: viewLock ? 'rgba(248,81,73,0.12)' : 'none', color: viewLock ? '#f85149' : 'var(--text-muted)' }}
         >{viewLock ? '🔒' : '🔓'}</button>
+        {/* R2711: 선택 노드 잠금/해제 */}
+        {!viewLock && selectedUuid && (
+          <button
+            onClick={() => toggleLock(selectedUuid)}
+            title={lockedUuids.has(selectedUuid) ? '노드 잠금 해제 (R2711)' : '노드 잠금 (R2711)'}
+            style={{ fontSize: 9, padding: '1px 4px', background: lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.12)' : 'var(--bg-secondary)', border: `1px solid ${lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, borderRadius: 3, color: lockedUuids.has(selectedUuid) ? '#fbbf24' : 'var(--text-muted)', cursor: 'pointer' }}
+          >{lockedUuids.has(selectedUuid) ? '🔒' : '🔓'}</button>
+        )}
         {/* R1610: 비활성 노드 숨기기 */}
         <button
           onClick={() => setHideInactiveNodes(h => !h)}
@@ -1601,6 +1683,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             title="다음 선택으로 (Alt+→)"
             style={{ padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: selHistoryIdxRef.current <= 0 ? 'default' : 'pointer', border: '1px solid var(--border)', background: 'none', color: selHistoryIdxRef.current <= 0 ? 'var(--text-muted)' : 'var(--text-primary)', opacity: selHistoryIdxRef.current <= 0 ? 0.3 : 1 }}
           >→</button>
+          {/* R2707: 선택 히스토리 팝업 버튼 */}
+          <span style={{ position: 'relative' }}>
+            <button
+              ref={histPopupBtnRef}
+              onClick={() => setHistPopupOpen(prev => !prev)}
+              title="선택 히스토리 (R2707)"
+              style={{ padding: '1px 5px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: `1px solid ${histPopupOpen ? '#58a6ff' : 'var(--border)'}`, background: histPopupOpen ? 'rgba(88,166,255,0.12)' : 'none', color: histPopupOpen ? '#58a6ff' : 'var(--text-muted)' }}
+            >⏱</button>
+            {histPopupOpen && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, zIndex: 250, minWidth: 160, maxWidth: 260, boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+                {selHistoryRef.current.slice(0, 8).map((uuid, i) => {
+                  const fn = flatNodes.find(f => f.node.uuid === uuid)
+                  const label = fn ? fn.node.name : uuid.slice(0, 8)
+                  return (
+                    <div
+                      key={uuid}
+                      onClick={() => { onSelect(uuid); setHistPopupOpen(false) }}
+                      style={{ padding: '4px 10px', cursor: 'pointer', fontSize: 11, color: uuid === selectedUuid ? 'var(--text)' : 'var(--text-muted)', background: uuid === selectedUuid ? 'rgba(88,166,255,0.1)' : 'transparent', borderBottom: i < Math.min(selHistoryRef.current.length, 8) - 1 ? '1px solid var(--border)' : 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(88,166,255,0.15)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = uuid === selectedUuid ? 'rgba(88,166,255,0.1)' : 'transparent' }}
+                    >
+                      <span style={{ color: 'var(--text-muted)', marginRight: 6, fontSize: 9 }}>{i + 1}</span>{label}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </span>
         </>)}
         {/* R1623: 와이어프레임 모드 */}
         <button
@@ -1770,6 +1880,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showRuleOfThirds ? '삼분법 가이드 끄기 (R2630)' : '3×3 Rule of Thirds 가이드 표시 (R2630)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRuleOfThirds ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRuleOfThirds ? 'rgba(167,139,250,0.12)' : 'none', color: showRuleOfThirds ? '#a78bfa' : 'var(--text-muted)' }}
         >⊞</button>
+        {/* R2709: 커스텀 비율 가이드 토글 */}
+        <button
+          onClick={() => setShowCustomRatio(v => !v)}
+          title={showCustomRatio ? '커스텀 비율 가이드 끄기 (R2709)' : '커스텀 비율 가이드 표시 (R2709)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCustomRatio ? 'rgba(234,179,8,0.5)' : 'var(--border)'}`, background: showCustomRatio ? 'rgba(234,179,8,0.12)' : 'none', color: showCustomRatio ? '#eab308' : 'var(--text-muted)' }}
+        >⊞R</button>
+        <input type="number" min={1} value={customRatioW}
+          onChange={e => setCustomRatioW(Math.max(1, Number(e.target.value)))}
+          style={{ width: 30, fontSize: 9, padding: '1px 2px' }} title="가이드 비율 W" />
+        <span style={{fontSize:9, color:'var(--text-muted)', margin: '0 2px'}}>:</span>
+        <input type="number" min={1} value={customRatioH}
+          onChange={e => setCustomRatioH(Math.max(1, Number(e.target.value)))}
+          style={{ width: 30, fontSize: 9, padding: '1px 2px' }} title="가이드 비율 H" />
         {/* R2636: 캔버스 경계 초과 노드 강조 토글 */}
         <button
           onClick={() => setShowOOBHighlight(v => !v)}
@@ -1932,6 +2055,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           title={showSiblingHighlight ? '형제 강조 끄기 (R2700)' : '선택 노드와 같은 부모를 가진 형제 노드 강조 (R2700)'}
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingHighlight ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showSiblingHighlight ? 'rgba(139,92,246,0.1)' : 'none', color: showSiblingHighlight ? '#8b5cf6' : 'var(--text-muted)' }}
         >≡</button>
+        {/* R2717: 선택 노드 opacity HUD 배지 토글 */}
+        <button
+          onClick={() => setShowOpacityHud(v => !v)}
+          title={showOpacityHud ? 'opacity HUD 끄기 (R2717)' : '선택 노드 opacity 값 배지 표시 (R2717)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityHud ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityHud ? 'rgba(251,191,36,0.1)' : 'none', color: showOpacityHud ? '#fbbf24' : 'var(--text-muted)' }}
+        >op</button>
+        {/* R2718: 선택 노드 uuid 참조 화살표 토글 */}
+        <button
+          onClick={() => setShowRefArrows(v => !v)}
+          title={showRefArrows ? 'uuid 참조 화살표 끄기 (R2718)' : '선택 노드 컴포넌트 props의 uuid 참조 화살표 표시 (R2718)'}
+          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRefArrows ? 'rgba(249,115,22,0.5)' : 'var(--border)'}`, background: showRefArrows ? 'rgba(249,115,22,0.1)' : 'none', color: showRefArrows ? '#f97316' : 'var(--text-muted)' }}
+        >🔗</button>
         {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
         {(() => {
           const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
@@ -2226,10 +2361,46 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showMinimap ? 'rgba(88,166,255,0.12)' : 'none', color: showMinimap ? '#58a6ff' : 'var(--text-muted)' }}
         >⊟</button>
         <button
-          onClick={() => setShowHelp(h => !h)}
-          title="단축키 도움말"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showHelp ? 'rgba(88,166,255,0.12)' : 'none', color: showHelp ? '#58a6ff' : 'var(--text-muted)' }}
-        >?</button>
+          onClick={() => setShowShortcutOverlay(v => !v)}
+          title="단축키 목록"
+          style={{ fontSize: 10, padding: '1px 5px', background: showShortcutOverlay ? '#3b82f6' : '#374151', color: '#fff', border: 'none', borderRadius: 3, cursor: 'pointer', position: 'relative' }}
+        >
+          ?
+          {showShortcutOverlay && (
+            <div id="sc-shortcut-popup" style={{
+              position: 'absolute', bottom: '110%', right: 0, background: '#1e293b', border: '1px solid #334155',
+              borderRadius: 6, padding: '8px 12px', zIndex: 200, minWidth: 260, textAlign: 'left',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.5)', pointerEvents: 'all'
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginBottom: 6 }}>단축키</div>
+              <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                <tbody>
+                  {[
+                    ['Ctrl+D', '노드 복제'],
+                    ['H', 'active 토글'],
+                    ['Ctrl+↑/↓', '형제 순서 이동'],
+                    ['Home/End', '맨 앞/뒤 이동'],
+                    ['Alt+←/→', '선택 히스토리'],
+                    ['Ctrl+P', '핀 마커 토글'],
+                    ['G', '그룹화'],
+                    ['M', '거리 측정 도구'],
+                    ['Ctrl+A', '전체 선택'],
+                    ['Del', '다중 삭제'],
+                    ['Ctrl+Z/Y', 'Undo/Redo'],
+                    ['1/2/3', '뷰 북마크'],
+                    ['Shift+클릭', '다중 선택'],
+                    ['Esc', '선택 해제'],
+                  ].map(([key, desc]) => (
+                    <tr key={key}>
+                      <td style={{ padding: '2px 8px 2px 0', color: '#fbbf24', fontFamily: 'monospace', fontSize: 11, whiteSpace: 'nowrap' }}>{key}</td>
+                      <td style={{ padding: '2px 0', color: '#e2e8f0', fontSize: 11 }}>{desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </button>
       </div>
 
       {/* R2539: 선택 노드 계층 breadcrumb */}
@@ -2294,6 +2465,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {/* R2610: rotation 화살표 마커 */}
           <marker id="rot-arrow" markerWidth={6} markerHeight={6} refX={5} refY={3} orient="auto">
             <path d="M0,0 L6,3 L0,6 Z" fill="rgba(236,72,153,0.9)" />
+          </marker>
+          {/* R2718: uuid 참조 화살표 마커 */}
+          <marker id="ref-arrow" markerWidth={8} markerHeight={8} refX={6} refY={3} orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#f97316" />
           </marker>
           {/* R2326: 체크무늬 배경 패턴 */}
           {bgPattern === 'checker' && (() => {
@@ -2680,6 +2855,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     startMouseY: e.clientY,
                     startNodeX: pos.x,
                     startNodeY: pos.y,
+                    // R2705: altDrag — Alt 누른 채 드래그 시 복제
+                    isAltDrag: e.altKey && !!onAltDrag,
                   }
                   // R1683: ghost 저장 (원래 world 위치)
                   setDragGhost({ uuid: node.uuid, worldX, worldY, w: node.size?.x ?? 0, h: node.size?.y ?? 0, anchorX: node.anchor?.x ?? 0.5, anchorY: node.anchor?.y ?? 0.5 })
@@ -2997,6 +3174,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <text x={rectX + (w > 0 ? w / 2 : 0)} y={rectY - 3 / view.zoom}
                       fontSize={8 / view.zoom} fill="#34d399" textAnchor="middle"
                       style={{ pointerEvents: 'none', userSelect: 'none' }}>{Math.round(pos.x)},{Math.round(pos.y)}</text>
+                  )
+                })()}
+                {/* R2717: 선택 노드 opacity HUD 배지 */}
+                {showOpacityHud && isSelected && (() => {
+                  return (
+                    <text
+                      x={rectX + (w > 0 ? w : 0)}
+                      y={rectY - 4 / view.zoom}
+                      fontSize={8 / view.zoom}
+                      fill="#fbbf24"
+                      textAnchor="end"
+                      pointerEvents="none"
+                      style={{ userSelect: 'none' }}
+                    >{`op:${node.opacity ?? 255}`}</text>
                   )
                 })()}
                 {/* R2672: scale 값 텍스트 오버레이 */}
@@ -3543,6 +3734,26 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })}
+          {/* R2728: 잠금 노드 🔒 아이콘 오버레이 */}
+          {lockedUuids.size > 0 && flatNodes.map(fn => {
+            if (!lockedUuids.has(fn.node.uuid)) return null
+            const sp = ccToSvg(fn.worldX, fn.worldY)
+            const w = fn.node.size?.x ?? 0
+            const h = fn.node.size?.y ?? 0
+            const ax = fn.node.anchor?.x ?? 0.5
+            const ay = fn.node.anchor?.y ?? 0.5
+            const iconSize = Math.max(8, 9 / view.zoom)
+            // 노드 우상단 모서리 기준
+            const iconX = sp.x + w * (1 - ax) - iconSize * 0.1 / view.zoom
+            const iconY = sp.y - h * (1 - ay) + iconSize * 1.1 / view.zoom
+            return (
+              <text key={`lk-${fn.node.uuid}`}
+                x={iconX} y={iconY} fontSize={iconSize / view.zoom}
+                textAnchor="end" fill="rgba(251,191,36,0.9)"
+                style={{ pointerEvents: 'none', userSelect: 'none' }}
+              >🔒</text>
+            )
+          })}
           {/* R2645: 선택 노드 순서 연결선 오버레이 */}
           {showSelPolyline && uuids.length >= 2 && (() => {
             const ordered: { x: number; y: number }[] = []
@@ -3636,6 +3847,29 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     <rect key={fn.node.uuid} x={rx} y={ry} width={w2} height={h2}
                       fill="rgba(139,92,246,0.1)" stroke="rgba(139,92,246,0.7)" strokeWidth={sw}
                       strokeDasharray={`${3/view.zoom} ${2/view.zoom}`} />
+                  )
+                })}
+              </g>
+            )
+          })()}
+          {/* R2718: 선택 노드 uuid 참조 화살표 오버레이 */}
+          {showRefArrows && selectedUuid && refUuids.length > 0 && (() => {
+            const selFn = nodeMap.get(selectedUuid)
+            if (!selFn) return null
+            const fromSvg = ccToSvg(selFn.worldX, selFn.worldY)
+            const sw = 1.5 / view.zoom
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                {refUuids.map(refUuid => {
+                  const toFn = nodeMap.get(refUuid)
+                  if (!toFn) return null
+                  const toSvg = ccToSvg(toFn.worldX, toFn.worldY)
+                  return (
+                    <line key={refUuid}
+                      x1={fromSvg.x} y1={fromSvg.y}
+                      x2={toSvg.x} y2={toSvg.y}
+                      stroke="#f97316" strokeWidth={sw} opacity={0.8}
+                      markerEnd="url(#ref-arrow)" />
                   )
                 })}
               </g>
@@ -3751,6 +3985,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   fontSize={fs} fill="rgba(96,165,250,0.6)" fontFamily="monospace"
                   style={{ pointerEvents: 'none', userSelect: 'none' }}>16:9</text>
               </>
+            )
+          })()}
+          {/* R2709: 커스텀 비율 가이드 오버레이 */}
+          {showCustomRatio && customRatioW > 0 && customRatioH > 0 && (() => {
+            const cw = effectiveW, ch = effectiveH
+            const svgLeft = cx - cw / 2, svgTop = cy - ch / 2
+            const scale = Math.min(cw / customRatioW, ch / customRatioH)
+            const rw = customRatioW * scale
+            const rh = customRatioH * scale
+            const rx = cx - rw / 2
+            const ry = cy - rh / 2
+            const sw = 1.5 / view.zoom
+            const dash = 6 / view.zoom
+            const fs = Math.max(5, 8 / view.zoom)
+            return (
+              <g>
+                <rect x={rx} y={ry} width={rw} height={rh}
+                  fill="none"
+                  stroke="rgba(234,179,8,0.7)"
+                  strokeWidth={sw}
+                  strokeDasharray={`${dash} ${dash}`}
+                  style={{ pointerEvents: 'none' }} />
+                <text x={rx + 2/view.zoom} y={ry - 3/view.zoom}
+                  fill="rgba(234,179,8,0.8)"
+                  fontSize={fs}
+                  fontFamily="monospace"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}>{customRatioW}:{customRatioH}</text>
+              </g>
             )
           })()}
           {/* R2637: 씬 전체 바운딩박스 */}

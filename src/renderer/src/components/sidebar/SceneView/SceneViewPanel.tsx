@@ -2276,6 +2276,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       .filter((n): n is import('./types').SceneNode => !!n)
   }, [nodeMap, rootUuid])
 
+  // R523: 레이어 이름 목록 (가시성 토글 팝업용)
+  const allLayers = useMemo(() => [...new Set(topLevelNodes.map(n => n.name))], [topLevelNodes])
+
   // 레이어(최상위 노드) 하위 전체 uuid 수집 헬퍼
   const collectDescendants = useCallback((uuid: string): string[] => {
     const result: string[] = [uuid]
@@ -4910,7 +4913,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             border: '1px solid rgba(255,255,255,0.12)',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Layers</span>
+              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Layers ({allLayers.length})</span>
               <button
                 onClick={() => {
                   const next = !showAllToggle

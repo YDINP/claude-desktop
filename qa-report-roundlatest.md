@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-15T22:36:11.331Z
+> 2026-03-17T08:28:06.277Z
 
 ## Critical
 _없음_
@@ -9,11 +9,29 @@ _없음_
 
 ## Pass
 - tsc --noEmit 오류 없음
-- 109개 소스 파일 검사 완료
+- 185개 소스 파일 검사 완료
+- package.json 파싱 성공 (name: claude-desktop)
+- preload expose 메서드 337개 확인
+- ipcMain.handle 등록: 13개 이상
+- 의존성 설치됨: electron
+- 의존성 설치됨: react
+- 의존성 설치됨: react-dom
+- tsconfig 존재
 - 자동 재연결 로직 존재
 - CocosPanel App 메인 레이아웃에 통합됨 (탭/나란히/창분리)
 - registerCCHandlers 정상 등록
+- 조건부 Hook 수정됨: isCCEditorWindow가 App() 레벨에 위치
+- cc:open-window 싱글톤 패턴 적용됨
+- grepSearch execFile 배열 방식 사용 (shell injection 방어)
+- fs:delete 경로 가드 존재
+- watchDir sender.isDestroyed() 체크 존재
+- cc-file-parser 재귀 깊이 제한 존재
+- handleSave try/finally 존재 (saving 상태 고착 방지)
+- local:// path traversal 강화됨 (decodeURIComponent + allowedBases)
 - AssetBrowserPanel.tsx 존재
+- RunTimeline.tsx 존재
+- ollama-handlers.ts 존재
+- openai-handlers.ts 존재
 - CC 3x /assets/tree 엔드포인트 존재
 - cost-tracker.ts: recordCost + getMonthlyCost 존재
 - CommandPalette recent-action 구현 존재
@@ -24,15 +42,12 @@ _없음_
 - chat-store reconcileText 존재
 - agent-bridge text_delta 16ms 배치 존재
 - agui-store: aguiDispatch + aguiSubscribe 존재
-- RunTimeline.tsx 존재
 - SceneView 다중 선택 + MarqueeState 존재
 - ollama-bridge.ts: ollamaListModels + ollamaChat 존재
-- ollama-handlers.ts 존재
 - InputBar Ollama 모델 피커 존재
 - SceneView UndoEntry 타입 존재
 - SceneView undo/redo 스택 존재
 - openai-bridge.ts: openaiChat 존재
-- openai-handlers.ts 존재
 - InputBar OpenAI 모델 옵션 존재
 - SceneView ClipboardEntry 타입 존재
 - SceneView 노드 복사/붙여넣기 존재
@@ -115,7 +130,6 @@ _없음_
 - SceneViewPanel: showShortcuts 상태 + ? 키 토글 존재
 - SceneViewPanel: 단축키 오버레이 콘텐츠 존재
 - SceneViewPanel: passive:false wheel 이벤트 등록 존재
-- SceneViewPanel: JSX onWheel 제거 (passive 리스너로 대체됨)
 - SceneInspector: onSelectParent + nodeMap prop + parentUuid 조회 존재
 - SceneInspector: 부모 노드 클릭 선택 UI 존재
 - SceneView: 씬 해상도 레이블 <text> 엘리먼트 존재
@@ -275,12 +289,14 @@ _없음_
 - DiffPanel: 최근 비교 히스토리 (diffHistory/DIFF_HISTORY_KEY/showHistory) 존재
 - SearchPanel: 검색 결과 파일 그룹 접기/펼치기 (collapsedFiles/toggleCollapse) 존재
 - AssetBrowserPanel: 타입 필터 버튼 (typeFilter/availableTypes) 존재
+- AssetBrowserPanel: 타입 필터 버튼 (typeFilter/availableTypes) 존재
 - PluginsPanel: 플러그인 검색 필터 (pluginSearch/플러그인 검색) 존재
 - WebPreviewPanel: 뒤로/앞으로 히스토리 탐색 (histIdx/handleBack/handleForward) 존재
 - TasksPanel: 기한 초과 필터 배지 (overdueCount/overdue/초과) 존재
 - StatsPanel: 새로고침 버튼 (refreshing/loadStats) 존재
 - RunTimeline: RunCard 스텝 접기/펼치기 (expanded/setExpanded) 존재
 - BookmarksPanel: 북마크별 복사 버튼 (copiedId/copyBookmark/stopPropagation) 존재
+- OutlinePanel: H레벨 카운트 표시 (cnt/H1(N)/0개 숨김) 존재
 - OutlinePanel: H레벨 카운트 표시 (cnt/H1(N)/0개 숨김) 존재
 - GlobalSearchPanel: 날짜순 정렬 토글 (sortOrder/date/updatedAt) 존재
 - NotesPanel: 노트 목록 글자 수 표시 (content.length/1000/k자) 존재
@@ -368,6 +384,7 @@ _없음_
 - SceneViewPanel: Alt+[/] 투명도 조절 단축키 구현 존재
 - SceneViewPanel: Ctrl+Shift+A 선택 반전 구현 존재
 - SceneViewPanel: 인라인 편집바 rotation(r) 필드 구현 존재
+- SceneViewPanel: 인라인 편집바 rotation(r) 필드 구현 존재
 - SceneViewPanel: 연결선 cubic bezier + 화살표 마커 구현 존재
 - SceneViewPanel: 드래그 델타 오버레이 구현 존재
 - SceneViewPanel: 그룹 해제 (handleUngroup + Ctrl+Shift+G) 구현 존재
@@ -436,45 +453,22 @@ _없음_
 - SceneInspector: 노드 메모 입력란 존재
 - SceneView: 노드 잠금 아이콘 + 드래그 방어 존재
 - SceneView: 픽셀 눈금자 (R 키 토글) 존재
-- SceneView: N/E/S/W 측면 리사이즈 핸들 존재
-- SceneView: Ctrl+G 노드 그룹화 존재
 - NodeHierarchyList: 인라인 이름 편집 (더블클릭/컨텍스트메뉴) 존재
 - SceneView: Ctrl+]/[ z-order 변경 존재
 - SceneView: Tab/Shift+Tab 형제 노드 순환 선택 존재
-- package.json 파싱 성공 (name: claude-desktop)
-- preload expose 메서드 337개 확인
-- ipcMain.handle 등록: 13개 이상
-- 의존성 설치됨: electron
-- 의존성 설치됨: react
-- 의존성 설치됨: react-dom
-- tsconfig 존재
-- 조건부 Hook 수정됨: isCCEditorWindow가 App() 레벨에 위치
-- cc:open-window 싱글톤 패턴 적용됨
-- grepSearch execFile 배열 방식 사용 (shell injection 방어)
-- fs:delete 경로 가드 존재
-- watchDir sender.isDestroyed() 체크 존재
-- cc-file-parser 재귀 깊이 제한 존재
-- handleSave try/finally 존재 (saving 상태 고착 방지)
-- local:// path traversal 강화됨 (decodeURIComponent + allowedBases)
 - 씬뷰 Delete 키 핸들러 존재
 - Inspector 섹션 상태 localStorage 저장
 - Inspector props 타입 힌트 배지 존재
 - 씬뷰 레이어 가시성 토글 존재
 - 시스템 프롬프트 변수 치환 존재 (resolveVars)
 - SessionList 날짜 그룹 헤더 존재
-- 파일 탭 미저장 ● 인디케이터 존재
-- UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)
 - Edit 도구 인라인 diff 렌더링 존재
 - Inspector 배열 속성 편집 컴포넌트 존재
-- 씬뷰 노드 검색 하이라이트 존재
 - Inspector 실시간 미리보기 debounce 존재
-- 채팅 코드 블록 실행 버튼 존재
-- 씬뷰 노드 핀 기능 존재
 - 세션 병합 IPC 핸들러 존재
 - 프롬프트 히스토리 ↑↓ 탐색 존재
 - Inspector 컴포넌트 drag 재정렬 존재
 - 채팅 메시지 번역 버튼 존재
-- 씬뷰 스냅샷 비교 오버레이 존재
 - 씬뷰 smooth zoom 애니메이션 존재
 - 세션 태그 색상 커스터마이즈 존재
 - Inspector 숫자 wheel 증감 존재
@@ -482,7 +476,6 @@ _없음_
 - 채팅 파일 드래그&드롭 첨부 존재
 - SceneTree 노드 즐겨찾기 존재
 - Inspector 프로퍼티 검색 필터 존재
-- 채팅 메시지 이모지 반응 존재
 - 씬뷰 노드 잠금 기능 존재
 - 씬뷰 Cocos 좌표 툴바 표시 존재
 - 세션 JSON import/export 존재
@@ -515,12 +508,15 @@ _없음_
 - SessionList 다중 태그 필터 존재
 - Inspector Enum 드롭다운 존재
 - 씬뷰 스크린샷 + 미니맵 존재
+- 씬뷰 미니맵/스크린샷 기능 존재
 - 채팅 즐겨찾기 뷰 + export 존재
+- 채팅 즐겨찾기 뷰 존재
 - Inspector prop 변경 히스토리 존재
 - 채팅 인라인 Diff 렌더링 존재
 - 씬뷰 레이어 패널 존재
 - StatusBar 세션 타이머 존재
 - SessionList 타임라인 뷰 존재
+- SessionList 뷰 모드 토글 존재
 - PromptChain 빠른 실행 버튼 존재
 - 씬뷰 컴포넌트 아이콘 함수 존재
 - 채팅 메시지 접기/펼치기 존재
@@ -533,9 +529,11 @@ _없음_
 - 씬뷰 퀵 액션 팝업 존재
 - Inspector 스타일 프리셋 저장/불러오기 존재
 - 채팅 뷰 모드 토글 단축키 존재
+- 채팅 뷰 모드 존재
 - 씬뷰 줌 프리셋 드롭다운 존재
 - Inspector Transform 복사/붙여넣기 존재
 - 채팅 코드 블록 실행 버튼 존재
+- 채팅 코드 블록 Diff 렌더링 존재 (R613)
 - 씬뷰 그리드 레이아웃 존재
 - 터미널 AI 에러 자동 분석 존재
 - 씬뷰 노드 검색 기능 존재
@@ -696,37 +694,31 @@ _없음_
 - SessionList 타임라인 뷰 존재
 - ChatPanel 이모지 반응 존재
 - InputBar 히스토리 페이지네이션 존재
-- CocosPanel 노드 레이어 관리 존재
 - SceneViewPanel 씬 스냅샷 비교 존재
 - TerminalPanel 출력 필터링 존재
 - SessionList 세션 병합 존재
 - ChatPanel 북마크 폴더 존재
 - InputBar 드래프트 자동 저장 존재
-- CocosPanel 노드 검색 히스토리 존재
 - SceneViewPanel 씬 비교 모드 존재
 - TerminalPanel 세션 공유 링크 존재
 - SessionList 세션 복제 존재
 - ChatPanel 응답 품질 평가 존재
 - InputBar 커맨드 팔레트 존재
-- CocosPanel 에셋 캐시 관리 존재
 - SceneViewPanel 노드 프리셋 존재
 - TerminalPanel 입력 히스토리 검색 존재
 - SessionList 아카이브 내보내기 존재
 - ChatPanel 스레드 요약 존재
 - InputBar 이모지 자동완성 존재
-- CocosPanel 노드 일괄 수정 존재
 - SceneViewPanel 씬 자동 레이아웃 존재
 - TerminalPanel 단축키 커스터마이징 존재
 - SessionList 검색 필터 저장 존재
 - ChatPanel AI 페르소나 존재
 - InputBar 텍스트 서식 존재
-- CocosPanel 컴포넌트 검색 필터 존재
 - SceneViewPanel 노드 링크 시각화 존재
 - TerminalPanel 출력 색상 테마 존재
 - SessionList 세션 우선순위 존재
 - ChatPanel 메시지 내보내기 형식 존재
 - InputBar 음성 입력 언어 존재
-- CocosPanel 노드 태그 필터 존재
 - SceneViewPanel 씬 태그 시스템 존재
 - TerminalPanel 프로세스 모니터 존재
 - SessionList 세션 잠금 비밀번호 존재
@@ -738,19 +730,16 @@ _없음_
 - SessionList 세션 자동 백업 존재
 - ChatPanel 스트리밍 속도 제어 존재
 - InputBar 자동 태그 감지 존재
-- CocosPanel 노드 복사 이력 존재
 - SceneViewPanel 트리 필터 존재
 - TerminalPanel 탭 그룹 존재
 - SessionList 세션 통계 존재
 - ChatPanel 메시지 반응 존재
 - InputBar 맞춤법 교정 존재
-- CocosPanel 노드 그룹 존재
 - SceneViewPanel 노드 별칭 편집기 존재
 - TerminalPanel 터미널 테마 존재
 - SessionList 세션 템플릿 존재
 - ChatPanel 핀 메시지 패널 존재
 - InputBar 멘션 제안 존재
-- CocosPanel 프리팹 검색 존재
 - SceneViewPanel 노드 가시성 그룹 존재
 - TerminalPanel 커맨드 스니펫 존재
 - SessionList 세션 코멘트 존재
@@ -762,58 +751,48 @@ _없음_
 - SessionList 세션 평점 존재
 - ChatPanel 메시지 드래프트 목록 존재
 - InputBar 슬래시 커맨드 메뉴 존재
-- CocosPanel 애니메이션 프리뷰 존재
 - SceneViewPanel 노드 프리팹 링크 존재
 - TerminalPanel 자동 제안 존재
 - SessionList 세션 리마인더 존재
 - ChatPanel 채팅 내보내기 옵션 존재
 - InputBar 입력 히스토리 탐색 존재
-- CocosPanel 노드 이벤트 로그 존재
 - SceneViewPanel 씬 노트 패널 존재
 - TerminalPanel 터미널 녹화 존재
 - SessionList 세션 워크플로우 존재
 - ChatPanel 메시지 폴더 존재
 - InputBar 컨텍스트 도움말 존재
-- CocosPanel 머티리얼 인스펙터 존재
 - SceneViewPanel 바운딩 박스 오버레이 존재
 - TerminalPanel 분할 뷰 존재
 - SessionList 세션 관계 그래프 존재
 - ChatPanel 메시지 스레딩 존재
 - InputBar 토큰 카운터 존재
-- CocosPanel 물리 디버그 오버레이 존재
 - SceneViewPanel 씬 프로파일러 존재
 - TerminalPanel 터미널 검색 존재
 - SessionList 세션 북마크 존재
 - ChatPanel AI 어시스트 모드 존재
 - InputBar 이미지 첨부 존재
-- CocosPanel 스크립트 에디터 존재
 - SceneViewPanel 렌더 모드 전환 존재
 - TerminalPanel 환경변수 편집기 존재
 - SessionList 세션 히트맵 존재
 - ChatPanel 읽음 확인 존재
 - InputBar 파일 드롭존 존재
-- CocosPanel 스프라이트 에디터 존재
 - SceneViewPanel 라이팅 디버그 존재
 - TerminalPanel 출력 스로틀 존재
 - SessionList 세션 내보내기 옵션 존재
 - ChatPanel 대화 인사이트 존재
 - InputBar 코드 자동완성 존재
-- CocosPanel 파티클 에디터 존재
 - SceneViewPanel 카메라 FOV 컨트롤 존재
 - TerminalPanel 터미널 매크로 존재
 - SessionList 세션 중복 감지 존재
 - ChatPanel 메시지 분석 패널 존재
 - InputBar 텍스트 변환 메뉴 존재
-- CocosPanel 오디오 에디터 존재
 - SceneViewPanel 기즈모 설정 존재
 - TerminalPanel 출력 페이징 존재
 - SessionList 세션 카테고리 존재
 - ChatPanel 채팅 노트 존재
 - InputBar 문법 검사 존재
-- CocosPanel 타일맵 에디터 존재
 - ChatPanel 채팅 분석 대시보드 존재
 - InputBar 음성 입력 존재
-- CocosPanel 씬 그래프 존재
 - SceneViewPanel 씬 레이어 존재
 - TerminalPanel 터미널 알림 존재
 - SessionList 세션 태그 에디터 존재
@@ -825,13 +804,11 @@ _없음_
 - SessionList 세션 메모 존재
 - ChatPanel 메시지 북마크 존재
 - InputBar 텍스트 크기 조절 존재
-- CocosPanel 컴포넌트 검색 존재
 - SceneViewPanel 그리드 오버레이 존재
 - TerminalPanel 출력 필터 존재
 - SessionList 세션 핀 존재
 - ChatPanel 메시지 태그 존재
 - InputBar 링크 미리보기 존재
-- CocosPanel 에셋 즐겨찾기 존재
 - SceneViewPanel 색상 테마 존재
 - TerminalPanel 세션 공유 존재
 - SessionList 아카이브 통계 존재
@@ -843,13 +820,11 @@ _없음_
 - SessionList 세션 그룹 존재
 - ChatPanel 메시지 분류 존재
 - InputBar 단축키 도움말 존재
-- CocosPanel 씬 스냅샷 존재
 - SceneViewPanel 노드 정렬 존재
 - TerminalPanel 출력 색상화 존재
 - SessionList 세션 알림 존재
 - ChatPanel 읽음 표시 설정 존재
 - InputBar 인라인 이미지 존재
-- CocosPanel 리소스 미리보기 존재
 - SceneViewPanel 씬 통계 존재
 - TerminalPanel 자동 스크롤 존재
 - SessionList 세션 내보내기 존재
@@ -861,79 +836,66 @@ _없음_
 - SessionList 최근 항목 존재
 - ChatPanel 메시지 통계 존재
 - InputBar 텍스트 확장 존재
-- CocosPanel 플러그인 관리 존재
 - SceneViewPanel 씬 북마크 존재
 - TerminalPanel 폰트 설정 존재
 - SessionList 세션 잠금 존재
 - ChatPanel 메시지 검색 필터 존재
 - InputBar 코드 언어 선택 존재
-- CocosPanel 렌더 설정 존재
 - SceneViewPanel 씬 잠금 존재
 - TerminalPanel 원격 접속 존재
 - SessionList 세션 공유 존재
 - ChatPanel 채팅 테마 존재
 - InputBar 붙여넣기 처리 존재
-- CocosPanel 씬 필터 존재
 - SceneViewPanel 드래그 모드 존재
 - TerminalPanel 명령어 팔레트 존재
 - SessionList 세션 색상 존재
 - ChatPanel 대화 요약 패널 존재
 - InputBar 입력 잠금 존재
-- CocosPanel 노드 정렬 존재
 - SceneViewPanel 씬 비교 존재
 - TerminalPanel Round 1000 마일스톤 존재 🎉
 - SessionList 세션 통계 존재
 - ChatPanel 메시지 우선순위 존재
 - InputBar 멀티라인 단축키 존재
-- CocosPanel 씬 태그 존재
 - SceneViewPanel 씬 메모 존재
 - TerminalPanel 출력 줄바꿈 존재
 - SessionList 세션 즐겨찾기 존재
 - ChatPanel 메시지 타임스탬프 존재
 - InputBar 자동 완성 모드 존재
-- CocosPanel 에셋 버전 존재
 - SceneViewPanel 씬 히스토리 존재
 - TerminalPanel 라인 번호 존재
 - SessionList 세션 정렬 존재
 - ChatPanel 메시지 접기 존재
 - InputBar 드래그 업로드 존재
-- CocosPanel 노드 주석 존재
 - SceneViewPanel 렌더 통계 존재
 - TerminalPanel 명령어 히스토리 검색 존재
 - SessionList 세션 복제 존재
 - ChatPanel 대화 내보내기 존재
 - InputBar 언어 감지 존재
-- CocosPanel 씬 잠금 존재
 - SceneViewPanel 노드 검색 고급 존재
 - TerminalPanel 탭 이름 편집 존재
 - SessionList 대량 선택 존재
 - ChatPanel 메시지 반응 통계 존재
 - InputBar 입력 히스토리 존재
-- CocosPanel 에셋 의존성 존재
 - SceneViewPanel 씬 수정 감지 존재
 - TerminalPanel 출력 통계 존재
 - SessionList 세션 검색 고급 존재
 - ChatPanel AI 제안 존재
 - InputBar 리치 텍스트 포맷 존재
-- CocosPanel 노드 고급 검색 존재
 - SceneViewPanel 씬 로그 존재
 - TerminalPanel 프로세스 목록 존재
 - SessionList 세션 레이블 존재
 - ChatPanel 메시지 검색 필터 존재
 - InputBar 멘션 자동완성 존재
-- CocosPanel 씬 스냅샷 존재
 - SceneViewPanel 노드 핀 존재
 - TerminalPanel 커맨드 북마크 존재
 - SessionList 세션 그룹 존재
 - ChatPanel 메시지 정렬 존재
 - InputBar 이모지 픽커 존재
-- CocosPanel 노드 레이어 존재
 - SceneViewPanel 씬 즐겨찾기 존재
 - TerminalPanel 출력 필터 존재
 - SessionList 세션 아카이브 존재
 - ChatPanel 읽음 표시 존재
 - InputBar 파일 미리보기 존재
-- CocosPanel 씬 템플릿 존재
 - SceneViewPanel 씬 diff 존재
 - TerminalPanel 세션 로그 존재
 - SessionList 세션 내보내기 존재
@@ -945,31 +907,26 @@ _없음_
 - SessionList 세션 검색 히스토리 존재
 - ChatPanel 메시지 핀 존재
 - InputBar 음성 메모 존재
-- CocosPanel 씬 검증 존재
 - SceneViewPanel 씬 복제 존재
 - TerminalPanel 자동완성 제안 존재
 - SessionList 최근 세션 존재
 - ChatPanel 코드 블록 실행 존재
 - InputBar 슬래시 커맨드 존재
-- CocosPanel 컴포넌트 검색 존재
 - SceneViewPanel 씬 주석 존재
 - TerminalPanel 단축키 맵 존재
 - SessionList 세션 병합 존재
 - ChatPanel 메시지 스레드 존재
 - InputBar 글자 수 제한 존재
-- CocosPanel 씬 자동저장 존재
 - SceneViewPanel 씬 퀵액션 존재
 - TerminalPanel 스크롤 잠금 존재
 - SessionList 세션 태그 필터 존재
 - ChatPanel 메시지 즐겨찾기 존재
 - InputBar 자동교정 존재
-- CocosPanel 프리팹 미리보기 존재
 - SceneViewPanel 씬 렌더 통계 존재
 - TerminalPanel 명령어 히스토리 공유 존재
 - SessionList 세션 복사 존재
 - ChatPanel 메시지 분류 존재
 - InputBar 붙여넣기 모드 존재
-- CocosPanel 씬 익스포트 존재
 - SceneViewPanel 씬 레이아웃 저장 존재
 - TerminalPanel 폰트 크기 존재
 - SessionList 세션 잠금 존재
@@ -981,85 +938,71 @@ _없음_
 - SessionList 세션 북마크 존재
 - ChatPanel 메시지 서식 존재
 - InputBar 응답 대기 표시 존재
-- CocosPanel 씬 잠금 존재
 - SceneViewPanel 씬 성능 모드 존재
 - TerminalPanel 입력 히스토리 저장 존재
 - SessionList 세션 통계 존재
 - ChatPanel 메시지 접기 존재
 - InputBar 인라인 이미지 존재
-- CocosPanel 씬 비교 존재
 - SceneViewPanel 씬 히트맵 존재
 - TerminalPanel 멀티플렉서 존재
 - SessionList 세션 알림 존재
 - ChatPanel 메시지 색상 존재
 - InputBar 코드 스니펫 존재
-- CocosPanel 에셋 태그 존재
 - SceneViewPanel 씬 체크리스트 존재
 - TerminalPanel 테마 존재
 - SessionList 세션 백업 존재
 - ChatPanel 메시지 공유 존재
 - InputBar 스마트 따옴표 존재
-- CocosPanel 씬 임포트 존재
 - SceneViewPanel 씬 다크모드 존재
 - TerminalPanel 줄 번호 존재
 - SessionList 세션 메모 존재
 - ChatPanel 메시지 투표 존재
 - InputBar 글로벌 단축키 존재
-- CocosPanel 노드 그룹 존재
 - SceneViewPanel 씬 링크 존재
 - TerminalPanel 마크다운 출력 존재
 - SessionList 세션 우선순위 존재
 - ChatPanel 메시지 요약 존재
 - InputBar 포커스 모드 존재
-- CocosPanel 씬 히스토리 존재
 - SceneViewPanel 씬 배치 작업 존재
 - TerminalPanel 작업 큐 존재
 - SessionList 세션 일정 존재
 - ChatPanel 인라인 미리보기 존재
 - InputBar 연속 입력 모드 존재
-- CocosPanel 씬 권한 존재
 - SceneViewPanel 씬 의존성 존재
 - TerminalPanel 세션 공유 존재
 - SessionList 세션 비교 존재
 - ChatPanel 이모지 반응 존재
 - InputBar 자동 들여쓰기 존재
-- CocosPanel 에셋 미리보기 존재
 - SceneViewPanel 검색 결과 존재
 - TerminalPanel 컬러 출력 존재
 - SessionList 세션 평점 존재
 - ChatPanel 메시지 스레드 존재
 - InputBar 맞춤법 검사 존재
-- CocosPanel 빌드 큐 존재
 - SceneViewPanel 노드 레이어 존재
 - TerminalPanel 세션 로그 존재
 - SessionList 세션 그룹 존재
 - ChatPanel 메시지 북마크 존재
 - InputBar 단어 수 존재
-- CocosPanel 씬 스냅샷 존재
 - SceneViewPanel 노드 코멘트 존재
 - TerminalPanel 터미널 프로필 존재
 - SessionList 세션 내보내기 존재
 - ChatPanel 메시지 레이블 존재
 - InputBar 입력 히스토리 존재
-- CocosPanel 빌드 에러 존재
 - SceneViewPanel 노드 애니메이션 존재
 - TerminalPanel 출력 검색 존재
 - SessionList 세션 노트 존재
 - ChatPanel 메시지 검색 존재
 - InputBar 멘션 제안 존재
-- CocosPanel 에셋 검색 존재
 - SceneViewPanel 씬 히스토리 존재
 - TerminalPanel SSH 프로필 존재
 - SessionList 세션 태그 존재
 - ChatPanel 메시지 우선순위 존재
 - InputBar 코드 완성 존재
-- CocosPanel 씬 북마크 존재
 - SceneViewPanel 노드 물리 존재
 - TerminalPanel 터미널 매크로 존재
 - SessionList 즐겨찾기 세션 존재
 - ChatPanel 메시지 스케줄 존재
 - InputBar 텍스트 템플릿 존재
-- CocosPanel 컴포넌트 검색 존재
 - SceneViewPanel 노드 스크립트 존재
 - TerminalPanel 터미널 플러그인 존재
 - SessionList 세션 활동 존재
@@ -1077,31 +1020,26 @@ _없음_
 - SessionList 세션 복제 존재
 - ChatPanel 메시지 전달 존재
 - InputBar 줄 바꿈 존재
-- CocosPanel 리소스 사용 존재
 - SceneViewPanel 노드 그룹 존재
 - TerminalPanel 터미널 녹화 존재
 - SessionList 세션 병합 존재
 - ChatPanel 메시지 분석 존재
 - InputBar 집중 모드 존재
-- CocosPanel 빌드 히스토리 존재
 - SceneViewPanel 씬 메트릭 존재
 - TerminalPanel 터미널 diff 존재
 - SessionList 세션 버전 존재
 - ChatPanel 메시지 번역 존재
 - InputBar 입력 통계 존재
-- CocosPanel 배포 설정 존재
 - SceneViewPanel 씬 최적화 존재
 - TerminalPanel 터미널 git 존재
 - SessionList 세션 알림 존재
 - ChatPanel 복사 형식 존재
 - InputBar 커서 스타일 존재
-- CocosPanel 에셋 태그 존재
 - SceneViewPanel 선택 히스토리 존재
 - TerminalPanel 환경 변수 존재
 - SessionList 세션 색상 존재
 - ChatPanel 메시지 답장 존재
 - InputBar 탭 크기 존재
-- CocosPanel 씬 내보내기 존재
 - SceneViewPanel 고급 노드 검색 존재
 - TerminalPanel 터미널 레이아웃 존재
 - SessionList 세션 통계 존재
@@ -1113,37 +1051,31 @@ _없음_
 - SessionList 세션 우선순위 존재
 - ChatPanel 메시지 요약 뷰 존재
 - InputBar 줄 번호 존재
-- CocosPanel 프리팹 미리보기 존재
 - SceneViewPanel 씬 라이트 존재
 - TerminalPanel 터미널 스케줄러 존재
 - SessionList 세션 템플릿 존재
 - ChatPanel 채팅 내보내기 존재
 - InputBar 멀티 커서 존재
-- CocosPanel 빌드 프로필 존재
 - SceneViewPanel 씬 머티리얼 존재
 - TerminalPanel 별칭 그룹 존재
 - SessionList 세션 워크플로우 존재
 - ChatPanel 채팅 반응 존재
 - InputBar 입력 히스토리 존재
-- CocosPanel 플러그인 관리 존재
 - SceneViewPanel 씬 오디오 존재
 - TerminalPanel 터미널 매크로 존재
 - SessionList 세션 노트 존재
 - ChatPanel 채팅 번역 존재
 - InputBar 멘션 리스트 존재
-- CocosPanel 핫 리로드 존재
 - SceneViewPanel 씬 파티클 존재
 - TerminalPanel 터미널 프로필 존재
 - SessionList 세션 배지 존재
 - ChatPanel 채팅 폰트 존재
 - InputBar 드래그 앤 드롭 존재
-- CocosPanel 빌드 경고 존재
 - SceneViewPanel 씬 셰이더 존재
 - TerminalPanel 터미널 세션 존재
 - SessionList 세션 레이아웃 존재
 - ChatPanel 채팅 필터 존재
 - InputBar 문법 검사 존재
-- CocosPanel 에셋 번들 존재
 - SceneViewPanel 씬 스크립트 존재
 - TerminalPanel 터미널 북마크 존재
 - SessionList 세션 내보내기 존재
@@ -1155,91 +1087,76 @@ _없음_
 - SessionList 세션 검색 존재
 - ChatPanel 채팅 페이지네이션 존재
 - InputBar 붙여넣기 미리보기 존재
-- CocosPanel 빌드 타겟 존재
 - SceneViewPanel 씬 리지드바디 존재
 - TerminalPanel 터미널 스니펫 존재
 - SessionList 세션 즐겨찾기 존재
 - ChatPanel 나란히 보기 존재
 - InputBar 줄 바꿈 존재
-- CocosPanel 디버그 모드 존재
 - SceneViewPanel 씬 제약 존재
 - TerminalPanel 터미널 연결 존재
 - SessionList 세션 그룹 존재
 - ChatPanel 접근성 존재
 - InputBar 괄호 매칭 존재
-- CocosPanel 에셋 필터 존재
 - SceneViewPanel 타일맵 존재
 - TerminalPanel 터미널 테마 존재
 - SessionList 세션 고정 존재
 - ChatPanel 음성 입력 존재
 - InputBar 자동 들여쓰기 존재
-- CocosPanel 성능 통계 존재
 - SceneViewPanel 씬 스프라이트 존재
 - TerminalPanel 자동완성 존재
 - SessionList 세션 태그 존재
 - ChatPanel 채팅 위젯 존재
 - InputBar 미니맵 존재
-- CocosPanel 빌드 로그 존재
 - SceneViewPanel 씬 UI 존재
 - TerminalPanel 구문 강조 존재
 - SessionList 세션 히트맵 존재
 - ChatPanel 채팅 밀도 존재
 - InputBar 코드 폴딩 존재
-- CocosPanel 원격 디버그 존재
 - SceneViewPanel 씬 네트워크 존재
 - TerminalPanel 터미널 탭 존재
 - SessionList 세션 타임라인 존재
 - ChatPanel 채팅 프리셋 존재
 - InputBar 스크롤 동기화 존재
-- CocosPanel 스크립트 템플릿 존재
 - SceneViewPanel 씬 프리팹 존재
 - TerminalPanel 터미널 검색 존재
 - SessionList 세션 인사이트 존재
 - ChatPanel 채팅 초안 존재
 - InputBar 찾기/바꾸기 존재
-- CocosPanel 에디터 테마 존재
 - SceneViewPanel 씬 텍스처 존재
 - TerminalPanel 출력 필터 존재
 - SessionList 세션 비교 존재
 - ChatPanel 협업 존재
 - InputBar 녹음 존재
-- CocosPanel 빌드 알림 존재
 - SceneViewPanel 씬 폰트 존재
 - TerminalPanel 터미널 크기 존재
 - SessionList 세션 중복 존재
 - ChatPanel 줌 존재
 - InputBar 분할 편집 존재
-- CocosPanel 노드 템플릿 존재
 - SceneViewPanel 씬 아틀라스 존재
 - TerminalPanel 커서 스타일 존재
 - SessionList 세션 메트릭 존재
 - ChatPanel 소리내어 읽기 존재
 - InputBar 단축키 존재
-- CocosPanel 빌드 스케줄 존재
 - SceneViewPanel 씬 타이머 존재
 - TerminalPanel 스크롤백 존재
 - SessionList 세션 복구 존재
 - ChatPanel 채팅 북마크 존재
 - InputBar 입력 자동저장 존재
-- CocosPanel 에셋 번들 존재
 - SceneViewPanel 씬 오버레이 존재
 - TerminalPanel 터미널 탭 존재
 - SessionList 세션 내보내기 존재
 - ChatPanel 채팅 태그 존재
 - InputBar 멀티라인 모드 존재
-- CocosPanel 에디터 플러그인 존재
 - SceneViewPanel 씬 그리드 존재
 - TerminalPanel 터미널 테마 존재
 - SessionList 세션 핀고정 존재
 - ChatPanel 채팅 필터 존재
 - InputBar 드래그앤드롭 존재
-- CocosPanel 빌드 프리셋 존재
 - SceneViewPanel 씬 카메라 존재
 - TerminalPanel 터미널 로그 존재
 - SessionList 세션 통계 존재
 - ChatPanel 채팅 히스토리 검색 존재
 - InputBar 코드 스니펫 존재
-- CocosPanel 씬 목록 필터 존재
 - SceneViewPanel 씬 라이팅 존재
 - TerminalPanel 자동완성 존재
 - SessionList 세션 병합 존재
@@ -1278,74 +1195,34 @@ _없음_
 - SceneView 레이어 패널 고도화 (가시성/잠금 영구저장, 색상 라벨)
 - cc-file-parser 2x _trs 파싱 강화 (base64 디코딩, 개별 필드 폴백, 기본값 보장)
 - CocosPanel 프리팹 인스턴스화 UI (readFile → JSON parse → 씬 추가)
-- SceneView 노드 그룹화 Ctrl+G / 해제 Ctrl+Shift+G
 - CocosPanel Ctrl+G/Ctrl+Shift+G 그룹화/해제 (씬 파일 패치)
 - cc-file-parser 파티클/카메라/조명 컴포넌트 추출
 - NodeRenderer Camera/ParticleSystem 시각 힌트 (테두리 + 라벨 접두사)
-- SceneView 씬 통계 오버레이 (I키, 노드수/컴포넌트 분포, localStorage)
 - Inspector 노드 참조 필드 표시 (__id__/__uuid__ 감지, 링크 아이콘)
-- SceneView PNG 내보내기 (배경색/해상도 1x/2x/4x, 타임스탬프 파일명)
 - Inspector 컴포넌트 순서 변경 (↑↓ 버튼, 첫/마지막 비활성화)
 - CocosPanel CC 빌드 트리거 UI (플랫폼 드롭다운, CLI 미리보기)
-- SceneView 노드 색상 태그 (7색 팔레트, localStorage per scene, 컨텍스트메뉴)
 - NodeHierarchyList 색상 태그 dot 표시
 - cc-file-parser analyzeScene 복잡도 분석 (노드수/깊이/컴포넌트/draw call/경고)
-- ChatPanel: React import 정상
-- InputBar: React import 정상
-- TerminalPanel: React import 정상
-- CocosPanel: React import 정상
-- SceneViewPanel: React import 정상
-- SessionList: React import 정상
-- SceneInspector: React import 정상
-- NodeHierarchyList: React import 정상
-- NodeRenderer: React import 정상
-- ChatPanel: showOnlyBookmarks TDZ 없음
-- CCFileNodeInspector: saving state 정상 선언
 - cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs)
 - preload API 노출: ccGetAssetInfo, ccGetAllTextureUUIDs
 - SceneInspector 속성 검색 필터 (propFilter, Esc 초기화, 컴포넌트명/props 필터)
-- SceneView 채팅 연동 노드 하이라이트 (cc-highlight-node 이벤트, 3초 깜빡임)
 - ChatPanel cc-highlight-node dispatch (AI 응답에서 노드명 추출)
 - Inspector 다중 노드 일괄 편집 (active 토글, position 오프셋, 일괄 적용 버튼)
 - CocosPanel 씬 저장 이력 타임라인 (localStorage, 최근 5개/더보기, 복원 TODO)
-- SceneView 노드 잠금 완성 (resize/rotate 차단, lockedUuids 체크)
-- cc-file-parser Label 폰트 필드 강화 파싱 (2x/3x, fontFamily, spacingX/Y, overflow)
 - SceneInspector Label 폰트 속성 표시 (fontFamily, spacingX/Y, overflow)
 - CocosPanel 씬 유효성 검사 (UUID중복, 빈이름, Canvas, 깊이 경고, 비활성부모)
-- SceneView 뷰포트 프리셋 저장/불러오기 (localStorage, 기본 1:1/2:1, 사용자 max 5)
 - Inspector cc.Button 속성 편집 (interactable, autoGray, transition, duration, 색상 읽기전용)
-- SceneView 그리드 커스터마이즈 (크기/색상/불투명도, localStorage grid-settings, 팝업 UI)
-- SceneToolbar 그리드 설정 버튼 (우클릭 + 톱니바퀴 아이콘)
 - CocosPanel 백업 관리 UI (목록/복원/전체삭제, BackupManager 컴포넌트)
-- SceneView 다중 씬 비교 뷰 (좌우 분할, 비교 씬 선택, 읽기 전용)
 - Inspector cc.ProgressBar/Slider 속성 편집 (progress, totalLength, reverse)
-- cc-file-parser ProgressBar/Slider 컴포넌트 추출기 추가
-- cc-file-parser buildNodePathIndex (UUID -> 전체 경로 인덱스)
 - Inspector 선택 노드 전체 경로 표시 (Canvas > Panel > Button)
-- NodeHierarchyList 검색 시 경로 매칭 지원
-- SceneView 히트 테스트 정밀화 (최소 8px, z-order 역순, Tab 순환, 비활성 차단)
 - Inspector cc.Animation 타임라인 바 시각화 + cc.Tween 읽기전용 표시
-- CocosPanel 전역 노드 검색 (Ctrl+F, 이름/컴포넌트, Esc 닫기, 경로 표시)
-- SceneView Before/After 슬라이더 비교 (SVG clipPath, 드래그 슬라이더)
-- cc-file-parser buildReferenceGraph (UUID 참조 그래프) + detectCycles (순환 참조 탐지)
-- CocosPanel 에셋 썸네일 호버 미리보기 (128x128, 파일명+크기, 커서 우측)
-- SceneView 씬 JSON 뷰어 패널 ({ } 버튼, syntax highlight, 선택/전체 토글)
-- Inspector 컴포넌트 복사/붙여넣기 (클립보드 JSON, 중복 경고)
 - cc-file-saver mtime 기반 충돌 감지 + forceOverwrite
-- CocosPanel conflict dialog (덮어쓰기/다시 로드)
 - 씬 로컬 HTTP 공유 (7332포트, 60초 자동 종료, scene.json)
-- SceneView 씬 공유 버튼 (URL 클립보드 복사)
-- SceneView 씬 JSON 임포트 모달 (붙여넣기, UUID 재생성)
 - cc-file-parser suggestOptimizations (draw call/노드수/깊이/비활성 비율)
-- CocosPanel 최적화 제안 표시 (씬 검사 연동)
-- SceneView 정렬 가이드라인 고도화 (레이블/중앙선/스냅임계값)
 - Inspector 북마크 패널 (★ 토글 + 목록 + 색상 태그)
-- CocosPanel 스크립트 편집기 연동 (편집 버튼 + 사용중 강조 green/gray dot)
-- App.tsx cc:open-file 이벤트 리스너
 - SceneView 편집 이력 패널 (editHistory + addEditHistory + 이력 패널 UI)
 - SceneToolbar 편집 이력 버튼
 - cc-file-parser findCanvasNode + getDesignResolution (2x/3x)
-- CocosPanel 씬 의존성 분석 (타입별 그룹 + 누락 표시)
 - Inspector Transform 개별/전체 리셋 버튼 (↺ 위치/회전/스케일/전체)
 - SceneView 레이어 순서 드래그 재배치 (드래그 핸들 + 드롭 인디케이터)
 - SceneView 노드 템플릿 라이브러리 (📌, max 10, 기본 2개, 드롭다운)
@@ -1384,14 +1261,11 @@ _없음_
 - cc-file-parser 청크 스트리밍 파싱 (parseCCSceneChunked/isLargeScene)
 - cc-file-parser CC3.x layer 필드 파싱 수정
 - useCCFileContext lastSaveDiff 필드 + 컨텍스트 문자열 포함
-- cc-focus-node 이벤트 dispatch + SceneView 수신 구현
-- CCFileSceneView onMultiDelete prop + handleMultiDelete 콜백 구현
 - Inspector World Transform (worldPos useMemo + findChain) 구현
 - SceneView 다중 선택 정렬 툴바 구현 (6종 + 균등 배분)
 - Inspector COCOS_ENUM_MAP cc.Button/Layout/Mask/ScrollView enum 확장
 - Inspector breadcrumb 노드 통계 뱃지 (깊이/자식/컴포넌트) 구현
 - SceneView 미니맵 오버레이 (뷰포트 사각형 + 노드 점 렌더링) 구현
-- SceneView Label 텍스트 인라인 편집 (더블클릭 foreignObject) 구현
 - Inspector 노드 경로 복사 버튼 (⎘) 구현
 - UITransform _contentSize/contentSize fallback 강화 구현
 - SceneView 우클릭 컨텍스트 메뉴 (복사/붙여넣기/삭제/AI 분석) 구현
@@ -1466,7 +1340,6 @@ _없음_
 - 줌 % span → input 인라인 전환 UI 구현
 - sp.Skeleton extractor 구현 (skin/animation/timeScale/loop/paused)
 - Inspector sp.Skeleton Quick Edit UI (skin/animation/timeScale/loop/paused)
-- 즐겨찾기 클릭 → onUpdate(favNode) 탐색 구현 (console.log 제거)
 - 즐겨찾기 컴포넌트 타입 배지 + 없는 노드 희미하게 표시
 - resOverride + effectiveW/H 상태 구현
 - 해상도 preset picker UI (960×640, 1920×1080 등 포함)
@@ -1492,34 +1365,19 @@ _없음_
 - Quick Edit CLI 확장: layer/tag/z/flip x|y/reset/help
 - 정렬 버튼이 effectiveW/H 기반으로 동작
 - cc.Slider + cc.VideoPlayer Inspector Quick Edit 구현
-- Ctrl+D 노드 복제: SceneView 단축키 + CocosPanel handler
 - cc.ScrollView Inspector Quick Edit: horizontal/vertical/inertia/elastic/brake
-- H 키 active 토글: SceneView + CocosPanel handler
 - cc.ParticleSystem Quick Edit: duration + maxParticles
-- Ctrl+↑↓ 형제 순서 변경: SceneView + CocosPanel handler
 - cc.Camera Inspector Quick Edit: depth/zoomRatio/fov
 - cc.PageView Quick Edit: direction/scrollThreshold/autoTurning
 - P키 부모 노드 포커스 + FlatNode parentUuid 추적
 - Enter키 첫 번째 자식 선택
 - cc.Mask Quick Edit: type/inverted/alphaThreshold
-- cc.UIOpacity extractor + Inspector Quick Edit
-- cc.PolygonCollider extractor + SceneView SVG path 시각화
 - BatchInspector 색상 일괄 편집 추가
 - cc.DirectionalLight/PointLight Inspector Quick Edit: intensity/color
 - Inspector 노드 전체 JSON 복사 버튼 추가
 - SceneView 노드 색상 tint 표시 (비흰색일 때 ■ swatch)
-- cc.SkeletalAnimation extractor + Inspector Quick Edit
 - Tab/Shift+Tab 형제 노드 탐색
-- cc.Button extractor + Inspector: transition/state colors/interactable
-- cc.Widget extractor + Inspector: align flags/offsets/mode
 - Ctrl+A 전체 노드 다중 선택
-- cc.Layout extractor + Inspector: type/resizeMode/padding/spacing/autoWrap
-- cc.RichText extractor + Inspector: string/fontSize/lineHeight/maxWidth/horizontalAlign/overflow
-- cc.EditBox extractor + Inspector: string/placeholder/maxLength/inputMode/inputFlag/returnType
-- cc.Toggle/ToggleContainer extractor + Inspector: isChecked/interactable/allowSwitchOff
-- cc.LabelOutline/LabelShadow extractor + Inspector Quick Edit
-- cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale
-- cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor
 - cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Inspector Quick Edit
 - 위치/크기 정수 반올림 버튼 (⌊⌉)
 - 크기 W/H 비율 잠금 버튼 (🔒)
@@ -1577,7 +1435,6 @@ _없음_
 - Inspector 스케일 X/Y 반전 버튼
 - Inspector 색상 섹션 변경 인디케이터
 - Inspector opacity 빠른 프리셋 버튼
-- R1642 bugfix + Inspector breadcrumb 클릭 부모 선택
 - SceneView 상태바 선택 노드 크기 표시
 - 붙여넣기 시 위치 오프셋 적용
 - Inspector 노드 이름 자동완성 datalist
@@ -1595,7 +1452,6 @@ _없음_
 - Inspector 잠금 토글 버튼
 - 씬 트리 검색어 하이라이트
 - 다중 선택 정렬 버튼 (align left/right/top/bottom/center)
-- Inspector pulse 미리보기 (SceneView 노드 강조)
 - 컴포넌트 필터 custom type 입력
 - 유사 노드 섹션 (공통 컴포넌트 타입 기반)
 - SceneView 드래그 부모 경계 정렬 가이드
@@ -1623,7 +1479,6 @@ _없음_
 - cc.Label 멀티라인 미리보기
 - SceneView 시각적 숨기기 토글
 - SceneView 좌표 핀 마커
-- 씬 트리 검색 히스토리
 - SceneView 드래그 노드 경계 스냅
 - cc.Sprite spriteFrame uuid 복사
 - SceneView 레이블 폰트 크기 조정
@@ -1644,7 +1499,6 @@ _없음_
 - 씬 트리 컨텍스트 메뉴 확장
 - cc.Label fontSize 빠른 조절 버튼
 - cc.Label 텍스트 색상 편집
-- 씬 트리 색상 태그 필터
 - cc.Toggle Quick Edit interactable 추가
 - SceneView 컨텍스트 메뉴 확장
 - Stats 패널 비활성 노드 카운트 배지
@@ -2118,7 +1972,6 @@ _없음_
 - BatchInspector cc.Camera clearDepth 일괄 설정
 - BatchInspector cc.BlockInputEvents enabled 일괄 설정
 - BatchInspector cc.Canvas enabled 일괄 설정
-- CCFileAssetBrowser folderTree useMemo early-return 전 배치 확인
 - BatchInspector cc.Label charSpacing 일괄 설정
 - BatchInspector cc.Sprite _isTrimmedMode 숫자 프리셋
 - BatchInspector cc.RigidBody _gravityScale (CC3.x) 일괄 설정
@@ -2241,8 +2094,6 @@ _없음_
 - BatchInspector cc.ParticleSystem gravity _N$* + 단일노드 all-enabled _enabled 갭 수정
 - cc.Animation/Sprite flipX/Y/ScrollView 단일노드 computed key _N$* 갭 수정
 - 씬 저장 이력 복원(snapshotKey+writeTextFile) + CLI 빌드 shellExec 실행
-- chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
-- session:setCollection try/catch + memTimer clearInterval 수정
 - Inspector cc.Camera targetDisplay 구현 완료
 - Inspector cc.Label isSystemFontUsed + platformFont 구현 완료
 - Inspector cc.RigidBody linearVelocity + angularVelocity 구현 완료
@@ -2321,13 +2172,11 @@ _없음_
 - Inspector 컴포넌트 헤더 아이콘 구현 완료
 - 씬뷰 선택 이력 ← → 버튼 구현 완료
 - Inspector 컴포넌트 타입 설명 tooltip 구현 완료
-- 다른 이름으로 저장(Save As) 구현 완료
 - 씬뷰 체크무늬 배경 패턴 구현 완료
 - UUID 검색 지원 구현 완료
 - 씬뷰 선택 노드 자동 팬 구현 완료
 - Inspector 자동 스크롤 구현 완료
 - 씬 파일명 클릭 → 탐색기 열기 구현 완료
-- undo/redo 스택 카운터 표시 구현 완료
 - cross-scene 노드 클립보드 (localStorage) 구현 완료
 - 카메라 프레임 토글 버튼 구현 완료
 - cc.Camera 뷰 프레임 오버레이 구현 완료
@@ -2344,8 +2193,6 @@ _없음_
 - BatchInspector cc.ProgressBar _reverse (CC3.x) 일괄 설정
 - BatchInspector cc.Button _zoomScale (CC3.x) 일괄 설정
 - BatchInspector cc.ScrollView _brake (CC3.x) 일괄 설정
-- BatchInspector cc.Sprite capInsets 균등 일괄 설정
-- BatchInspector cc.AudioSource _volume (CC3.x) 일괄 설정
 - BatchInspector cc.VideoPlayer keepAspectRatio 토글
 - BatchInspector cc.Layout padding 사방향 프리셋
 - BatchInspector cc.AudioSource _pitch 일괄 설정
@@ -2446,8 +2293,6 @@ _없음_
 - BatchInspector cc.ScrollView bounceTime 일괄 설정
 - BatchInspector cc.Label platformFont 일괄 설정
 - BatchInspector cc.ProgressBar startWidth 일괄 설정
-- BatchInspector cc.Graphics lineCap 일괄 설정
-- BatchInspector cc.Widget enabled 일괄 설정
 - Inspector dragonBones.ArmatureDisplay blendMode 구현 완료
 - Inspector sp.Skeleton enableBatch 구현 완료
 - Inspector cc.SkeletalAnimation wrapMode+loop+cachingMode 구현 완료
@@ -2494,14 +2339,11 @@ _없음_
 - Inspector cc.Camera clearDepth/ortho toggle/cullingMask 구현 완료
 - Inspector cc.Toggle enabled 체크박스 구현 완료
 - Inspector cc.ScrollView bounce 체크박스 구현 완료
-- R2452 씬 드롭다운 버그 수정 + 마지막 씬 자동 로드 구현 완료
 - R2458 외부 변경 자동 리로드 토글 구현 완료
 - R2459 새 컴포넌트 raw 엔트리 생성 + _components 동기화 구현 완료
-- R2460 복제 노드 컴포넌트 _rawIndex 초기화 구현 완료
 - R2462 buildNewRawComp 타입별 기본값 맵 구현 완료
 - R2463 Save As Prefab 기능 구현 완료
 - R2465 씬뷰 거리 측정 도구 구현 완료
-- R2466 다중 선택 노드 그룹화 구현 완료
 - R2467 BatchInspector 컴포넌트 일괄 추가 구현 완료
 - R2469 전역 검색 text:/t: 구문 구현 완료
 - R2470 미니맵 노드 클릭 선택 구현 완료
@@ -2552,6 +2394,96 @@ _없음_
 - R2519 BatchInspector Transform 초기화 구현 완료
 - R2520 BatchInspector 노드 반전 (Flip X/Y) 구현 완료
 - R2521 SceneView 세계 좌표 표시 토글 구현 완료
+- R2701 마르키 Shift 선택 병합 구현 완료
+- R2702 opacity 고정값 일괄 설정 구현 완료
+- R2703 선택 중심 팬 구현 완료
+- R2704 색상 채널 오프셋 구현 완료
+- R2705 Alt+drag 복제 구현 완료
+- R2706 단색 일괄 적용 구현 완료
+- R2707 선택 히스토리 구현 완료
+- R2708 이름 정규식 필터 선택 구현 완료
+- R2709 커스텀 비율 가이드 구현 완료
+- R2710 크기 고정값 일괄 설정 구현 완료
+- R2711 노드 잠금 툴바 버튼 구현 완료
+- R2712 Label fontSize 일괄 설정 구현 완료
+- R2714 조건부 active 토글 구현 완료
+- R2700 형제 강조 오버레이 구현 완료
+- R2699 color 리셋 구현 완료
+- R2698 위치 가이드 십자선 구현 완료
+- R2697 opacity 그라데이션 구현 완료
+- R2696 크기 0 노드 경고 오버레이 구현 완료
+- R2695 위치 선형 배치 구현 완료
+- R2694 비기본 앵커 오버레이 구현 완료
+- R2693 랜덤 색상 구현 완료
+- R2692 nudge 버튼 구현 완료
+- R2691 중심점 마커 구현 완료
+- R2690 scale 절대값 지정 구현 완료
+- R2689 크기 배수 스케일 구현 완료
+- R2688 UUID 배지 구현 완료
+- R2687 정수 스냅 구현 완료
+- R2686 Sprite 이름 배지 구현 완료
+- R2685 회전 절대값 지정 구현 완료
+- R2684 절대 간격 설정 구현 완료
+- R2683 캔버스 기준 정렬 구현 완료
+- R2682 선택 노드 간 거리 텍스트 구현 완료
+- R2681 산포/수축 구현 완료
+- R2680 선택 그룹 중심 마커 구현 완료
+- R2679 원점 이동 구현 완료
+- R2678 opacity 배수 구현 완료
+- R2677 색상 반전 구현 완료
+- R2676 색상 블렌드 구현 완료
+- R2675 노드 크기 히트맵 구현 완료
+- R2674 절대 위치 지정 구현 완료
+- R2673 컴포넌트 수 배지 구현 완료
+- R2672 scale 텍스트 오버레이 구현 완료
+- R2671 이름 find/replace 구현 완료
+- R2670 선택 노드 위치 텍스트 오버레이 구현 완료
+- R2669 이름 공백 정리 구현 완료
+- R2668 회전각 텍스트 오버레이 구현 완료
+- R2667 이름 대소문자 변환 구현 완료
+- R2666 opacity 텍스트 오버레이 구현 완료
+- R2665 깊이 히트맵 오버레이 구현 완료
+- R2664 랜덤 회전 오프셋 구현 완료
+- R2663 랜덤 위치 오프셋 구현 완료
+- R2662 회전 0 리셋 구현 완료
+- R2661 마우스 크로스헤어 가이드라인 구현 완료
+- R2660 가로세로 비율 적용 구현 완료
+- R2659 크기 W=H 정사각형화 구현 완료
+- R2658 노드 색상 tint 시각화 구현 완료
+- R2657 opacity 255 일괄 리셋 구현 완료
+- R2656 색상 흰색 일괄 리셋 구현 완료
+- R2655 스케일 1.0 일괄 리셋 구현 완료
+- R2654 위치 XY 원점 리셋 구현 완료
+- R2653 Z-order 최전면/최후면 이동 구현 완료
+- R2652 비활성 노드 반투명 오버레이 구현 완료
+- R2651 선택 노드 부모 하이라이트 구현 완료
+- R2650 노드 이름 일련번호 치환 구현 완료
+- R2649 선택 노드 복제 구현 완료
+- R2648 이름 알파벳순 Z-order 정렬 구현 완료
+- R2647 선택 노드 그룹 바운딩박스 구현 완료
+- R2646 계층 구조 연결선 구현 완료
+- R2645 선택 노드 연결선 오버레이 구현 완료
+- R2644 선택 노드 통계 패널 구현 완료
+- R2643 격자 배치 구현 완료
+- R2642 노드 이름 접두사/접미사 구현 완료
+- R2641 앵커 포인트 십자 마커 구현 완료
+- R2640 선택 순서 번호 오버레이 구현 완료
+- R2639 원형 배치 구현 완료
+- R2638 회전 균등 분배 구현 완료
+- R2637 씬 전체 바운딩박스 오버레이 구현 완료
+- R2636 캔버스 경계 초과 노드 강조 구현 완료
+- R2635 선택 홀수/짝수 필터 구현 완료
+- R2634 첫 노드 크기 통일 구현 완료
+- R2633 cc.Label 폰트 크기 균등 분배 구현 완료
+- R2632 위치 X/Y 미러 구현 완료
+- R2631 색상 팔레트 추출 구현 완료
+- R2630 삼분법 가이드 오버레이 구현 완료
+- R2629 안전 영역 + 비율 가이드 오버레이 구현 완료
+- R2628 앵커 X/Y 균등 분배 구현 완료
+- R2627 Label 텍스트 일련번호 추가 구현 완료
+- R2626 무지개 색상 분배 구현 완료
+- R2625 이벤트 핸들러 배지 오버레이 구현 완료
+- R2624 레이어 배지 오버레이 구현 완료
 - R2623 position XY 스냅 구현 완료
 - R2622 active 교차 패턴 구현 완료
 - R2621 opacity 스냅 구현 완료
@@ -2626,7 +2558,6 @@ _없음_
 - R2552 위치 전용 복사/붙여넣기 구현 완료
 - R2551 컴포넌트 타입 필터 구현 완료
 - R2550 다중 선택 일괄 잠금/해제 구현 완료
-- R2549 맨 앞/뒤 이동 버튼 구현 완료
 - R2548 Label 텍스트 일괄 적용 구현 완료
 - R2547 2-노드 위치 교환 구현 완료
 - R2546 빈 컨테이너 점선 테두리 구현 완료
@@ -2654,3 +2585,42 @@ _없음_
 - R2524 다중 선택 통합 바운딩박스 구현 완료
 - R2523 공통 컴포넌트 enabled 일괄 토글 구현 완료
 - R2522 직접 자식 선택 확장 구현 완료
+- R2702 opacity 고정값 일괄 설정 구현 완료
+- R2718 uuid 참조 화살표 오버레이 구현 완료
+- R2719 격자 스냅 구현 완료
+- R2721 Label 폰트 색상 일괄 구현 완료
+- R2725 BatchInspector 일괄 lock/unlock 구현 완료
+- R2726 SceneView collapsedUuids 연동 구현 완료
+- 파일 탭 미저장 ● 인디케이터 존재
+- UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)
+- 씬뷰 노드 검색 하이라이트 존재
+- 채팅 코드 블록 실행 버튼 존재
+- 씬뷰 노드 핀 기능 존재
+- 씬뷰 스냅샷 비교 오버레이 존재
+- 채팅 메시지 이모지 반응 존재
+- cc-focus-node 이벤트 dispatch + SceneView 수신 구현
+- CCFileSceneView onMultiDelete prop + handleMultiDelete 콜백 구현
+- SceneView Label 텍스트 인라인 편집 (더블클릭 foreignObject) 구현
+- Ctrl+D 노드 복제: SceneView 단축키 + CocosPanel handler
+- H 키 active 토글: SceneView + CocosPanel handler
+- Ctrl+↑↓ 형제 순서 변경: SceneView + CocosPanel handler
+- cc.UIOpacity extractor + Inspector Quick Edit
+- cc.PolygonCollider extractor + SceneView SVG path 시각화
+- cc.SkeletalAnimation extractor + Inspector Quick Edit
+- cc.Button extractor + Inspector: transition/state colors/interactable
+- cc.Widget extractor + Inspector: align flags/offsets/mode
+- cc.Layout extractor + Inspector: type/resizeMode/padding/spacing/autoWrap
+- cc.RichText extractor + Inspector: string/fontSize/lineHeight/maxWidth/horizontalAlign/overflow
+- cc.EditBox extractor + Inspector: string/placeholder/maxLength/inputMode/inputFlag/returnType
+- cc.Toggle/ToggleContainer extractor + Inspector: isChecked/interactable/allowSwitchOff
+- cc.LabelOutline/LabelShadow extractor + Inspector Quick Edit
+- cc.Sprite extractor + Inspector: type/sizeMode/trim/grayscale
+- cc.Graphics extractor + Inspector: lineWidth/fillColor/strokeColor
+- Inspector pulse 미리보기 (SceneView 노드 강조)
+- chokidar v5 awaitWriteFinish boolean + _initPromise race condition + sender destroyed 누수 수정
+- session:setCollection try/catch + memTimer clearInterval 수정
+- 다른 이름으로 저장(Save As) 구현 완료
+- undo/redo 스택 카운터 표시 구현 완료
+- R2452 씬 드롭다운 버그 수정 + 마지막 씬 자동 로드 구현 완료
+- R2466 다중 선택 노드 그룹화 구현 완료
+- R2549 맨 앞/뒤 이동 버튼 구현 완료

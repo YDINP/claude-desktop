@@ -1,6 +1,6 @@
 # Claude Desktop — 개발 로드맵
 
-> 마지막 업데이트: 2026-03-14 (Round 1469 완료 — Phase DD19 진행 중, QA Pass 1359)
+> 마지막 업데이트: 2026-03-17 (R2726까지 완료 — 아키텍처 리팩토링 Phase A-F + /ultrawork 리팩토링 완료, QA Pass 2616 / Warning 0 / Critical 0)
 
 ## 개발 루프 실행 방식
 
@@ -887,3 +887,38 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | Round 1480 | QA Section 405-406 추가 (R1476-R1479 기능 체크, Pass 1371) | ✅ |
 | Round 2159 | BatchInspector cc.BoxCollider2D + CircleCollider2D 확장 (sensor/density/friction/restitution 배치에 포함, QA Pass 2082) | ✅ |
 | Round 2160 | BatchInspector cc.BoxCollider2D offset + CircleCollider2D offset 신규 배치 섹션 (QA Pass 2084) | ✅ |
+| R2691-R2700 | SceneView 오버레이 10종 (center dot/nudge/random color/non-default anchor/pos gradient/zero size warn/opacity gradient/axis crosshair/color reset/sibling highlight) | ✅ |
+| 리팩토링 스프린트 | qa.ts 31,802→81줄 (qa-checks/분리), useBatchPatch 훅, cocos-utils.ts 분리, mkBtnS/mkNiS 팩토리, ESLint, Phantom State 65쌍 제거 | ✅ |
+| ISSUE-001 | shell:exec execSync→execFileAsync 보안 수정 | ✅ |
+| ISSUE-007 | npm audit overrides (high 10→0, 18→11개) | ✅ |
+| ISSUE-008 | claude-agent-sdk 0.1.75→0.2.76 (API 호환) | ✅ |
+| ISSUE-009 | react-syntax-highlighter PrismLight (~500kB 절감) | ✅ |
+| ISSUE-011 | CC Editor 패널 UX — 탭 자동 로드, 씬/프리팹 드롭다운 분리 | ✅ |
+| ISSUE-012 | 리팩토링 로드맵 Phase 1-7 실행 완료 | ✅ |
+| R2701 | SceneView 마르키 선택 rubber-band + Shift 키 기존 선택 병합 | ✅ |
+| R2702 | BatchInspector opacity 고정값 일괄 (프리셋 0/64/128/192/255) | ✅ |
+| R2703 | SceneView ⊕C 선택 노드 중심 팬 이동 | ✅ |
+| R2704 | BatchInspector ΔR/ΔG/ΔB/ΔA 색상 채널 오프셋 | ✅ |
+| R2706 | BatchInspector Sprite 단색 일괄 교체 (batchSolidColor + applyBatchSolidColor) | ✅ |
+| R2708 | BatchInspector 이름 정규식 필터 다중 선택 | ✅ |
+| R2709 | SceneView W:H 커스텀 비율 가이드 오버레이 (노란 점선) | ✅ |
+| R2710 | BatchInspector W/H 고정값 일괄 + UITransform 동기화 | ✅ |
+| R2711 | SceneView 노드 잠금 툴바 버튼 (🔒 토글) | ✅ |
+| R2712 | BatchInspector Label fontSize 일괄 강화 | ✅ |
+| R2714 | BatchInspector 조건부 active 토글 (비활성→활성 / 활성→비활성) | ✅ |
+| R2715 | SceneView 단축키 팝업 (? 키, 전체 단축키 목록) | ✅ |
+| R2716 | SceneView 이름 찾기+바꾸기 (regex 지원) | ✅ |
+| R2717 | SceneView Opacity HUD 배지 | ✅ |
+| R2718 | SceneView UUID 참조 화살표 시각화 | ✅ |
+| R2719 | SceneView 격자 스냅 (grid snap) | ✅ |
+| R2721 | BatchInspector Label 폰트 색상 일괄 설정 | ✅ |
+| R2722 | SceneView 선택 히스토리 breadcrumb | ✅ |
+| R2723 | BatchInspector 이름 접두사 자동 그룹 선택 | ✅ |
+| R2725 | BatchInspector 선택 노드 일괄 lock/unlock | ✅ |
+| 아키텍처 리팩토링 | Phase A(Kernel) + B(Chat 도메인) + C(Cocos Plugin System) + D(App.tsx 훅 추출 1898→961줄) + D.2(JSX→AppLayout 961→448줄) — commit ddf3bff7 | ✅ |
+| 리팩토링 Phase E | CocosPanel/index.tsx 3,220→138줄 (6개 파일 분리: BuildTab, SceneTab, HierarchyPanel, ProjectHeader, ProjectToolbar, useCCFileProjectUI) — commit 0689fd08 | ✅ |
+| 리팩토링 Phase C | NodeInspector.tsx 9,198줄 → NodeInspector/ 디렉토리 21개 파일 (useNodeInspector, NodeInspectorHeader, NodeTransformSection, renderers/ 10개) — commits 1ba6de35, 986711d4 | ✅ |
+| 리팩토링 Phase F | useCCFileProjectUI.ts 1,719→532줄 (useHierarchyPanel, useNodeSelection, useKeyboardShortcuts, useSceneActions, useNodeOperations 분리) — commit 2cb2df45 | ✅ |
+| R2726 | SceneView collapsedUuids 연동 — 씬 트리에서 접힌 노드 자식을 SceneView에서도 숨김 (flatNodes useMemo + collapsedUuids prop) | ✅ |
+| /ultrawork 리팩토링 | AssetBrowser.tsx 880→639줄(assetUtils/AssetThumbnailPopup/TreeSearch 분리), SceneTree.tsx 530→360줄(GroupPanel 분리), useNodeInspector.tsx 816→683줄(useNodeClipboards/useNodePresets 분리) — commit 888662e6 | ✅ |
+| electron 업그레이드 | 33→35.7.5 (ASAR Integrity Bypass 취약점 수정) | ✅ |

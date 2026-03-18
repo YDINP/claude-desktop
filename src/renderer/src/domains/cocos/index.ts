@@ -1,0 +1,5 @@
+export { useCocosStore } from './store'
+export type { CCLayoutMode } from './store'
+export { initCocosAdapter } from './adapter'
+export type { BatchPlugin, BatchPluginProps, BatchPluginGroup, GROUP_LABELS } from './plugins/types'
+export { BATCH_PLUGINS, getApplicablePlugins } from './plugins/registry'

@@ -296,7 +296,7 @@ function ComponentSection({ type, props, open, onToggle, onSaveProp, onSaveCompP
                 {isColor && colorParts ? (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ position: 'relative', display: 'inline-block' }}>
-                      <span style={{
+                      <span className="colorSwatch" style={{
                         width: 14, height: 14, borderRadius: 2, flexShrink: 0, display: 'block',
                         background: `rgb(${colorParts[0]}, ${colorParts[1]}, ${colorParts[2]})`,
                         border: '1px solid var(--border)',

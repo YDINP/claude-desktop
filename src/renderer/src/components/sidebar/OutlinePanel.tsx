@@ -88,6 +88,19 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
         }}>
           {allItems.length}개
         </span>
+        {allItems.length > 0 && (() => {
+          const levelCount: Record<1 | 2 | 3, number> = { 1: 0, 2: 0, 3: 0 }
+          allItems.forEach(it => { levelCount[it.level]++ })
+          return (
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', display: 'flex', gap: 3 }}>
+              {([1, 2, 3] as const).filter(lv => levelCount[lv] > 0).map(lv => (
+                <span key={lv} style={{ background: 'var(--bg-hover)', borderRadius: 4, padding: '1px 4px' }}>
+                  H{lv}:{levelCount[lv]}
+                </span>
+              ))}
+            </span>
+          )
+        })()}
         <div style={{ display: 'flex', gap: 2, marginLeft: 'auto', alignItems: 'center' }}>
           {allItems.length > 0 && (
             <button

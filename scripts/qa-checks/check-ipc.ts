@@ -139,13 +139,21 @@ export function runIpcChecks(root: string, log: LogFn): void {
     log('warning', 'Runtime', 'src/main/cc/cc-file-parser.ts 없음')
   }
 
-  // handleSave try/finally (H2 fix)
-  const cocosPanelPath = join(root, 'src/renderer/src/components/sidebar/CocosPanel.tsx')
-  if (existsSync(cocosPanelPath)) {
-    const cocosPanelSrc = readFileSync(cocosPanelPath, 'utf-8')
-    const handleSaveIdx = cocosPanelSrc.indexOf('handleSave')
-    const handleSaveBlock = handleSaveIdx >= 0 ? cocosPanelSrc.slice(handleSaveIdx, handleSaveIdx + 8000) : ''
-    if (handleSaveBlock.includes('finally')) {
+  // handleSave try/finally (H2 fix) — also check extracted hook file
+  const cocosPanelPath = join(root, 'src/renderer/src/components/sidebar/CocosPanel/index.tsx')
+  const cocosHookPath = join(root, 'src/renderer/src/components/sidebar/CocosPanel/useCCFileProjectUI.ts')
+  const cocosPanelFiles = [cocosPanelPath, cocosHookPath].filter(p => existsSync(p))
+  if (cocosPanelFiles.length > 0) {
+    let foundFinally = false
+    for (const filePath of cocosPanelFiles) {
+      const src = readFileSync(filePath, 'utf-8')
+      const idx = src.indexOf('const handleSave')
+      if (idx >= 0) {
+        const block = src.slice(idx, idx + 8000)
+        if (block.includes('finally')) { foundFinally = true; break }
+      }
+    }
+    if (foundFinally) {
       log('pass', 'Runtime', 'handleSave try/finally 존재 (saving 상태 고착 방지)')
     } else {
       log('warning', 'Runtime', 'handleSave finally 없음 — throw 시 saving 고착 위험', 'src/renderer/src/components/sidebar/CocosPanel.tsx')
