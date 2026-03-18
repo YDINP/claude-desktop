@@ -73,7 +73,7 @@ export function useHierarchyPanel({ sceneFile, selectedNode }: UseHierarchyPanel
     try { return parseInt(localStorage.getItem('cc-hierarchy-width') ?? '160') } catch { return 160 }
   })
   const hDividerDragRef = useRef<{ startX: number; startW: number } | null>(null)
-  const dividerDragRef = useRef<{ startY: number; startH: number } | null>(null)
+  const dividerDragRef = useRef<{ startX: number; startH: number } | null>(null)
 
   return {
     hideInactive, setHideInactive,
