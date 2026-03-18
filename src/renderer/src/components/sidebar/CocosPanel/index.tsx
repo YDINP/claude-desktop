@@ -55,7 +55,8 @@ function CCFileProjectUI(props: CCFileProjectUIProps) {
           {(['scene', 'groups', 'assets', 'build'] as const).map(t => (
             <button key={t} onClick={() => setMainTab(t)}
               style={{
-                flex: 1, padding: '4px 0', fontSize: 10, border: 'none', cursor: 'pointer',
+                flex: 1, padding: '4px 0', fontSize: 10, cursor: 'pointer',
+                borderTop: 'none', borderLeft: 'none', borderRight: 'none',
                 background: mainTab === t ? 'var(--bg-primary)' : 'transparent',
                 color: mainTab === t ? 'var(--accent)' : 'var(--text-muted)',
                 borderBottom: mainTab === t ? '2px solid var(--accent)' : '2px solid transparent',

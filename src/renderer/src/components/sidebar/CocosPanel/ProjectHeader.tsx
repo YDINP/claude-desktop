@@ -1,7 +1,6 @@
 import React from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
-import { ProjectToolbarSection } from './ProjectToolbar'
 
 interface ProjectHeaderProps {
   ctx: UseCCFileProjectUIReturn
@@ -11,9 +10,9 @@ interface ProjectHeaderProps {
 
 export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: ProjectHeaderProps) {
   const {
-    projectInfo, sceneFile, loading, error, externalChange,
-    conflictInfo, openProject, detectProject, loadScene, forceOverwrite,
-    favProjects, isFav, toggleFav,
+    projectInfo, sceneFile, error, externalChange,
+    conflictInfo, detectProject, loadScene, forceOverwrite,
+    favProjects,
     showProjectSettings, setShowProjectSettings, projectSettings,
     bannerHidden, setBannerHidden,
     autoReload, setAutoReload,
@@ -21,13 +20,11 @@ export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: Projec
     newSceneName, setNewSceneName,
     newSceneTemplate, setNewSceneTemplate,
     handleCreateScene,
-    showProjectWizard, setShowProjectWizard,
-    wizardStep, setWizardStep,
     wizardProjectName, setWizardProjectName,
     wizardSavePath, setWizardSavePath,
     wizardCCVersion, setWizardCCVersion,
     wizardTemplate, setWizardTemplate,
-    wizardCreating, wizardError, setWizardError,
+    wizardCreating,
     handleCreateProject,
     globalSearchOpen, setGlobalSearchOpen,
     globalSearchQuery, setGlobalSearchQuery,
@@ -215,38 +212,6 @@ export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: Projec
 
       {/* 프로젝트 열기 섹션 */}
       <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
-          <button
-            onClick={openProject}
-            disabled={loading}
-            style={{
-              flex: 1, padding: '4px 8px', background: 'var(--accent)', color: '#fff',
-              borderRadius: 4, fontSize: 11, cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1,
-            }}
-          >
-            {loading ? '로드 중...' : projectInfo?.detected ? '📂 다른 프로젝트 열기' : '📂 CC 프로젝트 열기'}
-          </button>
-          {/* R2317/ISSUE-011: 즐겨찾기 토글 버튼 */}
-          <button
-            title={isFav ? '즐겨찾기 해제' : (projectInfo?.projectPath ? '즐겨찾기 추가' : '')}
-            onClick={() => { if (projectInfo?.projectPath) toggleFav() }}
-            disabled={!projectInfo?.projectPath}
-            style={{ padding: '4px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, fontSize: 13, cursor: projectInfo?.projectPath ? 'pointer' : 'default', color: isFav ? '#fbbf24' : 'var(--text-muted)', opacity: projectInfo?.projectPath ? 1 : 0.4 }}
-          >{isFav ? '★' : '☆'}</button>
-          {/* R1461: 새 프로젝트 생성 마법사 */}
-          <button
-            onClick={() => { setShowProjectWizard(true); setWizardStep(1); setWizardError(null) }}
-            style={{
-              padding: '4px 8px', background: 'rgba(96,165,250,0.12)', color: 'var(--accent)',
-              border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4, fontSize: 10,
-              cursor: 'pointer', whiteSpace: 'nowrap',
-            }}
-          >
-            {'🆕'} 새 프로젝트
-          </button>
-        </div>
-
         {/* ISSUE-011: 즐겨찾기 프로젝트 탭 바 — 클릭 시 해당 프로젝트 전환 + 마지막 씬 자동 로드 */}
         {favProjects.length > 0 && (
           <div style={{ display: 'flex', gap: 0, marginTop: 6, marginBottom: 4, overflowX: 'auto', flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
@@ -258,7 +223,7 @@ export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: Projec
                   onClick={() => { if (!isActive) detectProject?.(path) }}
                   title={path}
                   style={{
-                    padding: '4px 10px', fontSize: 10, border: 'none', cursor: isActive ? 'default' : 'pointer',
+                    padding: '4px 10px', fontSize: 10, borderTop: 'none', borderLeft: 'none', borderRight: 'none', cursor: isActive ? 'default' : 'pointer',
                     background: isActive ? 'var(--bg-primary)' : 'transparent',
                     color: isActive ? 'var(--accent)' : 'var(--text-muted)',
                     borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
@@ -364,7 +329,6 @@ export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: Projec
           </div>
         )}
 
-        <ProjectToolbarSection ctx={ctx} />
       </div>
     </>
   )

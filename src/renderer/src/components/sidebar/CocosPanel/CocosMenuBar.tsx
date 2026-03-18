@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
+import { BackupManager } from './BackupManager'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { validateScene } from '../cocos-utils'
 import type { OptimizationSuggestion } from './types'
@@ -24,6 +25,11 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
     setOptimizationSuggestions, optimizationSuggestions,
     openProject, selectedScene, handleSceneChange,
     setShowNewSceneForm,
+    canUndo, canRedo, undoCount, redoCount, undo, redo,
+    saving, handleSave, setSaveMsg, saveMsg, handleRestore, loadScene,
+    sceneHistoryTimeline, showFullHistory, setShowFullHistory,
+    setShowProjectWizard, setWizardStep, setWizardError,
+    isFav, toggleFav,
   } = ctx
 
   const [openMenu, setOpenMenu] = useState<string | null>(null)
@@ -88,7 +94,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
             <button
               style={dropItemStyle()}
               onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
-              onMouseLeave={e => (e.currentTarget.style.background = '')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
               onClick={() => { openProject?.(); setOpenMenu(null) }}
             >📂 다른 프로젝트 열기</button>
             <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
@@ -96,7 +102,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
             <button
               style={dropItemStyle()}
               onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
-              onMouseLeave={e => (e.currentTarget.style.background = '')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
               onClick={() => { setShowNewSceneForm?.(true); setOpenMenu(null) }}
             >✨ 새 씬 만들기</button>
             {/* 씬/프리팹 목록 */}
@@ -113,7 +119,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
                         style={{ ...dropItemStyle(isCurrent ? '#4ade80' : undefined), display: 'flex', alignItems: 'center', gap: 6 }}
                         title={s}
                         onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = '')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'none')}
                         onClick={() => { handleSceneChange(s); setOpenMenu(null) }}
                       >
                         <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -139,7 +145,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
                         style={{ ...dropItemStyle(isCurrent ? '#a78bfa' : '#a78bfa99'), display: 'flex', alignItems: 'center', gap: 6 }}
                         title={s}
                         onMouseEnter={e => (e.currentTarget.style.background = 'rgba(167,139,250,0.1)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = '')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'none')}
                         onClick={() => { handleSceneChange(s); setOpenMenu(null) }}
                       >
                         <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -150,6 +156,107 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
                     )
                   })}
                 </div>
+              </>
+            )}
+            {/* 저장 섹션 */}
+            {sceneFile?.root && (
+              <>
+                <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
+                <button
+                  style={dropItemStyle(saving ? 'var(--text-muted)' : undefined)}
+                  disabled={saving}
+                  onMouseEnter={e => { if (!saving) e.currentTarget.style.background = 'rgba(88,166,255,0.1)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                  onClick={() => { handleSave(); setOpenMenu(null) }}
+                >💾 저장 {saving ? '(저장 중...)' : ''}</button>
+                <button
+                  style={dropItemStyle()}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                  onClick={async () => {
+                    if (!sceneFile?.root) return
+                    setOpenMenu(null)
+                    const result = await window.api.ccFileSaveAs?.(sceneFile, sceneFile.root)
+                    if (result?.success) setSaveMsg?.({ ok: true, text: `저장: ${result.savedPath?.split(/[\\/]/).pop()}` })
+                    else if (!result?.canceled) setSaveMsg?.({ ok: false, text: result?.error ?? '저장 실패' })
+                  }}
+                >💾⬆ 다른 이름으로 저장</button>
+                {saveMsg && (
+                  <div style={{ padding: '3px 12px', fontSize: 9, color: saveMsg.ok ? '#4ade80' : '#f87171' }}>
+                    {saveMsg.text}
+                  </div>
+                )}
+                <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
+                <button
+                  style={dropItemStyle(canUndo ? undefined : 'var(--text-muted)')}
+                  disabled={!canUndo}
+                  onMouseEnter={e => { if (canUndo) e.currentTarget.style.background = 'rgba(88,166,255,0.1)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                  onClick={() => { undo(); setOpenMenu(null) }}
+                >↩ 실행 취소{undoCount ? ` (${undoCount})` : ''}</button>
+                <button
+                  style={dropItemStyle(canRedo ? undefined : 'var(--text-muted)')}
+                  disabled={!canRedo}
+                  onMouseEnter={e => { if (canRedo) e.currentTarget.style.background = 'rgba(88,166,255,0.1)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                  onClick={() => { redo(); setOpenMenu(null) }}
+                >↪ 다시 실행{redoCount ? ` (${redoCount})` : ''}</button>
+                <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
+                <button
+                  style={dropItemStyle()}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                  onClick={() => { handleRestore(); setOpenMenu(null) }}
+                >🔙 .bak 백업 복원</button>
+                {sceneFile?.scenePath && (
+                  <>
+                    <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
+                    <div style={{ padding: '0 4px' }}>
+                      <BackupManager scenePath={sceneFile.scenePath} onRestored={() => loadScene(sceneFile.scenePath)} />
+                    </div>
+                  </>
+                )}
+                {sceneHistoryTimeline?.length > 0 && (
+                  <>
+                    <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
+                    <div style={{ padding: '4px 12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>저장 이력</span>
+                        {sceneHistoryTimeline.length > 3 && (
+                          <button
+                            onClick={() => setShowFullHistory((v: boolean) => !v)}
+                            style={{ fontSize: 8, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                          >{showFullHistory ? '접기' : `더 보기 (${sceneHistoryTimeline.length})`}</button>
+                        )}
+                      </div>
+                      {(showFullHistory ? sceneHistoryTimeline : sceneHistoryTimeline.slice(0, 3)).map((entry: { timestamp: number; nodeCount: number; size: number; snapshotKey?: string }, i: number) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 9, padding: '2px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                          <span style={{ color: 'var(--text-muted)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                            {new Date(entry.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                          </span>
+                          <span style={{ color: 'var(--text-primary)', flexShrink: 0 }}>{entry.nodeCount}N</span>
+                          <button
+                            disabled={!entry.snapshotKey}
+                            onClick={async () => {
+                              if (!entry.snapshotKey || !sceneFile?.scenePath) return
+                              const snap = localStorage.getItem(entry.snapshotKey)
+                              if (!snap) { alert('스냅샷 없음'); return }
+                              const timeStr = new Date(entry.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                              if (!window.confirm(`${timeStr} 시점으로 복원?`)) return
+                              try {
+                                const res = await window.api.writeTextFile?.(sceneFile.scenePath, JSON.stringify(JSON.parse(snap), null, 2))
+                                if (res && 'error' in res) { alert('복원 실패: ' + res.error); return }
+                                loadScene(sceneFile.scenePath)
+                                setOpenMenu(null)
+                              } catch (e) { alert('오류: ' + String(e)) }
+                            }}
+                            style={{ marginLeft: 'auto', fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: entry.snapshotKey ? 'var(--accent)' : 'var(--text-muted)', cursor: entry.snapshotKey ? 'pointer' : 'default', opacity: entry.snapshotKey ? 1 : 0.4 }}
+                          >복원</button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>
@@ -169,7 +276,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
               <button
                 style={dropItemStyle()}
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
-                onMouseLeave={e => (e.currentTarget.style.background = '')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'none')}
                 onClick={() => {
                   const issues = validateScene(sceneFile.root)
                   setValidationIssues(issues)
@@ -195,7 +302,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
               <button
                 style={dropItemStyle()}
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
-                onMouseLeave={e => (e.currentTarget.style.background = '')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'none')}
                 onClick={() => setShowSceneStats((v: boolean) => !v)}
               >{'📊'} 씬 통계 {showSceneStats ? '✓' : ''}</button>
             </div>
@@ -384,6 +491,19 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
                 </div>
               </>
             )}
+            <div style={{ margin: '6px 0 2px', borderTop: '1px solid var(--border)' }} />
+            <button
+              style={dropItemStyle()}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+              onClick={() => { setShowProjectWizard?.(true); setWizardStep?.(1); setWizardError?.(null); setOpenMenu(null) }}
+            >🆕 새 프로젝트 만들기</button>
+            <button
+              style={dropItemStyle(isFav ? '#fbbf24' : undefined)}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(251,191,36,0.1)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+              onClick={() => { toggleFav?.(); setOpenMenu(null) }}
+            >{isFav ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}</button>
           </div>
         )}
       </div>
