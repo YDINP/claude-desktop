@@ -136,7 +136,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               ))}
             </div>
             {/* SceneView — flex:1 (남은 공간 전부) */}
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
               <CCFileSceneView
                 sceneFile={sceneFile}
                 selectedUuid={selectedNode?.uuid ?? null}

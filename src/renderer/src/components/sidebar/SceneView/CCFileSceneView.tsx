@@ -514,22 +514,34 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
   }, [selectedUuid])
 
-  // Sprite UUID → local:// URL 비동기 해상
+  // Sprite UUID → base64 data URL 비동기 해상
   useEffect(() => {
     const assetsDir = sceneFile.projectInfo.assetsDir
-    if (!assetsDir) return
-    const uuids = flatNodes
-      .flatMap(fn => fn.node.components.filter(c => c.type === 'cc.Sprite' || c.type === 'Sprite'))
+    if (!assetsDir) {
+      console.debug('[SceneView] sprite load skipped: no assetsDir')
+      return
+    }
+    const spriteComps = flatNodes.flatMap(fn =>
+      fn.node.components.filter(c => c.type === 'cc.Sprite' || c.type === 'Sprite' || c.type === 'cc.Sprite2D')
+    )
+    const uuids = spriteComps
       .map(c => (c.props.spriteFrame as { __uuid__?: string } | undefined)?.__uuid__)
       .filter((u): u is string => !!u && !spriteCacheRef.current.has(u))
+    console.debug(`[SceneView] sprite comps=${spriteComps.length} new UUIDs=${uuids.length}`, uuids[0])
     if (!uuids.length) return
     uuids.forEach(uuid => {
       spriteCacheRef.current.set(uuid, '') // pending sentinel
       window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url => {
-        if (url) spriteCacheRef.current.set(uuid, url)
+        console.debug(`[SceneView] resolveTexture ${uuid.slice(0,8)}… →`, url ? url.slice(0, 40) : null)
+        if (url) {
+          spriteCacheRef.current.set(uuid, url)
+        } else {
+          spriteCacheRef.current.delete(uuid) // null 반환 시 sentinel 제거
+        }
         setSpriteCacheVer(v => v + 1)
-      }).catch(() => {
-        spriteCacheRef.current.delete(uuid) // 실패 시 pending sentinel 제거 → 재시도 허용
+      }).catch((e) => {
+        console.debug('[SceneView] resolveTexture error', uuid.slice(0,8), e)
+        spriteCacheRef.current.delete(uuid)
       })
     })
   }, [sceneFile, flatNodes])
@@ -2758,7 +2770,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const rotTransform = rotZ !== 0 ? `rotate(${-rotZ}, ${svgPos.x}, ${svgPos.y})` : undefined
 
             const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
-            const hasSprite = node.components.some(c => c.type === 'cc.Sprite' || c.type === 'Sprite')
+            const hasSprite = node.components.some(c => c.type === 'cc.Sprite' || c.type === 'Sprite' || c.type === 'cc.Sprite2D')
             const hasBg = node.components.some(c => ['cc.Canvas', 'cc.Layout'].includes(c.type))
             const hasButton = node.components.some(c => c.type === 'cc.Button' || c.type === 'Button')
             const hasScroll = node.components.some(c => c.type === 'cc.ScrollView' || c.type === 'cc.ScrollBar')
@@ -3436,7 +3448,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 )}
                 {/* Sprite 이미지 렌더링 */}
                 {hasSprite && (() => {
-                  const sc = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'Sprite')
+                  const sc = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'Sprite' || c.type === 'cc.Sprite2D')
                   const sfUuid = (sc?.props?.spriteFrame as { __uuid__?: string } | undefined)?.__uuid__
                   const imgUrl = sfUuid ? spriteCacheRef.current.get(sfUuid) : undefined
                   if (!imgUrl) return null
