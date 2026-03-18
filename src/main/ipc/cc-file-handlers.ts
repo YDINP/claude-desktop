@@ -187,8 +187,14 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     if (!asset) return null
     if (asset.type !== 'texture' && asset.type !== 'sprite-atlas') return null
     try {
-      const data = await readFile(asset.path)
-      const ext = asset.path.split('.').pop()?.toLowerCase() ?? 'png'
+      // plist atlas의 경우 동일 이름의 .png 파일로 대체
+      let imgPath = asset.path
+      if (imgPath.endsWith('.plist')) {
+        const pngPath = imgPath.slice(0, -5) + 'png'
+        try { await readFile(pngPath); imgPath = pngPath } catch { /* plist 자체를 읽기 시도 */ }
+      }
+      const data = await readFile(imgPath)
+      const ext = imgPath.split('.').pop()?.toLowerCase() ?? 'png'
       const mime: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif' }
       return `data:${mime[ext] ?? 'image/png'};base64,${data.toString('base64')}`
     } catch {
