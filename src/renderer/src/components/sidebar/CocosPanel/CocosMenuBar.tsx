@@ -22,6 +22,8 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
     handleBatchFontSize, handleBatchRemoveInactive, handleBatchNormalizeName,
     batchToast,
     setOptimizationSuggestions, optimizationSuggestions,
+    openProject, selectedScene, handleSceneChange,
+    setShowNewSceneForm,
   } = ctx
 
   const [openMenu, setOpenMenu] = useState<string | null>(null)
@@ -74,6 +76,85 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
       borderBottom: '1px solid var(--border)',
       flexShrink: 0,
     }}>
+
+      {/* -- 파일 -- */}
+      <div style={menuItemStyle}>
+        <button style={btnStyle(openMenu === 'file')} onClick={() => toggle('file')}>
+          {'📁'} 파일 <span style={{ fontSize: 8 }}>{'▾'}</span>
+        </button>
+        {openMenu === 'file' && (
+          <div style={{ ...dropStyle, minWidth: 240 }}>
+            {/* 다른 프로젝트 열기 */}
+            <button
+              style={dropItemStyle()}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+              onMouseLeave={e => (e.currentTarget.style.background = '')}
+              onClick={() => { openProject?.(); setOpenMenu(null) }}
+            >📂 다른 프로젝트 열기</button>
+            <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
+            {/* 새 씬 만들기 */}
+            <button
+              style={dropItemStyle()}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+              onMouseLeave={e => (e.currentTarget.style.background = '')}
+              onClick={() => { setShowNewSceneForm?.(true); setOpenMenu(null) }}
+            >✨ 새 씬 만들기</button>
+            {/* 씬/프리팹 목록 */}
+            {projectInfo?.scenes && projectInfo.scenes.filter((s: string) => !s.endsWith('.prefab')).length > 0 && (
+              <>
+                <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
+                <div style={sectionLabel}>씬 ({projectInfo.scenes.filter((s: string) => !s.endsWith('.prefab')).length})</div>
+                <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                  {projectInfo.scenes.filter((s: string) => !s.endsWith('.prefab')).map((s: string) => {
+                    const isCurrent = selectedScene === s || sceneFile?.scenePath === s
+                    return (
+                      <button
+                        key={s}
+                        style={{ ...dropItemStyle(isCurrent ? '#4ade80' : undefined), display: 'flex', alignItems: 'center', gap: 6 }}
+                        title={s}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = '')}
+                        onClick={() => { handleSceneChange(s); setOpenMenu(null) }}
+                      >
+                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {s.split(/[\\/]/).pop()}
+                        </span>
+                        {isCurrent && <span>✓</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+            {projectInfo?.scenes && projectInfo.scenes.filter((s: string) => s.endsWith('.prefab')).length > 0 && (
+              <>
+                <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
+                <div style={sectionLabel}>프리팹 ({projectInfo.scenes.filter((s: string) => s.endsWith('.prefab')).length})</div>
+                <div style={{ maxHeight: 160, overflowY: 'auto' }}>
+                  {projectInfo.scenes.filter((s: string) => s.endsWith('.prefab')).map((s: string) => {
+                    const isCurrent = selectedScene === s || sceneFile?.scenePath === s
+                    return (
+                      <button
+                        key={s}
+                        style={{ ...dropItemStyle(isCurrent ? '#a78bfa' : '#a78bfa99'), display: 'flex', alignItems: 'center', gap: 6 }}
+                        title={s}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(167,139,250,0.1)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = '')}
+                        onClick={() => { handleSceneChange(s); setOpenMenu(null) }}
+                      >
+                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {s.split(/[\\/]/).pop()}
+                        </span>
+                        {isCurrent && <span>✓</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* -- 씬 -- */}
       {sceneFile?.root && (

@@ -11,7 +11,6 @@ export function ProjectToolbarSection({ ctx }: ProjectToolbarProps) {
     projectInfo, sceneFile, loading, error,
     canUndo, canRedo, undoCount, redoCount,
     loadScene, saveScene, undo, redo,
-    selectedScene, handleSceneChange,
     saveMsg, setSaveMsg, saving, handleSave,
     handleRestore,
     sceneHistoryTimeline, showFullHistory, setShowFullHistory,
@@ -19,40 +18,6 @@ export function ProjectToolbarSection({ ctx }: ProjectToolbarProps) {
 
   return (
     <>
-        {/* ISSUE-011: 씬/프리팹 별도 드롭다운 */}
-        {projectInfo?.scenes && projectInfo.scenes.filter(s => !s.endsWith('.prefab')).length > 0 && (
-          <select
-            value={selectedScene.endsWith('.prefab') ? '' : selectedScene}
-            onChange={e => handleSceneChange(e.target.value)}
-            style={{
-              width: '100%', marginTop: 6, padding: '3px 6px', fontSize: 10,
-              background: 'var(--bg-input)', color: 'var(--text-primary)',
-              border: '1px solid var(--border)', borderRadius: 4,
-            }}
-          >
-            <option value="">씬 선택...</option>
-            {projectInfo.scenes.filter(s => !s.endsWith('.prefab')).map(s => (
-              <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
-            ))}
-          </select>
-        )}
-        {projectInfo?.scenes && projectInfo.scenes.filter(s => s.endsWith('.prefab')).length > 0 && (
-          <select
-            value={selectedScene.endsWith('.prefab') ? selectedScene : ''}
-            onChange={e => handleSceneChange(e.target.value)}
-            style={{
-              width: '100%', marginTop: 4, padding: '3px 6px', fontSize: 10,
-              background: 'var(--bg-input)', color: '#a78bfa',
-              border: '1px solid rgba(167,139,250,0.3)', borderRadius: 4,
-            }}
-          >
-            <option value="" style={{ color: 'var(--text-primary)' }}>프리팹 선택...</option>
-            {projectInfo.scenes.filter(s => s.endsWith('.prefab')).map(s => (
-              <option key={s} value={s}>{s.split(/[\\/]/).pop()}</option>
-            ))}
-          </select>
-        )}
-
         {/* 저장 / undo/redo / 백업 복원 버튼 */}
         {sceneFile?.root && (
           <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
