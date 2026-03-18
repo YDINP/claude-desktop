@@ -6,6 +6,27 @@ import { CCFileNodeInspector } from './NodeInspector'
 import { HierarchyPanel } from './HierarchyPanel'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
 
+class InspectorErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { error: null }
+  }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: 8, fontSize: 9, color: '#f87171', background: 'var(--bg-secondary)' }}>
+          ⚠ Inspector 오류: {this.state.error.message}
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 interface SceneTabProps {
   ctx: UseCCFileProjectUIReturn
   selectedNode: CCSceneNode | null
@@ -162,15 +183,17 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
             {/* R1516: 다중 선택 배치 편집 패널 */}
             {multiSelectedUuids.length > 1 && sceneFile?.root && (
               <div style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-                <CCFileBatchInspector
-                  uuids={multiSelectedUuids}
-                  sceneFile={sceneFile}
-                  saveScene={saveScene}
-                  onSelectNode={onSelectNode}
-                  onMultiSelectChange={setMultiSelectedUuids}
-                  lockedUuids={lockedUuids}
-                  onSetLockedUuids={setLockedUuids}
-                />
+                <InspectorErrorBoundary>
+                  <CCFileBatchInspector
+                    uuids={multiSelectedUuids}
+                    sceneFile={sceneFile}
+                    saveScene={saveScene}
+                    onSelectNode={onSelectNode}
+                    onMultiSelectChange={setMultiSelectedUuids}
+                    lockedUuids={lockedUuids}
+                    onSetLockedUuids={setLockedUuids}
+                  />
+                </InspectorErrorBoundary>
               </div>
             )}
             {/* R1595: 최근 선택 노드 히스토리 */}
@@ -203,17 +226,19 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
             )}
             {multiSelectedUuids.length <= 1 && selectedNode && (
               <div ref={inspectorScrollRef} style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: 'none' }}>
-                <CCFileNodeInspector
-                  node={selectedNode}
-                  sceneFile={sceneFile}
-                  saveScene={saveScene}
-                  onUpdate={onSelectNode}
-                  lockedUuids={lockedUuids}
-                  onToggleLocked={toggleLocked}
-                  onPulse={uuid => { setPulseUuid(uuid); setTimeout(() => setPulseUuid(null), 1400) }}
-                  pinnedUuids={new Set(pinnedNodes.map(p => p.uuid))}
-                  onTogglePin={togglePinNode}
-                />
+                <InspectorErrorBoundary>
+                  <CCFileNodeInspector
+                    node={selectedNode}
+                    sceneFile={sceneFile}
+                    saveScene={saveScene}
+                    onUpdate={onSelectNode}
+                    lockedUuids={lockedUuids}
+                    onToggleLocked={toggleLocked}
+                    onPulse={uuid => { setPulseUuid(uuid); setTimeout(() => setPulseUuid(null), 1400) }}
+                    pinnedUuids={new Set(pinnedNodes.map(p => p.uuid))}
+                    onTogglePin={togglePinNode}
+                  />
+                </InspectorErrorBoundary>
               </div>
             )}
           </div>

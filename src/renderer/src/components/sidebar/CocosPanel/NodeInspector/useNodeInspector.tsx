@@ -179,6 +179,9 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     else setMsg({ ok: false, text: result.error ?? '삭제 실패' })
   }, [node.uuid, sceneFile, saveScene, onUpdate])
 
+  // R2337: N-복제 카운트
+  const [dupeCount, setDupeCount] = useState(1)
+
   // 노드 복제 (부모 아래에 형제로 추가) — R2337: N-복제 지원
   const handleDuplicate = useCallback(async () => {
     if (!sceneFile.root || !sceneFile._raw || sceneFile.root.uuid === node.uuid) return
@@ -213,8 +216,6 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
 
   const [propSearch, setPropSearch] = useState('')
   const [showPropSearch, setShowPropSearch] = useState(false)
-  // R2337: N-복제 카운트
-  const [dupeCount, setDupeCount] = useState(1)
 
   // Round 611: prop 변경 히스토리 type (orchestrator에서 직접 사용)
   type PropHistoryEntry = { id: string; propKey: string; nodeName: string; oldValue: unknown; newValue: unknown; ts: number }

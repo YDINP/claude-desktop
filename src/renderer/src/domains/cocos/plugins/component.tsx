@@ -134,7 +134,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                     const newEnabled = !allOn
                     await patchComponents(
                       c => c.type === ct,
-                      c => { ...c, props: { ...c.props, enabled: newEnabled, _enabled: newEnabled } },
+                      c => ({ ...c, props: { ...c.props, enabled: newEnabled, _enabled: newEnabled } }),
                       `${ct} ${newEnabled ? '활성화' : '비활성화'} (${nodesWithComp.length}개)`,
                     )
                   }}
@@ -234,7 +234,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
-            c => { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } },
+            c => ({ ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } }),
             `PolygonCollider restitution=${restitution} (${uuids.length}개)`,
           )
         }
@@ -256,7 +256,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
-            c => { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } },
+            c => ({ ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } }),
             `PolygonCollider friction=${friction} (${uuids.length}개)`,
           )
         }
@@ -278,7 +278,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
-            c => { ...c, props: { ...c.props, density, _density: density, _N$density: density } },
+            c => ({ ...c, props: { ...c.props, density, _density: density, _N$density: density } }),
             `PolygonCollider density=${density} (${uuids.length}개)`,
           )
         }
@@ -300,7 +300,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.BoxCollider2D' || c.type === 'cc.BoxCollider'),
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `BoxCollider2D enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -321,7 +321,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.CircleCollider2D' || c.type === 'cc.CircleCollider'),
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `CircleCollider2D enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -342,7 +342,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `PolygonCollider2D enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -383,7 +383,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
-            c => { ...c, props: { ...c.props, threshold, _threshold: threshold, _N$threshold: threshold } },
+            c => ({ ...c, props: { ...c.props, threshold, _threshold: threshold, _N$threshold: threshold } }),
             `PolygonCollider threshold=${threshold} (${uuids.length}개)`,
           )
         }
@@ -463,7 +463,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.CircleCollider2D',
-            c => { ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } },
+            c => ({ ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } }),
             `CircleCollider2D radius=${radius} (${uuids.length}개)`,
           )
         }
@@ -483,7 +483,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.PolygonCollider' || c.type === 'cc.PolygonCollider2D'),
-            c => { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } },
+            c => ({ ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } }),
             `PolygonCollider sensor=${sensor} (${uuids.length}개)`,
           )
         }
@@ -505,7 +505,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
-            c => { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } },
+            c => ({ ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } }),
             `CircleCollider restitution=${restitution} (${uuids.length}개)`,
           )
         }
@@ -527,7 +527,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
-            c => { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } },
+            c => ({ ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } }),
             `CircleCollider friction=${friction} (${uuids.length}개)`,
           )
         }
@@ -549,7 +549,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
-            c => { ...c, props: { ...c.props, density, _density: density, _N$density: density } },
+            c => ({ ...c, props: { ...c.props, density, _density: density, _N$density: density } }),
             `CircleCollider density=${density} (${uuids.length}개)`,
           )
         }
@@ -571,7 +571,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
-            c => { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } },
+            c => ({ ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } }),
             `CircleCollider sensor=${sensor} (${uuids.length}개)`,
           )
         }
@@ -593,7 +593,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
-            c => { ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } },
+            c => ({ ...c, props: { ...c.props, restitution, _restitution: restitution, _N$restitution: restitution } }),
             `BoxCollider restitution=${restitution} (${uuids.length}개)`,
           )
         }
@@ -615,7 +615,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
-            c => { ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } },
+            c => ({ ...c, props: { ...c.props, friction, _friction: friction, _N$friction: friction } }),
             `BoxCollider friction=${friction} (${uuids.length}개)`,
           )
         }
@@ -637,7 +637,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
-            c => { ...c, props: { ...c.props, density, _density: density, _N$density: density } },
+            c => ({ ...c, props: { ...c.props, density, _density: density, _N$density: density } }),
             `BoxCollider density=${density} (${uuids.length}개)`,
           )
         }
@@ -659,7 +659,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
-            c => { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } },
+            c => ({ ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } }),
             `BoxCollider sensor=${sensor} (${uuids.length}개)`,
           )
         }
@@ -997,7 +997,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               if (isNaN(fs) || fs <= 0 || !sceneFile.root) return
               await patchComponents(
                 c => c.type === 'cc.Label',
-                c => { ...c, props: { ...c.props, fontSize: fs, _fontSize: fs, _N$fontSize: fs } },
+                c => ({ ...c, props: { ...c.props, fontSize: fs, _fontSize: fs, _N$fontSize: fs } }),
                 `Label fontSize ${fs} (${uuids.length}개)`,
               )
             }}
@@ -1017,7 +1017,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               if (isNaN(lh) || !sceneFile.root) return
               await patchComponents(
                 c => c.type === 'cc.Label',
-                c => { ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } },
+                c => ({ ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } }),
                 `Label lineHeight ${lh} (${uuids.length}개)`,
               )
             }}
@@ -1037,7 +1037,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 const val = label.startsWith('✓')
                 await patchComponents(
                   c => c.type === 'cc.Label',
-                  c => { ...c, props: { ...c.props, enableWrapText: val, _enableWrapText: val, _N$enableWrapText: val } },
+                  c => ({ ...c, props: { ...c.props, enableWrapText: val, _enableWrapText: val, _N$enableWrapText: val } }),
                   `wrap ${val} (${uuids.length}개)`,
                 )
               }}
@@ -1064,7 +1064,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                     const val = v === 'on'
                     await patchComponents(
                       c => c.type === 'cc.Label',
-                      c => { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } },
+                      c => ({ ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } }),
                       `${key} ${v} (${uuids.length}개)`,
                     )
                   }}
@@ -1085,7 +1085,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 if (!sceneFile.root) return
                 await patchComponents(
                   c => c.type === 'cc.Label',
-                  c => { ...c, props: { ...c.props, verticalAlign: v, _verticalAlign: v, _N$verticalAlign: v } },
+                  c => ({ ...c, props: { ...c.props, verticalAlign: v, _verticalAlign: v, _N$verticalAlign: v } }),
                   `vAlign ${l} (${uuids.length}개)`,
                 )
               }}
@@ -1106,7 +1106,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 if (!sceneFile.root) return
                 await patchComponents(
                   c => c.type === 'cc.Label',
-                  c => { ...c, props: { ...c.props, horizontalAlign: v, _horizontalAlign: v, _N$horizontalAlign: v } },
+                  c => ({ ...c, props: { ...c.props, horizontalAlign: v, _horizontalAlign: v, _N$horizontalAlign: v } }),
                   `hAlign ${l} (${uuids.length}개)`,
                 )
               }}
@@ -1123,7 +1123,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } },
+            c => ({ ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } }),
             `Label ${key}=${value} (${uuids.length}개)`,
           )
         }
@@ -1156,7 +1156,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 if (!sceneFile.root) return
                 await patchComponents(
                   c => c.type === 'cc.Label',
-                  c => { ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } },
+                  c => ({ ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } }),
                   `overflow ${l} (${uuids.length}개)`,
                 )
               }}
@@ -1173,7 +1173,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } },
+            c => ({ ...c, props: { ...c.props, lineHeight: lh, _lineHeight: lh, _N$lineHeight: lh } }),
             `Label lineH ${lh} (${uuids.length}개)`,
           )
         }
@@ -1195,7 +1195,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, enableWrapText, _enableWrapText: enableWrapText, _N$enableWrapText: enableWrapText } },
+            c => ({ ...c, props: { ...c.props, enableWrapText, _enableWrapText: enableWrapText, _N$enableWrapText: enableWrapText } }),
             `Label wrap=${enableWrapText} (${uuids.length}개)`,
           )
         }
@@ -1217,7 +1217,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, spacingX: sx, _spacingX: sx, _N$spacingX: sx } },
+            c => ({ ...c, props: { ...c.props, spacingX: sx, _spacingX: sx, _N$spacingX: sx } }),
             `Label spacingX ${sx} (${uuids.length}개)`,
           )
         }
@@ -1239,7 +1239,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, isBold, _isBold: isBold, _N$isBold: isBold } },
+            c => ({ ...c, props: { ...c.props, isBold, _isBold: isBold, _N$isBold: isBold } }),
             `Label bold=${isBold} (${uuids.length}개)`,
           )
         }
@@ -1247,7 +1247,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, isItalic, _isItalic: isItalic, _N$isItalic: isItalic } },
+            c => ({ ...c, props: { ...c.props, isItalic, _isItalic: isItalic, _N$isItalic: isItalic } }),
             `Label italic=${isItalic} (${uuids.length}개)`,
           )
         }
@@ -1271,7 +1271,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, isStrike, _isStrike: isStrike, _N$isStrike: isStrike } },
+            c => ({ ...c, props: { ...c.props, isStrike, _isStrike: isStrike, _N$isStrike: isStrike } }),
             `Label strike=${isStrike} (${uuids.length}개)`,
           )
         }
@@ -1291,7 +1291,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, isUnderline, _isUnderline: isUnderline, _N$isUnderline: isUnderline } },
+            c => ({ ...c, props: { ...c.props, isUnderline, _isUnderline: isUnderline, _N$isUnderline: isUnderline } }),
             `Label underline=${isUnderline} (${uuids.length}개)`,
           )
         }
@@ -1311,7 +1311,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, underlineHeight, _underlineHeight: underlineHeight } },
+            c => ({ ...c, props: { ...c.props, underlineHeight, _underlineHeight: underlineHeight } }),
             `Label underlineHeight=${underlineHeight} (${uuids.length}개)`,
           )
         }
@@ -1332,7 +1332,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, spacingX, _spacingX: spacingX } },
+            c => ({ ...c, props: { ...c.props, spacingX, _spacingX: spacingX } }),
             `Label spacingX=${spacingX} (${uuids.length}개)`,
           )
         }
@@ -1353,7 +1353,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, charSpacing, _charSpacing: charSpacing, _N$charSpacing: charSpacing } },
+            c => ({ ...c, props: { ...c.props, charSpacing, _charSpacing: charSpacing, _N$charSpacing: charSpacing } }),
             `Label charSpacing=${charSpacing} (${uuids.length}개)`,
           )
         }
@@ -1376,7 +1376,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } },
+            c => ({ ...c, props: { ...c.props, color: col, _color: col, _N$color: col } }),
             `Label color (${uuids.length}개)`,
           )
         }
@@ -1401,7 +1401,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } },
+            c => ({ ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } }),
             `Label V Align`,
           )
           const names = ['T','C','B']
@@ -1424,7 +1424,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } },
+            c => ({ ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } }),
             `Label H Align`,
           )
           const names = ['L','C','R']
@@ -1447,7 +1447,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } },
+            c => ({ ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } }),
             `Label Overflow`,
           )
           const names = ['None','Clamp','Shrink','Resize']
@@ -1470,7 +1470,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, fontFamily, _fontFamily: fontFamily, _N$fontFamily: fontFamily } },
+            c => ({ ...c, props: { ...c.props, fontFamily, _fontFamily: fontFamily, _N$fontFamily: fontFamily } }),
             `Label fontFamily=${fontFamily} (${uuids.length}개)`,
           )
         }
@@ -1492,7 +1492,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } },
+            c => ({ ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } }),
             `Label lineHeight=${lineHeight} (${uuids.length}개)`,
           )
         }
@@ -1512,7 +1512,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } },
+            c => ({ ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } }),
             `Label spacingY=${spacingY} (${uuids.length}개)`,
           )
         }
@@ -1532,7 +1532,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } },
+            c => ({ ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } }),
             `Label fontSize=${fontSize} (${uuids.length}개)`,
           )
         }
@@ -1568,7 +1568,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } },
+            c => ({ ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } }),
             `Label Overflow`,
           )
           const names: Record<number,string> = { 0:'None', 1:'Clamp', 2:'Shrink', 3:'Resize' }
@@ -1593,7 +1593,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, cacheMode, _cacheMode: cacheMode, _N$cacheMode: cacheMode } },
+            c => ({ ...c, props: { ...c.props, cacheMode, _cacheMode: cacheMode, _N$cacheMode: cacheMode } }),
             `Cache Mode`,
           )
           const names = ['None', 'Bitmap', 'Char']
@@ -1618,7 +1618,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, isSystemFontUsed, _isSystemFontUsed: isSystemFontUsed, _N$isSystemFontUsed: isSystemFontUsed } },
+            c => ({ ...c, props: { ...c.props, isSystemFontUsed, _isSystemFontUsed: isSystemFontUsed, _N$isSystemFontUsed: isSystemFontUsed } }),
             `Label isSystemFontUsed=${isSystemFontUsed} (${uuids.length}개)`,
           )
         }
@@ -1640,7 +1640,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, platformFont, _platformFont: platformFont, _N$platformFont: platformFont } },
+            c => ({ ...c, props: { ...c.props, platformFont, _platformFont: platformFont, _N$platformFont: platformFont } }),
             `Label platformFont="${platformFont}" (${uuids.length}개)`,
           )
         }
@@ -1660,7 +1660,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Label enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -1681,7 +1681,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, enableOutline, _enableOutline: enableOutline } },
+            c => ({ ...c, props: { ...c.props, enableOutline, _enableOutline: enableOutline } }),
             `Label enableOutline=${enableOutline} (${uuids.length}개)`,
           )
         }
@@ -1702,7 +1702,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, outlineWidth, _outlineWidth: outlineWidth } },
+            c => ({ ...c, props: { ...c.props, outlineWidth, _outlineWidth: outlineWidth } }),
             `Label outlineWidth=${outlineWidth} (${uuids.length}개)`,
           )
         }
@@ -1725,7 +1725,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const outlineColor = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, outlineColor, _outlineColor: outlineColor } },
+            c => ({ ...c, props: { ...c.props, outlineColor, _outlineColor: outlineColor } }),
             `Label outlineColor=${hex} (${uuids.length}개)`,
           )
         }
@@ -1778,7 +1778,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, enableShadow, _enableShadow: enableShadow } },
+            c => ({ ...c, props: { ...c.props, enableShadow, _enableShadow: enableShadow } }),
             `Label enableShadow=${enableShadow} (${uuids.length}개)`,
           )
         }
@@ -1801,7 +1801,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const shadowColor = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, shadowColor, _shadowColor: shadowColor } },
+            c => ({ ...c, props: { ...c.props, shadowColor, _shadowColor: shadowColor } }),
             `Label shadowColor=${hex} (${uuids.length}개)`,
           )
         }
@@ -1822,7 +1822,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, shadowBlur, _shadowBlur: shadowBlur } },
+            c => ({ ...c, props: { ...c.props, shadowBlur, _shadowBlur: shadowBlur } }),
             `Label shadowBlur=${shadowBlur} (${uuids.length}개)`,
           )
         }
@@ -1844,7 +1844,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const shadowOffset = { x, y }
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, shadowOffset, _shadowOffset: shadowOffset } },
+            c => ({ ...c, props: { ...c.props, shadowOffset, _shadowOffset: shadowOffset } }),
             `Label shadowOffset=(${x},${y}) (${uuids.length}개)`,
           )
         }
@@ -1867,7 +1867,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const colorObj = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, placeholderFontColor: colorObj, _placeholderFontColor: colorObj, _N$placeholderFontColor: colorObj } },
+            c => ({ ...c, props: { ...c.props, placeholderFontColor: colorObj, _placeholderFontColor: colorObj, _N$placeholderFontColor: colorObj } }),
             `EditBox placeholderFontColor=${hex} (${uuids.length}개)`,
           )
         }
@@ -1888,7 +1888,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, enableGradient, _enableGradient: enableGradient } },
+            c => ({ ...c, props: { ...c.props, enableGradient, _enableGradient: enableGradient } }),
             `Label enableGradient=${enableGradient} (${uuids.length}개)`,
           )
         }
@@ -1910,7 +1910,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const colorTop = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, colorTop, _colorTop: colorTop } },
+            c => ({ ...c, props: { ...c.props, colorTop, _colorTop: colorTop } }),
             `Label colorTop=${hex} (${uuids.length}개)`,
           )
         }
@@ -1933,7 +1933,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const colorBottom = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, colorBottom, _colorBottom: colorBottom } },
+            c => ({ ...c, props: { ...c.props, colorBottom, _colorBottom: colorBottom } }),
             `Label colorBottom=${hex} (${uuids.length}개)`,
           )
         }
@@ -1954,7 +1954,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Label',
-            c => { ...c, props: { ...c.props, enableDashLine, _enableDashLine: enableDashLine } },
+            c => ({ ...c, props: { ...c.props, enableDashLine, _enableDashLine: enableDashLine } }),
             `Label enableDashLine=${enableDashLine} (${uuids.length}개)`,
           )
         }
@@ -1974,7 +1974,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } },
+            c => ({ ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } }),
             `RichText lineHeight=${lineHeight} (${uuids.length}개)`,
           )
         }
@@ -1995,7 +1995,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, maxWidth: w, _maxWidth: w, _N$maxWidth: w } },
+            c => ({ ...c, props: { ...c.props, maxWidth: w, _maxWidth: w, _N$maxWidth: w } }),
             `Rich Max W`,
           ) // R2252: _maxWidth CC3.x
         }
@@ -2017,7 +2017,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } },
+            c => ({ ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } }),
             `Rich F S`,
           ) // R2252: _fontSize CC3.x
         }
@@ -2039,7 +2039,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } },
+            c => ({ ...c, props: { ...c.props, horizontalAlign, _horizontalAlign: horizontalAlign, _N$horizontalAlign: horizontalAlign } }),
             `Rich Align`,
           )
           const names = ['L', 'C', 'R']
@@ -2066,7 +2066,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } },
+            c => ({ ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } }),
             `RichText fontColor (${uuids.length}개)`,
           )
         }
@@ -2091,7 +2091,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `RichText enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -2112,7 +2112,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, imageLineHeight, _imageLineHeight: imageLineHeight, _N$imageLineHeight: imageLineHeight } },
+            c => ({ ...c, props: { ...c.props, imageLineHeight, _imageLineHeight: imageLineHeight, _N$imageLineHeight: imageLineHeight } }),
             `RichText imageLineHeight=${imageLineHeight} (${uuids.length}개)`,
           )
         }
@@ -2132,7 +2132,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } },
+            c => ({ ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } }),
             `RichText lineH=${lineHeight} (${uuids.length}개)`,
           )
         }
@@ -2154,7 +2154,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } },
+            c => ({ ...c, props: { ...c.props, verticalAlign, _verticalAlign: verticalAlign, _N$verticalAlign: verticalAlign } }),
             `Rich V Align`,
           )
           const names = ['Top', 'Ctr', 'Bot']
@@ -2177,7 +2177,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } },
+            c => ({ ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } }),
             `RichText fontSize=${fontSize} (${uuids.length}개)`,
           )
         }
@@ -2199,7 +2199,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } },
+            c => ({ ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } }),
             `RichText overflow=${overflow} (${uuids.length}개)`,
           )
         }
@@ -2220,7 +2220,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } },
+            c => ({ ...c, props: { ...c.props, lineHeight, _lineHeight: lineHeight, _N$lineHeight: lineHeight } }),
             `RichText lineHeight=${lineHeight} (${uuids.length}개)`,
           )
         }
@@ -2240,7 +2240,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, handleTouchEvent, _handleTouchEvent: handleTouchEvent } },
+            c => ({ ...c, props: { ...c.props, handleTouchEvent, _handleTouchEvent: handleTouchEvent } }),
             `RichText handleTouchEvent=${handleTouchEvent} (${uuids.length}개)`,
           )
         }
@@ -2262,7 +2262,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, maxWidth, _maxWidth: maxWidth, _N$maxWidth: maxWidth } },
+            c => ({ ...c, props: { ...c.props, maxWidth, _maxWidth: maxWidth, _N$maxWidth: maxWidth } }),
             `RichText maxWidth=${maxWidth} (${uuids.length}개)`,
           )
         }
@@ -2282,7 +2282,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight'),
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Light enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -2304,7 +2304,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight'),
-            c => { ...c, props: { ...c.props, intensity, _intensity: intensity } },
+            c => ({ ...c, props: { ...c.props, intensity, _intensity: intensity } }),
             `${lightType} intensity=${intensity} (${uuids.length}개)`,
           )
         }
@@ -2326,7 +2326,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const color = { r, g, b, a: 255 }
           await patchComponents(
             c => (c.type === 'cc.DirectionalLight' || c.type === 'cc.PointLight'),
-            c => { ...c, props: { ...c.props, color, _color: color } },
+            c => ({ ...c, props: { ...c.props, color, _color: color } }),
             `Light color=${hex} (${uuids.length}개)`,
           )
         }
@@ -2351,7 +2351,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, lineWidth, _lineWidth: lineWidth } },
+            c => ({ ...c, props: { ...c.props, lineWidth, _lineWidth: lineWidth } }),
             `Graphics lineWidth=${lineWidth} (${uuids.length}개)`,
           )
         }
@@ -2373,7 +2373,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const fillColor = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, fillColor, _fillColor: fillColor } },
+            c => ({ ...c, props: { ...c.props, fillColor, _fillColor: fillColor } }),
             `Graphics fillColor=${hex} (${uuids.length}개)`,
           )
         }
@@ -2400,7 +2400,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const strokeColor = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, strokeColor, _strokeColor: strokeColor } },
+            c => ({ ...c, props: { ...c.props, strokeColor, _strokeColor: strokeColor } }),
             `Graphics strokeColor=${hex} (${uuids.length}개)`,
           )
         }
@@ -2425,7 +2425,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, lineJoin, _lineJoin: lineJoin } },
+            c => ({ ...c, props: { ...c.props, lineJoin, _lineJoin: lineJoin } }),
             `Graphics lineJoin=${['miter','round','bevel'][lineJoin] ?? lineJoin} (${uuids.length}개)`,
           )
         }
@@ -2445,7 +2445,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, lineCap, _lineCap: lineCap } },
+            c => ({ ...c, props: { ...c.props, lineCap, _lineCap: lineCap } }),
             `Graphics lineCap=${['butt','round','square'][lineCap] ?? lineCap} (${uuids.length}개)`,
           )
         }
@@ -2465,7 +2465,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, miterLimit, _miterLimit: miterLimit } },
+            c => ({ ...c, props: { ...c.props, miterLimit, _miterLimit: miterLimit } }),
             `Graphics miterLimit=${miterLimit} (${uuids.length}개)`,
           )
         }
@@ -2485,7 +2485,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Graphics enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -2506,7 +2506,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, fillOpacity, _fillOpacity: fillOpacity } },
+            c => ({ ...c, props: { ...c.props, fillOpacity, _fillOpacity: fillOpacity } }),
             `Graphics fillOpacity=${fillOpacity} (${uuids.length}개)`,
           )
         }
@@ -2514,7 +2514,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Graphics',
-            c => { ...c, props: { ...c.props, strokeOpacity, _strokeOpacity: strokeOpacity } },
+            c => ({ ...c, props: { ...c.props, strokeOpacity, _strokeOpacity: strokeOpacity } }),
             `Graphics strokeOpacity=${strokeOpacity} (${uuids.length}개)`,
           )
         }
@@ -2543,7 +2543,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Widget enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -2563,7 +2563,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.UITransform',
-            c => { ...c, props: { ...c.props, priority, _priority: priority } },
+            c => ({ ...c, props: { ...c.props, priority, _priority: priority } }),
             `UITransform priority=${priority} (${uuids.length}개)`,
           )
         }
@@ -2604,7 +2604,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.UIOpacity',
-            c => { ...c, props: { ...c.props, opacity, _opacity: opacity } },
+            c => ({ ...c, props: { ...c.props, opacity, _opacity: opacity } }),
             `U I Opacity`,
           )
         }
@@ -2626,7 +2626,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.UIOpacity',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `UIOpacity enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -2647,7 +2647,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Toggle',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Toggle enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -2674,7 +2674,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 const checked = v === 'checked'
                 await patchComponents(
                   c => c.type === 'cc.Toggle',
-                  c => { ...c, props: { ...c.props, isChecked: checked, _isChecked: checked, _N$isChecked: checked } },
+                  c => ({ ...c, props: { ...c.props, isChecked: checked, _isChecked: checked, _N$isChecked: checked } }),
                   `Toggle ${v} (${uuids.length}개)`,
                 )
               }}
@@ -2689,7 +2689,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Toggle',
-            c => { ...c, props: { ...c.props, isChecked, _isChecked: isChecked } },
+            c => ({ ...c, props: { ...c.props, isChecked, _isChecked: isChecked } }),
             `Toggle isChecked=${isChecked} (${uuids.length}개)`,
           )
         }
@@ -2709,7 +2709,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Toggle',
-            c => { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } },
+            c => ({ ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } }),
             `Toggle Interact`,
           )
         }
@@ -2727,7 +2727,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ToggleContainer',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `ToggleContainer enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -2748,7 +2748,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ToggleContainer',
-            c => { ...c, props: { ...c.props, autoCheckToggle, _autoCheckToggle: autoCheckToggle } },
+            c => ({ ...c, props: { ...c.props, autoCheckToggle, _autoCheckToggle: autoCheckToggle } }),
             `ToggleContainer autoCheckToggle=${autoCheckToggle} (${uuids.length}개)`,
           )
         }
@@ -2768,7 +2768,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ToggleContainer',
-            c => { ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } },
+            c => ({ ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } }),
             `ToggleContainer allowSwitchOff=${allowSwitchOff} (${uuids.length}개)`,
           )
         }
@@ -2788,7 +2788,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, inputMode, _inputMode: inputMode } },
+            c => ({ ...c, props: { ...c.props, inputMode, _inputMode: inputMode } }),
             `Edit Box Mode`,
           )
         }
@@ -2810,7 +2810,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, maxLength, _maxLength: maxLength } },
+            c => ({ ...c, props: { ...c.props, maxLength, _maxLength: maxLength } }),
             `EditBox maxLength ${maxLength} (${uuids.length}개)`,
           )
         }
@@ -2832,7 +2832,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } },
+            c => ({ ...c, props: { ...c.props, fontSize, _fontSize: fontSize, _N$fontSize: fontSize } }),
             `EditBox fontSize=${fontSize} (${uuids.length}개)`,
           )
         }
@@ -2854,7 +2854,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `EditBox enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -2875,7 +2875,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, inputFlag, _inputFlag: inputFlag, _N$inputFlag: inputFlag } },
+            c => ({ ...c, props: { ...c.props, inputFlag, _inputFlag: inputFlag, _N$inputFlag: inputFlag } }),
             `EditBox inputFlag=${inputFlag} (${uuids.length}개)`,
           )
         }
@@ -2898,7 +2898,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, placeholderFontSize, _placeholderFontSize: placeholderFontSize, _N$placeholderFontSize: placeholderFontSize } },
+            c => ({ ...c, props: { ...c.props, placeholderFontSize, _placeholderFontSize: placeholderFontSize, _N$placeholderFontSize: placeholderFontSize } }),
             `EditBox placeholderFontSize=${placeholderFontSize} (${uuids.length}개)`,
           )
         }
@@ -2921,7 +2921,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const colorObj = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, fontColor: colorObj, _fontColor: colorObj, _N$fontColor: colorObj } },
+            c => ({ ...c, props: { ...c.props, fontColor: colorObj, _fontColor: colorObj, _N$fontColor: colorObj } }),
             `EditBox fontColor=${hex} (${uuids.length}개)`,
           )
         }
@@ -2942,7 +2942,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, lineCount, _lineCount: lineCount, _N$lineCount: lineCount } },
+            c => ({ ...c, props: { ...c.props, lineCount, _lineCount: lineCount, _N$lineCount: lineCount } }),
             `EditBox lineCount=${lineCount} (${uuids.length}개)`,
           )
         }
@@ -2962,7 +2962,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, maxLength, _maxLength: maxLength } },
+            c => ({ ...c, props: { ...c.props, maxLength, _maxLength: maxLength } }),
             `EditBox maxLength=${maxLength} (${uuids.length}개)`,
           )
         }
@@ -2982,7 +2982,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, tabIndex, _tabIndex: tabIndex } },
+            c => ({ ...c, props: { ...c.props, tabIndex, _tabIndex: tabIndex } }),
             `EditBox tabIndex=${tabIndex} (${uuids.length}개)`,
           )
         }
@@ -3002,7 +3002,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, inputMode, _inputMode: inputMode, _N$inputMode: inputMode } },
+            c => ({ ...c, props: { ...c.props, inputMode, _inputMode: inputMode, _N$inputMode: inputMode } }),
             `EditBox inputMode=${inputMode} (${uuids.length}개)`,
           )
         }
@@ -3025,7 +3025,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } },
+            c => ({ ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } }),
             `Edit Return Type`,
           )
           const names = ['Dflt', 'Done', 'Send', 'Srch', 'Go', 'Next']
@@ -3048,7 +3048,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, transition, _transition: transition } },
+            c => ({ ...c, props: { ...c.props, transition, _transition: transition } }),
             `Btn Transition`,
           )
           const names = ['None', 'Color', 'Sprite', 'Scale']
@@ -3073,7 +3073,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom, _N$zoomScale: zoom } },
+            c => ({ ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom, _N$zoomScale: zoom } }),
             `Btn Zoom`,
           )
         }
@@ -3095,7 +3095,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } },
+            c => ({ ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } }),
             `Button interactable=${interactable} (${uuids.length}개)`,
           )
         }
@@ -3115,7 +3115,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Button enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -3136,7 +3136,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, autoGrayEffect, _autoGrayEffect: autoGrayEffect, _N$autoGrayEffect: autoGrayEffect } },
+            c => ({ ...c, props: { ...c.props, autoGrayEffect, _autoGrayEffect: autoGrayEffect, _N$autoGrayEffect: autoGrayEffect } }),
             `Button autoGray=${autoGrayEffect} (${uuids.length}개)`,
           )
         }
@@ -3160,7 +3160,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, normalColor: col, _normalColor: col, _N$normalColor: col } },
+            c => ({ ...c, props: { ...c.props, normalColor: col, _normalColor: col, _N$normalColor: col } }),
             `Button normalColor (${uuids.length}개)`,
           )
         }
@@ -3187,7 +3187,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, pressedColor: col, _pressedColor: col, _N$pressedColor: col } },
+            c => ({ ...c, props: { ...c.props, pressedColor: col, _pressedColor: col, _N$pressedColor: col } }),
             `Button pressedColor (${uuids.length}개)`,
           )
         }
@@ -3214,7 +3214,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 200 }
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, disabledColor: col, _disabledColor: col, _N$disabledColor: col } },
+            c => ({ ...c, props: { ...c.props, disabledColor: col, _disabledColor: col, _N$disabledColor: col } }),
             `Button disabledColor (${uuids.length}개)`,
           )
         }
@@ -3240,7 +3240,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, hoverColor: { r, g, b, a: 255 }, _hoverColor: { r, g, b, a: 255 }, _N$hoverColor: { r, g, b, a: 255 } } },
+            c => ({ ...c, props: { ...c.props, hoverColor: { r, g, b, a: 255 }, _hoverColor: { r, g, b, a: 255 }, _N$hoverColor: { r, g, b, a: 255 } } }),
             `Button hoverColor=${hex} (${uuids.length}개)`,
           )
         }
@@ -3265,7 +3265,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, duration, _duration: duration } },
+            c => ({ ...c, props: { ...c.props, duration, _duration: duration } }),
             `Button duration=${duration}s (${uuids.length}개)`,
           )
         }
@@ -3293,7 +3293,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 const interact = v === 'on'
                 await patchComponents(
                   c => c.type === 'cc.Button',
-                  c => { ...c, props: { ...c.props, interactable: interact, _interactable: interact, _N$interactable: interact } },
+                  c => ({ ...c, props: { ...c.props, interactable: interact, _interactable: interact, _N$interactable: interact } }),
                   `Button ${v === 'on' ? '활성' : '비활성'} (${uuids.length}개)`,
                 )
               }}
@@ -3308,7 +3308,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `AudioSource enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -3333,7 +3333,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               if (!sceneFile.root) return
               await patchComponents(
                 c => c.type === 'cc.AudioSource',
-                c => { ...c, props: { ...c.props, volume: vol, _volume: vol, _N$volume: vol } },
+                c => ({ ...c, props: { ...c.props, volume: vol, _volume: vol, _N$volume: vol } }),
                 `volume ${Math.round(vol * 100)}% (${uuids.length}개)`,
               )
             }}
@@ -3347,7 +3347,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.LabelOutline',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `LabelOutline enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -3368,7 +3368,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.LabelShadow',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `LabelShadow enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -3389,7 +3389,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.LabelShadow',
-            c => { ...c, props: { ...c.props, blur, _blur: blur } },
+            c => ({ ...c, props: { ...c.props, blur, _blur: blur } }),
             `LabelShadow blur=${blur} (${uuids.length}개)`,
           )
         }
@@ -3411,7 +3411,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.LabelOutline',
-            c => { ...c, props: { ...c.props, width, _width: width, _N$width: width } },
+            c => ({ ...c, props: { ...c.props, width, _width: width, _N$width: width } }),
             `LabelOutline w=${width} (${uuids.length}개)`,
           )
         }
@@ -3439,7 +3439,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               const col = { r, g, b, a: 255 }
               await patchComponents(
                 c => c.type === 'cc.LabelOutline',
-                c => { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } },
+                c => ({ ...c, props: { ...c.props, color: col, _color: col, _N$color: col } }),
                 `O L Color`,
               )
             }}
@@ -3454,7 +3454,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.LabelOutline',
-            c => { ...c, props: { ...c.props, width, _width: width, _N$width: width } },
+            c => ({ ...c, props: { ...c.props, width, _width: width, _N$width: width } }),
             `LabelOutline width=${width} (${uuids.length}개)`,
           )
         }
@@ -3482,7 +3482,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               const col = { r, g, b, a: 255 }
               await patchComponents(
                 c => c.type === 'cc.LabelShadow',
-                c => { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } },
+                c => ({ ...c, props: { ...c.props, color: col, _color: col, _N$color: col } }),
                 `Shadow Color`,
               )
             }}
@@ -3497,7 +3497,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.LabelShadow',
-            c => { ...c, props: { ...c.props, blur, _blur: blur, _N$blur: blur } },
+            c => ({ ...c, props: { ...c.props, blur, _blur: blur, _N$blur: blur } }),
             `LabelShadow blur=${blur} (${uuids.length}개)`,
           )
         }
@@ -3520,7 +3520,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const offset = { x, y }
           await patchComponents(
             c => c.type === 'cc.LabelShadow',
-            c => { ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } },
+            c => ({ ...c, props: { ...c.props, offset, _offset: offset, _N$offset: offset } }),
             `LabelShadow offset=(${x},${y}) (${uuids.length}개)`,
           )
         }
@@ -3542,7 +3542,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } },
+            c => ({ ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } }),
             `ScrollView ${key}=${value} (${uuids.length}개)`,
           )
         }
@@ -3564,7 +3564,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } },
+            c => ({ ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } }),
             `ScrollView brake=${brake} (${uuids.length}개)`,
           )
         }
@@ -3586,7 +3586,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, elastic, _elastic: elastic, _N$elastic: elastic } },
+            c => ({ ...c, props: { ...c.props, elastic, _elastic: elastic, _N$elastic: elastic } }),
             `ScrollView elastic=${elastic} (${uuids.length}개)`,
           )
         }
@@ -3608,7 +3608,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, elasticDuration, _elasticDuration: elasticDuration, _N$elasticDuration: elasticDuration } },
+            c => ({ ...c, props: { ...c.props, elasticDuration, _elasticDuration: elasticDuration, _N$elasticDuration: elasticDuration } }),
             `ScrollView elasticDuration=${elasticDuration} (${uuids.length}개)`,
           )
         }
@@ -3630,7 +3630,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, bounceDuration, _bounceDuration: bounceDuration, _N$bounceDuration: bounceDuration } },
+            c => ({ ...c, props: { ...c.props, bounceDuration, _bounceDuration: bounceDuration, _N$bounceDuration: bounceDuration } }),
             `ScrollView bounceDur=${bounceDuration}s (${uuids.length}개)`,
           )
         }
@@ -3652,7 +3652,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, scrollDuration, _scrollDuration: scrollDuration, _N$scrollDuration: scrollDuration } },
+            c => ({ ...c, props: { ...c.props, scrollDuration, _scrollDuration: scrollDuration, _N$scrollDuration: scrollDuration } }),
             `ScrollView scrollDuration=${scrollDuration}s (${uuids.length}개)`,
           )
         }
@@ -3672,7 +3672,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, mouseWheelScrollSensitivity, _mouseWheelScrollSensitivity: mouseWheelScrollSensitivity, _N$mouseWheelScrollSensitivity: mouseWheelScrollSensitivity } },
+            c => ({ ...c, props: { ...c.props, mouseWheelScrollSensitivity, _mouseWheelScrollSensitivity: mouseWheelScrollSensitivity, _N$mouseWheelScrollSensitivity: mouseWheelScrollSensitivity } }),
             `ScrollView mouseWheelSens=${mouseWheelScrollSensitivity} (${uuids.length}개)`,
           )
         }
@@ -3692,7 +3692,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `ScrollView enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -3713,7 +3713,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, hideScrollBar, _hideScrollBar: hideScrollBar, _N$hideScrollBar: hideScrollBar } },
+            c => ({ ...c, props: { ...c.props, hideScrollBar, _hideScrollBar: hideScrollBar, _N$hideScrollBar: hideScrollBar } }),
             `ScrollView hideScrollBar=${hideScrollBar} (${uuids.length}개)`,
           )
         }
@@ -3733,7 +3733,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Scrollbar',
-            c => { ...c, props: { ...c.props, enableAutoHide, _enableAutoHide: enableAutoHide, _N$enableAutoHide: enableAutoHide } },
+            c => ({ ...c, props: { ...c.props, enableAutoHide, _enableAutoHide: enableAutoHide, _N$enableAutoHide: enableAutoHide } }),
             `Scrollbar enableAutoHide=${enableAutoHide} (${uuids.length}개)`,
           )
         }
@@ -3741,7 +3741,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Scrollbar',
-            c => { ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } },
+            c => ({ ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } }),
             `Scrollbar autoHideTime=${autoHideTime} (${uuids.length}개)`,
           )
         }
@@ -3770,7 +3770,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Scrollbar',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Scrollbar enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -3791,7 +3791,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Scrollbar',
-            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            c => ({ ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } }),
             `Scrollbar direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`,
           )
         }
@@ -3811,7 +3811,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, bounceTime, _bounceTime: bounceTime, _N$bounceTime: bounceTime } },
+            c => ({ ...c, props: { ...c.props, bounceTime, _bounceTime: bounceTime, _N$bounceTime: bounceTime } }),
             `ScrollView bounceTime=${bounceTime} (${uuids.length}개)`,
           )
         }
@@ -3831,7 +3831,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, bounce, _bounce: bounce, _N$bounce: bounce } },
+            c => ({ ...c, props: { ...c.props, bounce, _bounce: bounce, _N$bounce: bounce } }),
             `ScrollView bounce=${bounce} (${uuids.length}개)`,
           )
         }
@@ -3853,7 +3853,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, inertia, _inertia: inertia } },
+            c => ({ ...c, props: { ...c.props, inertia, _inertia: inertia } }),
             `ScrollView inertia=${inertia} (${uuids.length}개)`,
           )
         }
@@ -3873,7 +3873,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, horizontal, _horizontal: horizontal, _N$horizontal: horizontal } },
+            c => ({ ...c, props: { ...c.props, horizontal, _horizontal: horizontal, _N$horizontal: horizontal } }),
             `ScrollView horizontal=${horizontal} (${uuids.length}개)`,
           )
         }
@@ -3893,7 +3893,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, vertical, _vertical: vertical, _N$vertical: vertical } },
+            c => ({ ...c, props: { ...c.props, vertical, _vertical: vertical, _N$vertical: vertical } }),
             `ScrollView vertical=${vertical} (${uuids.length}개)`,
           )
         }
@@ -3913,7 +3913,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, cancelInnerEvents, _cancelInnerEvents: cancelInnerEvents, _N$cancelInnerEvents: cancelInnerEvents } },
+            c => ({ ...c, props: { ...c.props, cancelInnerEvents, _cancelInnerEvents: cancelInnerEvents, _N$cancelInnerEvents: cancelInnerEvents } }),
             `ScrollView cancelInnerEvents=${cancelInnerEvents} (${uuids.length}개)`,
           )
         }
@@ -3933,7 +3933,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, pagingEnabled, _pagingEnabled: pagingEnabled, _N$pagingEnabled: pagingEnabled } },
+            c => ({ ...c, props: { ...c.props, pagingEnabled, _pagingEnabled: pagingEnabled, _N$pagingEnabled: pagingEnabled } }),
             `ScrollView paging=${pagingEnabled} (${uuids.length}개)`,
           )
         }
@@ -3953,7 +3953,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, speedAmplifier, _speedAmplifier: speedAmplifier, _N$speedAmplifier: speedAmplifier } },
+            c => ({ ...c, props: { ...c.props, speedAmplifier, _speedAmplifier: speedAmplifier, _N$speedAmplifier: speedAmplifier } }),
             `ScrollView speedAmplifier=${speedAmplifier} (${uuids.length}개)`,
           )
         }
@@ -3973,7 +3973,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, pageTurningSpeed, _pageTurningSpeed: pageTurningSpeed, _N$pageTurningSpeed: pageTurningSpeed } },
+            c => ({ ...c, props: { ...c.props, pageTurningSpeed, _pageTurningSpeed: pageTurningSpeed, _N$pageTurningSpeed: pageTurningSpeed } }),
             `PageView pageTurningSpeed=${pageTurningSpeed} (${uuids.length}개)`,
           )
         }
@@ -3995,7 +3995,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `PageView enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -4016,7 +4016,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, effectType, _effectType: effectType, _N$effectType: effectType } },
+            c => ({ ...c, props: { ...c.props, effectType, _effectType: effectType, _N$effectType: effectType } }),
             `PageView effectType=${['NONE','SCROLL','FADE'][effectType] ?? effectType} (${uuids.length}개)`,
           )
         }
@@ -4036,7 +4036,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            c => ({ ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } }),
             `PageView direction=${direction} (${uuids.length}개)`,
           )
         }
@@ -4059,7 +4059,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } },
+            c => ({ ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } }),
             `PageView bounce=${v} (${uuids.length}개)`,
           )
         }
@@ -4081,7 +4081,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, autoPageTurningThreshold: threshold, _autoPageTurningThreshold: threshold, _N$autoPageTurningThreshold: threshold } },
+            c => ({ ...c, props: { ...c.props, autoPageTurningThreshold: threshold, _autoPageTurningThreshold: threshold, _N$autoPageTurningThreshold: threshold } }),
             `PageView autoPageTurningThreshold=${threshold} (${uuids.length}개)`,
           )
         }
@@ -4101,7 +4101,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, scrollThreshold: threshold, _scrollThreshold: threshold, _N$scrollThreshold: threshold } },
+            c => ({ ...c, props: { ...c.props, scrollThreshold: threshold, _scrollThreshold: threshold, _N$scrollThreshold: threshold } }),
             `PageView scrollThresh=${threshold} (${uuids.length}개)`,
           )
         }
@@ -4123,7 +4123,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, autoPlay, _autoPlay: autoPlay } },
+            c => ({ ...c, props: { ...c.props, autoPlay, _autoPlay: autoPlay } }),
             `PageView autoPlay=${autoPlay} (${uuids.length}개)`,
           )
         }
@@ -4144,7 +4144,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, autoPageTurningInterval: interval, _autoPageTurningInterval: interval, _N$autoPageTurningInterval: interval } },
+            c => ({ ...c, props: { ...c.props, autoPageTurningInterval: interval, _autoPageTurningInterval: interval, _N$autoPageTurningInterval: interval } }),
             `PageView autoInterval=${interval}s (${uuids.length}개)`,
           )
         }
@@ -4166,7 +4166,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, pageTurningEventTiming, _pageTurningEventTiming: pageTurningEventTiming, _N$pageTurningEventTiming: pageTurningEventTiming } },
+            c => ({ ...c, props: { ...c.props, pageTurningEventTiming, _pageTurningEventTiming: pageTurningEventTiming, _N$pageTurningEventTiming: pageTurningEventTiming } }),
             `PageView eventTiming=${pageTurningEventTiming} (${uuids.length}개)`,
           )
         }
@@ -4186,7 +4186,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, slideDuration: dur, _slideDuration: dur, _N$slideDuration: dur } },
+            c => ({ ...c, props: { ...c.props, slideDuration: dur, _slideDuration: dur, _N$slideDuration: dur } }),
             `PageView slideDur ${dur}s (${uuids.length}개)`,
           )
         }
@@ -4208,7 +4208,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            c => ({ ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } }),
             `PageView dir=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`,
           )
         }
@@ -4236,7 +4236,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 if (!sceneFile.root) return
                 await patchComponents(
                   c => c.type === 'cc.AudioSource',
-                  c => { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } },
+                  c => ({ ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } }),
                   `${key} ${val} (${uuids.length}개)`,
                 )
               }}
@@ -4259,7 +4259,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 if (!sceneFile.root) return
                 await patchComponents(
                   c => c.type === 'cc.Animation',
-                  c => { ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } },
+                  c => ({ ...c, props: { ...c.props, [key]: val, [`_${key}`]: val, [`_N$${key}`]: val } }),
                   `Animation ${key} ${val} (${uuids.length}개)`,
                 )
               }}
@@ -4274,7 +4274,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Animation',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Animation enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -4295,7 +4295,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Animation',
-            c => { ...c, props: { ...c.props, sample, _sample: sample, _N$sample: sample } },
+            c => ({ ...c, props: { ...c.props, sample, _sample: sample, _N$sample: sample } }),
             `Animation sample=${sample} (${uuids.length}개)`,
           )
         }
@@ -4315,7 +4315,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Animation',
-            c => { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } },
+            c => ({ ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } }),
             `Animation speed=${speed}x (${uuids.length}개)`,
           )
         }
@@ -4335,7 +4335,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Animation',
-            c => { ...c, props: { ...c.props, defaultClipSettings: { ...(c.props.defaultClipSettings as object ?? {}), wrapMode } } },
+            c => ({ ...c, props: { ...c.props, defaultClipSettings: { ...(c.props.defaultClipSettings as object ?? {}), wrapMode } } }),
             `Anim Wrap Mode`,
           )
           const names: Record<number, string> = { 0: 'Default', 1: 'Normal', 2: 'Loop', 3: 'PingPong', 4: 'Reverse', 5: 'LoopRev' }
@@ -4358,7 +4358,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.WebView',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `WebView enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -4379,7 +4379,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `VideoPlayer enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -4400,7 +4400,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } },
+            c => ({ ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } }),
             `VideoPlayer ${key}=${value} (${uuids.length}개)`,
           )
         }
@@ -4420,7 +4420,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, playbackRate: rate, _playbackRate: rate, _N$playbackRate: rate } },
+            c => ({ ...c, props: { ...c.props, playbackRate: rate, _playbackRate: rate, _N$playbackRate: rate } }),
             `VideoPlayer ×${rate} (${uuids.length}개)`,
           )
         }
@@ -4442,7 +4442,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, fullScreenEnabled, _fullScreenEnabled: fullScreenEnabled, _N$fullScreenEnabled: fullScreenEnabled } },
+            c => ({ ...c, props: { ...c.props, fullScreenEnabled, _fullScreenEnabled: fullScreenEnabled, _N$fullScreenEnabled: fullScreenEnabled } }),
             `VideoPlayer fullscreen=${fullScreenEnabled} (${uuids.length}개)`,
           )
         }
@@ -4462,7 +4462,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } },
+            c => ({ ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } }),
             `VideoPlayer volume=${volume} (${uuids.length}개)`,
           )
         }
@@ -4484,7 +4484,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio } },
+            c => ({ ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio } }),
             `VideoPlayer keepAspectRatio=${keepAspectRatio} (${uuids.length}개)`,
           )
         }
@@ -4505,7 +4505,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, muted, _muted: muted } },
+            c => ({ ...c, props: { ...c.props, muted, _muted: muted } }),
             `VideoPlayer muted=${muted} (${uuids.length}개)`,
           )
         }
@@ -4525,7 +4525,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, resourceType, _resourceType: resourceType, _N$resourceType: resourceType } },
+            c => ({ ...c, props: { ...c.props, resourceType, _resourceType: resourceType, _N$resourceType: resourceType } }),
             `Video Res Type`,
           )
           const names = ['Local','Remote']
@@ -4548,7 +4548,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio, _N$keepAspectRatio: keepAspectRatio } },
+            c => ({ ...c, props: { ...c.props, keepAspectRatio, _keepAspectRatio: keepAspectRatio, _N$keepAspectRatio: keepAspectRatio } }),
             `VideoPlayer keepAspect=${keepAspectRatio} (${uuids.length}개)`,
           )
         }
@@ -4568,7 +4568,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.VideoPlayer',
-            c => { ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } },
+            c => ({ ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } }),
             `VideoPlayer startTime=${startTime}s (${uuids.length}개)`,
           )
         }
@@ -4590,7 +4590,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, fastMode, _fastMode: fastMode } },
+            c => ({ ...c, props: { ...c.props, fastMode, _fastMode: fastMode } }),
             `MotionStreak fastMode=${fastMode} (${uuids.length}개)`,
           )
         }
@@ -4611,7 +4611,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 }, _N$color: { r, g, b, a: 255 } } },
+            c => ({ ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 }, _N$color: { r, g, b, a: 255 } } }),
             `MotionStreak color=${hex} (${uuids.length}개)`,
           )
         }
@@ -4636,7 +4636,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } },
+            c => ({ ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } }),
             `MotionStreak stroke=${stroke} (${uuids.length}개)`,
           )
         }
@@ -4658,7 +4658,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } },
+            c => ({ ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } }),
             `MotionStreak fade=${fade} (${uuids.length}개)`,
           )
         }
@@ -4680,7 +4680,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } },
+            c => ({ ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } }),
             `MotionStreak minSeg=${minSeg} (${uuids.length}개)`,
           )
         }
@@ -4700,7 +4700,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `MotionStreak enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -4721,7 +4721,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, timeToLive: time, _timeToLive: time } },
+            c => ({ ...c, props: { ...c.props, timeToLive: time, _timeToLive: time } }),
             `MotionStreak timeToLive=${time} (${uuids.length}개)`,
           )
         }
@@ -4742,7 +4742,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, speedThreshold, _speedThreshold: speedThreshold, _N$speedThreshold: speedThreshold } },
+            c => ({ ...c, props: { ...c.props, speedThreshold, _speedThreshold: speedThreshold, _N$speedThreshold: speedThreshold } }),
             `MotionStreak speedThreshold=${speedThreshold} (${uuids.length}개)`,
           )
         }
@@ -4762,7 +4762,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } },
+            c => ({ ...c, props: { ...c.props, stroke, _stroke: stroke, _N$stroke: stroke } }),
             `MotionStreak stroke=${stroke} (${uuids.length}개)`,
           )
         }
@@ -4784,7 +4784,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } },
+            c => ({ ...c, props: { ...c.props, fade, _fade: fade, _N$fade: fade } }),
             `MotionStreak fade=${fade} (${uuids.length}개)`,
           )
         }
@@ -4806,7 +4806,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } },
+            c => ({ ...c, props: { ...c.props, minSeg, _minSeg: minSeg, _N$minSeg: minSeg } }),
             `MotionStreak minSeg ${minSeg} (${uuids.length}개)`,
           )
         }
@@ -4830,7 +4830,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.MotionStreak',
-            c => { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } },
+            c => ({ ...c, props: { ...c.props, color: col, _color: col, _N$color: col } }),
             `MotionStreak color (${uuids.length}개)`,
           )
         }
@@ -4855,7 +4855,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'dragonBones.ArmatureDisplay',
-            c => { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } },
+            c => ({ ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } }),
             `DragonBones ×${timeScale} (${uuids.length}개)`,
           )
         }
@@ -4877,7 +4877,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'dragonBones.ArmatureDisplay',
-            c => { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad, _N$playOnLoad: playOnLoad } },
+            c => ({ ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad, _N$playOnLoad: playOnLoad } }),
             `DragonBones playOnLoad=${playOnLoad} (${uuids.length}개)`,
           )
         }
@@ -4899,7 +4899,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'dragonBones.ArmatureDisplay',
-            c => { ...c, props: { ...c.props, playTimes, _playTimes: playTimes, _N$playTimes: playTimes } },
+            c => ({ ...c, props: { ...c.props, playTimes, _playTimes: playTimes, _N$playTimes: playTimes } }),
             `D B Play Times`,
           )
           const label = playTimes === -1 ? '∞' : `${playTimes}x`
@@ -4922,7 +4922,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'dragonBones.ArmatureDisplay',
-            c => { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } },
+            c => ({ ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } }),
             `DragonBones loop=${loop} (${uuids.length}개)`,
           )
         }
@@ -4942,7 +4942,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'dragonBones.ArmatureDisplay',
-            c => { ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } },
+            c => ({ ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } }),
             `DragonBones debugBones=${debugBones} (${uuids.length}개)`,
           )
         }
@@ -4962,7 +4962,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'dragonBones.ArmatureDisplay',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `dragonBones.ArmatureDisplay enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -4983,7 +4983,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'dragonBones.ArmatureDisplay',
-            c => { ...c, props: { ...c.props, blendMode, _blendMode: blendMode } },
+            c => ({ ...c, props: { ...c.props, blendMode, _blendMode: blendMode } }),
             `DragonBones blendMode=${['NORM','ADD','MULT'][blendMode] ?? blendMode} (${uuids.length}개)`,
           )
         }
@@ -5003,7 +5003,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } },
+            c => ({ ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } }),
             `Spine ×${timeScale} (${uuids.length}개)`,
           )
         }
@@ -5025,7 +5025,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } },
+            c => ({ ...c, props: { ...c.props, loop, _loop: loop, _N$loop: loop } }),
             `Spine loop=${loop} (${uuids.length}개)`,
           )
         }
@@ -5047,7 +5047,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } },
+            c => ({ ...c, props: { ...c.props, timeScale, _timeScale: timeScale, _N$timeScale: timeScale } }),
             `Skeleton timeScale=${timeScale}x (${uuids.length}개)`,
           )
         }
@@ -5067,7 +5067,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, premultipliedAlpha, _premultipliedAlpha: premultipliedAlpha, _N$premultipliedAlpha: premultipliedAlpha } },
+            c => ({ ...c, props: { ...c.props, premultipliedAlpha, _premultipliedAlpha: premultipliedAlpha, _N$premultipliedAlpha: premultipliedAlpha } }),
             `Spine premultAlpha=${premultipliedAlpha} (${uuids.length}개)`,
           )
         }
@@ -5087,7 +5087,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, paused, _paused: paused, _N$paused: paused } },
+            c => ({ ...c, props: { ...c.props, paused, _paused: paused, _N$paused: paused } }),
             `Spine paused=${paused} (${uuids.length}개)`,
           )
         }
@@ -5107,7 +5107,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } },
+            c => ({ ...c, props: { ...c.props, debugBones, _debugBones: debugBones, _N$debugBones: debugBones } }),
             `Spine debugBones=${debugBones} (${uuids.length}개)`,
           )
         }
@@ -5127,7 +5127,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, debugSlots, _debugSlots: debugSlots, _N$debugSlots: debugSlots } },
+            c => ({ ...c, props: { ...c.props, debugSlots, _debugSlots: debugSlots, _N$debugSlots: debugSlots } }),
             `Spine debugSlots=${debugSlots} (${uuids.length}개)`,
           )
         }
@@ -5147,7 +5147,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, useTint, _useTint: useTint, _N$useTint: useTint } },
+            c => ({ ...c, props: { ...c.props, useTint, _useTint: useTint, _N$useTint: useTint } }),
             `Spine useTint=${useTint} (${uuids.length}개)`,
           )
         }
@@ -5167,7 +5167,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `ParticleSystem enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -5188,7 +5188,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `sp.Skeleton enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -5209,7 +5209,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'sp.Skeleton',
-            c => { ...c, props: { ...c.props, enableBatch, _enableBatch: enableBatch, _N$enableBatch: enableBatch } },
+            c => ({ ...c, props: { ...c.props, enableBatch, _enableBatch: enableBatch, _N$enableBatch: enableBatch } }),
             `Spine enableBatch=${enableBatch} (${uuids.length}개)`,
           )
         }
@@ -5229,7 +5229,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), x }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), x } } },
+            c => ({ ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), x }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), x } } }),
             `ParticleSystem sourcePos.x=${x} (${uuids.length}개)`,
           )
         }
@@ -5250,7 +5250,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), y }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), y } } },
+            c => ({ ...c, props: { ...c.props, sourcePos: { ...(c.props.sourcePos || { x: 0, y: 0 }), y }, _sourcePos: { ...(c.props._sourcePos || { x: 0, y: 0 }), y } } }),
             `ParticleSystem sourcePos.y=${y} (${uuids.length}개)`,
           )
         }
@@ -5294,7 +5294,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, emitterMode, _emitterMode: emitterMode, _N$emitterMode: emitterMode } },
+            c => ({ ...c, props: { ...c.props, emitterMode, _emitterMode: emitterMode, _N$emitterMode: emitterMode } }),
             `P S Emitter Mode`,
           )
           const names = ['Gravity', 'Radius']
@@ -5317,7 +5317,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, autoRemoveOnFinish, _autoRemoveOnFinish: autoRemoveOnFinish } },
+            c => ({ ...c, props: { ...c.props, autoRemoveOnFinish, _autoRemoveOnFinish: autoRemoveOnFinish } }),
             `PS autoRemove=${autoRemoveOnFinish} (${uuids.length}개)`,
           )
         }
@@ -5337,7 +5337,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } },
+            c => ({ ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } }),
             `PS blend=${label} (${uuids.length}개)`,
           )
         }
@@ -5359,7 +5359,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, positionType, _positionType: positionType, _N$positionType: positionType } },
+            c => ({ ...c, props: { ...c.props, positionType, _positionType: positionType, _N$positionType: positionType } }),
             `P S Pos Type`,
           )
           const names = ['Free', 'Relative', 'Group']
@@ -5382,7 +5382,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } },
+            c => ({ ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } }),
             `Particle startSize ${startSize} (${uuids.length}개)`,
           )
         }
@@ -5404,7 +5404,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, emissionRate: rate, _emissionRate: rate, _N$emissionRate: rate } },
+            c => ({ ...c, props: { ...c.props, emissionRate: rate, _emissionRate: rate, _N$emissionRate: rate } }),
             `Particle emitRate ${rate} (${uuids.length}개)`,
           )
         }
@@ -5426,7 +5426,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, maxParticles: max, _maxParticles: max, _N$maxParticles: max, totalParticles: max, _totalParticles: max, _N$totalParticles: max } },
+            c => ({ ...c, props: { ...c.props, maxParticles: max, _maxParticles: max, _N$maxParticles: max, totalParticles: max, _totalParticles: max, _N$totalParticles: max } }),
             `Particle maxParticles ${max} (${uuids.length}개)`,
           )
         }
@@ -5448,7 +5448,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } },
+            c => ({ ...c, props: { ...c.props, duration: dur, _duration: dur, _N$duration: dur } }),
             `Particle duration ${dur < 0 ? '∞' : `${dur}s`} (${uuids.length}개)`,
           )
         }
@@ -5470,7 +5470,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } },
+            c => ({ ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } }),
             `Particle Speed`,
           )
         }
@@ -5492,7 +5492,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, angleVar, _angleVar: angleVar, _N$angleVar: angleVar } },
+            c => ({ ...c, props: { ...c.props, angleVar, _angleVar: angleVar, _N$angleVar: angleVar } }),
             `PS angleVar=${angleVar} (${uuids.length}개)`,
           )
         }
@@ -5512,7 +5512,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } },
+            c => ({ ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } }),
             `Particle Angle`,
           )
         }
@@ -5534,7 +5534,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, maxParticles, _maxParticles: maxParticles, _N$maxParticles: maxParticles } },
+            c => ({ ...c, props: { ...c.props, maxParticles, _maxParticles: maxParticles, _N$maxParticles: maxParticles } }),
             `ParticleSystem maxParticles ${maxParticles} (${uuids.length}개)`,
           )
         }
@@ -5556,7 +5556,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, emissionRate, _emissionRate: emissionRate, _N$emissionRate: emissionRate } },
+            c => ({ ...c, props: { ...c.props, emissionRate, _emissionRate: emissionRate, _N$emissionRate: emissionRate } }),
             `ParticleSystem emissionRate=${emissionRate} (${uuids.length}개)`,
           )
         }
@@ -5578,7 +5578,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } },
+            c => ({ ...c, props: { ...c.props, angle, _angle: angle, _N$angle: angle } }),
             `PS angle=${angle}° (${uuids.length}개)`,
           )
         }
@@ -5598,7 +5598,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endSpin, _endSpin: endSpin, _N$endSpin: endSpin } },
+            c => ({ ...c, props: { ...c.props, endSpin, _endSpin: endSpin, _N$endSpin: endSpin } }),
             `PS endSpin=${endSpin}° (${uuids.length}개)`,
           )
         }
@@ -5618,7 +5618,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endSizeVar, _endSizeVar: endSizeVar, _N$endSizeVar: endSizeVar } },
+            c => ({ ...c, props: { ...c.props, endSizeVar, _endSizeVar: endSizeVar, _N$endSizeVar: endSizeVar } }),
             `PS endSizeVar=${endSizeVar} (${uuids.length}개)`,
           )
         }
@@ -5638,7 +5638,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endSpinVar, _endSpinVar: endSpinVar, _N$endSpinVar: endSpinVar } },
+            c => ({ ...c, props: { ...c.props, endSpinVar, _endSpinVar: endSpinVar, _N$endSpinVar: endSpinVar } }),
             `PS endSpinVar=${endSpinVar}° (${uuids.length}개)`,
           )
         }
@@ -5658,7 +5658,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startSpinVar, _startSpinVar: startSpinVar, _N$startSpinVar: startSpinVar } },
+            c => ({ ...c, props: { ...c.props, startSpinVar, _startSpinVar: startSpinVar, _N$startSpinVar: startSpinVar } }),
             `PS startSpinVar=${startSpinVar}° (${uuids.length}개)`,
           )
         }
@@ -5678,7 +5678,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startSpin, _startSpin: startSpin, _N$startSpin: startSpin } },
+            c => ({ ...c, props: { ...c.props, startSpin, _startSpin: startSpin, _N$startSpin: startSpin } }),
             `PS startSpin=${startSpin}° (${uuids.length}개)`,
           )
         }
@@ -5698,7 +5698,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, tangentialAccelVar, _tangentialAccelVar: tangentialAccelVar, _N$tangentialAccelVar: tangentialAccelVar } },
+            c => ({ ...c, props: { ...c.props, tangentialAccelVar, _tangentialAccelVar: tangentialAccelVar, _N$tangentialAccelVar: tangentialAccelVar } }),
             `PS tangentialAccelVar=${tangentialAccelVar} (${uuids.length}개)`,
           )
         }
@@ -5718,7 +5718,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, tangentialAccel, _tangentialAccel: tangentialAccel, _N$tangentialAccel: tangentialAccel } },
+            c => ({ ...c, props: { ...c.props, tangentialAccel, _tangentialAccel: tangentialAccel, _N$tangentialAccel: tangentialAccel } }),
             `PS tangentialAccel=${tangentialAccel} (${uuids.length}개)`,
           )
         }
@@ -5738,7 +5738,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, radialAccelVar, _radialAccelVar: radialAccelVar, _N$radialAccelVar: radialAccelVar } },
+            c => ({ ...c, props: { ...c.props, radialAccelVar, _radialAccelVar: radialAccelVar, _N$radialAccelVar: radialAccelVar } }),
             `PS radialAccelVar=${radialAccelVar} (${uuids.length}개)`,
           )
         }
@@ -5758,7 +5758,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, radialAccel, _radialAccel: radialAccel, _N$radialAccel: radialAccel } },
+            c => ({ ...c, props: { ...c.props, radialAccel, _radialAccel: radialAccel, _N$radialAccel: radialAccel } }),
             `PS radialAccel=${radialAccel} (${uuids.length}개)`,
           )
         }
@@ -5778,7 +5778,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } },
+            c => ({ ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } }),
             `PS speed=${speed} (${uuids.length}개)`,
           )
         }
@@ -5798,7 +5798,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, duration, _duration: duration, _N$duration: duration } },
+            c => ({ ...c, props: { ...c.props, duration, _duration: duration, _N$duration: duration } }),
             `P S Duration`,
           )
           const label = duration === -1 ? '∞' : `${duration}s`
@@ -5821,7 +5821,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, totalParticles, _totalParticles: totalParticles, _N$totalParticles: totalParticles } },
+            c => ({ ...c, props: { ...c.props, totalParticles, _totalParticles: totalParticles, _N$totalParticles: totalParticles } }),
             `PS totalParticles=${totalParticles} (${uuids.length}개)`,
           )
         }
@@ -5841,7 +5841,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, simulationSpace, _simulationSpace: simulationSpace, _N$simulationSpace: simulationSpace } },
+            c => ({ ...c, props: { ...c.props, simulationSpace, _simulationSpace: simulationSpace, _N$simulationSpace: simulationSpace } }),
             `PS simulationSpace=${simulationSpace === 0 ? 'World' : 'Local'} (${uuids.length}개)`,
           )
         }
@@ -5861,7 +5861,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, rotationIsDir, _rotationIsDir: rotationIsDir, _N$rotationIsDir: rotationIsDir } },
+            c => ({ ...c, props: { ...c.props, rotationIsDir, _rotationIsDir: rotationIsDir, _N$rotationIsDir: rotationIsDir } }),
             `PS rotationIsDir=${rotationIsDir} (${uuids.length}개)`,
           )
         }
@@ -5881,7 +5881,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endRadiusVar, _endRadiusVar: endRadiusVar, _N$endRadiusVar: endRadiusVar } },
+            c => ({ ...c, props: { ...c.props, endRadiusVar, _endRadiusVar: endRadiusVar, _N$endRadiusVar: endRadiusVar } }),
             `PS endRadiusVar=${endRadiusVar} (${uuids.length}개)`,
           )
         }
@@ -5901,7 +5901,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startRadiusVar, _startRadiusVar: startRadiusVar, _N$startRadiusVar: startRadiusVar } },
+            c => ({ ...c, props: { ...c.props, startRadiusVar, _startRadiusVar: startRadiusVar, _N$startRadiusVar: startRadiusVar } }),
             `PS startRadiusVar=${startRadiusVar} (${uuids.length}개)`,
           )
         }
@@ -5921,7 +5921,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endRadius, _endRadius: endRadius, _N$endRadius: endRadius } },
+            c => ({ ...c, props: { ...c.props, endRadius, _endRadius: endRadius, _N$endRadius: endRadius } }),
             `PS endRadius=${endRadius} (${uuids.length}개)`,
           )
         }
@@ -5941,7 +5941,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startRadius, _startRadius: startRadius, _N$startRadius: startRadius } },
+            c => ({ ...c, props: { ...c.props, startRadius, _startRadius: startRadius, _N$startRadius: startRadius } }),
             `PS startRadius=${startRadius} (${uuids.length}개)`,
           )
         }
@@ -5961,7 +5961,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, rotatePerSVar, _rotatePerSVar: rotatePerSVar, _N$rotatePerSVar: rotatePerSVar } },
+            c => ({ ...c, props: { ...c.props, rotatePerSVar, _rotatePerSVar: rotatePerSVar, _N$rotatePerSVar: rotatePerSVar } }),
             `PS rotatePerSVar=${rotatePerSVar} (${uuids.length}개)`,
           )
         }
@@ -5981,7 +5981,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, rotatePerS, _rotatePerS: rotatePerS, _N$rotatePerS: rotatePerS } },
+            c => ({ ...c, props: { ...c.props, rotatePerS, _rotatePerS: rotatePerS, _N$rotatePerS: rotatePerS } }),
             `PS rotatePerS=${rotatePerS} (${uuids.length}개)`,
           )
         }
@@ -6001,7 +6001,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endRotationVar, _endRotationVar: endRotationVar } },
+            c => ({ ...c, props: { ...c.props, endRotationVar, _endRotationVar: endRotationVar } }),
             `PS endRotationVar=${endRotationVar} (${uuids.length}개)`,
           )
         }
@@ -6021,7 +6021,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startRotationVar, _startRotationVar: startRotationVar } },
+            c => ({ ...c, props: { ...c.props, startRotationVar, _startRotationVar: startRotationVar } }),
             `PS startRotationVar=${startRotationVar} (${uuids.length}개)`,
           )
         }
@@ -6041,7 +6041,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endRotation, _endRotation: endRotation } },
+            c => ({ ...c, props: { ...c.props, endRotation, _endRotation: endRotation } }),
             `PS endRotation=${endRotation} (${uuids.length}개)`,
           )
         }
@@ -6061,7 +6061,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startRotation, _startRotation: startRotation } },
+            c => ({ ...c, props: { ...c.props, startRotation, _startRotation: startRotation } }),
             `PS startRotation=${startRotation} (${uuids.length}개)`,
           )
         }
@@ -6082,7 +6082,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const posVar = { x: v, y: v }
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, posVar, _posVar: posVar, _N$posVar: posVar } },
+            c => ({ ...c, props: { ...c.props, posVar, _posVar: posVar, _N$posVar: posVar } }),
             `PS posVar=(${v},${v}) (${uuids.length}개)`,
           )
         }
@@ -6167,7 +6167,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, life, _life: life, _N$life: life } },
+            c => ({ ...c, props: { ...c.props, life, _life: life, _N$life: life } }),
             `PS life=${life} (${uuids.length}개)`,
           )
         }
@@ -6189,7 +6189,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, lifeVar, _lifeVar: lifeVar, _N$lifeVar: lifeVar } },
+            c => ({ ...c, props: { ...c.props, lifeVar, _lifeVar: lifeVar, _N$lifeVar: lifeVar } }),
             `PS lifeVar=${lifeVar} (${uuids.length}개)`,
           )
         }
@@ -6209,7 +6209,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, speedVar, _speedVar: speedVar, _N$speedVar: speedVar } },
+            c => ({ ...c, props: { ...c.props, speedVar, _speedVar: speedVar, _N$speedVar: speedVar } }),
             `PS speedVar=${speedVar} (${uuids.length}개)`,
           )
         }
@@ -6229,7 +6229,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } },
+            c => ({ ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } }),
             `PS endSize=${endSize} (${uuids.length}개)`,
           )
         }
@@ -6251,7 +6251,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } },
+            c => ({ ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } }),
             `PS startSize=${startSize} (${uuids.length}개)`,
           )
         }
@@ -6273,7 +6273,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startSizeVar, _startSizeVar: startSizeVar, _N$startSizeVar: startSizeVar } },
+            c => ({ ...c, props: { ...c.props, startSizeVar, _startSizeVar: startSizeVar, _N$startSizeVar: startSizeVar } }),
             `PS startSizeVar=${startSizeVar} (${uuids.length}개)`,
           )
         }
@@ -6293,7 +6293,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } },
+            c => ({ ...c, props: { ...c.props, startSize, _startSize: startSize, _N$startSize: startSize } }),
             `ParticleSystem startSize=${startSize} (${uuids.length}개)`,
           )
         }
@@ -6315,7 +6315,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, life, _life: life, _N$life: life } },
+            c => ({ ...c, props: { ...c.props, life, _life: life, _N$life: life } }),
             `ParticleSystem life=${life}s (${uuids.length}개)`,
           )
         }
@@ -6337,7 +6337,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } },
+            c => ({ ...c, props: { ...c.props, endSize, _endSize: endSize, _N$endSize: endSize } }),
             `ParticleSystem endSize=${endSize} (${uuids.length}개)`,
           )
         }
@@ -6361,7 +6361,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 255 }
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startColor: col, _startColor: col, _N$startColor: col } },
+            c => ({ ...c, props: { ...c.props, startColor: col, _startColor: col, _N$startColor: col } }),
             `ParticleSystem startColor (${uuids.length}개)`,
           )
         }
@@ -6388,7 +6388,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 0 }
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endColor: col, _endColor: col, _N$endColor: col } },
+            c => ({ ...c, props: { ...c.props, endColor: col, _endColor: col, _N$endColor: col } }),
             `ParticleSystem endColor (${uuids.length}개)`,
           )
         }
@@ -6415,7 +6415,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const startColorVar = { r, g, b, a: 255 }
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, startColorVar, _startColorVar: startColorVar, _N$startColorVar: startColorVar } },
+            c => ({ ...c, props: { ...c.props, startColorVar, _startColorVar: startColorVar, _N$startColorVar: startColorVar } }),
             `PS startColorVar (${uuids.length}개)`,
           )
         }
@@ -6442,7 +6442,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const endColorVar = { r, g, b, a: 255 }
           await patchComponents(
             c => (c.type === 'cc.ParticleSystem' || c.type === 'cc.ParticleSystem2D'),
-            c => { ...c, props: { ...c.props, endColorVar, _endColorVar: endColorVar, _N$endColorVar: endColorVar } },
+            c => ({ ...c, props: { ...c.props, endColorVar, _endColorVar: endColorVar, _N$endColorVar: endColorVar } }),
             `PS endColorVar (${uuids.length}개)`,
           )
         }
@@ -6467,7 +6467,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.TiledLayer',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `TiledLayer enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -6488,7 +6488,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.TiledLayer',
-            c => { ...c, props: { ...c.props, opacity, _opacity: opacity, _N$opacity: opacity } },
+            c => ({ ...c, props: { ...c.props, opacity, _opacity: opacity, _N$opacity: opacity } }),
             `TiledLayer opacity=${opacity} (${uuids.length}개)`,
           )
         }
@@ -6508,7 +6508,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.TiledLayer',
-            c => { ...c, props: { ...c.props, visible, _visible: visible, _N$visible: visible } },
+            c => ({ ...c, props: { ...c.props, visible, _visible: visible, _N$visible: visible } }),
             `TiledLayer visible=${visible} (${uuids.length}개)`,
           )
         }
@@ -6528,7 +6528,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.BlockInputEvents',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `BlockInputEvents enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -6549,7 +6549,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Canvas',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Canvas enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -6570,7 +6570,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Canvas',
-            c => { ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, _N$fitWidth: fitWidth } },
+            c => ({ ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, _N$fitWidth: fitWidth } }),
             `Canvas fitWidth=${fitWidth} (${uuids.length}개)`,
           )
         }
@@ -6590,7 +6590,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Canvas',
-            c => { ...c, props: { ...c.props, resizeWithBrowserSize, _resizeWithBrowserSize: resizeWithBrowserSize, _N$resizeWithBrowserSize: resizeWithBrowserSize } },
+            c => ({ ...c, props: { ...c.props, resizeWithBrowserSize, _resizeWithBrowserSize: resizeWithBrowserSize, _N$resizeWithBrowserSize: resizeWithBrowserSize } }),
             `Canvas resizeWithBrowserSize=${resizeWithBrowserSize} (${uuids.length}개)`,
           )
         }
@@ -6610,7 +6610,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Canvas',
-            c => { ...c, props: { ...c.props, fitHeight, _fitHeight: fitHeight, _N$fitHeight: fitHeight } },
+            c => ({ ...c, props: { ...c.props, fitHeight, _fitHeight: fitHeight, _N$fitHeight: fitHeight } }),
             `Canvas fitHeight=${fitHeight} (${uuids.length}개)`,
           )
         }
@@ -6630,7 +6630,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Canvas',
-            c => { ...c, props: { ...c.props, resolutionPolicy, _resolutionPolicy: resolutionPolicy, _N$resolutionPolicy: resolutionPolicy } },
+            c => ({ ...c, props: { ...c.props, resolutionPolicy, _resolutionPolicy: resolutionPolicy, _N$resolutionPolicy: resolutionPolicy } }),
             `Canvas Res Policy`,
           )
           const labels = ['SHOW_ALL', 'NO_BORDER', 'EXACT_FIT', 'FIX_H', 'FIX_W']
@@ -6687,7 +6687,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.SkeletalAnimation',
-            c => { ...c, props: { ...c.props, speedRatio, _speedRatio: speedRatio } },
+            c => ({ ...c, props: { ...c.props, speedRatio, _speedRatio: speedRatio } }),
             `SkeletalAnim ×${speedRatio} (${uuids.length}개)`,
           )
         }
@@ -6709,7 +6709,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.SkeletalAnimation',
-            c => { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } },
+            c => ({ ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } }),
             `SkeletalAnim playOnLoad=${playOnLoad} (${uuids.length}개)`,
           )
         }
@@ -6727,7 +6727,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.SkeletalAnimation',
-            c => { ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } },
+            c => ({ ...c, props: { ...c.props, speed, _speed: speed, _N$speed: speed } }),
             `SkeletalAnim speed=${speed}x (${uuids.length}개)`,
           )
         }
@@ -6747,7 +6747,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.SkeletalAnimation',
-            c => { ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } },
+            c => ({ ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } }),
             `Skel Wrap Mode`,
           )
           const names: Record<number,string> = {1:'Dflt',2:'Norm',3:'Loop',4:'PingPong',8:'Rev'}
@@ -6770,7 +6770,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.SkeletalAnimation',
-            c => { ...c, props: { ...c.props, loop, _loop: loop } },
+            c => ({ ...c, props: { ...c.props, loop, _loop: loop } }),
             `SkeletalAnim loop=${loop} (${uuids.length}개)`,
           )
         }
@@ -6790,7 +6790,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.SkeletalAnimation',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `SkeletalAnimation enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -6811,7 +6811,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.SkeletalAnimation',
-            c => { ...c, props: { ...c.props, defaultCachingMode, _defaultCachingMode: defaultCachingMode } },
+            c => ({ ...c, props: { ...c.props, defaultCachingMode, _defaultCachingMode: defaultCachingMode } }),
             `SkeletalAnimation cachingMode=${defaultCachingMode} (${uuids.length}개)`,
           )
         }
@@ -6831,7 +6831,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Slider enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -6852,7 +6852,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } },
+            c => ({ ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } }),
             `Slider progress ${Math.round(progress * 100)}% (${uuids.length}개)`,
           )
         }
@@ -6874,7 +6874,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            c => ({ ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } }),
             `Slider direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`,
           )
         }
@@ -6892,7 +6892,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } },
+            c => ({ ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } }),
             `Slider Interact`,
           ) // R2257: _interactable CC3.x
         }
@@ -6910,7 +6910,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } },
+            c => ({ ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } }),
             `Slider value=${progress} (${uuids.length}개)`,
           )
         }
@@ -6930,7 +6930,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, minValue: min, maxValue: max, _minValue: min, _maxValue: max, _N$minValue: min, _N$maxValue: max } },
+            c => ({ ...c, props: { ...c.props, minValue: min, maxValue: max, _minValue: min, _maxValue: max, _N$minValue: min, _N$maxValue: max } }),
             `Slider [${min}~${max}] (${uuids.length}개)`,
           )
         }
@@ -6952,7 +6952,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, step, _step: step, _N$step: step } },
+            c => ({ ...c, props: { ...c.props, step, _step: step, _N$step: step } }),
             `Slider step=${step} (${uuids.length}개)`,
           )
         }
@@ -6974,7 +6974,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, pitch, _pitch: pitch } },
+            c => ({ ...c, props: { ...c.props, pitch, _pitch: pitch } }),
             `AudioSource pitch=${pitch} (${uuids.length}개)`,
           )
         }
@@ -6995,7 +6995,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, loop, _loop: loop } },
+            c => ({ ...c, props: { ...c.props, loop, _loop: loop } }),
             `AudioSource loop=${loop} (${uuids.length}개)`,
           )
         }
@@ -7015,7 +7015,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } },
+            c => ({ ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } }),
             `AudioSource playOnLoad=${playOnLoad} (${uuids.length}개)`,
           )
         }
@@ -7035,7 +7035,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } },
+            c => ({ ...c, props: { ...c.props, volume, _volume: volume, _N$volume: volume } }),
             `AudioSource volume ${Math.round(volume * 100)}% (${uuids.length}개)`,
           )
         }
@@ -7057,7 +7057,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, pitch, _pitch: pitch } },
+            c => ({ ...c, props: { ...c.props, pitch, _pitch: pitch } }),
             `AudioSource pitch ${pitch} (${uuids.length}개)`,
           )
         }
@@ -7079,7 +7079,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, preload, _preload: preload, _N$preload: preload } },
+            c => ({ ...c, props: { ...c.props, preload, _preload: preload, _N$preload: preload } }),
             `AudioSource preload ${preload} (${uuids.length}개)`,
           )
         }
@@ -7101,7 +7101,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } },
+            c => ({ ...c, props: { ...c.props, startTime, _startTime: startTime, _N$startTime: startTime } }),
             `AudioSource startTime=${startTime}s (${uuids.length}개)`,
           )
         }
@@ -7123,7 +7123,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, endTime, _endTime: endTime, _N$endTime: endTime } },
+            c => ({ ...c, props: { ...c.props, endTime, _endTime: endTime, _N$endTime: endTime } }),
             `AudioSource endTime=${endTime < 0 ? '∞' : endTime + 's'} (${uuids.length}개)`,
           )
         }
@@ -7145,7 +7145,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Camera enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -7166,7 +7166,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, depth, _depth: depth } },
+            c => ({ ...c, props: { ...c.props, depth, _depth: depth } }),
             `Camera depth ${depth} (${uuids.length}개)`,
           )
         }
@@ -7190,7 +7190,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const col = { r, g, b, a: 255 }
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, backgroundColor: col, _backgroundColor: col, _N$backgroundColor: col } },
+            c => ({ ...c, props: { ...c.props, backgroundColor: col, _backgroundColor: col, _N$backgroundColor: col } }),
             `Camera bgColor ${hex} (${uuids.length}개)`,
           )
         }
@@ -7216,7 +7216,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, clearFlags, _clearFlags: clearFlags } },
+            c => ({ ...c, props: { ...c.props, clearFlags, _clearFlags: clearFlags } }),
             `Camera clearFlags ${clearFlags} (${uuids.length}개)`,
           )
         }
@@ -7238,7 +7238,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, zoomRatio, _zoomRatio: zoomRatio } },
+            c => ({ ...c, props: { ...c.props, zoomRatio, _zoomRatio: zoomRatio } }),
             `Camera zoom=${zoomRatio} (${uuids.length}개)`,
           )
         }
@@ -7260,7 +7260,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, fov, _fov: fov } },
+            c => ({ ...c, props: { ...c.props, fov, _fov: fov } }),
             `Camera fov=${fov}° (${uuids.length}개)`,
           )
         }
@@ -7282,7 +7282,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, clearDepth, _clearDepth: clearDepth } },
+            c => ({ ...c, props: { ...c.props, clearDepth, _clearDepth: clearDepth } }),
             `Camera clearDepth=${clearDepth} (${uuids.length}개)`,
           )
         }
@@ -7302,7 +7302,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, orthoHeight, _orthoHeight: orthoHeight } },
+            c => ({ ...c, props: { ...c.props, orthoHeight, _orthoHeight: orthoHeight } }),
             `Camera orthoHeight=${orthoHeight} (${uuids.length}개)`,
           )
         }
@@ -7322,7 +7322,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, ortho, _ortho: ortho } },
+            c => ({ ...c, props: { ...c.props, ortho, _ortho: ortho } }),
             `Camera ortho=${ortho} (${uuids.length}개)`,
           )
         }
@@ -7342,7 +7342,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, cullingMask, _cullingMask: cullingMask } },
+            c => ({ ...c, props: { ...c.props, cullingMask, _cullingMask: cullingMask } }),
             `Cam Culling`,
           )
           const labels: Record<number, string> = { [-1 >>> 0]: 'All', 0: 'None', 1: 'Dflt' }
@@ -7367,7 +7367,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, targetDisplay, _targetDisplay: targetDisplay } },
+            c => ({ ...c, props: { ...c.props, targetDisplay, _targetDisplay: targetDisplay } }),
             `Camera targetDisplay=${targetDisplay} (${uuids.length}개)`,
           )
         }
@@ -7387,7 +7387,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, near, _near: near } },
+            c => ({ ...c, props: { ...c.props, near, _near: near } }),
             `Camera near=${near} (${uuids.length}개)`,
           )
         }
@@ -7407,7 +7407,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Camera',
-            c => { ...c, props: { ...c.props, far, _far: far } },
+            c => ({ ...c, props: { ...c.props, far, _far: far } }),
             `Camera far=${far} (${uuids.length}개)`,
           )
         }
@@ -7431,7 +7431,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 if (!sceneFile.root) return
                 await patchComponents(
                   c => c.type === 'cc.Layout',
-                  c => { ...c, props: { ...c.props, type: v, layoutType: v, _type: v, _layoutType: v, _N$type: v, _N$layoutType: v } },
+                  c => ({ ...c, props: { ...c.props, type: v, layoutType: v, _type: v, _layoutType: v, _N$type: v, _N$layoutType: v } }),
                   `Layout type ${l} (${uuids.length}개)`,
                 )
               }}
@@ -7446,7 +7446,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, childAlignment, _childAlignment: childAlignment } },
+            c => ({ ...c, props: { ...c.props, childAlignment, _childAlignment: childAlignment } }),
             `Layout Child Align`,
           )
           const names: Record<number,string> = { 0:'None', 1:'LT', 2:'CT', 3:'RT', 4:'LC', 5:'C', 6:'RC', 7:'LB', 8:'CB', 9:'RB' }
@@ -7471,7 +7471,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, horizontalDirection, _horizontalDirection: horizontalDirection } },
+            c => ({ ...c, props: { ...c.props, horizontalDirection, _horizontalDirection: horizontalDirection } }),
             `Layout horDir=${horizontalDirection===0?'L':'R'} (${uuids.length}개)`,
           )
         }
@@ -7491,7 +7491,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, verticalDirection, _verticalDirection: verticalDirection } },
+            c => ({ ...c, props: { ...c.props, verticalDirection, _verticalDirection: verticalDirection } }),
             `Layout verDir=${verticalDirection===0?'T':'B'} (${uuids.length}개)`,
           )
         }
@@ -7511,7 +7511,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Layout enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -7532,7 +7532,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, paddingRight, _paddingRight: paddingRight, _N$paddingRight: paddingRight } },
+            c => ({ ...c, props: { ...c.props, paddingRight, _paddingRight: paddingRight, _N$paddingRight: paddingRight } }),
             `Layout paddingRight=${paddingRight} (${uuids.length}개)`,
           )
         }
@@ -7552,7 +7552,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, paddingLeft, _paddingLeft: paddingLeft, _N$paddingLeft: paddingLeft } },
+            c => ({ ...c, props: { ...c.props, paddingLeft, _paddingLeft: paddingLeft, _N$paddingLeft: paddingLeft } }),
             `Layout paddingLeft=${paddingLeft} (${uuids.length}개)`,
           )
         }
@@ -7572,7 +7572,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, paddingBottom, _paddingBottom: paddingBottom, _N$paddingBottom: paddingBottom } },
+            c => ({ ...c, props: { ...c.props, paddingBottom, _paddingBottom: paddingBottom, _N$paddingBottom: paddingBottom } }),
             `Layout paddingBottom=${paddingBottom} (${uuids.length}개)`,
           )
         }
@@ -7592,7 +7592,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, paddingTop, _paddingTop: paddingTop, _N$paddingTop: paddingTop } },
+            c => ({ ...c, props: { ...c.props, paddingTop, _paddingTop: paddingTop, _N$paddingTop: paddingTop } }),
             `Layout paddingTop=${paddingTop} (${uuids.length}개)`,
           )
         }
@@ -7612,7 +7612,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, paddingLeft: pad, paddingRight: pad, paddingTop: pad, paddingBottom: pad, _paddingLeft: pad, _paddingRight: pad, _paddingTop: pad, _paddingBottom: pad, _N$paddingLeft: pad, _N$paddingRight: pad, _N$paddingTop: pad, _N$paddingBottom: pad } },
+            c => ({ ...c, props: { ...c.props, paddingLeft: pad, paddingRight: pad, paddingTop: pad, paddingBottom: pad, _paddingLeft: pad, _paddingRight: pad, _paddingTop: pad, _paddingBottom: pad, _N$paddingLeft: pad, _N$paddingRight: pad, _N$paddingTop: pad, _N$paddingBottom: pad } }),
             `Layout padding=${pad} (${uuids.length}개)`,
           )
         }
@@ -7634,7 +7634,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } },
+            c => ({ ...c, props: { ...c.props, spacingY, _spacingY: spacingY, _N$spacingY: spacingY } }),
             `Layout spacingY=${spacingY} (${uuids.length}개)`,
           )
         }
@@ -7654,7 +7654,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } },
+            c => ({ ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } }),
             `Layout resizeMode=${resizeMode} (${uuids.length}개)`,
           )
         }
@@ -7677,7 +7677,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, paddingTop: pt, _paddingTop: pt, _N$paddingTop: pt, paddingBottom: pb, _paddingBottom: pb, _N$paddingBottom: pb, paddingLeft: pl, _paddingLeft: pl, _N$paddingLeft: pl, paddingRight: pr, _paddingRight: pr, _N$paddingRight: pr } },
+            c => ({ ...c, props: { ...c.props, paddingTop: pt, _paddingTop: pt, _N$paddingTop: pt, paddingBottom: pb, _paddingBottom: pb, _N$paddingBottom: pb, paddingLeft: pl, _paddingLeft: pl, _N$paddingLeft: pl, paddingRight: pr, _paddingRight: pr, _N$paddingRight: pr } }),
             `Layout padding=${pt}/${pb}/${pl}/${pr} (${uuids.length}개)`,
           )
         }
@@ -7698,7 +7698,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, autoWrap, _autoWrap: autoWrap } },
+            c => ({ ...c, props: { ...c.props, autoWrap, _autoWrap: autoWrap } }),
             `Layout autoWrap=${autoWrap} (${uuids.length}개)`,
           )
         }
@@ -7718,7 +7718,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } },
+            c => ({ ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } }),
             `Layout affectedByScale=${affectedByScale} (${uuids.length}개)`,
           )
         }
@@ -7738,7 +7738,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, constraint, _constraint: constraint, _N$constraint: constraint } },
+            c => ({ ...c, props: { ...c.props, constraint, _constraint: constraint, _N$constraint: constraint } }),
             `Layout constraint=${constraint} (${uuids.length}개)`,
           )
         }
@@ -7761,7 +7761,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, constraintNum, _constraintNum: constraintNum, _N$constraintNum: constraintNum } },
+            c => ({ ...c, props: { ...c.props, constraintNum, _constraintNum: constraintNum, _N$constraintNum: constraintNum } }),
             `Layout constraintNum=${constraintNum} (${uuids.length}개)`,
           )
         }
@@ -7781,7 +7781,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, startAxis, _startAxis: startAxis, _N$startAxis: startAxis } },
+            c => ({ ...c, props: { ...c.props, startAxis, _startAxis: startAxis, _N$startAxis: startAxis } }),
             `Layout startAxis=${startAxis} (${uuids.length}개)`,
           )
         }
@@ -7826,7 +7826,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, spacingX, _spacingX: spacingX, _N$spacingX: spacingX } },
+            c => ({ ...c, props: { ...c.props, spacingX, _spacingX: spacingX, _N$spacingX: spacingX } }),
             `Layout spacingX=${spacingX} (${uuids.length}개)`,
           )
         }
@@ -7846,7 +7846,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, spacingX: sp, spacingY: sp, _spacingX: sp, _spacingY: sp, _N$spacingX: sp, _N$spacingY: sp } },
+            c => ({ ...c, props: { ...c.props, spacingX: sp, spacingY: sp, _spacingX: sp, _spacingY: sp, _N$spacingX: sp, _N$spacingY: sp } }),
             `Layout spacing=${sp} (${uuids.length}개)`,
           )
         }
@@ -7868,7 +7868,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } },
+            c => ({ ...c, props: { ...c.props, resizeMode, _resizeMode: resizeMode, _N$resizeMode: resizeMode } }),
             `Layout Resize`,
           )
         }
@@ -7890,7 +7890,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } },
+            c => ({ ...c, props: { ...c.props, affectedByScale, _affectedByScale: affectedByScale } }),
             `Layout affectedByScale=${affectedByScale} (${uuids.length}개)`,
           )
         }
@@ -7921,7 +7921,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 if (!sceneFile.root) return
                 await patchComponents(
                   c => c.type === 'cc.Widget',
-                  c => { ...c, props: { ...c.props, ...patch } },
+                  c => ({ ...c, props: { ...c.props, ...patch } }),
                   `Widget ${label} (${uuids.length}개)`,
                 )
               }}
@@ -7936,7 +7936,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Layout',
-            c => { ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } },
+            c => ({ ...c, props: { ...c.props, wrapMode, _wrapMode: wrapMode, _N$wrapMode: wrapMode } }),
             `Layout Wrap`,
           )
           const names = ['NoWrap','Wrap','SingleLine']
@@ -7959,7 +7959,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, isAbsTop: isAbs, _isAbsTop: isAbs, _N$isAbsTop: isAbs, isAbsBottom: isAbs, _isAbsBottom: isAbs, _N$isAbsBottom: isAbs, isAbsLeft: isAbs, _isAbsLeft: isAbs, _N$isAbsLeft: isAbs, isAbsRight: isAbs, _isAbsRight: isAbs, _N$isAbsRight: isAbs, isAbsHorizontalCenter: isAbs, _isAbsHorizontalCenter: isAbs, _N$isAbsHorizontalCenter: isAbs, isAbsVerticalCenter: isAbs, _isAbsVerticalCenter: isAbs, _N$isAbsVerticalCenter: isAbs, } },
+            c => ({ ...c, props: { ...c.props, isAbsTop: isAbs, _isAbsTop: isAbs, _N$isAbsTop: isAbs, isAbsBottom: isAbs, _isAbsBottom: isAbs, _N$isAbsBottom: isAbs, isAbsLeft: isAbs, _isAbsLeft: isAbs, _N$isAbsLeft: isAbs, isAbsRight: isAbs, _isAbsRight: isAbs, _N$isAbsRight: isAbs, isAbsHorizontalCenter: isAbs, _isAbsHorizontalCenter: isAbs, _N$isAbsHorizontalCenter: isAbs, isAbsVerticalCenter: isAbs, _isAbsVerticalCenter: isAbs, _N$isAbsVerticalCenter: isAbs, } }),
             `Widget isAbs*=${isAbs} (${uuids.length}개)`,
           )
         }
@@ -7979,7 +7979,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, verticalCenter, _verticalCenter: verticalCenter, _N$verticalCenter: verticalCenter } },
+            c => ({ ...c, props: { ...c.props, verticalCenter, _verticalCenter: verticalCenter, _N$verticalCenter: verticalCenter } }),
             `Widget verticalCenter=${verticalCenter} (${uuids.length}개)`,
           )
         }
@@ -8001,7 +8001,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, horizontalCenter, _horizontalCenter: horizontalCenter, _N$horizontalCenter: horizontalCenter } },
+            c => ({ ...c, props: { ...c.props, horizontalCenter, _horizontalCenter: horizontalCenter, _N$horizontalCenter: horizontalCenter } }),
             `Widget horizontalCenter=${horizontalCenter} (${uuids.length}개)`,
           )
         }
@@ -8023,7 +8023,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, right, _right: right, _N$right: right } },
+            c => ({ ...c, props: { ...c.props, right, _right: right, _N$right: right } }),
             `Widget right=${right} (${uuids.length}개)`,
           )
         }
@@ -8045,7 +8045,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, left, _left: left, _N$left: left } },
+            c => ({ ...c, props: { ...c.props, left, _left: left, _N$left: left } }),
             `Widget left=${left} (${uuids.length}개)`,
           )
         }
@@ -8067,7 +8067,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, bottom, _bottom: bottom, _N$bottom: bottom } },
+            c => ({ ...c, props: { ...c.props, bottom, _bottom: bottom, _N$bottom: bottom } }),
             `Widget bottom=${bottom} (${uuids.length}개)`,
           )
         }
@@ -8089,7 +8089,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, isAlignRight, _isAlignRight: isAlignRight } },
+            c => ({ ...c, props: { ...c.props, isAlignRight, _isAlignRight: isAlignRight } }),
             `Widget isAlignRight=${isAlignRight} (${uuids.length}개)`,
           )
         }
@@ -8109,7 +8109,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, isAlignVerticalCenter, _isAlignVerticalCenter: isAlignVerticalCenter, _N$isAlignVerticalCenter: isAlignVerticalCenter } },
+            c => ({ ...c, props: { ...c.props, isAlignVerticalCenter, _isAlignVerticalCenter: isAlignVerticalCenter, _N$isAlignVerticalCenter: isAlignVerticalCenter } }),
             `Widget isAlignVerticalCenter=${isAlignVerticalCenter} (${uuids.length}개)`,
           )
         }
@@ -8129,7 +8129,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, isAlignHorizontalCenter, _isAlignHorizontalCenter: isAlignHorizontalCenter, _N$isAlignHorizontalCenter: isAlignHorizontalCenter } },
+            c => ({ ...c, props: { ...c.props, isAlignHorizontalCenter, _isAlignHorizontalCenter: isAlignHorizontalCenter, _N$isAlignHorizontalCenter: isAlignHorizontalCenter } }),
             `Widget isAlignHorizontalCenter=${isAlignHorizontalCenter} (${uuids.length}개)`,
           )
         }
@@ -8149,7 +8149,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, isAlignLeft, _isAlignLeft: isAlignLeft } },
+            c => ({ ...c, props: { ...c.props, isAlignLeft, _isAlignLeft: isAlignLeft } }),
             `Widget isAlignLeft=${isAlignLeft} (${uuids.length}개)`,
           )
         }
@@ -8169,7 +8169,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, isAlignBottom, _isAlignBottom: isAlignBottom } },
+            c => ({ ...c, props: { ...c.props, isAlignBottom, _isAlignBottom: isAlignBottom } }),
             `Widget isAlignBottom=${isAlignBottom} (${uuids.length}개)`,
           )
         }
@@ -8189,7 +8189,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, isAlignTop, _isAlignTop: isAlignTop } },
+            c => ({ ...c, props: { ...c.props, isAlignTop, _isAlignTop: isAlignTop } }),
             `Widget isAlignTop=${isAlignTop} (${uuids.length}개)`,
           )
         }
@@ -8209,7 +8209,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, top, _top: top, _N$top: top } },
+            c => ({ ...c, props: { ...c.props, top, _top: top, _N$top: top } }),
             `Widget top=${top} (${uuids.length}개)`,
           )
         }
@@ -8231,7 +8231,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, alignMode, _alignMode: alignMode, _N$alignMode: alignMode } },
+            c => ({ ...c, props: { ...c.props, alignMode, _alignMode: alignMode, _N$alignMode: alignMode } }),
             `Widget Align Mode`,
           )
           const names = ['Once','OnResize','Always']
@@ -8254,7 +8254,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Widget',
-            c => { ...c, props: { ...c.props, top: v, _top: v, bottom: v, _bottom: v, left: v, _left: v, right: v, _right: v, _N$top: v, _N$bottom: v, _N$left: v, _N$right: v } },
+            c => ({ ...c, props: { ...c.props, top: v, _top: v, bottom: v, _bottom: v, left: v, _left: v, right: v, _right: v, _N$top: v, _N$bottom: v, _N$left: v, _N$right: v } }),
             `Widget margin=${v} (${uuids.length}개)`,
           )
         }
@@ -8274,7 +8274,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, type, _type: type, _N$type: type } },
+            c => ({ ...c, props: { ...c.props, type, _type: type, _N$type: type } }),
             `R B Type`,
           )
           const names = ['Dynamic', 'Static', 'Kinematic']
@@ -8299,7 +8299,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, mass, _mass: mass, _N$mass: mass } },
+            c => ({ ...c, props: { ...c.props, mass, _mass: mass, _N$mass: mass } }),
             `RigidBody mass ${mass} (${uuids.length}개)`,
           )
         }
@@ -8321,7 +8321,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, gravityScale: gs, _gravityScale: gs, _N$gravityScale: gs } },
+            c => ({ ...c, props: { ...c.props, gravityScale: gs, _gravityScale: gs, _N$gravityScale: gs } }),
             `RigidBody gravityScale ${gs} (${uuids.length}개)`,
           )
         }
@@ -8343,7 +8343,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation, _N$fixedRotation: fixedRotation } },
+            c => ({ ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation, _N$fixedRotation: fixedRotation } }),
             `RigidBody fixedRotation=${fixedRotation} (${uuids.length}개)`,
           )
         }
@@ -8361,7 +8361,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root || isNaN(linearDamping)) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } },
+            c => ({ ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } }),
             `RigidBody linearDamping ${linearDamping} (${uuids.length}개)`,
           )
         }
@@ -8389,7 +8389,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } },
+            c => ({ ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } }),
             `Angular Damp`,
           )
         }
@@ -8411,7 +8411,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, bullet, _bullet: bullet, _N$bullet: bullet } },
+            c => ({ ...c, props: { ...c.props, bullet, _bullet: bullet, _N$bullet: bullet } }),
             `RigidBody bullet=${bullet} (${uuids.length}개)`,
           )
         }
@@ -8433,7 +8433,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, allowSleep, _allowSleep: allowSleep, _N$allowSleep: allowSleep } },
+            c => ({ ...c, props: { ...c.props, allowSleep, _allowSleep: allowSleep, _N$allowSleep: allowSleep } }),
             `RigidBody allowSleep=${allowSleep} (${uuids.length}개)`,
           )
         }
@@ -8479,7 +8479,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, angularVelocity, _angularVelocity: angularVelocity } },
+            c => ({ ...c, props: { ...c.props, angularVelocity, _angularVelocity: angularVelocity } }),
             `RigidBody angVel=${angularVelocity} (${uuids.length}개)`,
           )
         }
@@ -8501,7 +8501,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation } },
+            c => ({ ...c, props: { ...c.props, fixedRotation, _fixedRotation: fixedRotation } }),
             `RigidBody fixedRotation=${fixedRotation} (${uuids.length}개)`,
           )
         }
@@ -8521,7 +8521,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } },
+            c => ({ ...c, props: { ...c.props, angularDamping, _angularDamping: angularDamping, _N$angularDamping: angularDamping } }),
             `RigidBody angularDamping=${angularDamping} (${uuids.length}개)`,
           )
         }
@@ -8543,7 +8543,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } },
+            c => ({ ...c, props: { ...c.props, linearDamping, _linearDamping: linearDamping, _N$linearDamping: linearDamping } }),
             `RigidBody linearDamping=${linearDamping} (${uuids.length}개)`,
           )
         }
@@ -8565,7 +8565,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `RigidBody enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -8586,7 +8586,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, enabledContactListener, _enabledContactListener: enabledContactListener, _N$enabledContactListener: enabledContactListener } },
+            c => ({ ...c, props: { ...c.props, enabledContactListener, _enabledContactListener: enabledContactListener, _N$enabledContactListener: enabledContactListener } }),
             `RigidBody contactListener=${enabledContactListener} (${uuids.length}개)`,
           )
         }
@@ -8606,7 +8606,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, awake, _awake: awake, _N$awake: awake } },
+            c => ({ ...c, props: { ...c.props, awake, _awake: awake, _N$awake: awake } }),
             `RigidBody awake=${awake} (${uuids.length}개)`,
           )
         }
@@ -8626,7 +8626,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, sleepThreshold, _sleepThreshold: sleepThreshold, _N$sleepThreshold: sleepThreshold } },
+            c => ({ ...c, props: { ...c.props, sleepThreshold, _sleepThreshold: sleepThreshold, _N$sleepThreshold: sleepThreshold } }),
             `RigidBody sleepThreshold=${sleepThreshold} (${uuids.length}개)`,
           )
         }
@@ -8646,7 +8646,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, angularVelocityLimit, _angularVelocityLimit: angularVelocityLimit } },
+            c => ({ ...c, props: { ...c.props, angularVelocityLimit, _angularVelocityLimit: angularVelocityLimit } }),
             `RigidBody angularVelocityLimit=${angularVelocityLimit} (${uuids.length}개)`,
           )
         }
@@ -8666,7 +8666,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, linearVelocityLimit, _linearVelocityLimit: linearVelocityLimit } },
+            c => ({ ...c, props: { ...c.props, linearVelocityLimit, _linearVelocityLimit: linearVelocityLimit } }),
             `RigidBody linearVelocityLimit=${linearVelocityLimit} (${uuids.length}개)`,
           )
         }
@@ -8686,7 +8686,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, group, _group: group } },
+            c => ({ ...c, props: { ...c.props, group, _group: group } }),
             `RigidBody group=${group} (${uuids.length}개)`,
           )
         }
@@ -8706,7 +8706,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, rotationOffset, _rotationOffset: rotationOffset } },
+            c => ({ ...c, props: { ...c.props, rotationOffset, _rotationOffset: rotationOffset } }),
             `RigidBody rotationOffset=${rotationOffset} (${uuids.length}개)`,
           )
         }
@@ -8727,7 +8727,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => COLLIDER_TYPES_176.includes(c.type),
-            c => { ...c, props: { ...c.props, category, _category: category } },
+            c => ({ ...c, props: { ...c.props, category, _category: category } }),
             `Collider category=${category} (${uuids.length}개)`,
           )
         }
@@ -8735,7 +8735,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => COLLIDER_TYPES_176.includes(c.type),
-            c => { ...c, props: { ...c.props, mask, _mask: mask } },
+            c => ({ ...c, props: { ...c.props, mask, _mask: mask } }),
             `Collider mask=${mask} (${uuids.length}개)`,
           )
         }
@@ -8765,7 +8765,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => COLLIDER_TYPES.includes(c.type),
-            c => { ...c, props: { ...c.props, tag, _tag: tag } },
+            c => ({ ...c, props: { ...c.props, tag, _tag: tag } }),
             `Collider tag=${tag} (${uuids.length}개)`,
           )
         }
@@ -8785,7 +8785,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Mask',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Mask enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -8806,7 +8806,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Mask',
-            c => { ...c, props: { ...c.props, type, _type: type, _N$type: type } },
+            c => ({ ...c, props: { ...c.props, type, _type: type, _N$type: type } }),
             `Mask Type`,
           )
           const names = ['Rect','Ellipse','Image']
@@ -8831,7 +8831,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Mask',
-            c => { ...c, props: { ...c.props, inverted, _inverted: inverted, _N$inverted: inverted } },
+            c => ({ ...c, props: { ...c.props, inverted, _inverted: inverted, _N$inverted: inverted } }),
             `Mask inverted=${inverted} (${uuids.length}개)`,
           )
         }
@@ -8849,7 +8849,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Mask',
-            c => { ...c, props: { ...c.props, alphaThreshold, _alphaThreshold: alphaThreshold, _N$alphaThreshold: alphaThreshold } },
+            c => ({ ...c, props: { ...c.props, alphaThreshold, _alphaThreshold: alphaThreshold, _N$alphaThreshold: alphaThreshold } }),
             `Mask alphaThreshold=${alphaThreshold} (${uuids.length}개)`,
           )
         }
@@ -8875,7 +8875,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => colliderTypes.includes(c.type),
-            c => { ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } },
+            c => ({ ...c, props: { ...c.props, sensor, _sensor: sensor, _N$sensor: sensor } }),
             `Collider sensor=${sensor} (${uuids.length}개)`,
           )
         }
@@ -8913,7 +8913,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.CircleCollider' || c.type === 'cc.CircleCollider2D'),
-            c => { ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } },
+            c => ({ ...c, props: { ...c.props, radius, _radius: radius, _N$radius: radius } }),
             `CircleCollider radius=${radius} (${uuids.length}개)`,
           )
         }
@@ -8954,7 +8954,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.BoxCollider' || c.type === 'cc.BoxCollider2D'),
-            c => { ...c, props: { ...c.props, size: { width: w, height: h }, _size: { width: w, height: h }, _N$size: { width: w, height: h } } },
+            c => ({ ...c, props: { ...c.props, size: { width: w, height: h }, _size: { width: w, height: h }, _N$size: { width: w, height: h } } }),
             `BoxCollider size=${w}×${h} (${uuids.length}개)`,
           )
         }
@@ -8974,7 +8974,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } },
+            c => ({ ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } }),
             `ProgressBar totalLength=${totalLength} (${uuids.length}개)`,
           )
         }
@@ -8996,7 +8996,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `ProgressBar enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -9021,7 +9021,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               if (!sceneFile.root) return
               await patchComponents(
                 c => c.type === 'cc.ProgressBar',
-                c => { ...c, props: { ...c.props, progress: prog, _progress: prog, _N$progress: prog } },
+                c => ({ ...c, props: { ...c.props, progress: prog, _progress: prog, _N$progress: prog } }),
                 `progress ${Math.round(prog * 100)}% (${uuids.length}개)`,
               )
             }}
@@ -9035,7 +9035,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } },
+            c => ({ ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } }),
             `ProgressBar reverse=${reverse} (${uuids.length}개)`,
           )
         }
@@ -9053,7 +9053,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, mode, _mode: mode, _N$mode: mode } },
+            c => ({ ...c, props: { ...c.props, mode, _mode: mode, _N$mode: mode } }),
             `P B Mode`,
           )
           const names = ['Horiz', 'Vert', 'Filled']
@@ -9076,7 +9076,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, startWidth, _startWidth: startWidth, _N$startWidth: startWidth } },
+            c => ({ ...c, props: { ...c.props, startWidth, _startWidth: startWidth, _N$startWidth: startWidth } }),
             `ProgressBar startWidth=${startWidth} (${uuids.length}개)`,
           )
         }
@@ -9096,7 +9096,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } },
+            c => ({ ...c, props: { ...c.props, totalLength, _totalLength: totalLength, _N$totalLength: totalLength } }),
             `ProgressBar totalLength=${totalLength} (${uuids.length}개)`,
           )
         }
@@ -9118,7 +9118,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } },
+            c => ({ ...c, props: { ...c.props, progress, _progress: progress, _N$progress: progress } }),
             `P B Progress`,
           )
         }
@@ -9140,7 +9140,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } },
+            c => ({ ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } }),
             `ProgressBar reverse=${reverse} (${uuids.length}개)`,
           )
         }
@@ -9162,7 +9162,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, type, _type: type } },
+            c => ({ ...c, props: { ...c.props, type, _type: type } }),
             `Spr Type`,
           )
           const names = ['Simple','Sliced','Tiled','Filled']
@@ -9187,7 +9187,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, sizeMode, _sizeMode: sizeMode } },
+            c => ({ ...c, props: { ...c.props, sizeMode, _sizeMode: sizeMode } }),
             `Sprite Size Mode`,
           )
           const names = ['Custom', 'Trimmed', 'Raw']
@@ -9213,7 +9213,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const key = `flip${axis}`
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } },
+            c => ({ ...c, props: { ...c.props, [key]: value, [`_${key}`]: value, [`_N$${key}`]: value } }),
             `Spr Flip`,
           )
         }
@@ -9240,7 +9240,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, grayscale, _grayscale: grayscale, _N$grayscale: grayscale } },
+            c => ({ ...c, props: { ...c.props, grayscale, _grayscale: grayscale, _N$grayscale: grayscale } }),
             `Spr Gray`,
           )
         }
@@ -9260,7 +9260,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const colorObj = { r, g, b, a: 255 }
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, _color: colorObj } },
+            c => ({ ...c, props: { ...c.props, _color: colorObj } }),
             `Sprite _color=${hex} (${uuids.length}개)`,
           )
         }
@@ -9281,7 +9281,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, enabled, _enabled: enabled } },
+            c => ({ ...c, props: { ...c.props, enabled, _enabled: enabled } }),
             `Sprite enabled=${enabled} (${uuids.length}개)`,
           )
         }
@@ -9302,7 +9302,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, _useGrayscale: useGrayscale } },
+            c => ({ ...c, props: { ...c.props, _useGrayscale: useGrayscale } }),
             `Sprite _useGrayscale=${useGrayscale} (${uuids.length}개)`,
           )
         }
@@ -9323,7 +9323,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, packable, _packable: packable } },
+            c => ({ ...c, props: { ...c.props, packable, _packable: packable } }),
             `Sprite packable=${packable} (${uuids.length}개)`,
           )
         }
@@ -9343,7 +9343,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, meshType, _meshType: meshType } },
+            c => ({ ...c, props: { ...c.props, meshType, _meshType: meshType } }),
             `Sprite meshType=${['NORMAL','POLYGON'][meshType] ?? meshType} (${uuids.length}개)`,
           )
         }
@@ -9363,7 +9363,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, trim, _trim: trim } },
+            c => ({ ...c, props: { ...c.props, trim, _trim: trim } }),
             `Sprite trim=${trim} (${uuids.length}개)`,
           )
         }
@@ -9383,7 +9383,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } },
+            c => ({ ...c, props: { ...c.props, srcBlendFactor: src, dstBlendFactor: dst, _srcBlendFactor: src, _dstBlendFactor: dst, _N$srcBlendFactor: src, _N$dstBlendFactor: dst } }),
             `Sprite blend=${label} (${uuids.length}개)`,
           )
         }
@@ -9404,7 +9404,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, fillType, _fillType: fillType } },
+            c => ({ ...c, props: { ...c.props, fillType, _fillType: fillType } }),
             `Sprite fillType=${fillType} (${uuids.length}개)`,
           )
         }
@@ -9427,7 +9427,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, fillRange, _fillRange: fillRange } },
+            c => ({ ...c, props: { ...c.props, fillRange, _fillRange: fillRange } }),
             `Sprite fillRange ${fillRange} (${uuids.length}개)`,
           )
         }
@@ -9449,7 +9449,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, fillStart, _fillStart: fillStart } },
+            c => ({ ...c, props: { ...c.props, fillStart, _fillStart: fillStart } }),
             `Sprite fillStart ${fillStart} (${uuids.length}개)`,
           )
         }
@@ -9472,7 +9472,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const fillCenter = { x, y }
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, fillCenter, _fillCenter: fillCenter } },
+            c => ({ ...c, props: { ...c.props, fillCenter, _fillCenter: fillCenter } }),
             `Sprite fillCenter=(${x},${y}) (${uuids.length}개)`,
           )
         }
@@ -9492,7 +9492,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, grayscale, _grayscale: grayscale } },
+            c => ({ ...c, props: { ...c.props, grayscale, _grayscale: grayscale } }),
             `Sprite grayscale=${grayscale} (${uuids.length}개)`,
           )
         }
@@ -9512,7 +9512,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, isTrimmedMode, _isTrimmedMode: isTrimmedMode } },
+            c => ({ ...c, props: { ...c.props, isTrimmedMode, _isTrimmedMode: isTrimmedMode } }),
             `Sprite isTrimmed=${isTrimmedMode} (${uuids.length}개)`,
           )
         }
@@ -9532,7 +9532,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, _isTrimmedMode: mode } },
+            c => ({ ...c, props: { ...c.props, _isTrimmedMode: mode } }),
             `Sprite _isTrimmedMode=${mode} (${uuids.length}개)`,
           )
         }
@@ -9553,7 +9553,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, insetTop: inset, _insetTop: inset, _N$insetTop: inset, insetBottom: inset, _insetBottom: inset, _N$insetBottom: inset, insetLeft: inset, _insetLeft: inset, _N$insetLeft: inset, insetRight: inset, _insetRight: inset, _N$insetRight: inset } },
+            c => ({ ...c, props: { ...c.props, insetTop: inset, _insetTop: inset, _N$insetTop: inset, insetBottom: inset, _insetBottom: inset, _N$insetBottom: inset, insetLeft: inset, _insetLeft: inset, _N$insetLeft: inset, insetRight: inset, _insetRight: inset, _N$insetRight: inset } }),
             `Sprite capInset=${inset} (${uuids.length}개)`,
           )
         }
@@ -9577,7 +9577,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16)
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, spriteFrame: null, _spriteFrame: null, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } },
+            c => ({ ...c, props: { ...c.props, spriteFrame: null, _spriteFrame: null, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } }),
             `단색 Sprite (${batchSolidColor}) 적용 (${uuids.length}개)`,
           )
         }
@@ -9600,7 +9600,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, gravityScale, _gravityScale: gravityScale } },
+            c => ({ ...c, props: { ...c.props, gravityScale, _gravityScale: gravityScale } }),
             `RigidBody _gravityScale=${gravityScale} (${uuids.length}개)`,
           )
         }
@@ -9621,7 +9621,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Scrollbar',
-            c => { ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } },
+            c => ({ ...c, props: { ...c.props, autoHideTime, _autoHideTime: autoHideTime, _N$autoHideTime: autoHideTime } }),
             `Scrollbar _autoHideTime=${autoHideTime} (${uuids.length}개)`,
           )
         }
@@ -9642,7 +9642,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.PageView',
-            c => { ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } },
+            c => ({ ...c, props: { ...c.props, bounceEnabled: v, _bounceEnabled: v, _N$bounceEnabled: v } }),
             `PageView _bounceEnabled=${v} (${uuids.length}개)`,
           )
         }
@@ -9663,7 +9663,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ToggleContainer',
-            c => { ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } },
+            c => ({ ...c, props: { ...c.props, allowSwitchOff, _allowSwitchOff: allowSwitchOff } }),
             `ToggleContainer _allowSwitchOff=${allowSwitchOff} (${uuids.length}개)`,
           )
         }
@@ -9684,7 +9684,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.RichText',
-            c => { ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } },
+            c => ({ ...c, props: { ...c.props, overflow, _overflow: overflow, _N$overflow: overflow } }),
             `RichText _overflow=${overflow} (${uuids.length}개)`,
           )
         }
@@ -9705,7 +9705,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Canvas',
-            c => { ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, fitHeight, _fitHeight: fitHeight } },
+            c => ({ ...c, props: { ...c.props, fitWidth, _fitWidth: fitWidth, fitHeight, _fitHeight: fitHeight } }),
             `Canvas _fitWidth=${fitWidth} _fitHeight=${fitHeight} (${uuids.length}개)`,
           )
         }
@@ -9733,7 +9733,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } },
+            c => ({ ...c, props: { ...c.props, direction, _direction: direction, _N$direction: direction } }),
             `Slider _direction=${direction === 0 ? 'H' : 'V'} (${uuids.length}개)`,
           )
         }
@@ -9755,7 +9755,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Slider',
-            c => { ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } },
+            c => ({ ...c, props: { ...c.props, interactable, _interactable: interactable, _N$interactable: interactable } }),
             `Slider _interactable=${interactable} (${uuids.length}개)`,
           )
         }
@@ -9777,7 +9777,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.EditBox',
-            c => { ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } },
+            c => ({ ...c, props: { ...c.props, returnType, _returnType: returnType, _N$returnType: returnType } }),
             `Edit Ret Type3`,
           )
           const names = ['Dflt', 'Done', 'Send', 'Srch', 'Go', 'Next']
@@ -9801,7 +9801,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Animation',
-            c => { ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } },
+            c => ({ ...c, props: { ...c.props, playOnLoad, _playOnLoad: playOnLoad } }),
             `Animation _playOnLoad=${playOnLoad} (${uuids.length}개)`,
           )
         }
@@ -9823,7 +9823,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.TiledLayer',
-            c => { ...c, props: { ...c.props, opacity, _opacity: opacity } },
+            c => ({ ...c, props: { ...c.props, opacity, _opacity: opacity } }),
             `TiledLayer _opacity=${opacity} (${uuids.length}개)`,
           )
         }
@@ -9844,7 +9844,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.RigidBody' || c.type === 'cc.RigidBody2D'),
-            c => { ...c, props: { ...c.props, type, _type: type } },
+            c => ({ ...c, props: { ...c.props, type, _type: type } }),
             `RigidBody _type=${['Dynamic','Static','Kinematic'][type] ?? type} (${uuids.length}개)`,
           )
         }
@@ -9866,7 +9866,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Toggle',
-            c => { ...c, props: { ...c.props, interactable, _interactable: interactable } },
+            c => ({ ...c, props: { ...c.props, interactable, _interactable: interactable } }),
             `Toggle _interactable=${interactable} (${uuids.length}개)`,
           )
         }
@@ -9888,7 +9888,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ProgressBar',
-            c => { ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } },
+            c => ({ ...c, props: { ...c.props, reverse, _reverse: reverse, _N$reverse: reverse } }),
             `ProgressBar _reverse=${reverse} (${uuids.length}개)`,
           )
         }
@@ -9910,7 +9910,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.Button',
-            c => { ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom } },
+            c => ({ ...c, props: { ...c.props, zoomScale: zoom, _zoomScale: zoom } }),
             `Button _zoomScale=${zoom} (${uuids.length}개)`,
           )
         }
@@ -9932,7 +9932,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.ScrollView',
-            c => { ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } },
+            c => ({ ...c, props: { ...c.props, brake, _brake: brake, _N$brake: brake } }),
             `ScrollView _brake=${brake} (${uuids.length}개)`,
           )
         }
@@ -9954,7 +9954,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => c.type === 'cc.AudioSource',
-            c => { ...c, props: { ...c.props, volume, _volume: volume } },
+            c => ({ ...c, props: { ...c.props, volume, _volume: volume } }),
             `AudioSource _volume=${Math.round(volume * 100)}% (${uuids.length}개)`,
           )
         }
@@ -9976,7 +9976,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
           if (!sceneFile.root) return
           await patchComponents(
             c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-            c => { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } },
+            c => ({ ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } }),
             `Spr Blend`,
           )
           const names: Record<string, string> = {'770/771': 'Normal', '770/1': 'Add', '774/771': 'Mul'}
@@ -10006,7 +10006,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
               await patchComponents(
                 c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-                c => { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } },
+                c => ({ ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } }),
                 `Sprite tint (${uuids.length}개)`,
               )
             }}
@@ -10028,7 +10028,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 const val = label.startsWith('✓')
                 await patchComponents(
                   c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-                  c => { ...c, props: { ...c.props, grayscale: val, _grayscale: val, _N$grayscale: val } },
+                  c => ({ ...c, props: { ...c.props, grayscale: val, _grayscale: val, _N$grayscale: val } }),
                   `grayscale ${val} (${uuids.length}개)`,
                 )
               }}
@@ -10047,7 +10047,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
                 if (!sceneFile.root) return
                 await patchComponents(
                   c => (c.type === 'cc.Sprite' || c.type === 'cc.Sprite2D'),
-                  c => { ...c, props: { ...c.props, type: v, _type: v, _N$type: v } },
+                  c => ({ ...c, props: { ...c.props, type: v, _type: v, _N$type: v } }),
                   `Sprite type ${['Simple','Sliced','Tiled','Filled'][v]} (${uuids.length}개)`,
                 )
               }}
@@ -10070,7 +10070,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               if (!sceneFile.root) return
               await patchComponents(
                 c => c.type === 'cc.Label',
-                c => { ...c, props: { ...c.props, fontFamily: ff, _fontFamily: ff, _N$fontFamily: ff } },
+                c => ({ ...c, props: { ...c.props, fontFamily: ff, _fontFamily: ff, _N$fontFamily: ff } }),
                 `fontFamily "${ff}" (${uuids.length}개)`,
               )
             }}
@@ -10088,7 +10088,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
               const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
               await patchComponents(
                 c => c.type === 'cc.Label',
-                c => { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } },
+                c => ({ ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } }),
                 `Label 색상 (${uuids.length}개)`,
               )
             }}
@@ -10195,6 +10195,8 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
             setTimeout(() => setBatchMsg(null), 2000)
           }}
           disabled={!condActivePattern.trim()}
+        >적용</button>
+      </div>
       {/* R2548: 선택 노드 중 cc.Label/cc.RichText 있는 것들에 텍스트 일괄 적용 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
         const hasLabelNode = uuids.some(u => {

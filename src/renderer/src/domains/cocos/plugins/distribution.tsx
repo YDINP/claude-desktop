@@ -69,8 +69,6 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
   const [anchorYTo, setAnchorYTo] = useState<number>(1)
   const [fontSizeFrom, setFontSizeFrom] = useState<number>(16)
   const [fontSizeTo, setFontSizeTo] = useState<number>(48)
-  const [rotGradFrom, setRotGradFrom] = useState<number>(0)
-  const [rotGradTo, setRotGradTo] = useState<number>(360)
 
   const mkBtnS = (color: string, extra?: React.CSSProperties): React.CSSProperties => ({
     fontSize: 9, padding: '1px 5px', cursor: 'pointer',
