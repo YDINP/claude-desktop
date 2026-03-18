@@ -1,5 +1,6 @@
 import React from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
+import { BoolToggle } from '../utils'
 
 interface GenericPropertyEditorProps {
   comp: CCSceneNode['components'][number]

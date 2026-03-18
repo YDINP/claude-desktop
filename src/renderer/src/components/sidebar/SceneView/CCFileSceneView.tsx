@@ -147,6 +147,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2707: 선택 히스토리 팝업
   const [histPopupOpen, setHistPopupOpen] = useState(false)
   const histPopupBtnRef = useRef<HTMLButtonElement | null>(null)
+  const overlayPanelRef = useRef<HTMLSpanElement>(null)
+  const toolPanelRef = useRef<HTMLSpanElement>(null)
   // R1623: 와이어프레임 모드 (선만 표시)
   const [wireframeMode, setWireframeMode] = useState(false)
   // R1641: depth 색조 시각화
@@ -221,6 +223,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showLabelText, setShowLabelText] = useState(false)
   // R2558: 씬 통계 팝업 토글
   const [showSceneStats, setShowSceneStats] = useState(false)
+  // 툴바 드롭다운 패널
+  const [showOverlayPanel, setShowOverlayPanel] = useState(false)
+  const [showToolPanel, setShowToolPanel] = useState(false)
   // R2576: 노드 크기 레이블 오버레이 (W×H)
   const [showSizeLabels, setShowSizeLabels] = useState(false)
   // R2578: 노드 불투명도 오버레이 (α%)
@@ -392,6 +397,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
+  // Font 캐시: UUID → { dataUrl, familyName }
+  const fontCacheRef = useRef<Map<string, { dataUrl: string; familyName: string }>>(new Map())
+  const [, setFontCacheVer] = useState(0)
 
   // 캔버스 크기 + 배경색 추정
   const { designW, designH, bgColor } = useMemo(() => {
@@ -543,6 +551,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         console.debug('[SceneView] resolveTexture error', uuid.slice(0,8), e)
         spriteCacheRef.current.delete(uuid)
       })
+    })
+  }, [sceneFile, flatNodes])
+
+  // Font 로딩: cc.Label 컴포넌트의 font UUID → TTF base64
+  useEffect(() => {
+    const assetsDir = sceneFile?.projectInfo?.assetsDir
+    if (!assetsDir) return
+    const labelComps = flatNodes.flatMap(fn =>
+      fn.node.components.filter(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
+    )
+    const uuids = labelComps
+      .map(c => (c.props.font as { __uuid__?: string } | undefined)?.__uuid__
+             ?? (c.props._N$file as { __uuid__?: string } | undefined)?.__uuid__)
+      .filter((u): u is string => !!u && !fontCacheRef.current.has(u))
+    const uniqueUuids = [...new Set(uuids)]
+    if (!uniqueUuids.length) return
+    uniqueUuids.forEach(uuid => {
+      fontCacheRef.current.set(uuid, { dataUrl: '', familyName: '' }) // pending sentinel
+      window.api.ccFileResolveFont?.(uuid, assetsDir).then((result: { dataUrl: string; familyName: string } | null) => {
+        if (result) {
+          fontCacheRef.current.set(uuid, result)
+        } else {
+          fontCacheRef.current.delete(uuid)
+        }
+        setFontCacheVer(v => v + 1)
+      }).catch(() => { fontCacheRef.current.delete(uuid) })
     })
   }, [sceneFile, flatNodes])
 
@@ -1232,6 +1266,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     return () => document.removeEventListener('mousedown', handler)
   }, [histPopupOpen])
 
+  // 오버레이/도구 패널 외부 클릭 닫기
+  useEffect(() => {
+    if (!showOverlayPanel && !showToolPanel) return
+    const handler = (e: MouseEvent) => {
+      if (showOverlayPanel && overlayPanelRef.current && !overlayPanelRef.current.contains(e.target as Node)) setShowOverlayPanel(false)
+      if (showToolPanel && toolPanelRef.current && !toolPanelRef.current.contains(e.target as Node)) setShowToolPanel(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showOverlayPanel, showToolPanel])
+
   // R1474: SVG 캡처 → base64 → Claude 비전 분석 prefill
   // R1708: Shift+클릭 → PNG 로컬 다운로드
   const handleScreenshotAI = useCallback((e?: React.MouseEvent) => {
@@ -1426,93 +1471,219 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           onDoubleClick={() => setBgColorOverride(null)}
           style={{ width: 18, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
         />
-        {/* R2326: 배경 패턴 토글 (체크무늬) */}
-        <button
-          onClick={() => setBgPattern(p => p === 'solid' ? 'checker' : 'solid')}
-          title={`배경 패턴: ${bgPattern === 'solid' ? '단색' : '체크무늬'} (클릭 전환)`}
-          style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: bgPattern === 'checker' ? 'rgba(88,166,255,0.12)' : 'none', color: bgPattern === 'checker' ? '#58a6ff' : 'var(--text-muted)', flexShrink: 0 }}
-        >⊞</button>
-        {/* R2456: 그리드 오버레이 토글 */}
-        <button
-          onClick={() => setShowGrid(g => !g)}
-          title={`그리드 오버레이 (${snapSize}px 간격) — ${showGrid ? '숨기기' : '표시'}`}
-          style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showGrid ? 'rgba(100,220,100,0.5)' : 'var(--border)'}`, background: showGrid ? 'rgba(100,220,100,0.1)' : 'none', color: showGrid ? 'rgba(100,220,100,0.9)' : 'var(--text-muted)', flexShrink: 0 }}
-        >#</button>
-        {/* R2501: 중심선 가이드 오버레이 토글 */}
-        <button
-          onClick={() => setShowCrossGuide(g => !g)}
-          title={`중심선 가이드 — CC 좌표 원점(0,0) 기준 수직/수평선 (R2501)`}
-          style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrossGuide ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showCrossGuide ? 'rgba(251,146,60,0.1)' : 'none', color: showCrossGuide ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', flexShrink: 0 }}
-        >⊕</button>
-        {/* R2511: 엣지 거리 가이드선 토글 */}
-        <button
-          onClick={() => setShowEdgeGuides(g => !g)}
-          title={`엣지 가이드선 — 선택 노드와 캔버스 경계 거리 표시 (R2511)`}
-          style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEdgeGuides ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showEdgeGuides ? 'rgba(129,140,248,0.1)' : 'none', color: showEdgeGuides ? 'rgba(129,140,248,0.9)' : 'var(--text-muted)', flexShrink: 0 }}
-        >⊢</button>
-        {/* R1681: 선택 노드 테두리 색상 */}
-        <input
-          type="color"
-          value={selectionColor}
-          title="선택 노드 테두리 색상 (더블클릭: 초기화)"
-          onChange={e => setSelectionColor(e.target.value)}
-          onDoubleClick={() => setSelectionColor('#58a6ff')}
-          style={{ width: 18, height: 18, border: `2px solid ${selectionColor}`, borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0, background: 'transparent' }}
-        />
-        {/* R1674: snap size 사용자 설정 (custom 입력 + datalist 프리셋) */}
-        <>
-          <datalist id="snap-size-list">
-            {[1, 5, 10, 25, 50, 100].map(s => <option key={s} value={s} />)}
-          </datalist>
-          <input
-            type="number" min={1} max={500} value={snapSize} list="snap-size-list"
-            onChange={e => { const v = parseInt(e.target.value); if (v > 0) setSnapSize(v) }}
-            title={`Ctrl+드래그 스냅 크기: ${snapSize}px`}
-            style={{ width: 36, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }}
-          />
-        </>
-        <button
-          onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')}
-          title={`그리드: ${gridStyle === 'none' ? '없음' : gridStyle === 'line' ? '선' : '점'} (클릭으로 전환)`}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: gridStyle !== 'none' ? 'rgba(88,166,255,0.12)' : 'none', color: gridStyle !== 'none' ? '#58a6ff' : 'var(--text-muted)' }}
-        >
-          {gridStyle === 'dot' ? '·' : '⊹'}
-        </button>
-        <button
-          onClick={() => setShowNodeNames(n => !n)}
-          title="노드 이름 표시 토글"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showNodeNames ? 'rgba(88,166,255,0.12)' : 'none', color: showNodeNames ? '#58a6ff' : 'var(--text-muted)' }}
-        >
-          T
-        </button>
-        {/* R1703: 형제 그룹 하이라이트 버튼 */}
-        <button
-          onClick={() => setShowSiblingGroup(s => !s)}
-          title="선택 노드 형제 그룹 하이라이트 (G) (R1703)"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingGroup ? '#fbbf24' : 'var(--border)'}`, background: showSiblingGroup ? 'rgba(251,191,36,0.12)' : 'none', color: showSiblingGroup ? '#fbbf24' : 'var(--text-muted)' }}
-        >G</button>
-        {/* R1697: 레이블 폰트 크기 조정 */}
-        {showNodeNames && (
-          <>
-            <span
-              onClick={() => setLabelFontSize(s => Math.max(6, s - 1))}
-              title="레이블 폰트 크기 감소 (R1697)"
-              style={{ fontSize: 9, cursor: 'pointer', color: 'var(--text-muted)', userSelect: 'none', padding: '0 2px' }}
-            >A-</span>
-            <span style={{ fontSize: 8, color: '#555', minWidth: 14, textAlign: 'center' }}>{labelFontSize}</span>
-            <span
-              onClick={() => setLabelFontSize(s => Math.min(20, s + 1))}
-              title="레이블 폰트 크기 증가 (R1697)"
-              style={{ fontSize: 9, cursor: 'pointer', color: 'var(--text-muted)', userSelect: 'none', padding: '0 2px' }}
-            >A+</span>
-          </>
-        )}
-        {/* R1687: z-order 표시 버튼 */}
-        <button
-          onClick={() => setShowZOrder(n => !n)}
-          title="형제 순서(z-order) 인덱스 표시 토글"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showZOrder ? 'rgba(251,191,36,0.12)' : 'none', color: showZOrder ? '#fbbf24' : 'var(--text-muted)' }}
-        >#</button>
+        {/* ── 오버레이 패널 ── */}
+        <span ref={overlayPanelRef} style={{ position: 'relative', flexShrink: 0 }}>
+          <button
+            onClick={() => { setShowOverlayPanel(p => !p); setShowToolPanel(false) }}
+            title="오버레이 표시 설정 패널"
+            style={{ padding: '1px 6px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOverlayPanel ? '#58a6ff' : 'var(--border)'}`, background: showOverlayPanel ? 'rgba(88,166,255,0.15)' : 'none', color: showOverlayPanel ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+          >오버레이 {showOverlayPanel ? '▲' : '▼'}</button>
+          {showOverlayPanel && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 300, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', minWidth: 300, maxHeight: '75vh', overflowY: 'auto', boxShadow: '0 4px 16px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {/* 기본 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>기본</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setBgPattern(p => p === 'solid' ? 'checker' : 'solid')} title={`배경 패턴: ${bgPattern === 'solid' ? '단색' : '체크무늬'}`} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: bgPattern === 'checker' ? 'rgba(88,166,255,0.12)' : 'none', color: bgPattern === 'checker' ? '#58a6ff' : 'var(--text-muted)' }}>⊞ 배경</button>
+                <button onClick={() => setShowGrid(g => !g)} title={`그리드 오버레이 (${snapSize}px)`} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showGrid ? 'rgba(100,220,100,0.5)' : 'var(--border)'}`, background: showGrid ? 'rgba(100,220,100,0.1)' : 'none', color: showGrid ? 'rgba(100,220,100,0.9)' : 'var(--text-muted)' }}># 그리드</button>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>스냅</span>
+                  <datalist id="snap-size-list-panel"><option value={1}/><option value={5}/><option value={10}/><option value={25}/><option value={50}/><option value={100}/></datalist>
+                  <input type="number" min={1} max={500} value={snapSize} list="snap-size-list-panel" onChange={e => { const v = parseInt(e.target.value); if (v > 0) setSnapSize(v) }} title={`Ctrl+드래그 스냅 크기: ${snapSize}px`} style={{ width: 36, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }} />
+                </span>
+                <button onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')} title={`그리드: ${gridStyle === 'none' ? '없음' : gridStyle === 'line' ? '선' : '점'}`} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: gridStyle !== 'none' ? 'rgba(88,166,255,0.12)' : 'none', color: gridStyle !== 'none' ? '#58a6ff' : 'var(--text-muted)' }}>{gridStyle === 'dot' ? '· 점' : '⊹ 선'}</button>
+                <button onClick={() => setShowCrossGuide(g => !g)} title="중심선 가이드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrossGuide ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showCrossGuide ? 'rgba(251,146,60,0.1)' : 'none', color: showCrossGuide ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>⊕ 중심선</button>
+                <button onClick={() => setShowEdgeGuides(g => !g)} title="엣지 가이드선" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEdgeGuides ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showEdgeGuides ? 'rgba(129,140,248,0.1)' : 'none', color: showEdgeGuides ? 'rgba(129,140,248,0.9)' : 'var(--text-muted)' }}>⊢ 엣지</button>
+                <button onClick={() => setShowRuler(r => !r)} title="눈금자" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showRuler ? 'rgba(88,166,255,0.12)' : 'none', color: showRuler ? '#58a6ff' : 'var(--text-muted)' }}>尺 눈금자</button>
+                <button onClick={() => setShowOriginCross(v => !v)} title="원점(0,0) 십자선" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOriginCross ? 'rgba(74,222,128,0.5)' : 'var(--border)'}`, background: showOriginCross ? 'rgba(74,222,128,0.12)' : 'none', color: showOriginCross ? '#4ade80' : 'var(--text-muted)' }}>⊕ 원점</button>
+                <button onClick={() => setShowCrosshair(v => !v)} title="마우스 크로스헤어" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrosshair ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showCrosshair ? 'rgba(148,163,184,0.12)' : 'none', color: showCrosshair ? '#94a3b8' : 'var(--text-muted)' }}>✛ 크로스</button>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>선택색</span>
+                  <input type="color" value={selectionColor} title="선택 노드 테두리 색상 (더블클릭: 초기화)" onChange={e => setSelectionColor(e.target.value)} onDoubleClick={() => setSelectionColor('#58a6ff')} style={{ width: 18, height: 18, border: `2px solid ${selectionColor}`, borderRadius: 3, padding: 0, cursor: 'pointer', background: 'transparent' }} />
+                </span>
+              </div>
+              {/* 렌더링 모드 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>렌더링 모드</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setWireframeMode(w => !w)} title="와이어프레임 모드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${wireframeMode ? '#58a6ff' : 'var(--border)'}`, background: wireframeMode ? 'rgba(88,166,255,0.12)' : 'none', color: wireframeMode ? '#58a6ff' : 'var(--text-muted)' }}>⬚ 와이어프레임</button>
+                <button onClick={() => setSoloMode(m => !m)} title="솔로 모드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${soloMode ? '#f97316' : 'var(--border)'}`, background: soloMode ? 'rgba(249,115,22,0.12)' : 'none', color: soloMode ? '#f97316' : 'var(--text-muted)' }}>◎ 솔로</button>
+                <button onClick={() => setDepthColorMode(d => !d)} title="Depth별 색조 시각화" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthColorMode ? '#a78bfa' : 'var(--border)'}`, background: depthColorMode ? 'rgba(167,139,250,0.12)' : 'none', color: depthColorMode ? '#a78bfa' : 'var(--text-muted)' }}>⧫ 깊이색</button>
+                <button onClick={() => setDepthFilterMax(v => v === null ? 2 : null)} title={depthFilterMax !== null ? `깊이 필터 해제 (D${depthFilterMax})` : '깊이 필터'} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthFilterMax !== null ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: depthFilterMax !== null ? 'rgba(52,211,153,0.1)' : 'none', color: depthFilterMax !== null ? '#34d399' : 'var(--text-muted)' }}>D{depthFilterMax !== null ? `≤${depthFilterMax}` : '∞'}</button>
+                {depthFilterMax !== null && (<input type="range" min={0} max={10} value={depthFilterMax} onChange={e => setDepthFilterMax(parseInt(e.target.value))} title={`깊이 제한: D${depthFilterMax}`} style={{ width: 60, cursor: 'pointer', accentColor: '#34d399' }} />)}
+                <button onClick={() => setShowColorViz(v => !v)} title="색상 tint 시각화" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showColorViz ? 'rgba(217,119,6,0.5)' : 'var(--border)'}`, background: showColorViz ? 'rgba(217,119,6,0.12)' : 'none', color: showColorViz ? '#d97706' : 'var(--text-muted)' }}>🎨 tint</button>
+                <button onClick={() => setShowDepthHeat(v => !v)} title="깊이 히트맵" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDepthHeat ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showDepthHeat ? 'rgba(251,146,60,0.1)' : 'none', color: showDepthHeat ? '#fb923c' : 'var(--text-muted)' }}>🌡 깊이열</button>
+                <button onClick={() => setShowSizeHeat(v => !v)} title="크기 히트맵" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeHeat ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showSizeHeat ? 'rgba(250,204,21,0.1)' : 'none', color: showSizeHeat ? '#facc15' : 'var(--text-muted)' }}>Sz 크기열</button>
+                <button onClick={() => setShowInactiveDim(v => !v)} title="비활성 노드 반투명" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showInactiveDim ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showInactiveDim ? 'rgba(148,163,184,0.12)' : 'none', color: showInactiveDim ? '#94a3b8' : 'var(--text-muted)' }}>⊡ 비활성dim</button>
+              </div>
+              {/* 레이블 오버레이 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>레이블</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setShowNodeNames(n => !n)} title="노드 이름 표시" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showNodeNames ? 'rgba(88,166,255,0.12)' : 'none', color: showNodeNames ? '#58a6ff' : 'var(--text-muted)' }}>T 노드이름</button>
+                {showNodeNames && (<>
+                  <span onClick={() => setLabelFontSize(s => Math.max(6, s - 1))} title="레이블 폰트 감소" style={{ fontSize: 9, cursor: 'pointer', color: 'var(--text-muted)', userSelect: 'none', padding: '0 2px' }}>A-</span>
+                  <span style={{ fontSize: 8, color: '#555', minWidth: 14, textAlign: 'center' }}>{labelFontSize}</span>
+                  <span onClick={() => setLabelFontSize(s => Math.min(20, s + 1))} title="레이블 폰트 증가" style={{ fontSize: 9, cursor: 'pointer', color: 'var(--text-muted)', userSelect: 'none', padding: '0 2px' }}>A+</span>
+                </>)}
+                <button onClick={() => setShowNameLabels(v => !v)} title="이름 텍스트 오버레이" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNameLabels ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showNameLabels ? 'rgba(96,165,250,0.12)' : 'none', color: showNameLabels ? '#60a5fa' : 'var(--text-muted)' }}>이름</button>
+                <button onClick={() => setShowLabelText(v => !v)} title="Label 텍스트 오버레이" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLabelText ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showLabelText ? 'rgba(139,92,246,0.12)' : 'none', color: showLabelText ? '#a78bfa' : 'var(--text-muted)' }}>T Label</button>
+                <button onClick={() => setShowZOrder(n => !n)} title="z-order 인덱스" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showZOrder ? 'rgba(251,191,36,0.12)' : 'none', color: showZOrder ? '#fbbf24' : 'var(--text-muted)' }}># z순서</button>
+                <button onClick={() => setShowSiblingGroup(s => !s)} title="형제 그룹 하이라이트" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingGroup ? '#fbbf24' : 'var(--border)'}`, background: showSiblingGroup ? 'rgba(251,191,36,0.12)' : 'none', color: showSiblingGroup ? '#fbbf24' : 'var(--text-muted)' }}>G 형제</button>
+                <button onClick={() => setShowSizeLabels(v => !v)} title="W×H 크기 레이블" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeLabels ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSizeLabels ? 'rgba(52,211,153,0.12)' : 'none', color: showSizeLabels ? '#34d399' : 'var(--text-muted)' }}>W×H</button>
+                <button onClick={() => setShowSizeOverlay(v => !v)} title="노드 크기 텍스트" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeOverlay ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSizeOverlay ? 'rgba(34,211,238,0.12)' : 'none', color: showSizeOverlay ? '#22d3ee' : 'var(--text-muted)' }}>WH</button>
+                <button onClick={() => setShowOpacityLabels(v => !v)} title="불투명도 α%" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityLabels ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityLabels ? 'rgba(251,191,36,0.12)' : 'none', color: showOpacityLabels ? '#fbbf24' : 'var(--text-muted)' }}>α%</button>
+                <button onClick={() => setShowOpacityOverlay(v => !v)} title="opacity 값" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityOverlay ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityOverlay ? 'rgba(251,191,36,0.1)' : 'none', color: showOpacityOverlay ? '#fbbf24' : 'var(--text-muted)' }}>α</button>
+                <button onClick={() => setShowOpacityHud(v => !v)} title="선택 노드 opacity HUD" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityHud ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityHud ? 'rgba(251,191,36,0.1)' : 'none', color: showOpacityHud ? '#fbbf24' : 'var(--text-muted)' }}>op</button>
+                <button onClick={() => setShowRotLabels(v => !v)} title="회전 레이블" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotLabels ? 'rgba(236,72,153,0.5)' : 'var(--border)'}`, background: showRotLabels ? 'rgba(236,72,153,0.12)' : 'none', color: showRotLabels ? '#ec4899' : 'var(--text-muted)' }}>∠°</button>
+                <button onClick={() => setShowRotOverlay(v => !v)} title="회전각 텍스트" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotOverlay ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRotOverlay ? 'rgba(167,139,250,0.1)' : 'none', color: showRotOverlay ? '#a78bfa' : 'var(--text-muted)' }}>∠</button>
+                <button onClick={() => setShowScaleLabel(v => !v)} title="스케일 배수" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showScaleLabel ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showScaleLabel ? 'rgba(250,204,21,0.12)' : 'none', color: showScaleLabel ? '#facc15' : 'var(--text-muted)' }}>×S</button>
+                <button onClick={() => setShowScaleText(v => !v)} title="scale 값" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showScaleText ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showScaleText ? 'rgba(34,211,238,0.1)' : 'none', color: showScaleText ? '#22d3ee' : 'var(--text-muted)' }}>S×</button>
+                <button onClick={() => setShowPosText(v => !v)} title="position 텍스트" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showPosText ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showPosText ? 'rgba(52,211,153,0.1)' : 'none', color: showPosText ? '#34d399' : 'var(--text-muted)' }}>xy</button>
+                <button onClick={() => setShowDepthLabel(v => !v)} title="계층 깊이 D:N" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDepthLabel ? 'rgba(134,239,172,0.5)' : 'var(--border)'}`, background: showDepthLabel ? 'rgba(134,239,172,0.12)' : 'none', color: showDepthLabel ? '#86efac' : 'var(--text-muted)' }}>D:</button>
+              </div>
+              {/* 배지 오버레이 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>배지</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setShowCompBadges(v => !v)} title="컴포넌트 아이콘 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompBadges ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showCompBadges ? 'rgba(250,204,21,0.12)' : 'none', color: showCompBadges ? '#facc15' : 'var(--text-muted)' }}>⚙ 컴포</button>
+                <button onClick={() => setShowCompBadge(v => !v)} title="컴포넌트 타입 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompBadge ? 'rgba(192,132,252,0.5)' : 'var(--border)'}`, background: showCompBadge ? 'rgba(192,132,252,0.12)' : 'none', color: showCompBadge ? '#c084fc' : 'var(--text-muted)' }}>CT</button>
+                <button onClick={() => setShowCompCountBadge(v => !v)} title="컴포넌트 수 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompCountBadge ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showCompCountBadge ? 'rgba(129,140,248,0.1)' : 'none', color: showCompCountBadge ? '#818cf8' : 'var(--text-muted)' }}>C#</button>
+                <button onClick={() => setShowTagBadge(v => !v)} title="tag 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showTagBadge ? 'rgba(56,189,248,0.5)' : 'var(--border)'}`, background: showTagBadge ? 'rgba(56,189,248,0.12)' : 'none', color: showTagBadge ? '#38bdf8' : 'var(--text-muted)' }}>#T</button>
+                <button onClick={() => setShowLayerBadge(v => !v)} title="레이어 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLayerBadge ? 'rgba(99,102,241,0.5)' : 'var(--border)'}`, background: showLayerBadge ? 'rgba(99,102,241,0.12)' : 'none', color: showLayerBadge ? '#6366f1' : 'var(--text-muted)' }}>L</button>
+                <button onClick={() => setShowEventBadge(v => !v)} title="이벤트 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEventBadge ? 'rgba(234,179,8,0.5)' : 'var(--border)'}`, background: showEventBadge ? 'rgba(234,179,8,0.12)' : 'none', color: showEventBadge ? '#eab308' : 'var(--text-muted)' }}>⚡</button>
+                <button onClick={() => setShowChildCountBadge(v => !v)} title="자식 수 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showChildCountBadge ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showChildCountBadge ? 'rgba(167,139,250,0.12)' : 'none', color: showChildCountBadge ? '#a78bfa' : 'var(--text-muted)' }}>↳N</button>
+                <button onClick={() => setShowColorSwatch(v => !v)} title="색상 스와치" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showColorSwatch ? 'rgba(244,114,182,0.5)' : 'var(--border)'}`, background: showColorSwatch ? 'rgba(244,114,182,0.12)' : 'none', color: showColorSwatch ? '#f472b6' : 'var(--text-muted)' }}>🎨 스와치</button>
+                <button onClick={() => setShowSpriteName(v => !v)} title="Sprite 이름 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSpriteName ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showSpriteName ? 'rgba(251,146,60,0.1)' : 'none', color: showSpriteName ? '#fb923c' : 'var(--text-muted)' }}>Sp</button>
+                <button onClick={() => setShowUuidBadge(v => !v)} title="UUID 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUuidBadge ? 'rgba(100,116,139,0.5)' : 'var(--border)'}`, background: showUuidBadge ? 'rgba(100,116,139,0.1)' : 'none', color: showUuidBadge ? '#64748b' : 'var(--text-muted)' }}>ID</button>
+                <button onClick={() => setShowDupNameOverlay(v => !v)} title="중복 이름 강조" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDupNameOverlay ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showDupNameOverlay ? 'rgba(251,146,60,0.12)' : 'none', color: showDupNameOverlay ? '#fb923c' : 'var(--text-muted)' }}>=N</button>
+                <button onClick={() => setShowZeroSizeWarn(v => !v)} title="크기 0 경고" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showZeroSizeWarn ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showZeroSizeWarn ? 'rgba(239,68,68,0.1)' : 'none', color: showZeroSizeWarn ? '#ef4444' : 'var(--text-muted)' }}>⚠</button>
+                <button onClick={() => setShowNonDefaultAnchor(v => !v)} title="비기본 앵커 강조" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNonDefaultAnchor ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showNonDefaultAnchor ? 'rgba(251,191,36,0.1)' : 'none', color: showNonDefaultAnchor ? '#fbbf24' : 'var(--text-muted)' }}>⚓</button>
+              </div>
+              {/* 노드 관계 오버레이 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>노드 관계</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setShowAnchorOverlay(v => !v)} title="앵커 포인트 전체" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showAnchorOverlay ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showAnchorOverlay ? 'rgba(251,146,60,0.12)' : 'none', color: showAnchorOverlay ? '#fb923c' : 'var(--text-muted)' }}>⊕ 앵커전체</button>
+                <button onClick={() => setShowAnchorDot(v => !v)} title="앵커 포인트 마커" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showAnchorDot ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showAnchorDot ? 'rgba(251,146,60,0.12)' : 'none', color: showAnchorDot ? '#fb923c' : 'var(--text-muted)' }}>⊕ 앵커점</button>
+                <button onClick={() => setShowHierarchyLines(v => !v)} title="계층 연결선" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showHierarchyLines ? 'rgba(103,232,249,0.5)' : 'var(--border)'}`, background: showHierarchyLines ? 'rgba(103,232,249,0.12)' : 'none', color: showHierarchyLines ? '#67e8f9' : 'var(--text-muted)' }}>⊣ 계층선</button>
+                <button onClick={() => setShowParentHighlight(v => !v)} title="부모 강조" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showParentHighlight ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showParentHighlight ? 'rgba(251,146,60,0.12)' : 'none', color: showParentHighlight ? '#fb923c' : 'var(--text-muted)' }}>⊘ 부모</button>
+                <button onClick={() => setShowSiblingHighlight(v => !v)} title="형제 강조" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingHighlight ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showSiblingHighlight ? 'rgba(139,92,246,0.1)' : 'none', color: showSiblingHighlight ? '#8b5cf6' : 'var(--text-muted)' }}>≡ 형제</button>
+                <button onClick={() => setShowRotArrow(v => !v)} title="회전 방향 화살표" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotArrow ? 'rgba(236,72,153,0.5)' : 'var(--border)'}`, background: showRotArrow ? 'rgba(236,72,153,0.12)' : 'none', color: showRotArrow ? '#ec4899' : 'var(--text-muted)' }}>↗R</button>
+                <button onClick={() => setShowFlipOverlay(v => !v)} title="flip 노드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showFlipOverlay ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showFlipOverlay ? 'rgba(250,204,21,0.12)' : 'none', color: showFlipOverlay ? '#facc15' : 'var(--text-muted)' }}>↔↕ flip</button>
+                <button onClick={() => setShowRefArrows(v => !v)} title="uuid 참조 화살표" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRefArrows ? 'rgba(249,115,22,0.5)' : 'var(--border)'}`, background: showRefArrows ? 'rgba(249,115,22,0.1)' : 'none', color: showRefArrows ? '#f97316' : 'var(--text-muted)' }}>🔗 참조</button>
+                <button onClick={() => setShowCenterDot(v => !v)} title="중심점 마커" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCenterDot ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showCenterDot ? 'rgba(248,113,113,0.1)' : 'none', color: showCenterDot ? '#f87171' : 'var(--text-muted)' }}>· 중심점</button>
+              </div>
+              {/* 선택 오버레이 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>선택 오버레이</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setShowSelBBox(v => !v)} title="선택 BBox" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelBBox ? '#60a5fa' : 'var(--text-muted)' }}>⬚ selBBox</button>
+                <button onClick={() => setShowSelGroupBBox(v => !v)} title="선택 그룹 BBox" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelGroupBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelGroupBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelGroupBBox ? '#60a5fa' : 'var(--text-muted)' }}>▣ 그룹BBox</button>
+                <button onClick={() => setShowSelPolyline(v => !v)} title="선택 연결선" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelPolyline ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showSelPolyline ? 'rgba(167,139,250,0.12)' : 'none', color: showSelPolyline ? '#a78bfa' : 'var(--text-muted)' }}>⌇ 연결선</button>
+                <button onClick={() => setShowSelCenter(v => !v)} title="선택 중심 마커" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelCenter ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSelCenter ? 'rgba(52,211,153,0.1)' : 'none', color: showSelCenter ? '#34d399' : 'var(--text-muted)' }}>⊕ 중심</button>
+                <button onClick={() => setShowSelOrder(v => !v)} title="선택 순서 번호" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelOrder ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSelOrder ? 'rgba(52,211,153,0.12)' : 'none', color: showSelOrder ? '#34d399' : 'var(--text-muted)' }}>① 순서</button>
+                <button onClick={() => setShowSelAxisLine(v => !v)} title="선택 위치 가이드선" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelAxisLine ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSelAxisLine ? 'rgba(34,211,238,0.1)' : 'none', color: showSelAxisLine ? '#22d3ee' : 'var(--text-muted)' }}>╋ 가이드선</button>
+                <button onClick={() => setShowPairDist(v => !v)} title="노드 간 거리" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showPairDist ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showPairDist ? 'rgba(167,139,250,0.1)' : 'none', color: showPairDist ? '#a78bfa' : 'var(--text-muted)' }}>↔ 거리</button>
+              </div>
+              {/* 씬 가이드 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>씬 가이드</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setShowSafeZone(v => !v)} title="안전 영역 가이드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSafeZone ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showSafeZone ? 'rgba(251,191,36,0.12)' : 'none', color: showSafeZone ? '#fbbf24' : 'var(--text-muted)' }}>☰ 안전영역</button>
+                <button onClick={() => setShowRuleOfThirds(v => !v)} title="삼분법 가이드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRuleOfThirds ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRuleOfThirds ? 'rgba(167,139,250,0.12)' : 'none', color: showRuleOfThirds ? '#a78bfa' : 'var(--text-muted)' }}>⊞ 삼분법</button>
+                <button onClick={() => setShowCustomRatio(v => !v)} title="커스텀 비율 가이드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCustomRatio ? 'rgba(234,179,8,0.5)' : 'var(--border)'}`, background: showCustomRatio ? 'rgba(234,179,8,0.12)' : 'none', color: showCustomRatio ? '#eab308' : 'var(--text-muted)' }}>⊞R 비율</button>
+                {showCustomRatio && (<>
+                  <input type="number" min={1} value={customRatioW} onChange={e => setCustomRatioW(Math.max(1, Number(e.target.value)))} style={{ width: 30, fontSize: 9, padding: '1px 2px' }} title="비율 W" />
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>:</span>
+                  <input type="number" min={1} value={customRatioH} onChange={e => setCustomRatioH(Math.max(1, Number(e.target.value)))} style={{ width: 30, fontSize: 9, padding: '1px 2px' }} title="비율 H" />
+                </>)}
+                <button onClick={() => setShowOOBHighlight(v => !v)} title="경계 초과 노드 강조" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOOBHighlight ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showOOBHighlight ? 'rgba(239,68,68,0.12)' : 'none', color: showOOBHighlight ? '#ef4444' : 'var(--text-muted)' }}>⬚ 경계초과</button>
+                <button onClick={() => setShowSceneBBox(v => !v)} title="씬 전체 바운딩박스" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSceneBBox ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showSceneBBox ? 'rgba(248,113,113,0.12)' : 'none', color: showSceneBBox ? '#f87171' : 'var(--text-muted)' }}>⊏ 씬BBox</button>
+              </div>
+              {/* 컴포넌트 타입 필터 */}
+              {(() => {
+                const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
+                const typeCounts = new Map<string, number>()
+                flatNodes.forEach(fn => fn.node.components.forEach(c => { if (!ignore.has(c.type)) typeCounts.set(c.type, (typeCounts.get(c.type) ?? 0) + 1) }))
+                const types = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([t]) => t)
+                if (types.length === 0) return null
+                const shortName = (t: string) => t.replace('cc.','').replace('dragonBones.','').slice(0, 8)
+                return (<>
+                  <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>컴포넌트 필터</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                    {types.map(t => (
+                      <button key={t} onClick={() => setCompFilterType(v => v === t ? null : t)}
+                        title={`${t} 노드만 강조`}
+                        style={{ padding: '1px 4px', fontSize: 8, borderRadius: 3, cursor: 'pointer', border: `1px solid ${compFilterType === t ? 'rgba(139,92,246,0.6)' : 'var(--border)'}`, background: compFilterType === t ? 'rgba(139,92,246,0.15)' : 'none', color: compFilterType === t ? '#a78bfa' : 'var(--text-muted)' }}
+                      >{shortName(t)}</button>
+                    ))}
+                  </div>
+                </>)
+              })()}
+            </div>
+          )}
+        </span>
+        {/* ── 도구 패널 ── */}
+        <span ref={toolPanelRef} style={{ position: 'relative', flexShrink: 0 }}>
+          <button
+            onClick={() => { setShowToolPanel(p => !p); setShowOverlayPanel(false) }}
+            title="뷰/도구 패널"
+            style={{ padding: '1px 6px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showToolPanel ? '#58a6ff' : 'var(--border)'}`, background: showToolPanel ? 'rgba(88,166,255,0.15)' : 'none', color: showToolPanel ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+          >도구 {showToolPanel ? '▲' : '▼'}</button>
+          {showToolPanel && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 300, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', minWidth: 200, maxHeight: '75vh', overflowY: 'auto', boxShadow: '0 4px 16px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {/* 뷰 이동 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>뷰 이동</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={handleFit} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>⊞ Fit</button>
+                <button onClick={panToCenter} disabled={!selectedUuid && multiSelected.size === 0} title="선택 노드 중심으로 이동" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: !selectedUuid && multiSelected.size === 0 ? 'not-allowed' : 'pointer', border: '1px solid var(--border)', background: 'none', color: !selectedUuid && multiSelected.size === 0 ? 'var(--text-muted-disabled)' : 'var(--text-muted)', opacity: !selectedUuid && multiSelected.size === 0 ? 0.5 : 1 }}>⊕C 중심이동</button>
+                <input placeholder="x,y 이동" title="CC 좌표로 이동 (예: 100,-50) Enter"
+                  onKeyDown={e => {
+                    if (e.key !== 'Enter') return
+                    const svg = svgRef.current; if (!svg) return
+                    const val = (e.target as HTMLInputElement).value.trim()
+                    const m = val.match(/^(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)$/); if (!m) return
+                    const ccX = parseFloat(m[1]), ccY = parseFloat(m[2])
+                    const rect = svg.getBoundingClientRect()
+                    const svgPos = ccToSvg(ccX, ccY)
+                    const z = viewRef.current.zoom
+                    setView(v => ({ ...v, offsetX: rect.width / 2 - svgPos.x * z, offsetY: rect.height / 2 - svgPos.y * z }))
+                    ;(e.target as HTMLInputElement).value = ''
+                    ;(e.target as HTMLInputElement).blur()
+                  }}
+                  style={{ width: 60, fontSize: 8, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)', borderRadius: 2, height: 16 }}
+                />
+              </div>
+              {/* 북마크 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>뷰 북마크 (Ctrl+클릭: 저장)</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                {viewBookmarks.map((bm, i) => (
+                  <button key={i}
+                    onClick={e => { if (e.ctrlKey || e.metaKey) setViewBookmarks(prev => { const n=[...prev]; n[i]=viewRef.current; return n }); else if (bm) setView(bm) }}
+                    title={bm ? `북마크 ${i+1} 복원 (Ctrl: 저장)` : `북마크 ${i+1} 비어있음`}
+                    style={{ padding: '0 6px', fontSize: 9, borderRadius: 2, cursor: 'pointer', border: `1px solid ${bm ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: bm ? 'rgba(251,146,60,0.08)' : 'none', color: bm ? '#fb923c' : 'var(--text-muted)', lineHeight: '18px' }}
+                  >북마크 {i+1}</button>
+                ))}
+              </div>
+              {/* 편집 잠금 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>잠금</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setViewLock(l => !l)} title={viewLock ? '편집 잠금 해제' : '편집 잠금'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${viewLock ? '#f85149' : 'var(--border)'}`, background: viewLock ? 'rgba(248,81,73,0.12)' : 'none', color: viewLock ? '#f85149' : 'var(--text-muted)' }}>{viewLock ? '🔒 잠금됨' : '🔓 잠금해제'}</button>
+                {!viewLock && selectedUuid && (
+                  <button onClick={() => toggleLock(selectedUuid)} title={lockedUuids.has(selectedUuid) ? '노드 잠금 해제' : '노드 잠금'} style={{ fontSize: 9, padding: '1px 5px', background: lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.12)' : 'var(--bg-secondary)', border: `1px solid ${lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, borderRadius: 3, color: lockedUuids.has(selectedUuid) ? '#fbbf24' : 'var(--text-muted)', cursor: 'pointer' }}>{lockedUuids.has(selectedUuid) ? '🔒 노드잠금' : '🔓 노드잠금'}</button>
+                )}
+                <button onClick={() => setHideInactiveNodes(h => !h)} title={hideInactiveNodes ? '비활성 노드 표시' : '비활성 노드 숨기기'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${hideInactiveNodes ? '#fbbf24' : 'var(--border)'}`, background: hideInactiveNodes ? 'rgba(251,191,36,0.12)' : 'none', color: hideInactiveNodes ? '#fbbf24' : 'var(--text-muted)' }}>👁 비활성 숨기기</button>
+              </div>
+              {/* 미니맵/도구 */}
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>도구</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <button onClick={() => setShowMinimap(m => !m)} title="미니맵" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showMinimap ? 'rgba(88,166,255,0.12)' : 'none', color: showMinimap ? '#58a6ff' : 'var(--text-muted)' }}>⊟ 미니맵</button>
+                <button onClick={() => { setMeasureMode(m => { if (m) setMeasureLine(null); return !m }); measureStartRef.current = null }} title={measureMode ? '측정 도구 종료' : '거리 측정'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${measureMode ? '#ff6b6b' : 'var(--border)'}`, background: measureMode ? 'rgba(255,107,107,0.12)' : 'none', color: measureMode ? '#ff6b6b' : 'var(--text-muted)' }}>📏 거리측정</button>
+                <button onClick={() => refImgSrc ? setRefImgSrc(null) : refImgInputRef.current?.click()} title={refImgSrc ? '레퍼런스 이미지 제거' : '레퍼런스 이미지 로드'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: refImgSrc ? 'rgba(100,200,100,0.12)' : 'none', color: refImgSrc ? '#4ade80' : 'var(--text-muted)' }}>📐 레퍼런스</button>
+                {refImgSrc && (<input type="range" min={0.05} max={1} step={0.05} value={refImgOpacity} onChange={e => setRefImgOpacity(parseFloat(e.target.value))} title={`투명도 ${Math.round(refImgOpacity * 100)}%`} style={{ width: 60 }} />)}
+                <button onClick={handleSvgExport} title="씬 SVG 파일 내보내기" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>SVG</button>
+                {cameraFrames.length > 0 && (
+                  <button onClick={() => setShowCameraFrames(v => !v)} title={showCameraFrames ? '카메라 프레임 숨기기' : '카메라 프레임 표시'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCameraFrames ? 'rgba(255,200,60,0.5)' : 'var(--border)'}`, background: showCameraFrames ? 'rgba(255,200,60,0.1)' : 'none', color: showCameraFrames ? 'rgba(255,200,60,0.9)' : 'var(--text-muted)' }}>📷</button>
+                )}
+                <button onClick={e => handleScreenshotAI(e)} title="씬 스크린샷 → Claude 분석 / Shift+클릭: PNG 저장" disabled={screenshotSending} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}>{screenshotSending ? '⟳' : '📷'} 스크린샷</button>
+              </div>
+            </div>
+          )}
+        </span>
         {/* R2543: 뷰 북마크 1/2/3 (Ctrl+클릭 저장, 클릭 복원) */}
         {viewBookmarks.map((bm, i) => (
           <button key={i}
@@ -1578,53 +1749,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             style={{ padding: '0 3px', fontSize: 8, borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', background: Math.abs(view.zoom - z) < 0.01 ? 'rgba(88,166,255,0.15)' : 'none', color: Math.abs(view.zoom - z) < 0.01 ? '#58a6ff' : 'var(--text-muted)', lineHeight: '14px' }}
           >{z === 1 ? '1×' : z === 0.5 ? '½' : '2×'}</button>
         ))}
-        {/* R2540: 좌표 이동 입력 (Go-to XY) */}
-        <input
-          placeholder="x,y"
-          title="CC 좌표로 이동 (예: 100,-50) Enter — R2540"
-          onKeyDown={e => {
-            if (e.key !== 'Enter') return
-            const svg = svgRef.current
-            if (!svg) return
-            const val = (e.target as HTMLInputElement).value.trim()
-            const m = val.match(/^(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)$/)
-            if (!m) return
-            const ccX = parseFloat(m[1]), ccY = parseFloat(m[2])
-            const rect = svg.getBoundingClientRect()
-            const svgPos = ccToSvg(ccX, ccY)
-            const z = viewRef.current.zoom
-            setView(v => ({ ...v, offsetX: rect.width / 2 - svgPos.x * z, offsetY: rect.height / 2 - svgPos.y * z }))
-            ;(e.target as HTMLInputElement).value = ''
-            ;(e.target as HTMLInputElement).blur()
-          }}
-          style={{ width: 50, fontSize: 8, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)', borderRadius: 2, height: 16 }}
-        />
-        {/* R1602: 눈금자 토글 */}
-        <button
-          onClick={() => setShowRuler(r => !r)}
-          title="눈금자 표시 (R1602)"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showRuler ? 'rgba(88,166,255,0.12)' : 'none', color: showRuler ? '#58a6ff' : 'var(--text-muted)' }}
-        >尺</button>
-        {/* R1605: 편집 잠금 */}
-        <button
-          onClick={() => setViewLock(l => !l)}
-          title={viewLock ? '편집 잠금 해제 (R1605)' : '편집 잠금 — 보기 전용 모드 (R1605)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${viewLock ? '#f85149' : 'var(--border)'}`, background: viewLock ? 'rgba(248,81,73,0.12)' : 'none', color: viewLock ? '#f85149' : 'var(--text-muted)' }}
-        >{viewLock ? '🔒' : '🔓'}</button>
-        {/* R2711: 선택 노드 잠금/해제 */}
-        {!viewLock && selectedUuid && (
-          <button
-            onClick={() => toggleLock(selectedUuid)}
-            title={lockedUuids.has(selectedUuid) ? '노드 잠금 해제 (R2711)' : '노드 잠금 (R2711)'}
-            style={{ fontSize: 9, padding: '1px 4px', background: lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.12)' : 'var(--bg-secondary)', border: `1px solid ${lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, borderRadius: 3, color: lockedUuids.has(selectedUuid) ? '#fbbf24' : 'var(--text-muted)', cursor: 'pointer' }}
-          >{lockedUuids.has(selectedUuid) ? '🔒' : '🔓'}</button>
-        )}
-        {/* R1610: 비활성 노드 숨기기 */}
-        <button
-          onClick={() => setHideInactiveNodes(h => !h)}
-          title={hideInactiveNodes ? '비활성 노드 표시' : '비활성 노드 숨기기 (R1610)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${hideInactiveNodes ? '#fbbf24' : 'var(--border)'}`, background: hideInactiveNodes ? 'rgba(251,191,36,0.12)' : 'none', color: hideInactiveNodes ? '#fbbf24' : 'var(--text-muted)' }}
-        >👁</button>
         {/* R1692: 시각적 숨김 노드 카운트 + 초기화 */}
         {hiddenUuids.size > 0 && (
           <button
@@ -1724,380 +1848,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )}
           </span>
         </>)}
-        {/* R1623: 와이어프레임 모드 */}
-        <button
-          onClick={() => setWireframeMode(w => !w)}
-          title={wireframeMode ? '와이어프레임 모드 해제' : '와이어프레임 모드 — 선만 표시 (R1623)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${wireframeMode ? '#58a6ff' : 'var(--border)'}`, background: wireframeMode ? 'rgba(88,166,255,0.12)' : 'none', color: wireframeMode ? '#58a6ff' : 'var(--text-muted)' }}
-        >⬚</button>
-        {/* R1659: 솔로 모드 */}
-        <button
-          onClick={() => setSoloMode(m => !m)}
-          title={soloMode ? '솔로 모드 해제' : '솔로 모드 (선택 노드 외 흐리게)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${soloMode ? '#f97316' : 'var(--border)'}`, background: soloMode ? 'rgba(249,115,22,0.12)' : 'none', color: soloMode ? '#f97316' : 'var(--text-muted)' }}
-        >◎</button>
-        {/* R1641: depth 색조 시각화 */}
-        <button
-          onClick={() => setDepthColorMode(d => !d)}
-          title={depthColorMode ? 'Depth 색조 시각화 해제' : 'Depth별 색조 표시 (R1641)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthColorMode ? '#a78bfa' : 'var(--border)'}`, background: depthColorMode ? 'rgba(167,139,250,0.12)' : 'none', color: depthColorMode ? '#a78bfa' : 'var(--text-muted)' }}
-        >⧫</button>
-        {/* R2526: 깊이 필터 */}
-        <button
-          onClick={() => setDepthFilterMax(v => v === null ? 2 : null)}
-          title={depthFilterMax !== null ? `깊이 필터 해제 (현재: D${depthFilterMax} 이하만 표시) (R2526)` : '깊이 필터 ON — 특정 depth 이하만 표시 (R2526)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthFilterMax !== null ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: depthFilterMax !== null ? 'rgba(52,211,153,0.1)' : 'none', color: depthFilterMax !== null ? '#34d399' : 'var(--text-muted)' }}
-        >D{depthFilterMax !== null ? `≤${depthFilterMax}` : '∞'}</button>
-        {depthFilterMax !== null && (
-          <input type="range" min={0} max={10} value={depthFilterMax}
-            onChange={e => setDepthFilterMax(parseInt(e.target.value))}
-            title={`깊이 제한: D${depthFilterMax} (R2526)`}
-            style={{ width: 50, cursor: 'pointer', accentColor: '#34d399' }} />
-        )}
-        {/* R2557: Label 텍스트 콘텐츠 오버레이 토글 */}
-        <button
-          onClick={() => setShowLabelText(v => !v)}
-          title={showLabelText ? 'Label 텍스트 오버레이 끄기 (R2557)' : 'Label 텍스트 내용을 SVG에 직접 표시 (R2557)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLabelText ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showLabelText ? 'rgba(139,92,246,0.12)' : 'none', color: showLabelText ? '#a78bfa' : 'var(--text-muted)' }}
-        >T</button>
-        {/* R2576: 노드 크기 레이블 오버레이 토글 */}
-        <button
-          onClick={() => setShowSizeLabels(v => !v)}
-          title={showSizeLabels ? '크기 레이블 끄기 (R2576)' : '노드 W×H 크기 레이블 오버레이 (R2576)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeLabels ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSizeLabels ? 'rgba(52,211,153,0.12)' : 'none', color: showSizeLabels ? '#34d399' : 'var(--text-muted)' }}
-        >W×H</button>
-        {/* R2578: 불투명도 레이블 오버레이 토글 */}
-        <button
-          onClick={() => setShowOpacityLabels(v => !v)}
-          title={showOpacityLabels ? '불투명도 오버레이 끄기 (R2578)' : '노드 α% 불투명도 표시 (R2578)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityLabels ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityLabels ? 'rgba(251,191,36,0.12)' : 'none', color: showOpacityLabels ? '#fbbf24' : 'var(--text-muted)' }}
-        >α%</button>
-        {/* R2579: 컴포넌트 배지 오버레이 토글 */}
-        <button
-          onClick={() => setShowCompBadges(v => !v)}
-          title={showCompBadges ? '컴포넌트 배지 끄기 (R2579)' : '노드별 컴포넌트 아이콘 배지 표시 (R2579)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompBadges ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showCompBadges ? 'rgba(250,204,21,0.12)' : 'none', color: showCompBadges ? '#facc15' : 'var(--text-muted)' }}
-        >⚙</button>
-        {/* R2583: 회전값 레이블 오버레이 토글 */}
-        <button
-          onClick={() => setShowRotLabels(v => !v)}
-          title={showRotLabels ? '회전 레이블 끄기 (R2583)' : '비영(非零) 회전 노드에 ∠° 표시 (R2583)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotLabels ? 'rgba(236,72,153,0.5)' : 'var(--border)'}`, background: showRotLabels ? 'rgba(236,72,153,0.12)' : 'none', color: showRotLabels ? '#ec4899' : 'var(--text-muted)' }}
-        >∠°</button>
-        {/* R2585: 노드 이름 레이블 오버레이 토글 */}
-        <button
-          onClick={() => setShowNameLabels(v => !v)}
-          title={showNameLabels ? '이름 레이블 끄기 (R2585)' : '각 노드에 이름 텍스트 오버레이 (R2585)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNameLabels ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showNameLabels ? 'rgba(96,165,250,0.12)' : 'none', color: showNameLabels ? '#60a5fa' : 'var(--text-muted)' }}
-        >이름</button>
-        {/* R2586: 앵커 포인트 전체 오버레이 토글 */}
-        <button
-          onClick={() => setShowAnchorOverlay(v => !v)}
-          title={showAnchorOverlay ? '앵커 오버레이 끄기 (R2586)' : '모든 노드 앵커 포인트 표시 (R2586)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showAnchorOverlay ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showAnchorOverlay ? 'rgba(251,146,60,0.12)' : 'none', color: showAnchorOverlay ? '#fb923c' : 'var(--text-muted)' }}
-        >⊕</button>
-        {/* R2588: 노드 색상 스와치 오버레이 토글 */}
-        <button
-          onClick={() => setShowColorSwatch(v => !v)}
-          title={showColorSwatch ? '색상 스와치 끄기 (R2588)' : '비흰색 노드에 색상 스와치 표시 (R2588)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showColorSwatch ? 'rgba(244,114,182,0.5)' : 'var(--border)'}`, background: showColorSwatch ? 'rgba(244,114,182,0.12)' : 'none', color: showColorSwatch ? '#f472b6' : 'var(--text-muted)' }}
-        >🎨</button>
-        {/* R2591: 자식 수 배지 오버레이 토글 */}
-        <button
-          onClick={() => setShowChildCountBadge(v => !v)}
-          title={showChildCountBadge ? '자식 수 배지 끄기 (R2591)' : '자식 노드 수 배지 표시 (R2591)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showChildCountBadge ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showChildCountBadge ? 'rgba(167,139,250,0.12)' : 'none', color: showChildCountBadge ? '#a78bfa' : 'var(--text-muted)' }}
-        >↳N</button>
-        {/* R2592: 깊이 레이블 오버레이 토글 */}
-        <button
-          onClick={() => setShowDepthLabel(v => !v)}
-          title={showDepthLabel ? '깊이 레이블 끄기 (R2592)' : '노드 계층 깊이 D:N 표시 (R2592)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDepthLabel ? 'rgba(134,239,172,0.5)' : 'var(--border)'}`, background: showDepthLabel ? 'rgba(134,239,172,0.12)' : 'none', color: showDepthLabel ? '#86efac' : 'var(--text-muted)' }}
-        >D:</button>
-        {/* R2598: flip(음수 scale) 노드 표시 토글 */}
-        <button
-          onClick={() => setShowFlipOverlay(v => !v)}
-          title={showFlipOverlay ? 'flip 표시 끄기 (R2598)' : 'scale 음수(뒤집힌) 노드에 ↔↕ 표시 (R2598)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showFlipOverlay ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showFlipOverlay ? 'rgba(250,204,21,0.12)' : 'none', color: showFlipOverlay ? '#facc15' : 'var(--text-muted)' }}
-        >↔↕</button>
-        {/* R2600: 다중 선택 bounding box 토글 */}
-        <button
-          onClick={() => setShowSelBBox(v => !v)}
-          title={showSelBBox ? '선택 BBox 끄기 (R2600)' : '다중 선택 노드 전체 영역 표시 (R2600)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelBBox ? '#60a5fa' : 'var(--text-muted)' }}
-        >⬚</button>
-        {/* R2601: component 타입 배지 오버레이 토글 */}
-        <button
-          onClick={() => setShowCompBadge(v => !v)}
-          title={showCompBadge ? '컴포넌트 배지 끄기 (R2601)' : '노드 주요 컴포넌트 타입 배지 표시 (R2601)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompBadge ? 'rgba(192,132,252,0.5)' : 'var(--border)'}`, background: showCompBadge ? 'rgba(192,132,252,0.12)' : 'none', color: showCompBadge ? '#c084fc' : 'var(--text-muted)' }}
-        >CT</button>
-        {/* R2603: tag 배지 오버레이 토글 */}
-        <button
-          onClick={() => setShowTagBadge(v => !v)}
-          title={showTagBadge ? 'tag 배지 끄기 (R2603)' : 'tag≠0 노드에 #N 배지 표시 (R2603)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showTagBadge ? 'rgba(56,189,248,0.5)' : 'var(--border)'}`, background: showTagBadge ? 'rgba(56,189,248,0.12)' : 'none', color: showTagBadge ? '#38bdf8' : 'var(--text-muted)' }}
-        >#T</button>
-        {/* R2607: 중복 이름 노드 강조 토글 */}
-        <button
-          onClick={() => setShowDupNameOverlay(v => !v)}
-          title={showDupNameOverlay ? '중복 이름 강조 끄기 (R2607)' : '같은 이름 2개 이상인 노드 주황 점선 강조 (R2607)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDupNameOverlay ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showDupNameOverlay ? 'rgba(251,146,60,0.12)' : 'none', color: showDupNameOverlay ? '#fb923c' : 'var(--text-muted)' }}
-        >=N</button>
-        {/* R2610: rotation 방향 화살표 토글 */}
-        <button
-          onClick={() => setShowRotArrow(v => !v)}
-          title={showRotArrow ? 'rotation 화살표 끄기 (R2610)' : '비영 rotation 노드에 방향 화살표 표시 (R2610)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotArrow ? 'rgba(236,72,153,0.5)' : 'var(--border)'}`, background: showRotArrow ? 'rgba(236,72,153,0.12)' : 'none', color: showRotArrow ? '#ec4899' : 'var(--text-muted)' }}
-        >↗R</button>
-        {/* R2615: W×H 크기 표시 토글 */}
-        <button
-          onClick={() => setShowSizeOverlay(v => !v)}
-          title={showSizeOverlay ? 'W×H 크기 표시 끄기 (R2615)' : '노드 W×H 크기 텍스트 표시 (R2615)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeOverlay ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSizeOverlay ? 'rgba(34,211,238,0.12)' : 'none', color: showSizeOverlay ? '#22d3ee' : 'var(--text-muted)' }}
-        >WH</button>
-        {/* R2617: 원점(0,0) 십자선 토글 */}
-        <button
-          onClick={() => setShowOriginCross(v => !v)}
-          title={showOriginCross ? '원점 십자선 끄기 (R2617)' : 'CC 좌표 (0,0) 원점 십자선 표시 (R2617)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOriginCross ? 'rgba(74,222,128,0.5)' : 'var(--border)'}`, background: showOriginCross ? 'rgba(74,222,128,0.12)' : 'none', color: showOriginCross ? '#4ade80' : 'var(--text-muted)' }}
-        >⊕</button>
-        {/* R2620: 스케일 배수 텍스트 오버레이 토글 */}
-        <button
-          onClick={() => setShowScaleLabel(v => !v)}
-          title={showScaleLabel ? '스케일 표시 끄기 (R2620)' : 'scale≠1 노드에 ×sx,sy 배수 표시 (R2620)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showScaleLabel ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showScaleLabel ? 'rgba(250,204,21,0.12)' : 'none', color: showScaleLabel ? '#facc15' : 'var(--text-muted)' }}
-        >×S</button>
-        {/* R2624: 레이어 배지 오버레이 토글 */}
-        <button
-          onClick={() => setShowLayerBadge(v => !v)}
-          title={showLayerBadge ? '레이어 배지 끄기 (R2624)' : 'CC3.x 비기본 레이어 노드에 레이어명 배지 표시 (R2624)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLayerBadge ? 'rgba(99,102,241,0.5)' : 'var(--border)'}`, background: showLayerBadge ? 'rgba(99,102,241,0.12)' : 'none', color: showLayerBadge ? '#6366f1' : 'var(--text-muted)' }}
-        >L</button>
-        {/* R2625: 이벤트 핸들러 배지 오버레이 토글 */}
-        <button
-          onClick={() => setShowEventBadge(v => !v)}
-          title={showEventBadge ? '이벤트 배지 끄기 (R2625)' : 'Button/Toggle/Slider 노드에 ⚡ 배지 표시 (R2625)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEventBadge ? 'rgba(234,179,8,0.5)' : 'var(--border)'}`, background: showEventBadge ? 'rgba(234,179,8,0.12)' : 'none', color: showEventBadge ? '#eab308' : 'var(--text-muted)' }}
-        >⚡</button>
-        {/* R2629: 안전 영역 가이드 토글 */}
-        <button
-          onClick={() => setShowSafeZone(v => !v)}
-          title={showSafeZone ? '안전 영역 가이드 끄기 (R2629)' : '90% 안전 영역 + 비율 가이드 표시 (R2629)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSafeZone ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showSafeZone ? 'rgba(251,191,36,0.12)' : 'none', color: showSafeZone ? '#fbbf24' : 'var(--text-muted)' }}
-        >☰</button>
-        {/* R2630: 삼분법 가이드 토글 */}
-        <button
-          onClick={() => setShowRuleOfThirds(v => !v)}
-          title={showRuleOfThirds ? '삼분법 가이드 끄기 (R2630)' : '3×3 Rule of Thirds 가이드 표시 (R2630)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRuleOfThirds ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRuleOfThirds ? 'rgba(167,139,250,0.12)' : 'none', color: showRuleOfThirds ? '#a78bfa' : 'var(--text-muted)' }}
-        >⊞</button>
-        {/* R2709: 커스텀 비율 가이드 토글 */}
-        <button
-          onClick={() => setShowCustomRatio(v => !v)}
-          title={showCustomRatio ? '커스텀 비율 가이드 끄기 (R2709)' : '커스텀 비율 가이드 표시 (R2709)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCustomRatio ? 'rgba(234,179,8,0.5)' : 'var(--border)'}`, background: showCustomRatio ? 'rgba(234,179,8,0.12)' : 'none', color: showCustomRatio ? '#eab308' : 'var(--text-muted)' }}
-        >⊞R</button>
-        <input type="number" min={1} value={customRatioW}
-          onChange={e => setCustomRatioW(Math.max(1, Number(e.target.value)))}
-          style={{ width: 30, fontSize: 9, padding: '1px 2px' }} title="가이드 비율 W" />
-        <span style={{fontSize:9, color:'var(--text-muted)', margin: '0 2px'}}>:</span>
-        <input type="number" min={1} value={customRatioH}
-          onChange={e => setCustomRatioH(Math.max(1, Number(e.target.value)))}
-          style={{ width: 30, fontSize: 9, padding: '1px 2px' }} title="가이드 비율 H" />
-        {/* R2636: 캔버스 경계 초과 노드 강조 토글 */}
-        <button
-          onClick={() => setShowOOBHighlight(v => !v)}
-          title={showOOBHighlight ? '경계 초과 강조 끄기 (R2636)' : '캔버스 경계 초과 노드 적색 강조 (R2636)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOOBHighlight ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showOOBHighlight ? 'rgba(239,68,68,0.12)' : 'none', color: showOOBHighlight ? '#ef4444' : 'var(--text-muted)' }}
-        >⬚</button>
-        {/* R2637: 씬 전체 바운딩박스 토글 */}
-        <button
-          onClick={() => setShowSceneBBox(v => !v)}
-          title={showSceneBBox ? '씬 바운딩박스 끄기 (R2637)' : '씬 전체 노드 바운딩박스 표시 (R2637)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSceneBBox ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showSceneBBox ? 'rgba(248,113,113,0.12)' : 'none', color: showSceneBBox ? '#f87171' : 'var(--text-muted)' }}
-        >⊏</button>
-        {/* R2640: 선택 순서 번호 오버레이 토글 */}
-        <button
-          onClick={() => setShowSelOrder(v => !v)}
-          title={showSelOrder ? '선택 순서 번호 끄기 (R2640)' : '선택된 노드에 배치 순서 번호 ①② 표시 (R2640)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelOrder ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSelOrder ? 'rgba(52,211,153,0.12)' : 'none', color: showSelOrder ? '#34d399' : 'var(--text-muted)' }}
-        >①</button>
-        {/* R2641: 앵커 포인트 시각화 오버레이 토글 */}
-        <button
-          onClick={() => setShowAnchorDot(v => !v)}
-          title={showAnchorDot ? '앵커 포인트 끄기 (R2641)' : '각 노드의 앵커 포인트 십자 마커 표시 (R2641)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showAnchorDot ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showAnchorDot ? 'rgba(251,146,60,0.12)' : 'none', color: showAnchorDot ? '#fb923c' : 'var(--text-muted)' }}
-        >⊕</button>
-        {/* R2645: 선택 노드 연결선 오버레이 토글 */}
-        <button
-          onClick={() => setShowSelPolyline(v => !v)}
-          title={showSelPolyline ? '선택 연결선 끄기 (R2645)' : '선택 노드 순서대로 연결선 표시 (R2645)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelPolyline ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showSelPolyline ? 'rgba(167,139,250,0.12)' : 'none', color: showSelPolyline ? '#a78bfa' : 'var(--text-muted)' }}
-        >⌇</button>
-        {/* R2646: 계층 구조 연결선 오버레이 토글 */}
-        <button
-          onClick={() => setShowHierarchyLines(v => !v)}
-          title={showHierarchyLines ? '계층 연결선 끄기 (R2646)' : '부모-자식 계층 구조 연결선 표시 (R2646)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showHierarchyLines ? 'rgba(103,232,249,0.5)' : 'var(--border)'}`, background: showHierarchyLines ? 'rgba(103,232,249,0.12)' : 'none', color: showHierarchyLines ? '#67e8f9' : 'var(--text-muted)' }}
-        >⊣</button>
-        {/* R2647: 선택 노드 그룹 바운딩박스 토글 */}
-        <button
-          onClick={() => setShowSelGroupBBox(v => !v)}
-          title={showSelGroupBBox ? '선택 BBox 끄기 (R2647)' : '선택 노드 그룹 경계 박스 표시 (R2647)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelGroupBBox ? 'rgba(96,165,250,0.5)' : 'var(--border)'}`, background: showSelGroupBBox ? 'rgba(96,165,250,0.12)' : 'none', color: showSelGroupBBox ? '#60a5fa' : 'var(--text-muted)' }}
-        >▣</button>
-        {/* R2651: 선택 노드 부모 하이라이트 토글 */}
-        <button
-          onClick={() => setShowParentHighlight(v => !v)}
-          title={showParentHighlight ? '부모 강조 끄기 (R2651)' : '선택 노드의 부모 노드 강조 표시 (R2651)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showParentHighlight ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showParentHighlight ? 'rgba(251,146,60,0.12)' : 'none', color: showParentHighlight ? '#fb923c' : 'var(--text-muted)' }}
-        >⊘</button>
-        {/* R2652: 비활성 노드 반투명 오버레이 토글 */}
-        <button
-          onClick={() => setShowInactiveDim(v => !v)}
-          title={showInactiveDim ? '비활성 dim 끄기 (R2652)' : 'active=false 노드 반투명 처리 (R2652)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showInactiveDim ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showInactiveDim ? 'rgba(148,163,184,0.12)' : 'none', color: showInactiveDim ? '#94a3b8' : 'var(--text-muted)' }}
-        >⊡</button>
-        {/* R2658: 노드 색상 tint 시각화 토글 */}
-        <button
-          onClick={() => setShowColorViz(v => !v)}
-          title={showColorViz ? '색상 tint 끄기 (R2658)' : '각 노드 color tint를 rect fill로 시각화 (R2658)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showColorViz ? 'rgba(217,119,6,0.5)' : 'var(--border)'}`, background: showColorViz ? 'rgba(217,119,6,0.12)' : 'none', color: showColorViz ? '#d97706' : 'var(--text-muted)' }}
-        >🎨</button>
-        {/* R2661: 마우스 크로스헤어 가이드라인 토글 */}
-        <button
-          onClick={() => setShowCrosshair(v => !v)}
-          title={showCrosshair ? '크로스헤어 끄기 (R2661)' : '마우스 위치 수직/수평 가이드라인 표시 (R2661)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrosshair ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showCrosshair ? 'rgba(148,163,184,0.12)' : 'none', color: showCrosshair ? '#94a3b8' : 'var(--text-muted)' }}
-        >✛</button>
-        {/* R2665: 깊이 히트맵 토글 */}
-        <button
-          onClick={() => setShowDepthHeat(v => !v)}
-          title={showDepthHeat ? '깊이 히트맵 끄기 (R2665)' : '씬 트리 깊이별 색상 오버레이 (초록=얕음, 빨강=깊음) (R2665)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showDepthHeat ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showDepthHeat ? 'rgba(251,146,60,0.1)' : 'none', color: showDepthHeat ? '#fb923c' : 'var(--text-muted)' }}
-        >🌡</button>
-        {/* R2666: opacity 값 텍스트 오버레이 토글 */}
-        <button
-          onClick={() => setShowOpacityOverlay(v => !v)}
-          title={showOpacityOverlay ? 'opacity 오버레이 끄기 (R2666)' : 'opacity < 255 노드에 불투명도 값 표시 (R2666)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityOverlay ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityOverlay ? 'rgba(251,191,36,0.1)' : 'none', color: showOpacityOverlay ? '#fbbf24' : 'var(--text-muted)' }}
-        >α</button>
-        {/* R2668: 회전각 텍스트 오버레이 토글 */}
-        <button
-          onClick={() => setShowRotOverlay(v => !v)}
-          title={showRotOverlay ? '회전각 끄기 (R2668)' : 'rotation ≠ 0 노드에 각도값 표시 (R2668)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRotOverlay ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showRotOverlay ? 'rgba(167,139,250,0.1)' : 'none', color: showRotOverlay ? '#a78bfa' : 'var(--text-muted)' }}
-        >∠</button>
-        {/* R2670: 선택 노드 위치 텍스트 오버레이 토글 */}
-        <button
-          onClick={() => setShowPosText(v => !v)}
-          title={showPosText ? '위치 텍스트 끄기 (R2670)' : '선택 노드 position(x,y) 표시 (R2670)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showPosText ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showPosText ? 'rgba(52,211,153,0.1)' : 'none', color: showPosText ? '#34d399' : 'var(--text-muted)' }}
-        >xy</button>
-        {/* R2672: scale 텍스트 오버레이 토글 */}
-        <button
-          onClick={() => setShowScaleText(v => !v)}
-          title={showScaleText ? 'scale 텍스트 끄기 (R2672)' : 'scale ≠ 1 노드에 scale 값 표시 (R2672)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showScaleText ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showScaleText ? 'rgba(34,211,238,0.1)' : 'none', color: showScaleText ? '#22d3ee' : 'var(--text-muted)' }}
-        >S×</button>
-        {/* R2673: 컴포넌트 수 배지 토글 */}
-        <button
-          onClick={() => setShowCompCountBadge(v => !v)}
-          title={showCompCountBadge ? '컴포넌트 수 끄기 (R2673)' : '노드당 컴포넌트 수 배지 표시 (기본 제외) (R2673)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCompCountBadge ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showCompCountBadge ? 'rgba(129,140,248,0.1)' : 'none', color: showCompCountBadge ? '#818cf8' : 'var(--text-muted)' }}
-        >C#</button>
-        {/* R2675: 크기 히트맵 토글 */}
-        <button
-          onClick={() => setShowSizeHeat(v => !v)}
-          title={showSizeHeat ? '크기 히트맵 끄기 (R2675)' : '노드 크기 히트맵 (큰=노란, 작은=파란) (R2675)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSizeHeat ? 'rgba(250,204,21,0.5)' : 'var(--border)'}`, background: showSizeHeat ? 'rgba(250,204,21,0.1)' : 'none', color: showSizeHeat ? '#facc15' : 'var(--text-muted)' }}
-        >Sz</button>
-        {/* R2680: 선택 그룹 중심 마커 토글 */}
-        <button
-          onClick={() => setShowSelCenter(v => !v)}
-          title={showSelCenter ? '중심 마커 끄기 (R2680)' : '선택 노드 그룹 중심점 마커 표시 (R2680)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelCenter ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`, background: showSelCenter ? 'rgba(52,211,153,0.1)' : 'none', color: showSelCenter ? '#34d399' : 'var(--text-muted)' }}
-        >⊕</button>
-        {/* R2682: 선택 노드 간 거리 표시 토글 */}
-        <button
-          onClick={() => setShowPairDist(v => !v)}
-          title={showPairDist ? '거리 표시 끄기 (R2682)' : '선택 순서 인접 노드 간 거리 텍스트 표시 (R2682)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showPairDist ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: showPairDist ? 'rgba(167,139,250,0.1)' : 'none', color: showPairDist ? '#a78bfa' : 'var(--text-muted)' }}
-        >↔</button>
-        {/* R2686: Sprite 이름 배지 토글 */}
-        <button
-          onClick={() => setShowSpriteName(v => !v)}
-          title={showSpriteName ? 'Sprite 이름 끄기 (R2686)' : 'cc.Sprite spriteFrame 이름 배지 표시 (R2686)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSpriteName ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showSpriteName ? 'rgba(251,146,60,0.1)' : 'none', color: showSpriteName ? '#fb923c' : 'var(--text-muted)' }}
-        >Sp</button>
-        {/* R2688: UUID 배지 토글 */}
-        <button
-          onClick={() => setShowUuidBadge(v => !v)}
-          title={showUuidBadge ? 'UUID 배지 끄기 (R2688)' : '노드 UUID 앞 8자리 배지 표시 (R2688)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUuidBadge ? 'rgba(100,116,139,0.5)' : 'var(--border)'}`, background: showUuidBadge ? 'rgba(100,116,139,0.1)' : 'none', color: showUuidBadge ? '#64748b' : 'var(--text-muted)' }}
-        >ID</button>
-        {/* R2691: 노드 중심 점 마커 토글 */}
-        <button
-          onClick={() => setShowCenterDot(v => !v)}
-          title={showCenterDot ? '중심점 끄기 (R2691)' : '각 노드 중심에 점 마커 표시 (R2691)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCenterDot ? 'rgba(248,113,113,0.5)' : 'var(--border)'}`, background: showCenterDot ? 'rgba(248,113,113,0.1)' : 'none', color: showCenterDot ? '#f87171' : 'var(--text-muted)' }}
-        >·</button>
-        {/* R2694: 비기본 앵커 강조 토글 */}
-        <button
-          onClick={() => setShowNonDefaultAnchor(v => !v)}
-          title={showNonDefaultAnchor ? '비기본 앵커 끄기 (R2694)' : '앵커 ≠ (0.5,0.5) 노드 강조 표시 (R2694)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNonDefaultAnchor ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showNonDefaultAnchor ? 'rgba(251,191,36,0.1)' : 'none', color: showNonDefaultAnchor ? '#fbbf24' : 'var(--text-muted)' }}
-        >⚓</button>
-        {/* R2696: 크기 0 노드 경고 토글 */}
-        <button
-          onClick={() => setShowZeroSizeWarn(v => !v)}
-          title={showZeroSizeWarn ? '크기 0 경고 끄기 (R2696)' : 'width 또는 height = 0인 노드 경고 표시 (R2696)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showZeroSizeWarn ? 'rgba(239,68,68,0.5)' : 'var(--border)'}`, background: showZeroSizeWarn ? 'rgba(239,68,68,0.1)' : 'none', color: showZeroSizeWarn ? '#ef4444' : 'var(--text-muted)' }}
-        >⚠</button>
-        {/* R2698: 선택 노드 위치 가이드 십자선 토글 */}
-        <button
-          onClick={() => setShowSelAxisLine(v => !v)}
-          title={showSelAxisLine ? '위치 가이드선 끄기 (R2698)' : '선택 노드 X/Y 위치 가이드 전체 선 표시 (R2698)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSelAxisLine ? 'rgba(34,211,238,0.5)' : 'var(--border)'}`, background: showSelAxisLine ? 'rgba(34,211,238,0.1)' : 'none', color: showSelAxisLine ? '#22d3ee' : 'var(--text-muted)' }}
-        >╋</button>
-        {/* R2700: 선택 노드 형제 강조 토글 */}
-        <button
-          onClick={() => setShowSiblingHighlight(v => !v)}
-          title={showSiblingHighlight ? '형제 강조 끄기 (R2700)' : '선택 노드와 같은 부모를 가진 형제 노드 강조 (R2700)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showSiblingHighlight ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: showSiblingHighlight ? 'rgba(139,92,246,0.1)' : 'none', color: showSiblingHighlight ? '#8b5cf6' : 'var(--text-muted)' }}
-        >≡</button>
-        {/* R2717: 선택 노드 opacity HUD 배지 토글 */}
-        <button
-          onClick={() => setShowOpacityHud(v => !v)}
-          title={showOpacityHud ? 'opacity HUD 끄기 (R2717)' : '선택 노드 opacity 값 배지 표시 (R2717)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOpacityHud ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, background: showOpacityHud ? 'rgba(251,191,36,0.1)' : 'none', color: showOpacityHud ? '#fbbf24' : 'var(--text-muted)' }}
-        >op</button>
-        {/* R2718: 선택 노드 uuid 참조 화살표 토글 */}
-        <button
-          onClick={() => setShowRefArrows(v => !v)}
-          title={showRefArrows ? 'uuid 참조 화살표 끄기 (R2718)' : '선택 노드 컴포넌트 props의 uuid 참조 화살표 표시 (R2718)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showRefArrows ? 'rgba(249,115,22,0.5)' : 'var(--border)'}`, background: showRefArrows ? 'rgba(249,115,22,0.1)' : 'none', color: showRefArrows ? '#f97316' : 'var(--text-muted)' }}
-        >🔗</button>
-        {/* R2551: 컴포넌트 타입 필터 — 주요 타입 버튼 */}
-        {(() => {
-          const ignore = new Set(['cc.Node','cc.UITransform','cc.UIOpacity','cc.Widget','cc.BlockInputEvents','cc.Canvas'])
-          const typeCounts = new Map<string, number>()
-          flatNodes.forEach(fn => fn.node.components.forEach(c => { if (!ignore.has(c.type)) typeCounts.set(c.type, (typeCounts.get(c.type) ?? 0) + 1) }))
-          const types = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => t)
-          if (types.length === 0) return null
-          const shortName = (t: string) => t.replace('cc.','').replace('dragonBones.','').slice(0, 6)
-          return (
-            <>
-              {types.map(t => (
-                <button key={t} onClick={() => setCompFilterType(v => v === t ? null : t)}
-                  title={`${t} 컴포넌트 있는 노드만 강조 (R2551)${compFilterType === t ? ' — 클릭해 해제' : ''}`}
-                  style={{ padding: '1px 4px', fontSize: 8, borderRadius: 3, cursor: 'pointer', border: `1px solid ${compFilterType === t ? 'rgba(139,92,246,0.6)' : 'var(--border)'}`, background: compFilterType === t ? 'rgba(139,92,246,0.15)' : 'none', color: compFilterType === t ? '#a78bfa' : 'var(--text-muted)' }}
-                >{shortName(t)}</button>
-              ))}
-            </>
-          )
-        })()}
         {/* R2532: 선택 노드 위치 정수화 (snap-to-pixel) */}
         {(selectedUuid || multiSelected.size > 0) && (onMove || onMultiMove) && (() => {
           const targets = multiSelected.size > 0 ? [...multiSelected] : (selectedUuid ? [selectedUuid] : [])
@@ -2236,21 +1986,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             )
           })()}
         </div>
-        {/* R2315: SVG 직접 내보내기 */}
-        <button
-          onClick={handleSvgExport}
-          title="씬 SVG 파일 내보내기 (R2315)"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}
-        >SVG</button>
-        {/* R2319: 카메라 프레임 토글 */}
-        {cameraFrames.length > 0 && (
-          <button
-            onClick={() => setShowCameraFrames(v => !v)}
-            title={showCameraFrames ? '카메라 프레임 숨기기 (R2319)' : '카메라 프레임 표시 (R2319)'}
-            style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCameraFrames ? 'rgba(255,200,60,0.5)' : 'var(--border)'}`, background: showCameraFrames ? 'rgba(255,200,60,0.1)' : 'none', color: showCameraFrames ? 'rgba(255,200,60,0.9)' : 'var(--text-muted)' }}
-          >📷</button>
-        )}
-        {/* R1530: 디자인 레퍼런스 이미지 overlay */}
+        {/* R1530: hidden file input for ref image */}
         <input ref={refImgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
           onChange={e => {
             const file = e.target.files?.[0]
@@ -2261,29 +1997,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             e.target.value = ''
           }}
         />
-        <button
-          onClick={() => refImgSrc ? setRefImgSrc(null) : refImgInputRef.current?.click()}
-          title={refImgSrc ? '레퍼런스 이미지 제거' : '디자인 레퍼런스 이미지 로드'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: refImgSrc ? 'rgba(100,200,100,0.12)' : 'none', color: refImgSrc ? '#4ade80' : 'var(--text-muted)' }}
-        >📐</button>
-        {refImgSrc && (
-          <input type="range" min={0.05} max={1} step={0.05} value={refImgOpacity}
-            onChange={e => setRefImgOpacity(parseFloat(e.target.value))}
-            title={`레퍼런스 투명도 ${Math.round(refImgOpacity * 100)}%`}
-            style={{ width: 50 }}
-          />
-        )}
-        {/* R2465: 거리 측정 도구 */}
-        <button
-          onClick={() => { setMeasureMode(m => { if (m) setMeasureLine(null); return !m }); measureStartRef.current = null }}
-          title={measureMode ? '측정 도구 종료 (M)' : '거리 측정 도구 (M) — 드래그로 두 점 거리 측정 (R2465)'}
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${measureMode ? '#ff6b6b' : 'var(--border)'}`, background: measureMode ? 'rgba(255,107,107,0.12)' : 'none', color: measureMode ? '#ff6b6b' : 'var(--text-muted)', flexShrink: 0 }}
-        >📏</button>
-        {measureLine && measureMode && (
-          <span style={{ fontSize: 9, color: '#ff6b6b', flexShrink: 0, fontFamily: 'monospace' }}>
-            {Math.sqrt((measureLine.svgX2 - measureLine.svgX1) ** 2 + (measureLine.svgY2 - measureLine.svgY1) ** 2).toFixed(1)}px
-          </span>
-        )}
         {/* R1486: 다중 선택 정렬 툴바 */}
         {multiSelected.size > 1 && (() => {
           const selNodes = flatNodes.filter(fn => multiSelected.has(fn.node.uuid))
@@ -2366,12 +2079,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-secondary)', fontWeight: 'bold' }}
           >＋</button>
         )}
-        {/* R1489: 미니맵 토글 */}
-        <button
-          onClick={() => setShowMinimap(m => !m)}
-          title="미니맵 토글 (M)"
-          style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showMinimap ? 'rgba(88,166,255,0.12)' : 'none', color: showMinimap ? '#58a6ff' : 'var(--text-muted)' }}
-        >⊟</button>
         <button
           onClick={() => setShowShortcutOverlay(v => !v)}
           title="단축키 목록"
@@ -2466,6 +2173,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         }}
       >
         <defs>
+          {/* 커스텀 폰트 @font-face */}
+          {fontCacheRef.current.size > 0 && (
+            <style>{
+              [...fontCacheRef.current.entries()]
+                .filter(([, v]) => v.dataUrl)
+                .map(([, { dataUrl, familyName }]) =>
+                  `@font-face { font-family: '${familyName}'; src: url('${dataUrl}'); }`
+                ).join('\n')
+            }</style>
+          )}
           {/* 캔버스 외부 빗금 패턴 */}
           <pattern id="hatchOutside" width={8 / view.zoom} height={8 / view.zoom} patternUnits="userSpaceOnUse">
             <line x1={0} y1={8 / view.zoom} x2={8 / view.zoom} y2={0} stroke="rgba(255,255,255,0.06)" strokeWidth={1 / view.zoom} />
@@ -3497,12 +3214,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       </foreignObject>
                     )
                   }
+                  const fontUuid = (lc?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
+                             ?? (lc?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
+                  const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
+                  const fontFamilyName = fontEntry?.familyName
+                    || (lc?.props?.fontFamily as string | undefined)
+                    || undefined
                   return (
                     <text
                       x={rectX + w / 2} y={rectY + h / 2}
                       fontSize={fs / view.zoom}
                       fill={`rgb(${cr},${cg},${cb})`}
                       textAnchor="middle" dominantBaseline="middle"
+                      fontFamily={fontFamilyName}
                       style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
                       onDoubleClick={e => {
                         e.stopPropagation()

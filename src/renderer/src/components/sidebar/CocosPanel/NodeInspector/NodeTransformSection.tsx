@@ -442,7 +442,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
           </div>
           {/* R1671: 앵커 9-point 프리셋 그리드 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 16px)', gap: 2, flexShrink: 0 }}>
-            {([1, 1, 0.5, 1, 1, 1, 0, 0.5, 0.5, 0.5, 1, 0.5, 0, 0, 0.5, 0, 1, 0] as number[]).reduce<Array<[number,number]>>((acc, _, i, arr) => i % 2 === 0 ? [...acc, [arr[i], arr[i+1]]] : acc, []).map(([ax, ay]) => {
+            {([0, 1, 0.5, 1, 1, 1, 0, 0.5, 0.5, 0.5, 1, 0.5, 0, 0, 0.5, 0, 1, 0] as number[]).reduce<Array<[number,number]>>((acc, _, i, arr) => i % 2 === 0 ? [...acc, [arr[i], arr[i+1]]] : acc, []).map(([ax, ay]) => {
               const isActive = Math.abs((draft.anchor.x ?? 0.5) - ax) < 0.01 && Math.abs((draft.anchor.y ?? 0.5) - ay) < 0.01
               const labels: Record<string, string> = {
                 '0,1': '↖', '0.5,1': '↑', '1,1': '↗',
