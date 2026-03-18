@@ -21,6 +21,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
     lockScale, setLockScale, lockSize, setLockSize,
     showPct, setShowPct,
     tintHexInput, setTintHexInput, tintHexFocused, setTintHexFocused,
+    zOrderInfo,
   } = ctx
   return (
     <>
