@@ -68,8 +68,8 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               localStorage.setItem('cc-hierarchy-width', String(newW))
             }
             if (dividerDragRef.current) {
-              const dy = e.clientY - dividerDragRef.current.startY
-              setSceneViewHeight(Math.max(120, Math.min(500, dividerDragRef.current.startH - dy)))
+              const dx = e.clientX - dividerDragRef.current.startX
+              setSceneViewHeight(Math.max(160, Math.min(600, dividerDragRef.current.startH - dx)))
             }
           }}
           onMouseUp={() => { hDividerDragRef.current = null; dividerDragRef.current = null }}
@@ -88,7 +88,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
             onMouseDown={e => { e.preventDefault(); hDividerDragRef.current = { startX: e.clientX, startW: hierarchyWidth } }}
           />
 
-          {/* ── 우: SceneView(상) + Inspector(하) ── */}
+          {/* ── 우: SceneView(좌) + Inspector(우) ── */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
             {/* R1501: 마지막 저장 diff 알림 배너 */}
             {lastDiffDisplay && (
@@ -135,112 +135,115 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                 >{v}</span>
               ))}
             </div>
-            {/* SceneView — flex:1 (남은 공간 전부) */}
-            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-              <CCFileSceneView
-                sceneFile={sceneFile}
-                selectedUuid={selectedNode?.uuid ?? null}
-                onMove={handleNodeMove}
-                onResize={handleNodeResize}
-                onRename={handleRenameInView}
-                onRotate={handleNodeRotate}
-                onMultiMove={handleMultiMove}
-                onMultiDelete={handleMultiDelete}
-                onLabelEdit={handleLabelEdit}
-                onAddNode={handleAddNode}
-                onDuplicate={handleDuplicate}
-                onToggleActive={handleToggleActive}
-                onReorder={handleReorder}
-                onAnchorMove={handleAnchorMove}
-                onMultiSelectChange={setMultiSelectedUuids}
-                onGroupNodes={handleGroupNodes}
-                onOpacity={handleNodeOpacity}
-                onReorderExtreme={handleReorderExtreme}
-                onAltDrag={handleAltDrag}
-                pulseUuid={pulseUuid}
-                collapsedUuids={collapsedUuids}
-                onSelect={uuid => {
-                  if (!uuid) { onSelectNode(null); return }
-                  const findNode = (n: CCSceneNode): CCSceneNode | null => {
-                    if (n.uuid === uuid) return n
-                    for (const c of n.children) { const f = findNode(c); if (f) return f }
-                    return null
-                  }
-                  onSelectNode(findNode(sceneFile.root))
-                }}
-              />
-            </div>
-            {/* 세로 리사이즈 핸들 (인스펙터 높이) */}
-            {selectedNode && (
-              <div
-                style={{ height: 4, cursor: 'ns-resize', background: 'var(--border)', flexShrink: 0, opacity: 0.4, transition: 'opacity 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.background = 'var(--accent)' }}
-                onMouseLeave={e => { if (!dividerDragRef.current) { (e.currentTarget as HTMLElement).style.opacity = '0.4'; (e.currentTarget as HTMLElement).style.background = 'var(--border)' } }}
-                onMouseDown={e => { e.preventDefault(); dividerDragRef.current = { startY: e.clientY, startH: sceneViewHeight } }}
-              />
-            )}
-            {/* Inspector — 고정 높이 (sceneViewHeight 재사용) */}
-            {/* R1516: 다중 선택 배치 편집 패널 */}
-            {multiSelectedUuids.length > 1 && sceneFile?.root && (
-              <div style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-                <InspectorErrorBoundary>
-                  <CCFileBatchInspector
-                    uuids={multiSelectedUuids}
-                    sceneFile={sceneFile}
-                    saveScene={saveScene}
-                    onSelectNode={onSelectNode}
-                    onMultiSelectChange={setMultiSelectedUuids}
-                    lockedUuids={lockedUuids}
-                    onSetLockedUuids={setLockedUuids}
-                  />
-                </InspectorErrorBoundary>
+            {/* SceneView + Inspector (row) */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'row', minHeight: 0 }}>
+              {/* SceneView — flex:1 */}
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                <CCFileSceneView
+                  sceneFile={sceneFile}
+                  selectedUuid={selectedNode?.uuid ?? null}
+                  onMove={handleNodeMove}
+                  onResize={handleNodeResize}
+                  onRename={handleRenameInView}
+                  onRotate={handleNodeRotate}
+                  onMultiMove={handleMultiMove}
+                  onMultiDelete={handleMultiDelete}
+                  onLabelEdit={handleLabelEdit}
+                  onAddNode={handleAddNode}
+                  onDuplicate={handleDuplicate}
+                  onToggleActive={handleToggleActive}
+                  onReorder={handleReorder}
+                  onAnchorMove={handleAnchorMove}
+                  onMultiSelectChange={setMultiSelectedUuids}
+                  onGroupNodes={handleGroupNodes}
+                  onOpacity={handleNodeOpacity}
+                  onReorderExtreme={handleReorderExtreme}
+                  onAltDrag={handleAltDrag}
+                  pulseUuid={pulseUuid}
+                  collapsedUuids={collapsedUuids}
+                  onSelect={uuid => {
+                    if (!uuid) { onSelectNode(null); return }
+                    const findNode = (n: CCSceneNode): CCSceneNode | null => {
+                      if (n.uuid === uuid) return n
+                      for (const c of n.children) { const f = findNode(c); if (f) return f }
+                      return null
+                    }
+                    onSelectNode(findNode(sceneFile.root))
+                  }}
+                />
               </div>
-            )}
-            {/* R1595: 최근 선택 노드 히스토리 */}
-            {nodeHistory.length > 1 && !selectedNode && (
-              <div style={{ padding: '4px 8px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-                <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>최근 선택</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                  {nodeHistory.slice(0, 8).map(uuid => {
-                    const fn = sceneFile?.root ? (() => {
-                      const walk = (n: CCSceneNode): CCSceneNode | null => {
-                        if (n.uuid === uuid) return n
-                        for (const c of n.children) { const f = walk(c); if (f) return f }
-                        return null
-                      }
-                      return walk(sceneFile.root)
-                    })() : null
-                    if (!fn) return null
-                    return (
-                      <span key={uuid}
-                        onClick={() => onSelectNode(fn)}
-                        style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', color: 'var(--text-muted)', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                        onMouseEnter={e => (e.currentTarget.style.borderColor = '#58a6ff')}
-                        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-                        title={fn.name}
-                      >{fn.name}</span>
-                    )
-                  })}
+              {/* 가로 리사이즈 핸들 (인스펙터 너비) */}
+              {(selectedNode || multiSelectedUuids.length > 1) && (
+                <div
+                  style={{ width: 4, cursor: 'ew-resize', background: 'var(--border)', flexShrink: 0, opacity: 0.4, transition: 'opacity 0.15s' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.background = 'var(--accent)' }}
+                  onMouseLeave={e => { if (!dividerDragRef.current) { (e.currentTarget as HTMLElement).style.opacity = '0.4'; (e.currentTarget as HTMLElement).style.background = 'var(--border)' } }}
+                  onMouseDown={e => { e.preventDefault(); dividerDragRef.current = { startX: e.clientX, startH: sceneViewHeight } }}
+                />
+              )}
+              {/* Inspector — 고정 너비 (우측 패널) */}
+              {/* R1516: 다중 선택 배치 편집 패널 */}
+              {multiSelectedUuids.length > 1 && sceneFile?.root && (
+                <div style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+                  <InspectorErrorBoundary>
+                    <CCFileBatchInspector
+                      uuids={multiSelectedUuids}
+                      sceneFile={sceneFile}
+                      saveScene={saveScene}
+                      onSelectNode={onSelectNode}
+                      onMultiSelectChange={setMultiSelectedUuids}
+                      lockedUuids={lockedUuids}
+                      onSetLockedUuids={setLockedUuids}
+                    />
+                  </InspectorErrorBoundary>
                 </div>
-              </div>
-            )}
-            {multiSelectedUuids.length <= 1 && selectedNode && (
-              <div ref={inspectorScrollRef} style={{ height: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderTop: 'none' }}>
-                <InspectorErrorBoundary>
-                  <CCFileNodeInspector
-                    node={selectedNode}
-                    sceneFile={sceneFile}
-                    saveScene={saveScene}
-                    onUpdate={onSelectNode}
-                    lockedUuids={lockedUuids}
-                    onToggleLocked={toggleLocked}
-                    onPulse={uuid => { setPulseUuid(uuid); setTimeout(() => setPulseUuid(null), 1400) }}
-                    pinnedUuids={new Set(pinnedNodes.map(p => p.uuid))}
-                    onTogglePin={togglePinNode}
-                  />
-                </InspectorErrorBoundary>
-              </div>
-            )}
+              )}
+              {/* R1595: 최근 선택 노드 히스토리 */}
+              {nodeHistory.length > 1 && !selectedNode && multiSelectedUuids.length <= 1 && (
+                <div style={{ width: sceneViewHeight, flexShrink: 0, padding: '4px 8px', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)', overflow: 'auto' }}>
+                  <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>최근 선택</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                    {nodeHistory.slice(0, 8).map(uuid => {
+                      const fn = sceneFile?.root ? (() => {
+                        const walk = (n: CCSceneNode): CCSceneNode | null => {
+                          if (n.uuid === uuid) return n
+                          for (const c of n.children) { const f = walk(c); if (f) return f }
+                          return null
+                        }
+                        return walk(sceneFile.root)
+                      })() : null
+                      if (!fn) return null
+                      return (
+                        <span key={uuid}
+                          onClick={() => onSelectNode(fn)}
+                          style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', color: 'var(--text-muted)', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          onMouseEnter={e => (e.currentTarget.style.borderColor = '#58a6ff')}
+                          onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+                          title={fn.name}
+                        >{fn.name}</span>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+              {multiSelectedUuids.length <= 1 && selectedNode && (
+                <div ref={inspectorScrollRef} style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)' }}>
+                  <InspectorErrorBoundary>
+                    <CCFileNodeInspector
+                      node={selectedNode}
+                      sceneFile={sceneFile}
+                      saveScene={saveScene}
+                      onUpdate={onSelectNode}
+                      lockedUuids={lockedUuids}
+                      onToggleLocked={toggleLocked}
+                      onPulse={uuid => { setPulseUuid(uuid); setTimeout(() => setPulseUuid(null), 1400) }}
+                      pinnedUuids={new Set(pinnedNodes.map(p => p.uuid))}
+                      onTogglePin={togglePinNode}
+                    />
+                  </InspectorErrorBoundary>
+                </div>
+              )}
+            </div>
           </div>
         </div>
   )
