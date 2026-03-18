@@ -178,7 +178,7 @@ export function AppLayout({
               flexShrink: 0, width: 32, height: 28,
               background: activeSidebarIconTab === t.id ? 'var(--bg-primary)' : 'transparent',
               color: activeSidebarIconTab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && chat.messages.some((m: any) => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
-              borderBottom: activeSidebarIconTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
+              border: 'none', borderBottom: activeSidebarIconTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
               fontSize: 14, cursor: 'pointer', transition: 'all 0.1s',
             }}
           >{t.label}</button>
@@ -191,7 +191,7 @@ export function AppLayout({
             flexShrink: 0, padding: '0 10px', height: 28,
             background: hqMode ? 'rgba(0,152,255,0.15)' : 'transparent',
             color: hqMode ? '#0098ff' : 'var(--text-muted)',
-            borderBottom: hqMode ? '2px solid #0098ff' : '2px solid transparent',
+            border: 'none', borderBottom: hqMode ? '2px solid #0098ff' : '2px solid transparent',
             fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px',
           }}
         >⬡ HQ</button>
