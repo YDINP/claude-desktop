@@ -187,7 +187,8 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
           {/* ── 우: Inspector 패널 (전체 세로 높이) ── */}
           {/* R1516: 다중 선택 배치 편집 패널 */}
           {multiSelectedUuids.length > 1 && sceneFile?.root && (
-            <div style={{ width: Math.round(sceneViewHeight / 1.12), zoom: 1.12, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+            <div style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+              <div style={{ width: 'calc(100% / 1.12)', zoom: 1.12 }}>
               <InspectorErrorBoundary>
                 <CCFileBatchInspector
                   uuids={multiSelectedUuids}
@@ -199,11 +200,12 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                   onSetLockedUuids={setLockedUuids}
                 />
               </InspectorErrorBoundary>
+              </div>
             </div>
           )}
           {/* R1595: 최근 선택 노드 히스토리 */}
           {nodeHistory.length > 1 && !selectedNode && multiSelectedUuids.length <= 1 && (
-            <div style={{ width: Math.round(sceneViewHeight / 1.12), zoom: 1.12, flexShrink: 0, padding: '4px 8px', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)', overflow: 'auto' }}>
+            <div style={{ width: sceneViewHeight, flexShrink: 0, padding: '4px 8px', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)', overflow: 'auto' }}>
               <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>최근 선택</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                 {nodeHistory.slice(0, 8).map(uuid => {
@@ -230,7 +232,8 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
             </div>
           )}
           {multiSelectedUuids.length <= 1 && selectedNode && (
-            <div ref={inspectorScrollRef} style={{ width: Math.round(sceneViewHeight / 1.12), zoom: 1.12, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+            <div ref={inspectorScrollRef} style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+              <div style={{ width: 'calc(100% / 1.12)', zoom: 1.12 }}>
               <InspectorErrorBoundary>
                 <CCFileNodeInspector
                   node={selectedNode}
@@ -244,6 +247,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                   onTogglePin={togglePinNode}
                 />
               </InspectorErrorBoundary>
+              </div>
             </div>
           )}
         </div>
