@@ -182,6 +182,7 @@ export function useCCFileProjectUI({ fileProject, selectedNode, onSelectNode }: 
   // R2452: 프로젝트 로드 후 마지막 씬 자동 열기
   useEffect(() => {
     if (!projectInfo?.projectPath || sceneFile) return
+    setMainTab('scene')
     const lastScene = localStorage.getItem(`cc-last-scene-${projectInfo.projectPath}`)
     if (lastScene && projectInfo.scenes?.includes(lastScene)) {
       loadScene(lastScene)
