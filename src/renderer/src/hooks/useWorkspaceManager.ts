@@ -174,50 +174,39 @@ export function useWorkspaceManager(deps: WorkspaceManagerDeps): WorkspaceManage
   }, [chatHydrate, projectSetProject])
 
   const createOrSwitchWorkspace = useCallback((path: string, skipSave = false) => {
-    setWorkspaces(prevWorkspaces => {
-      const existing = prevWorkspaces.find(ws => ws.path === path)
-      if (existing) {
-        // Switch to existing workspace
-        if (!skipSave && activeWsId && activeWsId !== existing.id) {
-          // Inline snapshot save for the current workspace
-          const cur = wsStateRef.current
-          const safeTabs = cur.openTabs.filter(t => t !== 'preview' && t !== 'scene')
-          const safeActive: MainTab = cur.activeTab === 'scene' || cur.activeTab === 'preview'
-            ? (safeTabs[0] ?? 'chat')
-            : cur.activeTab
-          const snap: WorkspaceSnapshot = { ...cur, openTabs: safeTabs, activeTab: safeActive, messages: [] }
-          const updated = prevWorkspaces.map(ws => ws.id === activeWsId ? { ...ws, snapshot: snap } : ws)
-          setActiveWsId(existing.id)
-          applySnapshot(existing.snapshot, path)
-          return updated
-        }
-        setActiveWsId(existing.id)
-        applySnapshot(existing.snapshot, path)
-        return prevWorkspaces
-      } else {
-        // Create new workspace
-        if (!skipSave && activeWsId) {
-          const cur = wsStateRef.current
-          const safeTabs = cur.openTabs.filter(t => t !== 'preview' && t !== 'scene')
-          const safeActive: MainTab = cur.activeTab === 'scene' || cur.activeTab === 'preview'
-            ? (safeTabs[0] ?? 'chat')
-            : cur.activeTab
-          const snap: WorkspaceSnapshot = { ...cur, openTabs: safeTabs, activeTab: safeActive, messages: [] }
-          const updated = prevWorkspaces.map(ws => ws.id === activeWsId ? { ...ws, snapshot: snap } : ws)
-          const id = `ws-${Date.now()}`
-          const newSnap = { ...EMPTY_SNAPSHOT }
-          setActiveWsId(id)
-          applySnapshot(newSnap, path)
-          return [...updated, { id, path, snapshot: newSnap }]
-        }
-        const id = `ws-${Date.now()}`
-        const newSnap = { ...EMPTY_SNAPSHOT }
-        setActiveWsId(id)
-        applySnapshot(newSnap, path)
-        return [...prevWorkspaces, { id, path, snapshot: newSnap }]
+    const existing = workspaces.find(ws => ws.path === path)
+    if (existing) {
+      // Switch to existing workspace
+      if (!skipSave && activeWsId && activeWsId !== existing.id) {
+        const cur = wsStateRef.current
+        const safeTabs = cur.openTabs.filter(t => t !== 'preview' && t !== 'scene')
+        const safeActive: MainTab = cur.activeTab === 'scene' || cur.activeTab === 'preview'
+          ? (safeTabs[0] ?? 'chat')
+          : cur.activeTab
+        const snap: WorkspaceSnapshot = { ...cur, openTabs: safeTabs, activeTab: safeActive, messages: [] }
+        setWorkspaces(workspaces.map(ws => ws.id === activeWsId ? { ...ws, snapshot: snap } : ws))
       }
-    })
-  }, [activeWsId, applySnapshot])
+      setActiveWsId(existing.id)
+      applySnapshot(existing.snapshot, path)
+    } else {
+      // Create new workspace
+      const id = `ws-${Date.now()}`
+      const newSnap = { ...EMPTY_SNAPSHOT }
+      if (!skipSave && activeWsId) {
+        const cur = wsStateRef.current
+        const safeTabs = cur.openTabs.filter(t => t !== 'preview' && t !== 'scene')
+        const safeActive: MainTab = cur.activeTab === 'scene' || cur.activeTab === 'preview'
+          ? (safeTabs[0] ?? 'chat')
+          : cur.activeTab
+        const snap: WorkspaceSnapshot = { ...cur, openTabs: safeTabs, activeTab: safeActive, messages: [] }
+        setWorkspaces([...workspaces.map(ws => ws.id === activeWsId ? { ...ws, snapshot: snap } : ws), { id, path, snapshot: newSnap }])
+      } else {
+        setWorkspaces([...workspaces, { id, path, snapshot: newSnap }])
+      }
+      setActiveWsId(id)
+      applySnapshot(newSnap, path)
+    }
+  }, [workspaces, activeWsId, applySnapshot])
 
   const handleOpenFolder = useCallback(async () => {
     const path = await window.api?.openFolder()
@@ -228,26 +217,21 @@ export function useWorkspaceManager(deps: WorkspaceManagerDeps): WorkspaceManage
   const switchWorkspace = useCallback((id: string) => {
     if (id === activeWsId) return
     saveCurrentSnapshot()
-    setWorkspaces(prevWorkspaces => {
-      const target = prevWorkspaces.find(ws => ws.id === id)
-      if (!target) return prevWorkspaces
-      setActiveWsId(id)
-      applySnapshot(target.snapshot, target.path)
-      return prevWorkspaces
-    })
-  }, [activeWsId, saveCurrentSnapshot, applySnapshot])
+    const target = workspaces.find(ws => ws.id === id)
+    if (!target) return
+    setActiveWsId(id)
+    applySnapshot(target.snapshot, target.path)
+  }, [activeWsId, workspaces, saveCurrentSnapshot, applySnapshot])
 
   const closeWorkspace = useCallback((id: string) => {
-    setWorkspaces(prev => {
-      const next = prev.filter(ws => ws.id !== id)
-      if (activeWsId === id && next.length > 0) {
-        const fallback = next[next.length - 1]
-        setActiveWsId(fallback.id)
-        applySnapshot(fallback.snapshot, fallback.path)
-      }
-      return next
-    })
-  }, [activeWsId, applySnapshot])
+    const next = workspaces.filter(ws => ws.id !== id)
+    setWorkspaces(next)
+    if (activeWsId === id && next.length > 0) {
+      const fallback = next[next.length - 1]
+      setActiveWsId(fallback.id)
+      applySnapshot(fallback.snapshot, fallback.path)
+    }
+  }, [workspaces, activeWsId, applySnapshot])
 
   // ── Init: restore all saved workspaces ──
   useEffect(() => {
