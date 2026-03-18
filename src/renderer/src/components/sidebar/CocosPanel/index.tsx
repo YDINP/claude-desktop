@@ -8,6 +8,7 @@ import { SceneTabContent } from './SceneTab'
 import { ProjectHeaderSection } from './ProjectHeader'
 import { useCCFileProjectUI } from './useCCFileProjectUI'
 import type { CCFileProjectUIProps } from './types'
+import { CocosMenuBar } from './CocosMenuBar'
 
 export function CocosPanel() {
   const fileProject = useCCFileProject()
@@ -46,6 +47,7 @@ function CCFileProjectUI(props: CCFileProjectUIProps) {
     >
       <ProjectHeaderSection ctx={ctx} selectedNode={selectedNode} onSelectNode={onSelectNode} />
 
+      {projectInfo?.detected && <CocosMenuBar ctx={ctx} />}
 
       {/* 씬/에셋 탭 바 */}
       {projectInfo?.detected && (
