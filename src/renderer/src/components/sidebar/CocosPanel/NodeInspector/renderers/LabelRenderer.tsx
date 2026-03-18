@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import type { RendererProps } from './types'
 
 /** cc.LabelOutline, cc.LabelShadow, cc.RichText, cc.Label Quick Edit renderer */
@@ -269,6 +269,38 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
             if (comp.type === 'cc.Label') {
               const str = String(p.string ?? p.String ?? p._string ?? '')
               const fs = Number(p.fontSize ?? p._fontSize ?? p._N$fontSize ?? 24)
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              const [fontDropdownOpen, setFontDropdownOpen] = useState(false)
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              const [fontAssets, setFontAssets] = useState<Array<{ uuid: string; name: string }>>([])
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              const fontDropdownRef = useRef<HTMLDivElement>(null)
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              useEffect(() => {
+                if (!fontDropdownOpen) return
+                const assetsDir = sceneFile?.projectInfo?.assetsDir
+                if (!assetsDir) return
+                void (window.api as unknown as { ccFileBuildUUIDMap: (d: string) => Promise<Record<string, { uuid: string; relPath: string; type: string }>> })
+                  .ccFileBuildUUIDMap(assetsDir)
+                  .then(map => {
+                    const fonts = Object.values(map)
+                      .filter(a => a.type === 'font')
+                      .map(a => ({ uuid: a.uuid, name: a.relPath.split('/').pop()?.replace(/\.[^.]+$/, '') ?? a.uuid }))
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                    setFontAssets(fonts)
+                  })
+              }, [fontDropdownOpen])
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              useEffect(() => {
+                if (!fontDropdownOpen) return
+                const onClickOutside = (e: MouseEvent) => {
+                  if (fontDropdownRef.current && !fontDropdownRef.current.contains(e.target as Node)) {
+                    setFontDropdownOpen(false)
+                  }
+                }
+                document.addEventListener('mousedown', onClickOutside)
+                return () => document.removeEventListener('mousedown', onClickOutside)
+              }, [fontDropdownOpen])
               // R1714: 텍스트 색상
               const labelColorRaw = p.color as { r?: number; g?: number; b?: number } | undefined
               const lcR = labelColorRaw?.r ?? 255, lcG = labelColorRaw?.g ?? 255, lcB = labelColorRaw?.b ?? 255
@@ -413,8 +445,8 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                       })}
                     </div>
                   )}
-                  {/* R1757: fontFamily 입력 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {/* R1757: fontFamily 입력 + 폰트 에셋 드롭다운 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }} ref={fontDropdownRef}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>fontFam</span>
                     <input type="text" defaultValue={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} placeholder="폰트 이름 (빈칸=기본)"
                       onBlur={e => {
@@ -424,6 +456,43 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                       }}
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
+                    <button
+                      title="프로젝트 폰트 에셋 선택"
+                      onClick={() => setFontDropdownOpen(v => !v)}
+                      style={{ fontSize: 9, padding: '1px 5px', background: fontDropdownOpen ? 'var(--accent)' : 'var(--bg-primary)', border: '1px solid var(--border)', color: fontDropdownOpen ? '#fff' : 'var(--text-muted)', borderRadius: 3, cursor: 'pointer', flexShrink: 0 }}
+                    >F▾</button>
+                    {fontDropdownOpen && (
+                      <div style={{
+                        position: 'absolute', top: '100%', right: 0, zIndex: 9999,
+                        background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                        borderRadius: 4, minWidth: 160, maxHeight: 200, overflowY: 'auto',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.4)', marginTop: 2,
+                      }}>
+                        {fontAssets.length === 0 && (
+                          <div style={{ fontSize: 9, color: 'var(--text-muted)', padding: '6px 8px' }}>로딩 중...</div>
+                        )}
+                        {fontAssets.map(fa => (
+                          <div key={fa.uuid}
+                            onClick={() => {
+                              const fontRef = { __uuid__: fa.uuid }
+                              const updated = draft.components.map(c => c === comp ? {
+                                ...c, props: {
+                                  ...c.props,
+                                  font: fontRef, _font: fontRef, _N$font: fontRef,
+                                  file: fontRef, _file: fontRef, _N$file: fontRef,
+                                  isSystemFontUsed: false, _isSystemFontUsed: false, _N$isSystemFontUsed: false,
+                                }
+                              } : c)
+                              applyAndSave({ components: updated })
+                              setFontDropdownOpen(false)
+                            }}
+                            style={{ fontSize: 10, padding: '4px 8px', cursor: 'pointer', color: 'var(--text-primary)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                          >{fa.name}</div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   {/* R1798: fontFamily 퀵 프리셋 */}
                   <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', paddingLeft: 52 }}>

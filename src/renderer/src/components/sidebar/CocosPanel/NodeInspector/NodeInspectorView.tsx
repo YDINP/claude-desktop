@@ -42,7 +42,7 @@ export function CCFileNodeInspector({
   return (
     <div style={{
       flexShrink: 0, borderTop: '1px solid var(--border)',
-      padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)', maxHeight: 420, overflowY: 'auto',
+      padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)',
     }}>
       <NodeInspectorHeader ctx={ctx} node={node} sceneFile={sceneFile} onUpdate={onUpdate} saveScene={saveScene} lockedUuids={lockedUuids} onToggleLocked={onToggleLocked} onPulse={onPulse} pinnedUuids={pinnedUuids} onTogglePin={onTogglePin} />
       <NodeTransformSection ctx={ctx} is3x={is3x} />

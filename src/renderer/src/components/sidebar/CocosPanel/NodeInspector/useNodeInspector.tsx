@@ -108,11 +108,11 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   const [cliMsg, setCliMsg] = useState<string | null>(null)
   const secHeader = (key: string, label: string, modified?: boolean) => (
     <div onClick={() => setCollapsed(c => { const next = { ...c, [key]: !c[key] }; try { localStorage.setItem(INSPECTOR_COLLAPSED_KEY, JSON.stringify(next)) } catch {} return next })}
-      style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 5, marginBottom: 3, userSelect: 'none' }}>
-      <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{collapsed[key] ? '▸' : '▾'}</span>
-      <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>{label}</span>
+      style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 6, marginBottom: 4, userSelect: 'none' }}>
+      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{collapsed[key] ? '▸' : '▾'}</span>
+      <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>{label}</span>
       {/* R1633: 변경 인디케이터 */}
-      {modified && <span style={{ fontSize: 8, color: '#ff9944', lineHeight: 1 }} title="이 세션에서 변경됨">●</span>}
+      {modified && <span style={{ fontSize: 9, color: '#ff9944', lineHeight: 1 }} title="이 세션에서 변경됨">●</span>}
     </div>
   )
 
