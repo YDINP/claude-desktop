@@ -67,7 +67,9 @@ export function useHierarchyPanel({ sceneFile, selectedNode }: UseHierarchyPanel
       if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
     })
   }, [selectedNode?.uuid])
-  const [sceneViewHeight, setSceneViewHeight] = useState(240)
+  const [sceneViewHeight, setSceneViewHeight] = useState(() => {
+    try { return parseInt(localStorage.getItem('cc-inspector-width') ?? '320') } catch { return 320 }
+  })
   // R1470: Cocos 에디터 레이아웃 — 계층 패널 너비 (좌우 분할)
   const [hierarchyWidth, setHierarchyWidth] = useState(() => {
     try { return parseInt(localStorage.getItem('cc-hierarchy-width') ?? '160') } catch { return 160 }

@@ -563,7 +563,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     )
     const uuids = labelComps
       .map(c => (c.props.font as { __uuid__?: string } | undefined)?.__uuid__
-             ?? (c.props._N$file as { __uuid__?: string } | undefined)?.__uuid__)
+             ?? (c.props.file as { __uuid__?: string } | undefined)?.__uuid__)
       .filter((u): u is string => !!u && !fontCacheRef.current.has(u))
     const uniqueUuids = [...new Set(uuids)]
     if (!uniqueUuids.length) return
@@ -1351,8 +1351,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative' }}>
       {/* 툴바 */}
       <div style={{
-        display: 'flex', gap: 4, padding: '2px 8px', borderBottom: '1px solid var(--border)',
-        flexShrink: 0, alignItems: 'center', fontSize: 10,
+        display: 'flex', gap: 4, padding: '3px 8px', borderBottom: '1px solid var(--border)',
+        flexShrink: 0, alignItems: 'center', fontSize: 11,
       }}>
         {/* R1548: 해상도 표시 클릭 → preset picker */}
         <span style={{ color: resOverride ? '#fbbf24' : 'var(--text-muted)', flex: 1, position: 'relative' }}>
@@ -1425,7 +1425,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             onChange={e => setSvSearch(e.target.value)}
             onKeyDown={e => { if (e.key === 'Escape') setSvSearch('') }}
             style={{
-              width: 90, fontSize: 9, background: svSearchMatches.size > 0 ? 'rgba(88,166,255,0.08)' : 'var(--bg-primary)',
+              width: 100, fontSize: 10, background: svSearchMatches.size > 0 ? 'rgba(88,166,255,0.08)' : 'var(--bg-primary)',
               border: `1px solid ${svSearchMatches.size > 0 ? '#58a6ff' : 'var(--border)'}`,
               color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px',
             }}
@@ -1454,7 +1454,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           )
         })()}
         <span style={{
-          fontSize: 8, padding: '1px 4px', borderRadius: 3, background: 'rgba(88,166,255,0.15)',
+          fontSize: 9, padding: '1px 5px', borderRadius: 3, background: 'rgba(88,166,255,0.15)',
           color: '#58a6ff', flexShrink: 0,
         }}>
           CC {sceneFile.projectInfo.creatorVersion ?? (sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x')}
@@ -1476,7 +1476,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           <button
             onClick={() => { setShowOverlayPanel(p => !p); setShowToolPanel(false) }}
             title="오버레이 표시 설정 패널"
-            style={{ padding: '1px 6px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOverlayPanel ? '#58a6ff' : 'var(--border)'}`, background: showOverlayPanel ? 'rgba(88,166,255,0.15)' : 'none', color: showOverlayPanel ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
+            style={{ padding: '1px 6px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOverlayPanel ? '#58a6ff' : 'var(--border)'}`, background: showOverlayPanel ? 'rgba(88,166,255,0.15)' : 'none', color: showOverlayPanel ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
           >오버레이 {showOverlayPanel ? '▲' : '▼'}</button>
           {showOverlayPanel && (
             <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 300, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', minWidth: 300, maxHeight: '75vh', overflowY: 'auto', boxShadow: '0 4px 16px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -3050,10 +3050,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const txt = (labelComp?.props?.string as string | undefined) ?? ''
                   if (!txt) return null
                   const fs = Math.max(6, Math.min(16, (labelComp?.props?.fontSize as number | undefined ?? 20) * view.zoom * 0.6))
+                  const isSystemFont = (labelComp?.props?.isSystemFontUsed as boolean | undefined) ?? true
+                  const sysFontFamily = labelComp?.props?.fontFamily as string | undefined
                   const fontUuid = (labelComp?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
-                               ?? (labelComp?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
+                               ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
                   const cachedFont = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
-                  const fontFamilyName = cachedFont?.familyName || 'sans-serif'
+                  const fontFamilyName = (!isSystemFont && cachedFont?.familyName)
+                    || (isSystemFont && sysFontFamily)
+                    || sysFontFamily
+                    || 'sans-serif'
                   return (
                     <text
                       x={svgPos.x} y={svgPos.y + fs / 3}
