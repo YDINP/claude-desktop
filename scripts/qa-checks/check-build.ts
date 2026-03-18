@@ -8,6 +8,21 @@ import { join } from 'path'
 import type { LogFn } from './check-rounds'
 
 export function runBuildChecks(root: string, log: LogFn): void {
+  // ── 0. 실제 빌드 검사 (bun run build) ─────────────────────
+  console.log('\n## 0. 빌드 검사 (bun run build)')
+  try {
+    execSync('bun run build', { cwd: root, stdio: 'pipe', timeout: 120000 })
+    log('pass', 'Build', 'bun run build 성공')
+  } catch (e: unknown) {
+    const err = e as { stdout?: Buffer; stderr?: Buffer; message?: string }
+    const output = (err.stdout?.toString() ?? '') + (err.stderr?.toString() ?? '')
+    const lines = output.split('\n').filter(l => l.includes('ERROR') || l.includes('error'))
+    for (const line of lines.slice(0, 10)) {
+      log('critical', 'Build', line.trim())
+    }
+    if (lines.length === 0) log('critical', 'Build', `빌드 실패: ${err.message ?? 'unknown'}`)
+  }
+
   // ── 1. TypeScript 컴파일 ───────────────────────────────────
   console.log('\n## 1. TypeScript 컴파일 검사')
   try {

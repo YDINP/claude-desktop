@@ -1008,6 +1008,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#94a3b8', userSelect: 'none' }}>0,-100</span>
           </div>
         )
+      })()}
       {/* R2204: 노드 posX 독립 일괄 설정 (Y 유지) */}
       {(() => {
         const applyNodePosX = async (x: number) => {
@@ -1024,6 +1025,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             ))}
           </div>
         )
+      })()}
       {/* R2204: 노드 posY 독립 일괄 설정 (X 유지) */}
       {(() => {
         const applyNodePosY = async (y: number) => {
