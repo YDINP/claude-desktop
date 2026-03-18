@@ -26,7 +26,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
     openProject, selectedScene, handleSceneChange,
     setShowNewSceneForm,
     canUndo, canRedo, undoCount, redoCount, undo, redo,
-    saving, handleSave, setSaveMsg, saveMsg, handleRestore, loadScene,
+    saving, handleSave, setSaveMsg, saveMsg, handleRestore,
     sceneHistoryTimeline, showFullHistory, setShowFullHistory,
     setShowProjectWizard, setWizardStep, setWizardError,
     isFav, toggleFav,
