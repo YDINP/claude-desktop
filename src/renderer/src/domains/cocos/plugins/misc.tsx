@@ -625,15 +625,6 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
               children: n.children.map(c => deepClone(c, 0, 0, false)),
             }
           }
-          const clones: Map<string, CCSceneNode[]> = new Map()
-          function collectForClone(n: CCSceneNode) {
-            if (uuidSet.has(n.uuid)) {
-              const parentKey = n.uuid // placeholder; actual grouping by parent
-              void parentKey
-            }
-            n.children.forEach(collectForClone)
-          }
-          collectForClone(sceneFile.root)
           function patch(n: CCSceneNode): CCSceneNode {
             const ch = n.children.map(patch)
             const selChildren = ch.filter(c => uuidSet.has(c.uuid))
@@ -645,7 +636,6 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
           setBatchMsg(`✓ 복제 +${cloneOffsetX},${cloneOffsetY} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
-        void clones
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
