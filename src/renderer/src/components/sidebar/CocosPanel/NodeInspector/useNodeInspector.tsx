@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
 import { type TransformSnapshot } from '../types'
 import { NOTES_KEY, RECENT_COMPS_KEY, INSPECTOR_COLLAPSED_KEY, COLLAPSED_COMPS_KEY, PROP_HISTORY_KEY } from './constants'
-import { ScrubLabel } from '../utils'
+import { ScrubLabel, WheelInput } from '../utils'
 import { useNodeClipboards } from './useNodeClipboards'
 import { useNodePresets, type StylePreset } from './useNodePresets'
 
@@ -468,16 +468,17 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
         <ScrubLabel label={label} value={value} onChange={onChange} step={step} inputRef={inputRef} />
-        <input
+        <WheelInput
           ref={inputRef}
           type="number"
           step={step}
           value={value}
-          onChange={e => onChange(parseFloat(e.target.value) || 0)}
-          onBlur={e => onChange(parseFloat(e.target.value) || 0)}
-          onWheel={e => {
+          onChange={e => onChange(parseFloat((e.target as HTMLInputElement).value) || 0)}
+          onBlur={e => onChange(parseFloat((e.target as HTMLInputElement).value) || 0)}
+          onWheelChange={e => {
             e.preventDefault()
-            const current = parseFloat((e.target as HTMLInputElement).value)
+            const el = e.target as HTMLInputElement
+            const current = parseFloat(el.value)
             if (isNaN(current)) return
             const delta = e.deltaY < 0 ? step : -step
             const multiplier = e.shiftKey ? 10 : 1
