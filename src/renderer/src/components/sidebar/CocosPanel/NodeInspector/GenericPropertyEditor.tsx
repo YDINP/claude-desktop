@@ -1,6 +1,6 @@
 import React from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
-import { BoolToggle } from '../utils'
+import { BoolToggle, WheelInput } from '../utils'
 
 interface GenericPropertyEditorProps {
   comp: CCSceneNode['components'][number]
@@ -181,10 +181,10 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                             fontSize: 9, fontWeight: 700, color: axisColor[axis] ?? 'var(--text-muted)',
                             marginRight: 2, flexShrink: 0, userSelect: 'none',
                           }}>{axis.toUpperCase()}</span>
-                          <input type="number" defaultValue={Number(vobj[axis])}
+                          <WheelInput type="number" defaultValue={Number(vobj[axis])}
                             title={axis}
                             onChange={e => {
-                              const val = parseFloat(e.target.value)
+                              const val = parseFloat((e.target as HTMLInputElement).value)
                               if (!isNaN(val)) applyAndSave({
                                 components: draft.components.map((c, i) =>
                                   i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
@@ -193,10 +193,10 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                             }}
                             onBlur={e => applyAndSave({
                               components: draft.components.map((c, i) =>
-                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
+                                i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat((e.target as HTMLInputElement).value) || 0 } } } : c
                               )
                             })}
-                            onWheel={e => {
+                            onWheelChange={e => {
                               e.preventDefault()
                               const el = e.target as HTMLInputElement
                               const current = parseFloat(el.value)
@@ -228,10 +228,10 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                     <span style={{ width: 52, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                     <div style={{ display: 'flex', gap: 2, flex: 1 }}>
                       {numKeys.map(axis => (
-                        <input key={axis} type="number" defaultValue={Number(vobj[axis])}
+                        <WheelInput key={axis} type="number" defaultValue={Number(vobj[axis])}
                           title={axis}
                           onChange={e => {
-                            const val = parseFloat(e.target.value)
+                            const val = parseFloat((e.target as HTMLInputElement).value)
                             if (!isNaN(val)) applyAndSave({
                               components: draft.components.map((c, i) =>
                                 i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
@@ -240,10 +240,10 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                           }}
                           onBlur={e => applyAndSave({
                             components: draft.components.map((c, i) =>
-                              i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat(e.target.value) || 0 } } } : c
+                              i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: parseFloat((e.target as HTMLInputElement).value) || 0 } } } : c
                             )
                           })}
-                          onWheel={e => {
+                          onWheelChange={e => {
                             e.preventDefault()
                             const el = e.target as HTMLInputElement
                             const current = parseFloat(el.value)
@@ -306,17 +306,17 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                       return (
                         <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
                           <span style={{ width: 44, fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
-                          <input
+                          <WheelInput
                             type="number"
                             defaultValue={elem}
                             onBlur={e => {
-                              const val = parseFloat(e.target.value)
+                              const val = parseFloat((e.target as HTMLInputElement).value)
                               if (isNaN(val)) return
                               const newArr = [...arr]
                               newArr[elemIdx] = val
                               applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
                             }}
-                            onWheel={e => {
+                            onWheelChange={e => {
                               e.preventDefault()
                               const el = e.target as HTMLInputElement
                               const current = parseFloat(el.value)
@@ -493,11 +493,11 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                     )
                   })()
                 ) : (
-                  <input
+                  <WheelInput
                     type="number"
                     defaultValue={Number(v)}
                     onChange={e => {
-                      const val = parseFloat(e.target.value)
+                      const val = parseFloat((e.target as HTMLInputElement).value)
                       if (!isNaN(val)) applyAndSave({
                         components: draft.components.map((c, i) =>
                           i === origIdx ? { ...c, props: { ...c.props, [k]: val } } : c
@@ -506,10 +506,10 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                     }}
                     onBlur={e => applyAndSave({
                       components: draft.components.map((c, i) =>
-                        i === origIdx ? { ...c, props: { ...c.props, [k]: parseFloat(e.target.value) || 0 } } : c
+                        i === origIdx ? { ...c, props: { ...c.props, [k]: parseFloat((e.target as HTMLInputElement).value) || 0 } } : c
                       )
                     })}
-                    onWheel={e => {
+                    onWheelChange={e => {
                       e.preventDefault()
                       const el = e.target as HTMLInputElement
                       const current = parseFloat(el.value)

@@ -1,4 +1,37 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+
+/**
+ * React onWheel은 passive라 preventDefault() 불가 → native addEventListener로 우회
+ * onWheelChange: 비패시브 WheelEvent 핸들러 (preventDefault 가능)
+ */
+export const WheelInput = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement> & { onWheelChange?: (e: WheelEvent) => void }
+>(({ onWheelChange, ...props }, forwardedRef) => {
+  const internalRef = useRef<HTMLInputElement>(null)
+  const handlerRef = useRef(onWheelChange)
+  handlerRef.current = onWheelChange
+
+  useEffect(() => {
+    const el = internalRef.current
+    if (!el) return
+    const handler = (e: WheelEvent) => handlerRef.current?.(e)
+    el.addEventListener('wheel', handler, { passive: false })
+    return () => el.removeEventListener('wheel', handler)
+  }, [])
+
+  return (
+    <input
+      ref={el => {
+        internalRef.current = el
+        if (typeof forwardedRef === 'function') forwardedRef(el)
+        else if (forwardedRef) (forwardedRef as React.MutableRefObject<HTMLInputElement | null>).current = el
+      }}
+      {...props}
+    />
+  )
+})
+WheelInput.displayName = 'WheelInput'
 
 export function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   const [checked, setChecked] = useState(value)
