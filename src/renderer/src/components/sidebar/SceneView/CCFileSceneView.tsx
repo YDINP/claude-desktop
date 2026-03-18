@@ -3734,6 +3734,26 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               </g>
             )
           })}
+          {/* R2728: 잠금 노드 🔒 아이콘 오버레이 */}
+          {lockedUuids.size > 0 && flatNodes.map(fn => {
+            if (!lockedUuids.has(fn.node.uuid)) return null
+            const sp = ccToSvg(fn.worldX, fn.worldY)
+            const w = fn.node.size?.x ?? 0
+            const h = fn.node.size?.y ?? 0
+            const ax = fn.node.anchor?.x ?? 0.5
+            const ay = fn.node.anchor?.y ?? 0.5
+            const iconSize = Math.max(8, 9 / view.zoom)
+            // 노드 우상단 모서리 기준
+            const iconX = sp.x + w * (1 - ax) - iconSize * 0.1 / view.zoom
+            const iconY = sp.y - h * (1 - ay) + iconSize * 1.1 / view.zoom
+            return (
+              <text key={`lk-${fn.node.uuid}`}
+                x={iconX} y={iconY} fontSize={iconSize / view.zoom}
+                textAnchor="end" fill="rgba(251,191,36,0.9)"
+                style={{ pointerEvents: 'none', userSelect: 'none' }}
+              >🔒</text>
+            )
+          })}
           {/* R2645: 선택 노드 순서 연결선 오버레이 */}
           {showSelPolyline && uuids.length >= 2 && (() => {
             const ordered: { x: number; y: number }[] = []

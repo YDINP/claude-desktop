@@ -9,6 +9,7 @@ import { NamePlugin } from './name'
 import { ComponentPlugin } from './component'
 import { MiscPlugin } from './misc'
 import { PresetPlugin } from './preset'
+import { FilterPlugin } from './filter'
 
 /** 등록된 모든 배치 플러그인 */
 export const BATCH_PLUGINS: BatchPlugin[] = [
@@ -53,6 +54,13 @@ export const BATCH_PLUGINS: BatchPlugin[] = [
     title: '기타',
     minNodes: 1,
     Component: MiscPlugin,
+  },
+  {
+    id: 'filter-group',
+    group: 'misc',
+    title: '필터',
+    minNodes: 2,
+    Component: FilterPlugin,
   },
   {
     id: 'preset-group',

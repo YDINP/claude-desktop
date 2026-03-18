@@ -107,7 +107,24 @@ export function PresetPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) 
     }, `프리셋 "${preset.name}" 적용 (${uuids.length}개) — R2727`)
   }, [patchNodes, uuids.length])
 
-  const s9 = (extra?: React.CSSProperties): React.CSSProperties => ({ fontSize: 9, ...extra })
+  const captureFromNode = useCallback(() => {
+    if (nodes.length === 0) return
+    const n = nodes[0]
+    setPresetName(`${n.name}-preset`)
+    if (n.opacity !== undefined) { setEnOpacity(true); setVOpacity(n.opacity) }
+    if (n.size?.x !== undefined) { setEnW(true); setVW(n.size.x) }
+    if (n.size?.y !== undefined) { setEnH(true); setVH(n.size.y) }
+    const pos = n.position as { x?: number; y?: number } | undefined
+    if (pos?.x !== undefined) { setEnPosX(true); setVPosX(pos.x) }
+    if (pos?.y !== undefined) { setEnPosY(true); setVPosY(pos.y) }
+    if (n.rotation !== undefined) { setEnRot(true); setVRot(n.rotation) }
+    if (n.active !== undefined) { setEnActive(true); setVActive(n.active) }
+    const sc = n.scale as { x?: number; y?: number } | undefined
+    if (sc?.x !== undefined) { setEnScaleX(true); setVScaleX(sc.x) }
+    if (sc?.y !== undefined) { setEnScaleY(true); setVScaleY(sc.y) }
+  }, [nodes])
+
+  const s9 =(extra?: React.CSSProperties): React.CSSProperties => ({ fontSize: 9, ...extra })
   const chk = (checked: boolean, onChange: () => void) => (
     <input type="checkbox" checked={checked} onChange={onChange} style={{ width: 10, height: 10, cursor: 'pointer' }} />
   )
@@ -151,6 +168,15 @@ export function PresetPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) 
 
           {/* 새 프리셋 폼 */}
           <div style={{ background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.15)', borderRadius: 3, padding: '4px 6px', marginBottom: 4 }}>
+            {nodes.length >= 1 && (
+              <div style={{ marginBottom: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <span onClick={captureFromNode}
+                  title={`"${nodes[0]?.name}" 노드의 현재 속성으로 폼 채우기 (R2729)`}
+                  style={{ fontSize: 8, padding: '1px 6px', cursor: 'pointer', border: '1px solid rgba(56,189,248,0.4)', borderRadius: 2, color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>
+                  📋 노드에서 캡처
+                </span>
+              </div>
+            )}
             <div style={{ marginBottom: 3 }}>
               <input value={presetName} onChange={e => setPresetName(e.target.value)}
                 placeholder="프리셋 이름"

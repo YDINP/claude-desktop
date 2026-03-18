@@ -2645,6 +2645,9 @@ export const ROUND_CHECKS: RoundCheck[] = [
   { round: 'R2725-batchLock', file: 'src/renderer/src/components/sidebar/CocosPanel', keywords: ['일괄 잠금', 'lockedUuids', 'onSetLockedUuids'], operator: 'and', failLevel: 'warning', passMsg: 'R2725 BatchInspector 일괄 lock/unlock 구현 완료', failMsg: 'R2725 BatchInspector 일괄 잠금 미구현', failFile: 'CocosPanel.tsx' },
   { round: 'R2726-collapsedSync', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['collapsedUuids', 'R2726'], operator: 'and', failLevel: 'warning', passMsg: 'R2726 SceneView collapsedUuids 연동 구현 완료', failMsg: 'R2726 SceneView 그룹 접기 미구현', failFile: 'CCFileSceneView.tsx' },
   { round: 'R2727-batchPreset', file: 'src/renderer/src/domains/cocos/plugins/preset.tsx', keywords: ['R2727', 'ActionPreset', 'applyPreset', 'STORAGE_KEY'], operator: 'and', failLevel: 'warning', passMsg: 'R2727 BatchInspector 액션 프리셋 저장/불러오기 구현 완료', failMsg: 'R2727 액션 프리셋 미구현', failFile: 'preset.tsx' },
+  { round: 'R2728-lockOverlay', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['R2728', 'lockedUuids.size', 'lk-'], operator: 'and', failLevel: 'warning', passMsg: 'R2728 SceneView 잠금 노드 🔒 오버레이 구현 완료', failMsg: 'R2728 잠금 노드 시각 표시 미구현', failFile: 'CCFileSceneView.tsx' },
+  { round: 'R2729-presetCapture', file: 'src/renderer/src/domains/cocos/plugins/preset.tsx', keywords: ['R2729', 'captureFromNode'], operator: 'and', failLevel: 'warning', passMsg: 'R2729 프리셋 노드에서 캡처 구현 완료', failMsg: 'R2729 캡처 버튼 미구현', failFile: 'preset.tsx' },
+  { round: 'R2730-compFilter', file: 'src/renderer/src/domains/cocos/plugins/filter.tsx', keywords: ['R2730', 'FilterPlugin', 'FILTER_TYPES', 'onMultiSelectChange'], operator: 'and', failLevel: 'warning', passMsg: 'R2730 BatchInspector 컴포넌트 타입 필터 구현 완료', failMsg: 'R2730 컴포넌트 타입 필터 미구현', failFile: 'filter.tsx' },
 ]
 
 export const MULTI_FILE_CHECKS: MultiFileCheck[] = [
