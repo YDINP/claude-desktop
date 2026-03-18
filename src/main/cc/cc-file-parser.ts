@@ -3,6 +3,7 @@ import type {
   CCSceneNode, CCSceneComponent, CCSceneFile,
   CCVec2, CCVec3, CCColor, CCFileProjectInfo,
 } from '../../shared/ipc-schema'
+import { buildUUIDMap } from './cc-asset-resolver'
 // CCSceneNode is used by extractSceneMeta (R1459)
 
 type RawEntry = Record<string, unknown>
@@ -28,6 +29,31 @@ export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo):
       : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
 
   if (!root) throw new Error(`루트 노드 파싱 실패 (depth 초과): ${scenePath}`)
+
+  // 커스텀 스크립트 UUID → 파일명 해결
+  if (projectInfo.assetsDir) {
+    const uuidMap = buildUUIDMap(projectInfo.assetsDir)
+    const scriptUuidToName = new Map<string, string>()
+    for (const [uuid, meta] of uuidMap) {
+      if (meta.type === 'script') {
+        const name = meta.relPath.split('/').pop()?.replace(/\.(ts|js)$/, '') ?? uuid
+        scriptUuidToName.set(uuid, name)
+      }
+    }
+    if (scriptUuidToName.size > 0) {
+      const IS_UUID = /^[0-9a-f]{8,}/i
+      function resolveCompTypes(node: CCSceneNode) {
+        for (const comp of node.components) {
+          if (IS_UUID.test(comp.type)) {
+            const resolved = scriptUuidToName.get(comp.type)
+            if (resolved) (comp as CCSceneComponent).type = resolved
+          }
+        }
+        node.children.forEach(resolveCompTypes)
+      }
+      resolveCompTypes(root)
+    }
+  }
 
   return { projectInfo, scenePath, root, _raw: raw }
 }
@@ -1365,6 +1391,31 @@ export function parseCCSceneChunked(
       ? parseNode2x(raw, rootIdx)
       : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
   if (!root) throw new Error(`루트 노드 파싱 실패: ${scenePath}`)
+
+  // 커스텀 스크립트 UUID → 파일명 해결
+  if (projectInfo.assetsDir) {
+    const uuidMap = buildUUIDMap(projectInfo.assetsDir)
+    const scriptUuidToName = new Map<string, string>()
+    for (const [uuid, meta] of uuidMap) {
+      if (meta.type === 'script') {
+        const name = meta.relPath.split('/').pop()?.replace(/\.(ts|js)$/, '') ?? uuid
+        scriptUuidToName.set(uuid, name)
+      }
+    }
+    if (scriptUuidToName.size > 0) {
+      const IS_UUID = /^[0-9a-f]{8,}/i
+      function resolveCompTypes(node: CCSceneNode) {
+        for (const comp of node.components) {
+          if (IS_UUID.test(comp.type)) {
+            const resolved = scriptUuidToName.get(comp.type)
+            if (resolved) (comp as CCSceneComponent).type = resolved
+          }
+        }
+        node.children.forEach(resolveCompTypes)
+      }
+      resolveCompTypes(root)
+    }
+  }
 
   const totalTopChildren = root.children.length
   const rawLength = raw.length

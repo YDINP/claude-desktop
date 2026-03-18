@@ -2425,8 +2425,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {selectedUuid && (() => {
             const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
             if (!fn) return null
-            const effX = dragOverride?.uuid === selectedUuid ? dragOverride.x : fn.worldX
-            const effY = dragOverride?.uuid === selectedUuid ? dragOverride.y : fn.worldY
+            const fnLocalX = typeof fn.node.position === 'object' ? (fn.node.position as CCVec3).x : 0
+            const fnLocalY = typeof fn.node.position === 'object' ? (fn.node.position as CCVec3).y : 0
+            const effX = dragOverride?.uuid === selectedUuid ? fn.worldX + (dragOverride.x - fnLocalX) : fn.worldX
+            const effY = dragOverride?.uuid === selectedUuid ? fn.worldY + (dragOverride.y - fnLocalY) : fn.worldY
             const sp = ccToSvg(effX, effY)
             return (
               <g pointerEvents="none">
@@ -2451,8 +2453,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const isResized = resizeOverride?.uuid === node.uuid
             // R2472: 다중 선택 동시 드래그 오프셋
             const isMultiDragged = !isDragged && !!multiDragDelta && multiSelected.has(node.uuid)
-            const effX = isDragged ? dragOverride!.x : isMultiDragged ? worldX + multiDragDelta!.dx : worldX
-            const effY = isDragged ? dragOverride!.y : isMultiDragged ? worldY + multiDragDelta!.dy : worldY
+            // dragOverride는 로컬 좌표 → 월드로 변환: worldX + (newLocal - oldLocal)
+            const nodeLocalX = typeof node.position === 'object' ? (node.position as CCVec3).x : 0
+            const nodeLocalY = typeof node.position === 'object' ? (node.position as CCVec3).y : 0
+            const effX = isDragged ? worldX + (dragOverride!.x - nodeLocalX) : isMultiDragged ? worldX + multiDragDelta!.dx : worldX
+            const effY = isDragged ? worldY + (dragOverride!.y - nodeLocalY) : isMultiDragged ? worldY + multiDragDelta!.dy : worldY
             const svgPos = ccToSvg(effX, effY)
             const w = isResized ? resizeOverride!.w : (node.size?.x || 0)
             const h = isResized ? resizeOverride!.h : (node.size?.y || 0)
@@ -3045,11 +3050,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const txt = (labelComp?.props?.string as string | undefined) ?? ''
                   if (!txt) return null
                   const fs = Math.max(6, Math.min(16, (labelComp?.props?.fontSize as number | undefined ?? 20) * view.zoom * 0.6))
+                  const fontUuid = (labelComp?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
+                               ?? (labelComp?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
+                  const cachedFont = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
+                  const fontFamilyName = cachedFont?.familyName || 'sans-serif'
                   return (
                     <text
                       x={svgPos.x} y={svgPos.y + fs / 3}
                       textAnchor="middle" dominantBaseline="middle"
-                      fontSize={fs} fill="rgba(255,220,80,0.9)" fontFamily="monospace"
+                      fontSize={fs} fill="rgba(255,220,80,0.9)" fontFamily={fontFamilyName}
                       style={{ pointerEvents: 'none', userSelect: 'none' }}
                     >{txt.length > 12 ? txt.slice(0, 11) + '…' : txt}</text>
                   )
