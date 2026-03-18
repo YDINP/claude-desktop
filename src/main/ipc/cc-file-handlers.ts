@@ -255,4 +255,25 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
       })
     })
   })
+
+  /** 폰트 파일 (TTF/OTF/WOFF) → base64 data URL */
+  ipcMain.handle('cc:file:resolveFont', async (_e, uuid: string, assetsDir: string) => {
+    const map = buildUUIDMap(assetsDir)
+    const asset = map.get(uuid)
+    if (!asset) return null
+    const ext = asset.path.split('.').pop()?.toLowerCase() ?? ''
+    const fontExts = ['ttf', 'otf', 'woff', 'woff2', 'eot']
+    if (!fontExts.includes(ext)) return null
+    try {
+      const data = await readFile(asset.path)
+      const mimeMap: Record<string, string> = {
+        ttf: 'font/truetype', otf: 'font/opentype',
+        woff: 'font/woff', woff2: 'font/woff2', eot: 'application/vnd.ms-fontobject',
+      }
+      const mime = mimeMap[ext] ?? 'font/truetype'
+      // fontFamily 이름은 파일명 (확장자 제거)
+      const familyName = asset.path.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') ?? uuid.slice(0, 8)
+      return { dataUrl: `data:${mime};base64,${data.toString('base64')}`, familyName }
+    } catch { return null }
+  })
 }

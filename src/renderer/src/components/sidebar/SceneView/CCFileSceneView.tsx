@@ -392,6 +392,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
   const spriteCacheRef = useRef<Map<string, string>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
+  // Font 캐시: UUID → { dataUrl, familyName }
+  const fontCacheRef = useRef<Map<string, { dataUrl: string; familyName: string }>>(new Map())
+  const [, setFontCacheVer] = useState(0)
 
   // 캔버스 크기 + 배경색 추정
   const { designW, designH, bgColor } = useMemo(() => {
@@ -543,6 +546,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         console.debug('[SceneView] resolveTexture error', uuid.slice(0,8), e)
         spriteCacheRef.current.delete(uuid)
       })
+    })
+  }, [sceneFile, flatNodes])
+
+  // Font 로딩: cc.Label 컴포넌트의 font UUID → TTF base64
+  useEffect(() => {
+    const assetsDir = sceneFile?.projectInfo?.assetsDir
+    if (!assetsDir) return
+    const labelComps = flatNodes.flatMap(fn =>
+      fn.node.components.filter(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
+    )
+    const uuids = labelComps
+      .map(c => (c.props.font as { __uuid__?: string } | undefined)?.__uuid__
+             ?? (c.props._N$file as { __uuid__?: string } | undefined)?.__uuid__)
+      .filter((u): u is string => !!u && !fontCacheRef.current.has(u))
+    const uniqueUuids = [...new Set(uuids)]
+    if (!uniqueUuids.length) return
+    uniqueUuids.forEach(uuid => {
+      fontCacheRef.current.set(uuid, { dataUrl: '', familyName: '' }) // pending sentinel
+      window.api.ccFileResolveFont?.(uuid, assetsDir).then((result: { dataUrl: string; familyName: string } | null) => {
+        if (result) {
+          fontCacheRef.current.set(uuid, result)
+        } else {
+          fontCacheRef.current.delete(uuid)
+        }
+        setFontCacheVer(v => v + 1)
+      }).catch(() => { fontCacheRef.current.delete(uuid) })
     })
   }, [sceneFile, flatNodes])
 
@@ -2466,6 +2495,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         }}
       >
         <defs>
+          {/* 커스텀 폰트 @font-face */}
+          {fontCacheRef.current.size > 0 && (
+            <style>{
+              [...fontCacheRef.current.entries()]
+                .filter(([, v]) => v.dataUrl)
+                .map(([, { dataUrl, familyName }]) =>
+                  `@font-face { font-family: '${familyName}'; src: url('${dataUrl}'); }`
+                ).join('\n')
+            }</style>
+          )}
           {/* 캔버스 외부 빗금 패턴 */}
           <pattern id="hatchOutside" width={8 / view.zoom} height={8 / view.zoom} patternUnits="userSpaceOnUse">
             <line x1={0} y1={8 / view.zoom} x2={8 / view.zoom} y2={0} stroke="rgba(255,255,255,0.06)" strokeWidth={1 / view.zoom} />
@@ -3497,12 +3536,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       </foreignObject>
                     )
                   }
+                  const fontUuid = (lc?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
+                             ?? (lc?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
+                  const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
+                  const fontFamilyName = fontEntry?.familyName
+                    || (lc?.props?.fontFamily as string | undefined)
+                    || undefined
                   return (
                     <text
                       x={rectX + w / 2} y={rectY + h / 2}
                       fontSize={fs / view.zoom}
                       fill={`rgb(${cr},${cg},${cb})`}
                       textAnchor="middle" dominantBaseline="middle"
+                      fontFamily={fontFamilyName}
                       style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
                       onDoubleClick={e => {
                         e.stopPropagation()
