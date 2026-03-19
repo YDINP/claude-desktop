@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
 import { BackupManager } from './BackupManager'
+import { BuildTabContent } from './BuildTab'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { validateScene } from '../cocos-utils'
 import type { OptimizationSuggestion } from './types'
@@ -30,10 +31,13 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
     sceneHistoryTimeline, showFullHistory, setShowFullHistory,
     setShowProjectWizard, setWizardStep, setWizardError,
     isFav, toggleFav,
+    showAssetPanel, setShowAssetPanel,
   } = ctx
 
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const barRef = useRef<HTMLDivElement>(null)
+  const [showBuildMenu, setShowBuildMenu] = useState(false)
+  const buildMenuRef = useRef<HTMLDivElement>(null)
 
   // 외부 클릭 시 닫기
   useEffect(() => {
@@ -43,6 +47,15 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  useEffect(() => {
+    if (!showBuildMenu) return
+    const handler = (e: MouseEvent) => {
+      if (buildMenuRef.current && !buildMenuRef.current.contains(e.target as Node)) setShowBuildMenu(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showBuildMenu])
 
   const toggle = (id: string) => setOpenMenu(v => v === id ? null : id)
 
@@ -504,6 +517,47 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
               onMouseLeave={e => (e.currentTarget.style.background = 'none')}
               onClick={() => { toggleFav?.(); setOpenMenu(null) }}
             >{isFav ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}</button>
+          </div>
+        )}
+      </div>
+
+      {/* -- 에셋 패널 토글 -- */}
+      <button
+        style={{
+          padding: '2px 8px', fontSize: 10, cursor: 'pointer',
+          background: showAssetPanel ? 'rgba(88,166,255,0.15)' : 'transparent',
+          color: showAssetPanel ? 'var(--accent)' : 'var(--text-muted)',
+          border: 'none', borderBottom: showAssetPanel ? '2px solid var(--accent)' : '2px solid transparent',
+          fontWeight: showAssetPanel ? 600 : 400,
+        }}
+        onClick={() => {
+          const next = !showAssetPanel
+          setShowAssetPanel(next)
+          localStorage.setItem('cc-asset-panel-open', String(next))
+        }}
+        title="에셋 브라우저 패널 토글"
+      >{'📁'} 에셋</button>
+
+      {/* -- 빌드 메뉴 -- */}
+      <div ref={buildMenuRef} style={{ position: 'relative' }}>
+        <button
+          style={{
+            padding: '2px 8px', fontSize: 10, cursor: 'pointer',
+            background: showBuildMenu ? 'rgba(251,191,36,0.15)' : 'transparent',
+            color: showBuildMenu ? '#fbbf24' : 'var(--text-muted)',
+            border: 'none', borderBottom: showBuildMenu ? '2px solid #fbbf24' : '2px solid transparent',
+            fontWeight: showBuildMenu ? 600 : 400,
+          }}
+          onClick={() => setShowBuildMenu(v => !v)}
+        >{'🔨'} 빌드</button>
+        {showBuildMenu && projectInfo?.detected && (
+          <div style={{
+            position: 'absolute', top: '100%', left: 0, zIndex: 200,
+            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+            borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+            minWidth: 280, padding: 8,
+          }}>
+            <BuildTabContent projectInfo={projectInfo} />
           </div>
         )}
       </div>

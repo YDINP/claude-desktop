@@ -25,7 +25,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   {/* R1701: 오디오 클립 uuid 표시 + 복사 */}
                   {clipUuid && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>clip uuid</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>clip uuid</span>
                       <span style={{ fontSize: 8, color: '#facc15', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={clipUuid}>{clipUuid}</span>
                       <span
                         title="클립 UUID 복사"
@@ -107,7 +107,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     const endTime = Number(p.endTime ?? p._endTime ?? p._N$endTime ?? -1)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>time</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>time</span>
                         <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>start</span>
                         <input type="number" min={0} step={0.1} defaultValue={startTime} key={`ast-${startTime}`}
                           onBlur={e => {
@@ -151,7 +151,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>bgColor</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>bgColor</span>
                     <input type="color" value={bgHex}
                       onChange={e => {
                         const h = e.target.value
@@ -164,7 +164,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>clearFlags</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>clearFlags</span>
                     {([['None',0],['Depth',2],['Color+D',7],['All',15]] as [string,number][]).map(([l,v]) => (
                       <span key={v} title={`clearFlags=${v}`}
                         onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearFlags: v, _clearFlags: v } } : c); applyAndSave({ components: u }) }}
@@ -173,7 +173,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>depth</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>depth</span>
                     <input type="number" defaultValue={depth} step={1} key={`cdepth-${depth}`}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || 0
@@ -185,7 +185,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R1919: fov */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>fov</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>fov</span>
                     <input type="number" defaultValue={fov} min={1} max={179} step={5} key={`cfov-${fov}`}
                       onBlur={e => {
                         const v = Math.min(179, Math.max(1, parseFloat(e.target.value) || 60))
@@ -200,7 +200,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   {is3x && (
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>orthoH</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>orthoH</span>
                         <input type="number" min={1} step={10}
                           defaultValue={Number(p.orthoHeight ?? p._orthoHeight ?? 540)}
                           key={`oh-${Number(p.orthoHeight ?? 540)}`}
@@ -217,7 +217,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                         ))}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>near/far</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>near/far</span>
                         <input type="number" step={0.1}
                           defaultValue={Number(p.near ?? p._near ?? 1)}
                           key={`cn-${Number(p.near ?? 1)}`}
@@ -238,7 +238,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   {/* R2442: CC2.x zoomRatio */}
                   {!is3x && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>zoomRatio</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>zoomRatio</span>
                       <input type="number" defaultValue={Number(p.zoomRatio ?? p._zoomRatio ?? 1)} min={0.01} step={0.1}
                         onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, zoomRatio: v, _zoomRatio: v } } : c); applyAndSave({ components: u }) }}
                         style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -248,7 +248,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   )}
                   {/* R2449: clearDepth (BatchInspector R2187) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>clearDepth</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>clearDepth</span>
                     <input type="number" defaultValue={Number(p.clearDepth ?? p._clearDepth ?? 1)} min={0} max={1} step={0.5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 1
@@ -265,7 +265,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R2449: ortho toggle (BatchInspector R2058) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>ortho</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>ortho</span>
                     {([['ort✓', true], ['ort✗', false]] as const).map(([l, v]) => {
                       const cur = !!(p.ortho ?? p._ortho ?? false)
                       return (
@@ -277,7 +277,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R2449: cullingMask (BatchInspector R1989) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>cullingMask</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>cullingMask</span>
                     {([['All', -1], ['None', 0], ['Dflt', 1]] as [string, number][]).map(([l, v]) => (
                       <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cullingMask: v, _cullingMask: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
@@ -287,7 +287,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   {/* R2405: targetDisplay */}
                   {!is3x && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>targetDisp</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>targetDisp</span>
                       <input type="number" defaultValue={Number(p.targetDisplay ?? p._targetDisplay ?? p._N$targetDisplay ?? 0)} min={0} step={1}
                         onBlur={e => { const v = parseInt(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, targetDisplay: v, _targetDisplay: v, _N$targetDisplay: v } } : c); applyAndSave({ components: u }) }}
                         style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -320,7 +320,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>intensity</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>intensity</span>
                     <input type="range" min={0} max={5} step={0.1} value={intensity}
                       onChange={e => {
                         const v = parseFloat(e.target.value)
@@ -332,7 +332,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{intensity.toFixed(1)}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>color</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>color</span>
                     <input type="color" value={hexColor}
                       onChange={e => {
                         const hex = e.target.value
@@ -368,7 +368,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>intensity</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 64, whiteSpace: 'nowrap', flexShrink: 0 }}>intensity</span>
                     <input type="number" defaultValue={intensity} key={`si-${intensity}`} min={0} step={100}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -379,7 +379,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>range</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 64, whiteSpace: 'nowrap', flexShrink: 0 }}>range</span>
                     <input type="number" defaultValue={range} key={`sr-${range}`} min={0} step={0.5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 1
@@ -390,7 +390,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>spotAngle</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 64, whiteSpace: 'nowrap', flexShrink: 0 }}>spotAngle</span>
                     <input type="number" defaultValue={spotAngle} key={`sa-${spotAngle}`} min={0} max={180} step={5}
                       onBlur={e => {
                         const v = Math.max(0, Math.min(180, parseFloat(e.target.value) || 30))
@@ -402,7 +402,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>color</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 64, whiteSpace: 'nowrap', flexShrink: 0 }}>color</span>
                     <input type="color" value={hexColor}
                       onChange={e => {
                         const hex = e.target.value
@@ -426,7 +426,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>depth</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>depth</span>
                     <input type="number" defaultValue={depth} step={1}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || 0
@@ -438,7 +438,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {!is3x && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>zoomRatio</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>zoomRatio</span>
                       <input type="number" defaultValue={zoomRatio} min={0.01} step={0.1}
                         onBlur={e => {
                           const v = parseFloat(e.target.value) || 1
@@ -451,7 +451,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   )}
                   {is3x && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>fov</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>fov</span>
                       <input type="number" defaultValue={fov} min={1} max={180} step={1}
                         onBlur={e => {
                           const v = Math.max(1, Math.min(180, parseFloat(e.target.value) || 45))
@@ -467,7 +467,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   {is3x && (
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>orthoH</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>orthoH</span>
                         <input type="number" min={1} step={10}
                           defaultValue={Number(p.orthoHeight ?? p._orthoHeight ?? 540)}
                           key={`oh-${Number(p.orthoHeight ?? 540)}`}
@@ -484,7 +484,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                         ))}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>near/far</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>near/far</span>
                         <input type="number" step={0.1}
                           defaultValue={Number(p.near ?? p._near ?? 1)}
                           key={`cn-${Number(p.near ?? 1)}`}
@@ -512,7 +512,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   )}
                   {/* R2412: cullingMask (BatchInspector R1989) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>cullMask</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>cullMask</span>
                     {([['All', -1], ['Dflt', 1], ['None', 0]] as const).map(([l, v]) => {
                       const cur = Number(p.cullingMask ?? p._cullingMask ?? -1)
                       return (
@@ -530,7 +530,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   {/* R2412: clearDepth (CC3.x, BatchInspector R2187) */}
                   {is3x && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>clearDepth</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>clearDepth</span>
                       <input type="number" defaultValue={Number(p.clearDepth ?? p._clearDepth ?? 1)} min={0} max={1} step={0.1}
                         onBlur={e => { const v = Math.max(0, Math.min(1, parseFloat(e.target.value) || 1)); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c); applyAndSave({ components: u }) }}
                         style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -545,7 +545,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   )}
                   {/* R1790: clearFlags + backgroundColor */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>clear</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>clear</span>
                     {([['Color', 1], ['Depth', 2], ['None', 4]] as const).map(([l, v]) => {
                       const clearFlags = Number(p.clearFlags ?? p._clearFlags ?? 1)
                       return (
@@ -564,7 +564,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     const bgHex = `#${bgR.toString(16).padStart(2,'0')}${bgG.toString(16).padStart(2,'0')}${bgB.toString(16).padStart(2,'0')}`
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>bg color</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>bg color</span>
                         <input type="color" value={bgHex}
                           onChange={e => {
                             const h = e.target.value
@@ -602,7 +602,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>fade</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>fade</span>
                     <input type="number" defaultValue={fade} key={`mfade-${fade}`} min={0} max={10} step={0.1}
                       onBlur={e => { const v = parseFloat(e.target.value) || 0.5; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fade: v, _fade: v, _N$fade: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -610,21 +610,21 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>s</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>minSeg</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>minSeg</span>
                     <input type="number" defaultValue={minSeg} key={`mseg-${minSeg}`} min={0} step={1}
                       onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, minSeg: v, _minSeg: v, _N$minSeg: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>stroke</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>stroke</span>
                     <input type="number" defaultValue={stroke} key={`mstk-${stroke}`} min={0} step={4}
                       onBlur={e => { const v = parseFloat(e.target.value) || 64; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, stroke: v, _stroke: v, _N$stroke: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>color</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>color</span>
                     <input type="color" value={mHex}
                       onChange={e => { const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16); const col = { r: r2, g: g2, b: b2, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 24, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer' }}
@@ -636,7 +636,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R2374: timeToLive / speedThreshold */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>TTL</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>TTL</span>
                     <input type="number" defaultValue={Number(p.timeToLive ?? p._timeToLive ?? 1)} min={0} step={0.1}
                       onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeToLive: v, _timeToLive: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}

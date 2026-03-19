@@ -20,7 +20,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>direction</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>direction</span>
                     <select value={direction}
                       onChange={e => {
                         const v = parseInt(e.target.value)
@@ -35,7 +35,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   </div>
                   {/* R1847: slideDuration */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>slideDur</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>slideDur</span>
                     <input type="number" defaultValue={slideDuration} key={`sd-${slideDuration}`} min={0} step={0.05}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0.3
@@ -53,7 +53,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   </div>
                   {[['scrollThreshold', scrollThreshold], ['autoTurning', autoThreshold]].map(([label, val]) => (
                     <div key={label as string} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>{label as string}</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>{label as string}</span>
                       <input type="range" min={0} max={1} step={0.05} value={val as number}
                         onChange={e => {
                           const v = parseFloat(e.target.value)
@@ -68,7 +68,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   ))}
                   {/* R2377: pageTurningSpeed + effectType + autoPlay */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>turnSpd</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>turnSpd</span>
                     <input type="number" defaultValue={Number(p.pageTurningSpeed ?? p._pageTurningSpeed ?? p._N$pageTurningSpeed ?? 0.3)} min={0} step={0.05}
                       onBlur={e => { const v = parseFloat(e.target.value) || 0.3; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pageTurningSpeed: v, _pageTurningSpeed: v, _N$pageTurningSpeed: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -76,7 +76,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>effect</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>effect</span>
                     {([['NONE', 0], ['SCROLL', 1], ['FADE', 2]] as const).map(([l, v]) => (
                       <span key={v} title={`effectType=${l}(${v})`}
                         onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, effectType: v, _effectType: v, _N$effectType: v } } : c); applyAndSave({ components: u }) }}
@@ -94,7 +94,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     const interval = Number(p.autoPageTurningInterval ?? p._N$autoPageTurningInterval ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>autoPT sec</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>autoPT sec</span>
                         <input type="number" defaultValue={interval} key={`apt-${interval}`} min={0} step={0.5}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -114,7 +114,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   })()}
                   {/* R2402: pageTurningEventTiming + speedAmplifier */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>evtTiming</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>evtTiming</span>
                     {([['Start', 0], ['End', 1]] as const).map(([l, v]) => {
                       const cur = Number(p.pageTurningEventTiming ?? p._pageTurningEventTiming ?? p._N$pageTurningEventTiming ?? 0)
                       return (
@@ -123,7 +123,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                         >{l}</span>
                       )
                     })}
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0, marginLeft: 8 }}>speedAmp</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 8 }}>speedAmp</span>
                     <input type="number" defaultValue={Number(p.speedAmplifier ?? p._speedAmplifier ?? p._N$speedAmplifier ?? 1)} min={0} step={0.1}
                       onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedAmplifier: v, _speedAmplifier: v, _N$speedAmplifier: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -148,7 +148,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>direction</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>direction</span>
                     {[['H', 0], ['V', 1]].map(([label, v]) => (
                       <span key={v} onClick={() => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v, _direction: v, _N$direction: v } } : c)
@@ -159,7 +159,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>spacingX</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>spacingX</span>
                     <input type="number" defaultValue={spacingX} key={`pvix-${spacingX}`} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -168,7 +168,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>spacingY</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>spacingY</span>
                     <input type="number" defaultValue={spacingY} key={`pviy-${spacingY}`} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -227,7 +227,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>brake</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>brake</span>
                     <input type="range" min={0} max={1} step={0.05} value={brake}
                       onChange={e => {
                         const v = parseFloat(e.target.value)
@@ -255,7 +255,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     const ed = Number(p.elasticDuration ?? p._N$elasticDuration ?? 0.2)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>elasticDur</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>elasticDur</span>
                         <input type="number" defaultValue={ed} key={`ed-${ed}`} min={0} max={2} step={0.05}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0.2)
@@ -286,7 +286,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     return (
                       <>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>bounceT</span>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>bounceT</span>
                           <input type="number" defaultValue={bounceTime} key={`bt-${bounceTime}`} min={0} step={0.1}
                             onBlur={e => { const v = Math.max(0, parseFloat(e.target.value) || 1); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bounceTime: v, _bounceTime: v, _N$bounceTime: v } } : c); applyAndSave({ components: u }) }}
                             style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -299,7 +299,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                           ))}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>bounceDur</span>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>bounceDur</span>
                           <input type="number" defaultValue={bounceDuration} key={`bd-${bounceDuration}`} min={0} step={0.05}
                             onBlur={e => { const v = Math.max(0, parseFloat(e.target.value) || 0.2); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, bounceDuration: v, _bounceDuration: v, _N$bounceDuration: v } } : c); applyAndSave({ components: u }) }}
                             style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -312,7 +312,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                           ))}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>mwSens</span>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>mwSens</span>
                           <input type="number" defaultValue={mwSens} key={`mws-${mwSens}`} min={0} step={0.5}
                             onBlur={e => { const v = parseFloat(e.target.value) || 3.5; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mouseWheelScrollSensitivity: v, _mouseWheelScrollSensitivity: v, _N$mouseWheelScrollSensitivity: v } } : c); applyAndSave({ components: u }) }}
                             style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -353,7 +353,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                           </label>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>scrollDur</span>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>scrollDur</span>
                           <input type="number" min={0} step={0.05} defaultValue={scrollDur} key={`sd-${scrollDur}`}
                             onBlur={e => {
                               const v = Math.max(0, parseFloat(e.target.value) || 0.2)
@@ -376,7 +376,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     const speed = Number(p.speedAmplifier ?? p._speedAmplifier ?? p._N$speedAmplifier ?? 1)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>speedAmp</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>speedAmp</span>
                         <input type="number" defaultValue={speed} key={`sa-${speed}`} min={0} step={0.1}
                           onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speedAmplifier: v, _speedAmplifier: v, _N$speedAmplifier: v } } : c); applyAndSave({ components: u }) }}
                           style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -442,7 +442,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>direction</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>direction</span>
                     {[['H', 0], ['V', 1]].map(([label, v]) => (
                       <span key={v} onClick={() => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, direction: v, _direction: v, _N$direction: v } } : c)
@@ -464,7 +464,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   </label>
                   {enableAutoHide && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>autoHideTime</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>autoHideTime</span>
                       <input type="number" defaultValue={autoHideTime} key={`sb-aht-${autoHideTime}`} min={0} step={0.1}
                         onBlur={e => {
                           const v = parseFloat(e.target.value) || 1

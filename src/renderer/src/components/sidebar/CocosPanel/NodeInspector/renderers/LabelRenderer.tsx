@@ -321,7 +321,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0, marginTop: 2 }}>string</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0, marginTop: 2 }}>string</span>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <textarea
                         defaultValue={str}
@@ -350,7 +350,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>fontSize</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>fontSize</span>
                     <input type="number" defaultValue={fs} min={1} max={200}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || fs
@@ -386,7 +386,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   {/* R1714: 텍스트 색상 피커 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>color</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>color</span>
                     <input type="color" value={lcHex}
                       onChange={e => {
                         const h = e.target.value
@@ -400,7 +400,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   {/* R1723: lineHeight */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>lineH</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>lineH</span>
                     <input type="number" defaultValue={lineHeight} min={0} step={1}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || 0
@@ -447,7 +447,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   )}
                   {/* R1757: fontFamily 입력 + 폰트 에셋 드롭다운 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }} ref={fontDropdownRef}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>fontFam</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>fontFam</span>
                     <input type="text" defaultValue={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} placeholder="폰트 이름 (빈칸=기본)"
                       onBlur={e => {
                         const v = e.target.value.trim()
@@ -511,7 +511,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   {/* R2445: cacheMode (BatchInspector R1925) None/Bitmap/Char */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>cacheMode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>cacheMode</span>
                     {([['None', 0], ['Bitmap', 1], ['Char', 2]] as const).map(([l, v]) => {
                       const cur = Number(p.cacheMode ?? p._cacheMode ?? p._N$cacheMode ?? 0)
                       return (
@@ -523,7 +523,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   {/* R1720: overflow + hAlign + vAlign */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>overflow</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>overflow</span>
                     <select value={overflow}
                       onChange={e => {
                         const v = parseInt(e.target.value)
@@ -539,7 +539,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     </select>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>align</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>align</span>
                     <div style={{ display: 'flex', gap: 2, flex: 1 }}>
                       {(['L', 'C', 'R'] as const).map((lbl, i) => (
                         <span key={lbl}
@@ -564,7 +564,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   {/* R1789: enableWrapText 토글 + spacingX */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>wrap</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>wrap</span>
                     {(() => {
                       const wrapVal = !!(p.enableWrapText ?? p._enableWrapText ?? p._N$enableWrapText ?? true)
                       return (
@@ -606,7 +606,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     const underline = !!(p.isUnderline ?? p._isUnderline ?? p._N$isUnderline ?? false)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>style</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>style</span>
                         {[
                           { label: 'B', title: 'Bold', key: 'isBold', val: bold },
                           { label: 'I', title: 'Italic', key: 'isItalic', val: italic },
@@ -628,7 +628,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   {/* R2350: underlineHeight (CC3.x) — isUnderline 활성 시 표시 */}
                   {!!(p.isUnderline ?? p._isUnderline ?? p._N$isUnderline ?? false) && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>ulHeight</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>ulHeight</span>
                       <input type="number" defaultValue={Number(p.underlineHeight ?? p._underlineHeight ?? 2)} min={1} max={20} step={1}
                         key={`ulh-${Number(p.underlineHeight ?? p._underlineHeight ?? 2)}`}
                         onBlur={e => {
@@ -692,7 +692,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   {/* R1746: 텍스트 대소문자 변환 버튼 */}
                   {str && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>변환</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>변환</span>
                       {[
                         { label: 'ABC', title: '모두 대문자', fn: (s: string) => s.toUpperCase() },
                         { label: 'abc', title: '모두 소문자', fn: (s: string) => s.toLowerCase() },
@@ -718,7 +718,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     const enableDashLine = !!(p.enableDashLine ?? p._enableDashLine ?? false)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>dashLine</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>dashLine</span>
                         <span title={enableDashLine ? 'dashLine 비활성' : 'dashLine 활성'}
                           onClick={() => { const nv = !enableDashLine; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableDashLine: nv, _enableDashLine: nv } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableDashLine ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: enableDashLine ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
@@ -735,7 +735,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     const cbHex = cb ? `#${((cb.r ?? 0) << 16 | (cb.g ?? 0) << 8 | (cb.b ?? 0)).toString(16).padStart(6, '0')}` : '#000000'
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>gradient</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>gradient</span>
                         <span title={enableGradient ? 'gradient 비활성' : 'gradient 활성'}
                           onClick={() => { const nv = !enableGradient; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableGradient: nv, _enableGradient: nv } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableGradient ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: enableGradient ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
@@ -770,7 +770,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     return (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>shadow</span>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>shadow</span>
                           <span title={enableShadow ? 'shadow 비활성' : 'shadow 활성'}
                             onClick={() => { const nv = !enableShadow; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableShadow: nv, _enableShadow: nv } } : c); applyAndSave({ components: u }) }}
                             style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableShadow ? '#818cf8' : 'var(--border)'}`, borderRadius: 2, color: enableShadow ? '#818cf8' : 'var(--text-muted)', userSelect: 'none' }}
@@ -816,7 +816,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     const ocHex = oc ? `#${((oc.r ?? 0) << 16 | (oc.g ?? 0) << 8 | (oc.b ?? 0)).toString(16).padStart(6, '0')}` : '#000000'
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>outline</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>outline</span>
                         <span title={enableOutline ? 'outline 비활성' : 'outline 활성'}
                           onClick={() => { const nv = !enableOutline; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableOutline: nv, _enableOutline: nv } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableOutline ? '#f59e0b' : 'var(--border)'}`, borderRadius: 2, color: enableOutline ? '#f59e0b' : 'var(--text-muted)', userSelect: 'none' }}
@@ -842,7 +842,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     const lines = str.replace(/\\n/g, '\n').split('\n')
                     return (
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0, marginTop: 2 }}>미리보기</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0, marginTop: 2 }}>미리보기</span>
                         <div style={{ flex: 1, background: 'rgba(88,166,255,0.06)', border: '1px solid rgba(88,166,255,0.2)', borderRadius: 3, padding: '3px 5px', fontSize: 9, color: 'var(--text-primary)', lineHeight: 1.5, whiteSpace: 'pre', overflowX: 'auto', maxHeight: 60, overflowY: 'auto' }}>
                           {lines.map((line, i) => <div key={i}>{line || <span style={{ color: 'var(--text-muted)' }}>↵</span>}</div>)}
                         </div>
@@ -860,7 +860,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>width</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>width</span>
                     <input type="number" defaultValue={width} min={0} step={1}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       onBlur={ev => { const v = Math.max(0, parseInt(ev.target.value) || 0); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, width: v, _width: v, _N$width: v } } : c); applyAndSave({ components: u }) }}
@@ -872,7 +872,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>color</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>color</span>
                     <input type="color" value={toHex(colRaw as { r?: number; g?: number; b?: number } | undefined)}
                       onChange={e => { const n2 = parseInt(e.target.value.slice(1), 16); const col = { r: (n2>>16)&255, g: (n2>>8)&255, b: n2&255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 36, height: 20, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', padding: 0 }}
@@ -889,7 +889,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>blur</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>blur</span>
                     <input type="number" defaultValue={blur} min={0} step={1}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       onBlur={ev => { const v = Math.max(0, parseInt(ev.target.value) || 0); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, blur: v, _blur: v } } : c); applyAndSave({ components: u }) }}
@@ -901,7 +901,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>color</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>color</span>
                     <input type="color" value={toHex(colRaw as { r?: number; g?: number; b?: number } | undefined)}
                       onChange={e => { const n2 = parseInt(e.target.value.slice(1), 16); const col = { r: (n2>>16)&255, g: (n2>>8)&255, b: n2&255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 36, height: 20, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', padding: 0 }}
@@ -926,7 +926,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   />
                   {/* R2381: lineHeight + overflow + handleTouchEvent */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>lineH</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>lineH</span>
                     <input type="number" defaultValue={Number(p.lineHeight ?? p._lineHeight ?? p._N$lineHeight ?? 40)} min={1} step={1}
                       onBlur={e => { const v = parseInt(e.target.value) || 40; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _lineHeight: v, _N$lineHeight: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -942,7 +942,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   {/* R2392: imageLineHeight */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>imgLineH</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>imgLineH</span>
                     <input type="number" defaultValue={Number(p.imageLineHeight ?? p._imageLineHeight ?? p._N$imageLineHeight ?? 40)} min={0} step={1}
                       onBlur={e => { const v = parseInt(e.target.value) || 40; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, imageLineHeight: v, _imageLineHeight: v, _N$imageLineHeight: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -956,7 +956,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </label>
                   {/* R2418: horizontalAlign + fontSize + maxWidth + fontColor */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>hAlign</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>hAlign</span>
                     {([['L', 0], ['C', 1], ['R', 2]] as const).map(([l, v]) => {
                       const cur = Number(p.horizontalAlign ?? p._horizontalAlign ?? p._N$horizontalAlign ?? 0)
                       return (
@@ -967,7 +967,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     })}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>fontSize</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>fontSize</span>
                     <input type="number" defaultValue={Number(p.fontSize ?? p._fontSize ?? p._N$fontSize ?? 40)} min={1} step={2}
                       onBlur={e => { const v = parseInt(e.target.value) || 40; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -985,7 +985,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     const toHex = (c: typeof fcRaw) => `#${[(c?.r ?? 255),(c?.g ?? 255),(c?.b ?? 255)].map(v => v.toString(16).padStart(2,'0')).join('')}`
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>fontColor</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>fontColor</span>
                         <input type="color" value={toHex(fcRaw as { r?: number; g?: number; b?: number } | undefined)}
                           onChange={e => { const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16); const col = { r: r2, g: g2, b: b2, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } } : c); applyAndSave({ components: u }) }}
                           style={{ width: 36, height: 20, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', padding: 0 }}

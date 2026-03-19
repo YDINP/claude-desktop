@@ -4,6 +4,7 @@ import type { CCSceneNode } from '@shared/ipc-schema'
 import { CCFileBatchInspector } from './BatchInspector'
 import { CCFileNodeInspector } from './NodeInspector'
 import { HierarchyPanel } from './HierarchyPanel'
+import { CCFileAssetBrowser } from './AssetBrowser'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
 
 class InspectorErrorBoundary extends React.Component<
@@ -53,13 +54,14 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
     handleGroupNodes, handleAltDrag,
     nodeHistory,
     collapsedUuids,
+    showAssetPanel, assetPanelWidth, setAssetPanelWidth, assetDividerDragRef, projectInfo,
   } = ctx
 
   if (!sceneFile?.root) return null
 
   return (
         <div
-          style={{ flex: 1, display: 'flex', flexDirection: 'row', minHeight: 0, userSelect: hDividerDragRef.current || dividerDragRef.current ? 'none' : undefined }}
+          style={{ flex: 1, display: 'flex', flexDirection: 'row', minHeight: 0, userSelect: hDividerDragRef.current || dividerDragRef.current || assetDividerDragRef.current ? 'none' : undefined }}
           onMouseMove={e => {
             if (hDividerDragRef.current) {
               const dx = e.clientX - hDividerDragRef.current.startX
@@ -73,9 +75,15 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               setSceneViewHeight(newW)
               localStorage.setItem('cc-inspector-width', String(newW))
             }
+            if (assetDividerDragRef.current) {
+              const dx = e.clientX - assetDividerDragRef.current.startX
+              const newW = Math.max(160, Math.min(500, assetDividerDragRef.current.startW + dx))
+              setAssetPanelWidth(newW)
+              localStorage.setItem('cc-asset-panel-width', String(newW))
+            }
           }}
-          onMouseUp={() => { hDividerDragRef.current = null; dividerDragRef.current = null }}
-          onMouseLeave={() => { hDividerDragRef.current = null; dividerDragRef.current = null }}
+          onMouseUp={() => { hDividerDragRef.current = null; dividerDragRef.current = null; assetDividerDragRef.current = null }}
+          onMouseLeave={() => { hDividerDragRef.current = null; dividerDragRef.current = null; assetDividerDragRef.current = null }}
         >
           {/* ── 좌: 계층(Hierarchy) 패널 ── */}
           <div style={{ width: hierarchyWidth, flexShrink: 0, display: 'flex', flexDirection: 'column', minHeight: 0, borderRight: '1px solid var(--border)', background: 'var(--bg-secondary)', overflow: 'hidden' }}>
@@ -173,6 +181,26 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               />
             </div>
           </div>
+
+          {/* ── 에셋 브라우저 패널 (SceneView 우측) ── */}
+          {showAssetPanel && projectInfo?.assetsDir && (
+            <>
+              <div
+                style={{ width: 4, cursor: 'ew-resize', background: 'var(--border)', flexShrink: 0, opacity: 0.4, transition: 'opacity 0.15s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.background = 'var(--accent)' }}
+                onMouseLeave={e => { if (!assetDividerDragRef.current) { (e.currentTarget as HTMLElement).style.opacity = '0.4'; (e.currentTarget as HTMLElement).style.background = 'var(--border)' } }}
+                onMouseDown={e => { e.preventDefault(); assetDividerDragRef.current = { startX: e.clientX, startW: assetPanelWidth } }}
+              />
+              <div style={{ width: assetPanelWidth, flexShrink: 0, display: 'flex', flexDirection: 'column', minHeight: 0, borderRight: '1px solid var(--border)', background: 'var(--bg-secondary)', overflow: 'hidden' }}>
+                <CCFileAssetBrowser
+                  assetsDir={projectInfo.assetsDir}
+                  sceneFile={sceneFile ?? undefined}
+                  saveScene={saveScene}
+                  onSelectNode={onSelectNode}
+                />
+              </div>
+            </>
+          )}
 
           {/* Inspector 리사이즈 핸들 */}
           {(selectedNode || multiSelectedUuids.length > 1) && (

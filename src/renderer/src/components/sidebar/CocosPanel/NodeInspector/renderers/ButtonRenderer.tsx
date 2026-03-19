@@ -237,7 +237,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>transition</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>transition</span>
                     <select value={transition}
                       onChange={e => {
                         const v = parseInt(e.target.value)
@@ -254,7 +254,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R1840: transition 퀵 버튼 */}
                   <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}></span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}></span>
                     {([['None',0],['Color',1],['Sprite',2],['Scale',3]] as [string,number][]).map(([label,v]) => (
                       <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, transition: v, _transition: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${transition === v ? '#fb923c' : 'var(--border)'}`, color: transition === v ? '#fb923c' : 'var(--text-muted)', background: 'var(--bg-primary)' }}
@@ -264,7 +264,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   {/* R1725: duration (Color/Scale) */}
                   {(transition === 1 || transition === 3) && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>duration</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>duration</span>
                       <input type="number" defaultValue={duration} min={0} step={0.05}
                         onBlur={e => {
                           const v = parseFloat(e.target.value) ?? 0.1
@@ -297,7 +297,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   )}
                   {transition === 3 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>zoomScale</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>zoomScale</span>
                       <input type="number" defaultValue={Number(p.zoomScale ?? 1.2)} min={0} step={0.05}
                         onBlur={e => {
                           const v = parseFloat(e.target.value) || 1.2
@@ -317,7 +317,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         const uuid = sf?.__uuid__ as string | undefined
                         return uuid ? (
                           <div key={state} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <span style={{ fontSize: 8, color: 'var(--text-muted)', width: 44, flexShrink: 0 }}>{state}</span>
+                            <span style={{ fontSize: 8, color: 'var(--text-muted)', minWidth: 44, whiteSpace: 'nowrap', flexShrink: 0 }}>{state}</span>
                             <span style={{ fontSize: 8, color: '#fb923c', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={uuid}>{uuid.slice(0, 12)}…</span>
                             <span title="UUID 복사" onClick={() => navigator.clipboard.writeText(uuid).catch(() => {})} style={{ fontSize: 8, cursor: 'pointer', color: '#555', flexShrink: 0 }} onMouseEnter={e => (e.currentTarget.style.color = '#fb923c')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>⎘</span>
                           </div>
@@ -431,7 +431,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>string</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>string</span>
                     <input type="text" defaultValue={str}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: e.target.value, _string: e.target.value, _N$string: e.target.value } } : c)
@@ -441,7 +441,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>placeholder</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>placeholder</span>
                     <input type="text" defaultValue={placeholder}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholder: e.target.value, _placeholder: e.target.value, _N$placeholder: e.target.value } } : c)
@@ -451,7 +451,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>maxLength</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>maxLength</span>
                     <input type="number" defaultValue={maxLength} min={-1}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxLength: parseInt(e.target.value) || -1, _maxLength: parseInt(e.target.value) || -1, _N$maxLength: parseInt(e.target.value) || -1 } } : c)
@@ -463,7 +463,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R1791: inputFlag 버튼 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>inputFlag</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>inputFlag</span>
                     {([['Any', 0], ['Passwd', 3], ['Email', 1], ['Phone', 4], ['Num', 5]] as const).map(([l, v]) => (
                       <span key={v} title={l}
                         onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputFlag: v, _inputFlag: v } } : c); applyAndSave({ components: updated }) }}
@@ -473,7 +473,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R2388: returnType 버튼 (CC3.x) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>returnType</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>returnType</span>
                     {([['Default', 0], ['Done', 1], ['Send', 2], ['Search', 3], ['Go', 4], ['Next', 5]] as const).map(([l, v]) => {
                       const cur = Number(p.returnType ?? p._returnType ?? p._N$returnType ?? 0)
                       return (
@@ -486,7 +486,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R2386: placeholderFontSize 퀵 편집 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>phFontSize</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>phFontSize</span>
                     <input type="number" defaultValue={Number(p.placeholderFontSize ?? p._placeholderFontSize ?? p._N$placeholderFontSize ?? 20)} min={1} step={2}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       onBlur={ev => { const v = Math.max(1, parseInt(ev.target.value) || 20); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholderFontSize: v, _placeholderFontSize: v, _N$placeholderFontSize: v } } : c); applyAndSave({ components: u }) }}
@@ -505,7 +505,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     const pfcHex = pfc ? `#${((pfc.r ?? 128) << 16 | (pfc.g ?? 128) << 8 | (pfc.b ?? 128)).toString(16).padStart(6, '0')}` : '#808080'
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>fontColor</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>fontColor</span>
                         <input type="color" defaultValue={fcHex}
                           style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
                           onChange={ev => { const n2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (n2 >> 16) & 255, g: (n2 >> 8) & 255, b: n2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontColor: col, _fontColor: col, _N$fontColor: col } } : c); applyAndSave({ components: u }) }}
@@ -522,7 +522,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   })()}
                   {/* R2419: fontSize + inputMode (BatchInspector R1943/R2085) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>fontSize</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>fontSize</span>
                     <input type="number" defaultValue={Number(p.fontSize ?? p._fontSize ?? p._N$fontSize ?? 20)} min={1} step={2}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       onBlur={ev => { const v = Math.max(1, parseInt(ev.target.value) || 20); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c); applyAndSave({ components: u }) }}
@@ -534,7 +534,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>inputMode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>inputMode</span>
                     {([['Any', 0], ['Num', 2], ['Dec', 5], ['1L', 6]] as const).map(([l, v]) => {
                       const cur = Number(p.inputMode ?? p._inputMode ?? p._N$inputMode ?? 0)
                       return (
@@ -561,7 +561,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>progress</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>progress</span>
                     <input type="range" min={0} max={1} step={0.01} value={progress}
                       onChange={e => {
                         const v = parseFloat(e.target.value)
@@ -585,7 +585,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>direction</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>direction</span>
                     <select value={direction}
                       onChange={e => {
                         const v = parseInt(e.target.value)
@@ -610,7 +610,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </label>
                   {/* R2359: minValue / maxValue / step */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>range</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>range</span>
                     <input type="number" step={0.1}
                       defaultValue={Number(p.minValue ?? p._minValue ?? p._N$minValue ?? 0)}
                       key={`smn-${Number(p.minValue ?? p._minValue ?? 0)}`}
@@ -645,7 +645,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>step</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>step</span>
                     <input type="number" min={0} step={0.01}
                       defaultValue={Number(p.step ?? p._step ?? p._N$step ?? 0)}
                       key={`sst-${Number(p.step ?? p._step ?? 0)}`}

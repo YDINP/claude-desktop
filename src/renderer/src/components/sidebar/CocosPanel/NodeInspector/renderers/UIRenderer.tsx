@@ -19,7 +19,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>resolution</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>resolution</span>
                     <input type="number" defaultValue={dr.width ?? 960} min={1}
                       onBlur={e => {
                         const w = parseInt(e.target.value) || (dr.width ?? 960)
@@ -62,7 +62,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     const opts: [string, number][] = [['SHOW_ALL', 0], ['NO_BORDER', 1], ['EXACT_FIT', 2], ['FIX_H', 3], ['FIX_W', 4]]
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>policy</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>policy</span>
                         {opts.map(([l, v]) => (
                           <span key={v} title={`resolutionPolicy = ${l} (${v})`}
                             onClick={() => {
@@ -195,7 +195,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>mode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 50, whiteSpace: 'nowrap', flexShrink: 0 }}>mode</span>
                     <select value={alignMode}
                       onChange={e => {
                         const v = parseInt(e.target.value)
@@ -211,7 +211,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                   </div>
                   {/* R2362: isAbs* 전환 버튼 (절대px / %) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>unit</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 50, whiteSpace: 'nowrap', flexShrink: 0 }}>unit</span>
                     <span title="모든 isAbs* = true (절대 px)"
                       onClick={() => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props,
@@ -241,7 +241,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                   </div>
                   {/* R2411: alignMode (BatchInspector R2043) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>alignMode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>alignMode</span>
                     {([['Once', 0], ['Resize', 1], ['Always', 2]] as const).map(([l, v]) => {
                       const cur = Number(p.alignMode ?? p._alignMode ?? p._N$alignMode ?? 1)
                       return (
@@ -335,7 +335,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     const pbMode = Number(p.mode ?? p._mode ?? p._N$mode ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>mode</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>mode</span>
                         {([['H', 0], ['V', 1], ['Fill', 2]] as const).map(([l, v]) => (
                           <span key={v} title={`mode=${l}(${v})`}
                             onClick={() => {
@@ -350,7 +350,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                   })()}
                   {/* R2357: ProgressBar startWidth 퀵 편집 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>startW</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>startW</span>
                     <input type="number" min={0} step={1}
                       defaultValue={Number(p.startWidth ?? p._startWidth ?? p._N$startWidth ?? 0)}
                       key={`sw-${Number(p.startWidth ?? p._startWidth ?? p._N$startWidth ?? 0)}`}
@@ -386,7 +386,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>opacity</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>opacity</span>
                     <input type="range" min={0} max={255} step={1} value={uiOpacity}
                       onChange={e => {
                         const v = parseInt(e.target.value)
@@ -419,7 +419,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* priority */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>priority</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>priority</span>
                     <input type="number" defaultValue={priority} step={1}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || 0
@@ -436,7 +436,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                   </div>
                   {/* anchorPoint */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>anchor</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>anchor</span>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>x</span>
                     <input type="number" defaultValue={apx} min={0} max={1} step={0.1}
                       onBlur={e => {
@@ -481,7 +481,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>type</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>type</span>
                     <select value={maskType}
                       onChange={e => {
                         const v = parseInt(e.target.value)
@@ -497,7 +497,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                   </div>
                   {maskType === 2 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>alphaThresh</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>alphaThresh</span>
                       <input type="range" min={0} max={1} step={0.01} value={alphaThreshold}
                         onChange={e => {
                           const v = parseFloat(e.target.value)

@@ -51,7 +51,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     </select>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>space</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 36, whiteSpace: 'nowrap', flexShrink: 0 }}>space</span>
                     {[['X', spacingX, 'spacingX'], ['Y', spacingY, 'spacingY']].map(([label, val, key]) => (
                       <input key={key as string} type="number" defaultValue={val as number} step={1}
                         onBlur={e => {
@@ -75,7 +75,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>pad</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 36, whiteSpace: 'nowrap', flexShrink: 0 }}>pad</span>
                     {[['L', pLeft, 'paddingLeft'], ['R', pRight, 'paddingRight'], ['T', pTop, 'paddingTop'], ['B', pBottom, 'paddingBottom']].map(([label, val, key]) => (
                       <input key={key as string} type="number" defaultValue={val as number} step={1}
                         onBlur={e => {
@@ -140,7 +140,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     const alignNames: Record<number, string> = { 0: 'None', 1: 'LT', 2: 'CT', 3: 'RT', 4: 'LC', 5: 'C', 6: 'RC', 7: 'LB', 8: 'CB', 9: 'RB' }
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>align</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 36, whiteSpace: 'nowrap', flexShrink: 0 }}>align</span>
                         {([[0,'None'],[1,'LT'],[5,'C'],[9,'RB'],[4,'LC'],[6,'RC']] as const).map(([v, l]) => (
                           <span key={v} title={`childAlignment = ${alignNames[v] ?? v}`}
                             onClick={() => {
@@ -161,7 +161,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     return (
                       <>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>constr</span>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 36, whiteSpace: 'nowrap', flexShrink: 0 }}>constr</span>
                           {([['None', 0], ['Row', 1], ['Col', 2]] as const).map(([l, v]) => (
                             <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, constraint: v, _constraint: v, _N$constraint: v } } : c); applyAndSave({ components: u }) }}
                               style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${constraint === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: constraint === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
@@ -173,7 +173,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                           />
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>axis</span>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 36, whiteSpace: 'nowrap', flexShrink: 0 }}>axis</span>
                           {([['H→', 0], ['V↓', 1]] as const).map(([l, v]) => (
                             <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startAxis: v, _startAxis: v, _N$startAxis: v } } : c); applyAndSave({ components: u }) }}
                               style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${startAxis === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: startAxis === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
@@ -191,7 +191,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     return (
                       <>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>cell</span>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 36, whiteSpace: 'nowrap', flexShrink: 0 }}>cell</span>
                           {([['W', cellW, 'width'], ['H', cellH, 'height']] as const).map(([label, val, key]) => (
                             <input key={key} type="number" defaultValue={val} step={1} min={0}
                               onBlur={e => {
@@ -225,7 +225,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </label>
                   {/* R2410: wrapMode (BatchInspector R2057) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 60, flexShrink: 0 }}>wrapMode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>wrapMode</span>
                     {([['NoWrap', 0], ['Wrap', 1], ['1Line', 2]] as const).map(([l, v]) => {
                       const cur = Number(p.wrapMode ?? p._wrapMode ?? p._N$wrapMode ?? 0)
                       return (

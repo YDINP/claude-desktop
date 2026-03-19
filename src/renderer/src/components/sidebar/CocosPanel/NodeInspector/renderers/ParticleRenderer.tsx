@@ -32,7 +32,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>duration</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>duration</span>
                     <input type="number" defaultValue={duration} step={0.5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || -1
@@ -51,7 +51,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>maxParticles</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>maxParticles</span>
                     <input type="number" defaultValue={maxParticles} min={1} step={10}
                       onBlur={e => {
                         const v = Math.max(1, parseInt(e.target.value) || 150)
@@ -63,7 +63,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R1833: startSize / endSize */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startSize</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>startSize</span>
                     <input type="number" defaultValue={startSize} key={`ss-${startSize}`} min={0} step={5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -84,7 +84,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R2448: startSizeVar / endSizeVar (BatchInspector R2049) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>sizeVar</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>sizeVar</span>
                     <input type="number" defaultValue={Number(p.startSizeVar ?? p._startSizeVar ?? p._N$startSizeVar ?? 0)} min={0} step={5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -105,7 +105,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R1815: emitRate 퀵 프리셋 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>emitRate</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>emitRate</span>
                     <input type="number" defaultValue={emitRate} min={0.1} step={5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 10
@@ -126,7 +126,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R1845: gravity x/y */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>gravity</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>gravity</span>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>x</span>
                     <input type="number" defaultValue={gravX} key={`gx-${gravX}`} step={10}
                       onBlur={e => {
@@ -150,7 +150,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R1841: speed / speedVar */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>speed</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>speed</span>
                     <input type="number" defaultValue={speed} key={`spd-${speed}`} min={0} step={10}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -171,7 +171,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R1844: lifespan / lifespanVar */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>lifespan</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>lifespan</span>
                     <input type="number" defaultValue={lifespan} key={`lf-${lifespan}`} min={0} step={0.5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -201,7 +201,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const endHex = `#${er.toString(16).padStart(2,'0')}${eg.toString(16).padStart(2,'0')}${eb.toString(16).padStart(2,'0')}`
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>color S→E</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>color S→E</span>
                         <input type="color" value={startHex}
                           onChange={e => {
                             const h = e.target.value; const r2 = parseInt(h.slice(1,3),16), g2 = parseInt(h.slice(3,5),16), b2 = parseInt(h.slice(5,7),16)
@@ -230,7 +230,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const speedVar = Number(p.speedVar ?? p._speedVar ?? p._N$speedVar ?? 50)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>speed</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>speed</span>
                         <input type="number" defaultValue={speed} key={`spd-${speed}`} min={0} step={10}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -239,7 +239,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                           }}
                           style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                         />
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>±var</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>±var</span>
                         <input type="number" defaultValue={speedVar} key={`spdv-${speedVar}`} min={0} step={10}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -257,7 +257,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const endRadius = Number(p.endRadius ?? p._endRadius ?? p._N$endRadius ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startR</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>startR</span>
                         <input type="number" defaultValue={startRadius} key={`sr-${startRadius}`} min={0} step={10}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -266,7 +266,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                           }}
                           style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                         />
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>endR</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>endR</span>
                         <input type="number" defaultValue={endRadius} key={`er-${endRadius}`} min={0} step={10}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -280,7 +280,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   })()}
                   {/* R2448: startRadiusVar / endRadiusVar (BatchInspector — Radius mode) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startRVar</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>startRVar</span>
                     <input type="number" defaultValue={Number(p.startRadiusVar ?? p._startRadiusVar ?? p._N$startRadiusVar ?? 0)} min={0} step={10}
                       onBlur={e => {
                         const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -289,7 +289,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>endRVar</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>endRVar</span>
                     <input type="number" defaultValue={Number(p.endRadiusVar ?? p._endRadiusVar ?? p._N$endRadiusVar ?? 0)} min={0} step={10}
                       onBlur={e => {
                         const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -305,7 +305,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const tangentialAccel = Number(p.tangentialAccel ?? p._tangentialAccel ?? p._N$tangentialAccel ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>radialAccel</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>radialAccel</span>
                         <input type="number" defaultValue={radialAccel} key={`ra-${radialAccel}`} step={10}
                           onBlur={e => {
                             const v = parseFloat(e.target.value) || 0
@@ -314,7 +314,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                           }}
                           style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                         />
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>tan</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>tan</span>
                         <input type="number" defaultValue={tangentialAccel} key={`ta-${tangentialAccel}`} step={10}
                           onBlur={e => {
                             const v = parseFloat(e.target.value) || 0
@@ -328,7 +328,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   })()}
                   {/* R2448: radialAccelVar / tangentialAccelVar (BatchInspector R2050/R2051) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>rAccelVar</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>rAccelVar</span>
                     <input type="number" defaultValue={Number(p.radialAccelVar ?? p._radialAccelVar ?? p._N$radialAccelVar ?? 0)} step={10}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -337,7 +337,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>tanVar</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>tanVar</span>
                     <input type="number" defaultValue={Number(p.tangentialAccelVar ?? p._tangentialAccelVar ?? p._N$tangentialAccelVar ?? 0)} step={10}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -353,7 +353,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const angleVar = Number(p.angleVar ?? p._angleVar ?? p._N$angleVar ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>angle</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>angle</span>
                         <input type="number" defaultValue={angle} key={`ang-${angle}`} step={1}
                           onBlur={e => {
                             const v = parseFloat(e.target.value) || 90
@@ -363,7 +363,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                           style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                         />
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>°</span>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>±var</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>±var</span>
                         <input type="number" defaultValue={angleVar} key={`angv-${angleVar}`} min={0} step={1}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -382,7 +382,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const pvy = Number((posVarRaw as Record<string,number>|undefined)?.y ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>posVar x</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>posVar x</span>
                         <input type="number" defaultValue={pvx} key={`pvx-${pvx}`} min={0} step={10}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -391,7 +391,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                           }}
                           style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                         />
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 14, flexShrink: 0, marginLeft: 4 }}>y</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 14, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>y</span>
                         <input type="number" defaultValue={pvy} key={`pvy-${pvy}`} min={0} step={10}
                           onBlur={e => {
                             const v = Math.max(0, parseFloat(e.target.value) || 0)
@@ -409,7 +409,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const startSpinVar = Number(p.startSpinVar ?? p._startSpinVar ?? p._N$startSpinVar ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startSpin</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>startSpin</span>
                         <input type="number" defaultValue={startSpin} key={`ss-${startSpin}`} step={10}
                           onBlur={e => {
                             const v = parseFloat(e.target.value) || 0
@@ -436,7 +436,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const endSpinVar = Number(p.endSpinVar ?? p._endSpinVar ?? p._N$endSpinVar ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>endSpin</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>endSpin</span>
                         <input type="number" defaultValue={endSpin} key={`es-${endSpin}`} step={10}
                           onBlur={e => {
                             const v = parseFloat(e.target.value) || 0
@@ -464,7 +464,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const spy = Number((spRaw as Record<string,number>|undefined)?.y ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>sourcePos</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>sourcePos</span>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>x</span>
                         <input type="number" defaultValue={spx} key={`spx-${spx}`} step={10}
                           onBlur={e => {
@@ -495,7 +495,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   })()}
                   {/* R2382: simulationSpace + rotationIsDir */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>simSpace</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>simSpace</span>
                     {([['World', 0], ['Local', 1]] as const).map(([l, v]) => (
                       <span key={v} title={`simulationSpace=${l}(${v})`}
                         onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, simulationSpace: v, _simulationSpace: v, _N$simulationSpace: v } } : c); applyAndSave({ components: u }) }}
@@ -516,7 +516,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const ecHex = `#${((ecRaw?.r ?? 255)).toString(16).padStart(2,'0')}${((ecRaw?.g ?? 255)).toString(16).padStart(2,'0')}${((ecRaw?.b ?? 255)).toString(16).padStart(2,'0')}`
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startColor</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>startColor</span>
                         <input type="color" value={scHex} key={`sc-${scHex}`}
                           onChange={e => {
                             const h = e.target.value
@@ -549,7 +549,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     const ecvHex = `#${((ecvRaw?.r ?? 0)).toString(16).padStart(2,'0')}${((ecvRaw?.g ?? 0)).toString(16).padStart(2,'0')}${((ecvRaw?.b ?? 0)).toString(16).padStart(2,'0')}`
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>colorVar S</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>colorVar S</span>
                         <input type="color" value={scvHex} key={`scv-${scvHex}`}
                           onChange={e => {
                             const h = e.target.value
@@ -576,7 +576,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   })()}
                   {/* R2448: rotatePerS / rotatePerSVar (BatchInspector — Radius mode) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>rotPerS</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>rotPerS</span>
                     <input type="number" defaultValue={Number(p.rotatePerS ?? p._rotatePerS ?? p._N$rotatePerS ?? 0)} step={10}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -585,7 +585,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>var</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>var</span>
                     <input type="number" defaultValue={Number(p.rotatePerSVar ?? p._rotatePerSVar ?? p._N$rotatePerSVar ?? 0)} step={10}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -597,7 +597,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R2448: startRotation / startRotationVar + endRotation / endRotationVar (BatchInspector — Radius mode) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>startRot</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>startRot</span>
                     <input type="number" defaultValue={Number(p.startRotation ?? p._startRotation ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -606,7 +606,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>var</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>var</span>
                     <input type="number" defaultValue={Number(p.startRotationVar ?? p._startRotationVar ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -617,7 +617,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>endRot</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>endRot</span>
                     <input type="number" defaultValue={Number(p.endRotation ?? p._endRotation ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -626,7 +626,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0, marginLeft: 4 }}>var</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>var</span>
                     <input type="number" defaultValue={Number(p.endRotationVar ?? p._endRotationVar ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
@@ -638,7 +638,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R2421: emitterMode + autoRemoveOnFinish (BatchInspector R1981/R1979) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>emitMode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>emitMode</span>
                     {([['Grav', 0], ['Rad', 1]] as const).map(([l, v]) => {
                       const cur = Number(p.emitterMode ?? p._emitterMode ?? p._N$emitterMode ?? 0)
                       return (
@@ -656,7 +656,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   {/* R2440: loop + positionType + blendMode (BatchInspector R1932/R1976/R1977) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>loop</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>loop</span>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={!!(p.loop ?? p._loop ?? p._N$loop ?? false)}
                         onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked, _N$loop: e.target.checked } } : c); applyAndSave({ components: u }) }}
@@ -665,7 +665,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     </label>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>posType</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>posType</span>
                     {([['Free', 0], ['Rel', 1], ['Grp', 2]] as const).map(([l, v]) => {
                       const cur = Number(p.positionType ?? p._positionType ?? p._N$positionType ?? 0)
                       return (
@@ -676,7 +676,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     })}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>blend</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>blend</span>
                     {([['Norm', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => {
                       const curSrc = Number(p.srcBlendFactor ?? p._srcBlendFactor ?? p._N$srcBlendFactor ?? 770)
                       const curDst = Number(p.dstBlendFactor ?? p._dstBlendFactor ?? p._N$dstBlendFactor ?? 771)

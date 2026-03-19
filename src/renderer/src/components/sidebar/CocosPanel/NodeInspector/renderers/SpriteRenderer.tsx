@@ -59,7 +59,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R2373: lineJoin / lineCap / miterLimit / fillOpacity / strokeOpacity */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 36, flexShrink: 0 }}>join</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 36, whiteSpace: 'nowrap', flexShrink: 0 }}>join</span>
                     {(['miter', 'round', 'bevel'] as const).map(v => (
                       <span key={v} title={`lineJoin=${v}`}
                         onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineJoin: v, _lineJoin: v } } : c); applyAndSave({ components: u }) }}
@@ -137,7 +137,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   )}
                   {/* R1788: Sprite type/sizeMode 버튼 (applyAndSave) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 3 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>type</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>type</span>
                     {SPRITE_TYPE.map((l, i) => (
                       <span key={i} title={l}
                         onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: i, _type: i } } : c); applyAndSave({ components: updated }) }}
@@ -146,7 +146,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>size</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>size</span>
                     {SIZE_MODE.map((l, i) => (
                       <span key={i} title={l}
                         onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sizeMode: i, _sizeMode: i } } : c); applyAndSave({ components: updated }) }}
@@ -187,7 +187,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     const toHex = (c: typeof colRaw) => `#${[(c?.r ?? 255),(c?.g ?? 255),(c?.b ?? 255)].map(v => v.toString(16).padStart(2,'0')).join('')}`
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>color</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>color</span>
                         <input type="color" value={toHex(colRaw)}
                           onChange={e => { const n2 = parseInt(e.target.value.slice(1), 16); const col = { r: (n2>>16)&255, g: (n2>>8)&255, b: n2&255, a: colRaw?.a ?? 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _color: col } } : c); applyAndSave({ components: u }) }}
                           style={{ width: 36, height: 20, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', padding: 0 }}
@@ -203,7 +203,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   })()}
                   {/* R1865: srcBlendFactor / dstBlendFactor 퀵 버튼 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>blend</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>blend</span>
                     {([['Normal', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => {
                       const curSrc = Number(p.srcBlendFactor ?? p._srcBlendFactor ?? 770)
                       const curDst = Number(p.dstBlendFactor ?? p._dstBlendFactor ?? 771)
@@ -247,7 +247,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     }
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>hue</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>hue</span>
                         <input type="range" min={0} max={359} step={1} value={curHue}
                           onChange={e => applyHue(parseInt(e.target.value))}
                           style={{ flex: 1,
@@ -343,7 +343,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R1890: flipX / flipY */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>flip</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>flip</span>
                     {(['X', 'Y'] as const).map(axis => {
                       const key = `flip${axis}`
                       const val = !!(p[key] ?? p[`_${key}`] ?? false)
@@ -372,7 +372,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         })()
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>inset</span>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>inset</span>
                         {(['t', 'b', 'l', 'r'] as const).map(side => (
                           <label key={side} style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 9 }}>
                             <span style={{ color: 'var(--text-muted)' }}>{side}</span>
@@ -410,7 +410,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </label>
                   {/* R2414: resourceType (BatchInspector R2046) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>resType</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>resType</span>
                     {([['Local', 0], ['Remote', 1]] as const).map(([l, v]) => {
                       const cur = Number(p.resourceType ?? p._resourceType ?? p._N$resourceType ?? 0)
                       return (
@@ -421,7 +421,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     })}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>remoteURL</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>remoteURL</span>
                     <input type="text" defaultValue={url}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, remoteURL: e.target.value, _remoteURL: e.target.value, _N$remoteURL: e.target.value } } : c)
@@ -431,7 +431,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>playbackRate</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>playbackRate</span>
                     <input type="number" defaultValue={playbackRate} min={0} max={4} step={0.25}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 1
@@ -473,7 +473,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R2376: volume */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>volume</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>volume</span>
                     <input type="range" min={0} max={1} step={0.05} defaultValue={Number(p.volume ?? p._volume ?? p._N$volume ?? 1)}
                       onMouseUp={e => { const v = parseFloat((e.target as HTMLInputElement).value); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, volume: v, _volume: v, _N$volume: v } } : c); applyAndSave({ components: u }) }}
                       style={{ flex: 1 }}
@@ -487,7 +487,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R2399: startTime 입력 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>startTime</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>startTime</span>
                     <input type="number" min={0} step={0.5} defaultValue={Number(p.startTime ?? p._startTime ?? p._N$startTime ?? 0)}
                       onBlur={e => { const v = Math.max(0, parseFloat(e.target.value) || 0); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startTime: v, _startTime: v, _N$startTime: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -518,7 +518,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>url</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>url</span>
                     <input type="text" defaultValue={url} key={`wv-url-${url}`} placeholder="https://..."
                       onBlur={e => {
                         const v = e.target.value.trim()
@@ -565,7 +565,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>layerName</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>layerName</span>
                     <input type="text" defaultValue={layerName}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, layerName: e.target.value, _layerName: e.target.value, _N$layerName: e.target.value } } : c)
@@ -575,7 +575,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>opacity</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>opacity</span>
                     <input type="number" defaultValue={layerOpacity} min={0} max={1} step={0.1}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: parseFloat(e.target.value) || 1, _opacity: parseFloat(e.target.value) || 1, _N$opacity: parseFloat(e.target.value) || 1 } } : c)
