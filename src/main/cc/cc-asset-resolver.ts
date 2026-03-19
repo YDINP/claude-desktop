@@ -24,8 +24,29 @@ export function buildUUIDMap(assetsDir: string): UUIDMap {
   const map = new Map<string, AssetMeta>()
   try {
     walkMeta(assetsDir, assetsDir, map)
+    // .meta 없는 .prefab 파일 폴백 스캔
+    const pathSet = new Set([...map.values()].map(v => v.path))
+    walkPrefabFiles(assetsDir, assetsDir, map, pathSet)
   } catch { /* ignore */ }
   return map
+}
+
+function walkPrefabFiles(dir: string, assetsDir: string, map: UUIDMap, pathSet: Set<string>) {
+  if (map.size > 10000) return
+  let entries: fs.Dirent[]
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }) } catch { return }
+  for (const e of entries) {
+    if (map.size > 10000) break
+    const full = path.join(dir, e.name)
+    if (e.isDirectory()) {
+      walkPrefabFiles(full, assetsDir, map, pathSet)
+    } else if (e.isFile() && e.name.endsWith('.prefab') && !pathSet.has(full)) {
+      const relPath = path.relative(assetsDir, full).replace(/\\/g, '/')
+      const syntheticUuid = 'nometaprefab-' + Buffer.from(relPath).toString('base64').slice(0, 24)
+      map.set(syntheticUuid, { uuid: syntheticUuid, path: full, relPath, type: 'prefab' })
+      pathSet.add(full)
+    }
+  }
 }
 
 function walkMeta(dir: string, assetsDir: string, map: UUIDMap) {

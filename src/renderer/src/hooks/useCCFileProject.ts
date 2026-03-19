@@ -151,6 +151,8 @@ export function useCCFileProject() {
       if (result?.success && pi) {
         const fresh = await window.api.ccFileReadScene?.(sf.scenePath, pi)
         if (fresh && !('error' in fresh)) setSceneFile(fresh)
+        // CC 에디터가 실행 중이면 씬 리로드 시도 (실패 무시)
+        if (pi.port) window.api.ccReloadScene?.(pi.port).catch(() => {})
       } else {
         suppressWatchRef.current = false
       }

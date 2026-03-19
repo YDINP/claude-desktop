@@ -272,6 +272,7 @@ contextBridge.exposeInMainWorld('api', {
   ccSetComponentProp: (port: number, uuid: string, compType: string, key: string, value: unknown) =>
     ipcRenderer.invoke('cc:setComponentProp', port, uuid, compType, key, value),
   ccMoveNode: (port: number, uuid: string, x: number, y: number) => ipcRenderer.invoke('cc:moveNode', port, uuid, x, y),
+  ccReloadScene: (port: number) => ipcRenderer.invoke('cc:reloadScene', port),
   onCCEvent: (cb: (event: CCEvent) => void) => {
     const handler = (_e: Electron.IpcRendererEvent, data: unknown) => cb(data as CCEvent)
     ipcRenderer.on('cc:event', handler)
@@ -567,6 +568,7 @@ declare global {
       ccDeleteNode?: (port: number, uuid: string) => Promise<void>
       ccSetComponentProp?: (port: number, uuid: string, compType: string, key: string, value: unknown) => Promise<unknown>
       ccMoveNode: (port: number, uuid: string, x: number, y: number) => Promise<unknown>
+      ccReloadScene?: (port: number) => Promise<{ ok: boolean }>
       onCCEvent: (cb: (event: import('../shared/ipc-schema').CCEvent) => void) => () => void
       onCCStatusChange: (cb: (status: { connected: boolean; port?: number }) => void) => () => void
       ccDetectProject: (rootPath: string) => Promise<{ detected: boolean; version?: string; port?: number; name?: string }>

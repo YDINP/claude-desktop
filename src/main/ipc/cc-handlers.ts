@@ -87,6 +87,10 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
     return getCCBridge(port).moveNode(uuid, x, y)
   })
 
+  ipcMain.handle('cc:reloadScene', async (_e, port: number) => {
+    try { return await getCCBridge(port).reloadScene() } catch { return { ok: false } }
+  })
+
   ipcMain.handle(CC_DETECT_PROJECT, async (_e, rootPath: string) => {
     if (!rootPath) return { detected: false }
     const hasAssets = fs.existsSync(path.join(rootPath, 'assets'))
