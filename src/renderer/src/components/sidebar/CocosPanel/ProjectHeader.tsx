@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
 
@@ -9,6 +9,8 @@ interface ProjectHeaderProps {
 }
 
 export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: ProjectHeaderProps) {
+  const [extBannerDismissed, setExtBannerDismissed] = useState(false)
+
   const {
     projectInfo, sceneFile, error, externalChange,
     conflictInfo, detectProject, loadScene, forceOverwrite,
@@ -34,6 +36,13 @@ export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: Projec
     filteredGlobalResults, runGlobalSearch,
     expandToNode, multiSelectedUuids, setMultiSelectedUuids,
   } = ctx
+
+  // 재감지 시 배너 다시 표시
+  useEffect(() => {
+    if (projectInfo?.extensionStatus === 'installed' || projectInfo?.extensionStatus === 'updated') {
+      setExtBannerDismissed(false)
+    }
+  }, [projectInfo?.projectPath, projectInfo?.extensionStatus])
 
   return (
     <>
@@ -207,6 +216,21 @@ export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: Projec
           >
             다시 로드
           </button>
+        </div>
+      )}
+
+      {/* 익스텐션 자동 설치/업데이트 배너 */}
+      {!extBannerDismissed && (projectInfo?.extensionStatus === 'installed' || projectInfo?.extensionStatus === 'updated') && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '4px 10px', background: 'rgba(34,197,94,0.12)',
+          border: '1px solid rgba(34,197,94,0.3)', borderRadius: 4,
+          fontSize: 10, color: '#4ade80', margin: '4px 8px', flexShrink: 0,
+        }}>
+          <span style={{ flex: 1 }}>
+            {'\u2705'} CC 익스텐션 {projectInfo.extensionStatus === 'updated' ? '업데이트' : '설치'} 완료 (v{projectInfo.extensionVersion}) — CC 재시작 후 활성화
+          </span>
+          <span onClick={() => setExtBannerDismissed(true)} style={{ cursor: 'pointer', opacity: 0.6, fontSize: 14 }}>×</span>
         </div>
       )}
 
