@@ -18,7 +18,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>default</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>default</span>
                     <select
                       defaultValue={defaultClipName ?? clips[0]?.name}
                       title="R1524: 클립 목록 (read-only)"
@@ -31,7 +31,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                   </div>
                   {/* R2375: sample + speed */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>sample</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>sample</span>
                     <input type="number" defaultValue={Number(p.sample ?? p._sample ?? 60)} min={1} step={1}
                       onBlur={e => { const v = parseInt(e.target.value) || 60; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sample: v, _sample: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -46,7 +46,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                   </div>
                   {/* R2417: wrapMode (BatchInspector R1984) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>wrapMode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>wrapMode</span>
                     {([['Dflt', 0], ['Norm', 1], ['Loop', 2], ['Ping', 3], ['Clamp', 4]] as const).map(([l, v]) => {
                       const cur = Number(p.wrapMode ?? p._wrapMode ?? 0)
                       return (
@@ -112,7 +112,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     </div>
                   )}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>speedRatio</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>speedRatio</span>
                     <input type="number" defaultValue={speedRatio} min={0} step={0.1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 1
@@ -134,7 +134,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                   </div>
                   {/* R2408: wrapMode + loop + defaultCachingMode */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>wrapMode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>wrapMode</span>
                     {([['Dflt', 1], ['Norm', 2], ['Loop', 3], ['Ping', 4], ['Rev', 8]] as const).map(([l, v]) => {
                       const cur = Number(p.wrapMode ?? p._wrapMode ?? p._N$wrapMode ?? 2)
                       return (
@@ -190,7 +190,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>armature</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>armature</span>
                     <input type="text" defaultValue={armatureName}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, armatureName: e.target.value, _armatureName: e.target.value, _N$armatureName: e.target.value } } : c)
@@ -200,7 +200,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>animation</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>animation</span>
                     <input type="text" defaultValue={animationName}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, animationName: e.target.value, _animationName: e.target.value, _N$animationName: e.target.value } } : c)
@@ -211,7 +211,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                   </div>
                   {/* R1819: timeScale 퀵 프리셋 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>timeScale</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>timeScale</span>
                     <input type="number" defaultValue={timeScale} step={0.1} min={0}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: parseFloat(e.target.value) || 1, _timeScale: parseFloat(e.target.value) || 1, _N$timeScale: parseFloat(e.target.value) || 1 } } : c)
@@ -230,7 +230,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>playTimes</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>playTimes</span>
                     <input type="number" defaultValue={playTimes} min={0}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, playTimes: parseInt(e.target.value) || 0, _playTimes: parseInt(e.target.value) || 0, _N$playTimes: parseInt(e.target.value) || 0 } } : c)
@@ -273,7 +273,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                   </div>
                   {/* R2406: blendMode (BatchInspector R2188) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>blendMode</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>blendMode</span>
                     {([['NORM', 0], ['ADD', 10], ['MULT', 12]] as const).map(([l, v]) => {
                       const cur = Number(p.blendMode ?? p._blendMode ?? 0)
                       return (
@@ -303,7 +303,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>skin</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>skin</span>
                     <input type="text" defaultValue={defaultSkin}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, defaultSkin: e.target.value, _defaultSkin: e.target.value, _N$defaultSkin: e.target.value } } : c)
@@ -313,7 +313,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>animation</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>animation</span>
                     <input type="text" defaultValue={defaultAnimation}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, defaultAnimation: e.target.value, _defaultAnimation: e.target.value, _N$defaultAnimation: e.target.value } } : c)
@@ -323,7 +323,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>timeScale</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>timeScale</span>
                     <input type="number" defaultValue={timeScale} step={0.1} min={0}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeScale: parseFloat(e.target.value) || 1, _timeScale: parseFloat(e.target.value) || 1, _N$timeScale: parseFloat(e.target.value) || 1 } } : c)

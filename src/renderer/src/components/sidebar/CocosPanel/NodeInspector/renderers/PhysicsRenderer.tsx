@@ -357,7 +357,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>type</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>type</span>
                     <select defaultValue={rbType}
                       onChange={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: parseInt(e.target.value), _type: parseInt(e.target.value), _N$type: parseInt(e.target.value) } } : c)
@@ -370,7 +370,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R1843: type 퀵 버튼 */}
                   <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}></span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}></span>
                     {rbTypes.map((t, v) => (
                       <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: v, _type: v, _N$type: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${rbType === v ? '#34d399' : 'var(--border)'}`, color: rbType === v ? '#34d399' : 'var(--text-muted)', background: 'var(--bg-primary)' }}
@@ -378,7 +378,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>mass</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>mass</span>
                     <input type="number" defaultValue={mass} min={0} step={0.1}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mass: parseFloat(e.target.value) || 1, _mass: parseFloat(e.target.value) || 1, _N$mass: parseFloat(e.target.value) || 1 } } : c)
@@ -388,7 +388,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>gravityScale</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>gravityScale</span>
                     <input type="number" defaultValue={gravityScale} step={0.1}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, gravityScale: parseFloat(e.target.value) || 1, _gravityScale: parseFloat(e.target.value) || 1, _N$gravityScale: parseFloat(e.target.value) || 1 } } : c)
@@ -408,7 +408,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     ))}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linearDamp</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>linearDamp</span>
                     <input type="number" defaultValue={linearDamping} min={0} step={0.1}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearDamping: parseFloat(e.target.value) || 0, _linearDamping: parseFloat(e.target.value) || 0, _N$linearDamping: parseFloat(e.target.value) || 0 } } : c)
@@ -429,7 +429,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R1830: angularDamping 편집 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>angularDamp</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>angularDamp</span>
                     <input type="number" defaultValue={angularDamping} min={0} step={0.1}
                       onBlur={e => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularDamping: parseFloat(e.target.value) || 0, _angularDamping: parseFloat(e.target.value) || 0, _N$angularDamping: parseFloat(e.target.value) || 0 } } : c)
@@ -449,7 +449,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R2390: group + rotationOffset */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>group</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>group</span>
                     <input type="number" defaultValue={Number(p.group ?? p._group ?? p._N$group ?? 0)} step={1} min={0}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       onBlur={e => { const v = parseInt(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, group: v, _group: v, _N$group: v } } : c); applyAndSave({ components: u }) }}
@@ -493,7 +493,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R2403: linearVelocity + angularVelocity */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linVel x</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>linVel x</span>
                     <input type="number" defaultValue={Number((p.linearVelocity ?? p._linearVelocity ?? p._N$linearVelocity as { x?: number } | undefined)?.x ?? 0)} step={1}
                       onBlur={e => { const x = parseFloat(e.target.value) || 0; const y = Number((p.linearVelocity as { y?: number } | undefined)?.y ?? 0); const vel = { x, y }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearVelocity: vel, _linearVelocity: vel, _N$linearVelocity: vel } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -505,7 +505,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       title="linearVelocity.y"
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0, marginLeft: 4 }}>angVel</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>angVel</span>
                     <input type="number" defaultValue={Number(p.angularVelocity ?? p._angularVelocity ?? 0)} step={1}
                       onBlur={e => { const v = parseFloat(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularVelocity: v, _angularVelocity: v, _N$angularVelocity: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -514,13 +514,13 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   </div>
                   {/* R2400: linearVelocityLimit + angularVelocityLimit */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0 }}>linVelLim</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>linVelLim</span>
                     <input type="number" defaultValue={Number(p.linearVelocityLimit ?? p._linearVelocityLimit ?? p._N$linearVelocityLimit ?? 0)} min={0} step={1}
                       onBlur={e => { const v = parseFloat(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, linearVelocityLimit: v, _linearVelocityLimit: v, _N$linearVelocityLimit: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       title="linearVelocityLimit (0=무제한)"
                     />
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 72, flexShrink: 0, marginLeft: 6 }}>angVelLim</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 6 }}>angVelLim</span>
                     <input type="number" defaultValue={Number(p.angularVelocityLimit ?? p._angularVelocityLimit ?? p._N$angularVelocityLimit ?? 0)} min={0} step={1}
                       onBlur={e => { const v = parseFloat(e.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, angularVelocityLimit: v, _angularVelocityLimit: v, _N$angularVelocityLimit: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}

@@ -1,9 +1,6 @@
 import React, { useState } from 'react'
 import { useCCFileProject } from '../../../hooks/useCCFileProject'
 import type { CCSceneNode } from '@shared/ipc-schema'
-import { GroupPanel } from './GroupPanel'
-import { CCFileAssetBrowser } from './AssetBrowser'
-import { BuildTabContent } from './BuildTab'
 import { SceneTabContent } from './SceneTab'
 import { ProjectHeaderSection } from './ProjectHeader'
 import { useCCFileProjectUI } from './useCCFileProjectUI'
@@ -26,15 +23,14 @@ function CCFileProjectUI(props: CCFileProjectUIProps) {
   const { selectedNode, onSelectNode } = props
   const ctx = useCCFileProjectUI(props)
   const {
-    projectInfo, sceneFile, loading, loadScene, saveScene,
-    mainTab, setMainTab,
+    projectInfo, sceneFile, loading, loadScene,
     recentFiles, addRecent, addRecentScene,
-    handleSceneChange, handleRenameInView, handleTreeToggleActive,
+    handleSceneChange,
   } = ctx
 
   return (
     <div
-      style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}
+      style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}
       onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
       onDrop={e => {
         e.preventDefault(); e.stopPropagation()
@@ -49,59 +45,11 @@ function CCFileProjectUI(props: CCFileProjectUIProps) {
 
       {projectInfo?.detected && <CocosMenuBar ctx={ctx} />}
 
-      {/* 씬/에셋 탭 바 */}
-      {projectInfo?.detected && (
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-          {(['scene', 'groups', 'assets', 'build'] as const).map(t => (
-            <button key={t} onClick={() => setMainTab(t)}
-              style={{
-                flex: 1, padding: '4px 0', fontSize: 10, cursor: 'pointer',
-                borderTop: 'none', borderLeft: 'none', borderRight: 'none',
-                background: mainTab === t ? 'var(--bg-primary)' : 'transparent',
-                color: mainTab === t ? 'var(--accent)' : 'var(--text-muted)',
-                borderBottom: mainTab === t ? '2px solid var(--accent)' : '2px solid transparent',
-                fontWeight: mainTab === t ? 600 : 400,
-              }}
-            >{t === 'scene' ? '🎬 씬' : t === 'groups' ? '📦 그룹' : t === 'assets' ? '📁 에셋' : '🔨 빌드'}</button>
-          ))}
-        </div>
-      )}
-
-
       {/* 씬 파싱 결과 — SceneView + TreeView + Inspector */}
-      {mainTab === 'scene' && sceneFile?.root && (
+      {sceneFile?.root && (
         <SceneTabContent ctx={ctx} selectedNode={selectedNode} onSelectNode={onSelectNode} />
       )}
 
-
-      {/* 그룹 탭 */}
-      {mainTab === 'groups' && sceneFile?.root && (
-        <GroupPanel
-          root={sceneFile.root}
-          selectedNode={selectedNode}
-          onSelectNode={onSelectNode}
-          onRenameGroup={handleRenameInView}
-          onToggleGroupActive={handleTreeToggleActive}
-        />
-      )}
-      {mainTab === 'groups' && !sceneFile?.root && (
-        <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11 }}>씬을 먼저 로드하세요.</div>
-      )}
-
-      {/* 에셋 탭 */}
-      {mainTab === 'assets' && projectInfo?.detected && (
-        projectInfo.assetsDir
-          ? <CCFileAssetBrowser assetsDir={projectInfo.assetsDir} sceneFile={sceneFile ?? undefined} saveScene={saveScene} onSelectNode={onSelectNode} />
-          : <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11 }}>assetsDir를 감지할 수 없습니다.</div>
-      )}
-
-      {/* R1406: 빌드 탭 */}
-      {mainTab === 'build' && projectInfo?.detected && (
-        <BuildTabContent projectInfo={projectInfo} />
-      )}
-      {mainTab === 'build' && !projectInfo?.detected && (
-        <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11 }}>프로젝트를 먼저 열어주세요.</div>
-      )}
 
       {/* 안내 (프로젝트 미선택) */}
       {!projectInfo?.detected && !loading && (

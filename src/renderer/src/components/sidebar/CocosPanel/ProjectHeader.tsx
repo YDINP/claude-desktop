@@ -262,22 +262,10 @@ export function ProjectHeaderSection({ ctx, selectedNode, onSelectNode }: Projec
           )
         })()}
 
-        {/* R1394: 새 씬 만들기 버튼 + 인라인 폼 */}
+        {/* R1394: 새 씬 만들기 폼 (버튼은 CocosMenuBar 파일 메뉴로 이동) */}
         {projectInfo?.detected && (
           <div style={{ marginTop: 6 }}>
-            {!showNewSceneForm ? (
-              <button
-                onClick={() => setShowNewSceneForm(true)}
-                style={{
-                  padding: '3px 8px', fontSize: 10, cursor: 'pointer',
-                  background: 'rgba(96,165,250,0.12)', color: 'var(--accent)',
-                  border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4,
-                  display: 'flex', alignItems: 'center', gap: 4,
-                }}
-              >
-                <span style={{ fontSize: 12, lineHeight: 1 }}>+</span> 새 씬 만들기
-              </button>
-            ) : (
+            {showNewSceneForm && (
               <div style={{
                 padding: '6px 8px', background: 'rgba(0,0,0,0.2)',
                 border: '1px solid var(--border)', borderRadius: 4,

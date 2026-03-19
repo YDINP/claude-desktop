@@ -89,6 +89,13 @@ export function useCCFileProjectUI({ fileProject, selectedNode, onSelectNode }: 
   const [optimizationSuggestions, setOptimizationSuggestions] = useState<OptimizationSuggestion[]>([])
   const [showSceneStats, setShowSceneStats] = useState(false)
   const [mainTab, setMainTab] = useState<'scene' | 'assets' | 'groups' | 'build'>('scene')
+  const [showAssetPanel, setShowAssetPanel] = useState<boolean>(() => {
+    try { return localStorage.getItem('cc-asset-panel-open') === 'true' } catch { return false }
+  })
+  const [assetPanelWidth, setAssetPanelWidth] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem('cc-asset-panel-width') ?? '240') } catch { return 240 }
+  })
+  const assetDividerDragRef = useRef<{ startX: number; startW: number } | null>(null)
   const [recentFiles, setRecentFiles] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('cc-recent-files') ?? '[]') } catch { return [] }
   })
@@ -426,6 +433,9 @@ export function useCCFileProjectUI({ fileProject, selectedNode, onSelectNode }: 
     showSceneStats, setShowSceneStats,
     // Tabs
     mainTab, setMainTab,
+    showAssetPanel, setShowAssetPanel,
+    assetPanelWidth, setAssetPanelWidth,
+    assetDividerDragRef,
     // Recent files
     recentFiles, recentSceneFiles, addRecent, addRecentScene,
     // Node favorites (from useNodeSelection)

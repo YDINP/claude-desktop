@@ -480,7 +480,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-          <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>α (불투명)</span>
+          <span style={{ minWidth: 38, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>α (불투명)</span>
           <input
             type="range"
             min={0}
@@ -520,7 +520,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
         </div>
         {/* R1609: 노드 색상(tint) 피커 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-          <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>tint</span>
+          <span style={{ minWidth: 38, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>tint</span>
           <input
             type="color"
             value={(() => {
@@ -616,7 +616,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
         const isKnown = layerOptions.some(([v]) => v === draft.layer)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-            <span style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>layer</span>
+            <span style={{ minWidth: 38, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>layer</span>
             <select
               value={isKnown ? draft.layer : 'custom'}
               onChange={e => { if (e.target.value !== 'custom') applyAndSave({ layer: Number(e.target.value) }) }}
@@ -642,7 +642,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
       {/* R2343: 노드 tag 편집 (CC2.x _tag → normalized tag) */}
       {draft.tag != null && draft.tag !== 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 26, flexShrink: 0 }}>tag</span>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 26, whiteSpace: 'nowrap', flexShrink: 0 }}>tag</span>
           <input type="number" defaultValue={draft.tag ?? 0}
             key={`tag-${draft.tag}`}
             onBlur={e => applyAndSave({ tag: parseInt(e.target.value) || 0 })}
@@ -677,7 +677,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
         if (sx === 0 && sy === 0) return null
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 26, flexShrink: 0 }}>skew</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 26, whiteSpace: 'nowrap', flexShrink: 0 }}>skew</span>
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>x</span>
             <input type="number" defaultValue={sx} key={`skx-${sx}`} step={1}
               onBlur={e => applyAndSave({ _skewX: parseFloat(e.target.value) || 0 } as Partial<CCSceneNode>)}
@@ -698,7 +698,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
         if (rx === 0 && ry === 0) return null
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 26, flexShrink: 0 }}>rot3</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 26, whiteSpace: 'nowrap', flexShrink: 0 }}>rot3</span>
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>x</span>
             <input type="number" defaultValue={rx} key={`rx-${rx}`} step={1}
               onBlur={e => applyAndSave({ _rotationX: parseFloat(e.target.value) || 0 } as Partial<CCSceneNode>)}

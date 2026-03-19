@@ -19,7 +19,7 @@ export function FileTabBar({ tabs, active, onSelect, onClose, dirtyTabs }: {
     }}>
       {tabs.map(t => {
         const isActive = t === active
-        const label = t === 'chat' ? 'Claude'
+        const label = t === 'chat' ? '🏠 홈'
           : t === 'scene' ? '⬡ 씬뷰'
           : t === 'preview' ? '🌐 프리뷰'
           : (t.split(/[\\/]/).pop() ?? t)
