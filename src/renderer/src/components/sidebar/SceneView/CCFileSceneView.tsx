@@ -3092,6 +3092,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const fontUuid = (labelComp?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
                                ?? (labelComp?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
                                ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
+                               ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
                   const cachedFont = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
                   const fontFamilyName = (!isSystemFont && cachedFont?.familyName)
                     || (isSystemFont && sysFontFamily)
@@ -3268,6 +3269,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   }
                   const fontUuid = (lc?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
                              ?? (lc?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
+                             ?? (lc?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
                   const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
                   const fontFamilyName = fontEntry?.familyName
                     || (lc?.props?.fontFamily as string | undefined)
