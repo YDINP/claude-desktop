@@ -13,7 +13,13 @@ export function WelcomeScreen({ onOpenFolder, onOpenPath, onOpenSession }: {
   useEffect(() => {
     window.api?.getRecentProjects().then(setRecents)
     window.api?.sessionList().then(list => {
-      const sessions = (list as RecentSession[])
+      const sessions = (list as unknown[])
+        .filter((s): s is RecentSession =>
+          s != null &&
+          typeof (s as RecentSession).id === 'string' &&
+          typeof (s as RecentSession).cwd === 'string' &&
+          typeof (s as RecentSession).updatedAt === 'number'
+        )
         .sort((a, b) => b.updatedAt - a.updatedAt)
         .slice(0, 4)
       setRecentSessions(sessions)

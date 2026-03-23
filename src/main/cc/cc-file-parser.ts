@@ -16,7 +16,12 @@ type RawEntry = Record<string, unknown>
  * - 파일 확장자(.fire/.scene/.prefab) 또는 내부 필드(_trs/_lpos)로 버전 자동 감지
  */
 export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo): CCSceneFile {
-  const raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  let raw: RawEntry[]
+  try {
+    raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  } catch (e) {
+    throw new Error(`씬 파일 파싱 실패: ${e instanceof Error ? e.message : String(e)}`)
+  }
   const version = projectInfo.version ?? detectVersionFromRaw(raw)
 
   // SceneAsset → scene ref, Prefab → data ref, 없으면 cc.Scene / cc.Node 탐색
@@ -1312,12 +1317,16 @@ export function diffScenes(
     // anchor
     if (bNode.anchor.x !== aNode.anchor.x || bNode.anchor.y !== aNode.anchor.y) changedFields.push('anchor')
     // rotation
-    if (JSON.stringify(bNode.rotation) !== JSON.stringify(aNode.rotation)) changedFields.push('rotation')
+    if (typeof bNode.rotation !== typeof aNode.rotation ||
+        (typeof bNode.rotation === 'number'
+          ? bNode.rotation !== aNode.rotation
+          : Math.abs((bNode.rotation as {z?:number}).z ?? 0) - Math.abs((aNode.rotation as {z?:number}).z ?? 0) > 0.001)
+    ) changedFields.push('rotation')
     // color
     if (bNode.color.r !== aNode.color.r || bNode.color.g !== aNode.color.g || bNode.color.b !== aNode.color.b || bNode.color.a !== aNode.color.a) changedFields.push('color')
     // components count
     if (bNode.components.length !== aNode.components.length) changedFields.push('components')
-    else if (JSON.stringify(bNode.components.map(c => c.type)) !== JSON.stringify(aNode.components.map(c => c.type))) changedFields.push('components')
+    else if (bNode.components.some((c, i) => c.type !== aNode.components[i].type)) changedFields.push('components')
     // children count
     if (bNode.children.length !== aNode.children.length) changedFields.push('children')
 
@@ -1383,7 +1392,12 @@ export function parseCCSceneChunked(
   chunkSize = 50,
   chunkOffset = 0
 ): { scene: CCSceneFile; state: CCSceneStreamState } {
-  const raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  let raw: RawEntry[]
+  try {
+    raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  } catch (e) {
+    throw new Error(`씬 파일 파싱 실패: ${e instanceof Error ? e.message : String(e)}`)
+  }
   const version = projectInfo.version ?? detectVersionFromRaw(raw)
   const rootIdx = resolveRootIdx(raw)
   if (rootIdx < 0) throw new Error(`씬 루트 노드를 찾을 수 없습니다: ${scenePath}`)

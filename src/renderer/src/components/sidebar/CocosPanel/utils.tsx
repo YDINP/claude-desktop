@@ -66,7 +66,7 @@ export function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: 
 }
 
 /** 스크러빙 라벨: 마우스 좌우 드래그로 숫자 값 조절 */
-export function ScrubLabel({ label, value, onChange, step = 1, inputRef }: { label: string; value: number; onChange: (v: number) => void; step?: number; inputRef?: React.RefObject<HTMLInputElement | null> }) {
+export function ScrubLabel({ label, value, onChange, step = 1, inputRef, color, labelWidth }: { label: string; value: number; onChange: (v: number) => void; step?: number; inputRef?: React.RefObject<HTMLInputElement | null>; color?: string; labelWidth?: number }) {
   const startRef = useRef<{ x: number; v: number; moved: boolean } | null>(null)
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -97,7 +97,7 @@ export function ScrubLabel({ label, value, onChange, step = 1, inputRef }: { lab
     <span
       onMouseDown={handleMouseDown}
       title={`드래그로 ${label} 조절 (Shift: 미세 조절)`}
-      style={{ width: 38, fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, cursor: 'ew-resize', userSelect: 'none' }}
+      style={{ width: labelWidth ?? 38, fontSize: 10, fontWeight: color ? 600 : undefined, color: color ?? 'var(--text-muted)', flexShrink: 0, cursor: 'ew-resize', userSelect: 'none' }}
     >{label}</span>
   )
 }

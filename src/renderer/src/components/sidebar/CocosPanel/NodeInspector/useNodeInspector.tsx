@@ -106,15 +106,40 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   // R1508: Quick Edit CLI 상태 (Rules of Hooks: IIFE 밖 선언 필수)
   const [cliVal, setCliVal] = useState('')
   const [cliMsg, setCliMsg] = useState<string | null>(null)
-  const secHeader = (key: string, label: string, modified?: boolean) => (
-    <div onClick={() => setCollapsed(c => { const next = { ...c, [key]: !c[key] }; try { localStorage.setItem(INSPECTOR_COLLAPSED_KEY, JSON.stringify(next)) } catch {} return next })}
-      style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer', marginTop: 6, marginBottom: 4, userSelect: 'none' }}>
-      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{collapsed[key] ? '▸' : '▾'}</span>
-      <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>{label}</span>
-      {/* R1633: 변경 인디케이터 */}
-      {modified && <span style={{ fontSize: 9, color: '#ff9944', lineHeight: 1 }} title="이 세션에서 변경됨">●</span>}
-    </div>
-  )
+  const SECTION_ACCENT: Record<string, string> = {
+    transform: '#58a6ff',
+    anchor:    '#a78bfa',
+    color:     '#f472b6',
+    comps:     '#4ade80',
+    rawJson:   '#64748b',
+  }
+  const secHeader = (key: string, label: string, modified?: boolean) => {
+    const accent = SECTION_ACCENT[key] ?? '#58a6ff'
+    return (
+      <div
+        onClick={() => setCollapsed(c => { const next = { ...c, [key]: !c[key] }; try { localStorage.setItem(INSPECTOR_COLLAPSED_KEY, JSON.stringify(next)) } catch {} return next })}
+        style={{
+          display: 'flex', alignItems: 'center',
+          height: 26,
+          marginTop: 10, marginBottom: 5,
+          borderLeft: `3px solid ${accent}`,
+          paddingLeft: 8,
+          background: `${accent}12`,
+          borderRadius: '0 3px 3px 0',
+          cursor: 'pointer', userSelect: 'none',
+        }}
+      >
+        <span style={{ fontSize: 10, fontWeight: 600, color: accent, flex: 1, letterSpacing: '0.2px' }}>
+          {label}
+        </span>
+        {/* R1633: 변경 인디케이터 */}
+        {modified && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fbbf24', marginRight: 4, flexShrink: 0 }} title="이 세션에서 변경됨" />}
+        <span style={{ fontSize: 9, color: accent, opacity: 0.8, marginRight: 6 }}>
+          {collapsed[key] ? '▸' : '▾'}
+        </span>
+      </div>
+    )
+  }
 
   // 자식 노드 추가
   const handleAddChild = useCallback(async () => {
@@ -464,10 +489,17 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     onChange: (v: number) => void,
     step = 1,
   ) => {
+    const AXIS_COLORS: Record<string, string> = {
+      'X': '#e05555', 'Y': '#55b055', 'Z': '#4488dd', 'Z°': '#f472b6',
+      'W': '#58a6ff', 'H': '#a78bfa',
+      'aX': '#fbbf24', 'aY': '#fbbf24',
+      'A': '#94a3b8',
+    }
+    const labelColor = AXIS_COLORS[label] ?? 'var(--text-muted)'
     const inputRef = { current: null } as React.RefObject<HTMLInputElement | null>
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-        <ScrubLabel label={label} value={value} onChange={onChange} step={step} inputRef={inputRef} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, height: 24 }}>
+        <ScrubLabel label={label} value={value} onChange={onChange} step={step} inputRef={inputRef} color={labelColor} labelWidth={22} />
         <WheelInput
           ref={inputRef}
           type="number"
@@ -486,7 +518,7 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
           }}
           style={{
             flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+            color: 'var(--text-primary)', borderRadius: 3, padding: '0 6px', fontSize: 11, height: 20,
           }}
         />
       </div>

@@ -389,6 +389,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     return () => clearTimeout(t)
   }, [view, sceneFile.scenePath])
 
+  // Space/pan handler only uses refs (svgRef, isSpaceDownRef) - empty deps is intentional
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return

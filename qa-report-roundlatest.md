@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-23T05:53:32.350Z
+> 2026-03-23T06:30:18.252Z
 
 ## Critical
 _없음_
@@ -9,6 +9,7 @@ _없음_
 - [CCFileSceneView.tsx] Widget 시각화 미구현
 - [CCFileSceneView.tsx] Widget 방향 일부 미구현
 - [CCFileSceneView.tsx] SceneView 화면 밖 노드 방향 화살표 미구현
+- [CocosPanel.tsx] Inspector 트랜스폼 복사/붙여넣기 미구현
 - [CCFileSceneView.tsx] SceneView snap 간격 custom 입력 미구현
 - [CocosPanel.tsx] 씬 컴포넌트 통계 패널 미구현
 - [CCFileSceneView.tsx] SceneView 선택 노드 정보 오버레이 미구현
@@ -1411,7 +1412,6 @@ _없음_
 - SceneView 형제 노드 하이라이트
 - SceneView cc.Label 텍스트 미리보기
 - SceneView HUD 자식/컴포넌트 수 표시
-- Inspector 트랜스폼 복사/붙여넣기
 - SceneView HUD depth 레벨 표시
 - SceneView S/E 단방향 리사이즈 핸들
 - Inspector cc.Label Quick Edit
