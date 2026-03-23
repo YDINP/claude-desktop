@@ -15,6 +15,60 @@ export type AssetType =
 /** UUID → AssetMeta lookup */
 export type UUIDMap = Map<string, AssetMeta>
 
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+const B64_MAP: Record<string, number> = {}
+for (let i = 0; i < 64; i++) B64_MAP[B64[i]] = i
+
+/**
+ * CC 3.x 압축 UUID → 표준 dashed UUID 변환
+ * 알고리즘: prefix(hex[0:5] raw) + Base64(nibble5(4bit) + bytes3-15(104bit)) = 5+18=23chars
+ */
+export function decompressCCUuid(compressed: string): string | null {
+  if (compressed.length !== 23) return null
+  const prefix = compressed.slice(0, 5)
+  let buffer = 0, bitsIn = 0, nibble5 = -1
+  const bytes: number[] = []
+  for (const ch of compressed.slice(5)) {
+    const val = B64_MAP[ch]
+    if (val === undefined) return null
+    buffer = (buffer << 6) | val
+    bitsIn += 6
+    if (nibble5 === -1 && bitsIn >= 4) {
+      bitsIn -= 4
+      nibble5 = (buffer >> bitsIn) & 0xf
+      buffer &= (1 << bitsIn) - 1
+    }
+    while (bitsIn >= 8) {
+      bitsIn -= 8
+      bytes.push((buffer >> bitsIn) & 0xff)
+      buffer &= (1 << bitsIn) - 1
+    }
+  }
+  const hex = prefix + nibble5.toString(16) + bytes.map(b => b.toString(16).padStart(2, '0')).join('')
+  if (hex.length !== 32) return null
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`
+}
+
+/**
+ * 표준 dashed UUID → CC 3.x 압축 형태 변환
+ */
+export function compressCCUuid(uuid: string): string | null {
+  const hex = uuid.replace(/-/g, '')
+  if (hex.length !== 32) return null
+  const prefix = hex.slice(0, 5)
+  const nibble5 = parseInt(hex[5], 16)
+  let buffer = nibble5, bitsIn = 4, encoded = ''
+  for (let i = 6; i < 32; i += 2) {
+    buffer = (buffer << 8) | parseInt(hex.slice(i, i + 2), 16)
+    bitsIn += 8
+    while (bitsIn >= 6) {
+      bitsIn -= 6
+      encoded += B64[(buffer >> bitsIn) & 0x3f]
+    }
+  }
+  return prefix + encoded
+}
+
 /**
  * CC 에셋 리졸버 (Phase B)
  * .meta 파일 전수 스캔 → UUID → 에셋 경로 맵 빌드
@@ -80,10 +134,15 @@ function parseMeta(metaPath: string, assetsDir: string, map: UUIDMap) {
     const ext = assetPath.split('.').pop()?.toLowerCase() ?? ''
     const type = extToType(ext, relPath)
 
-    // 메인 UUID
+    // 메인 UUID (dashed 형태 + CC 3.x 압축 형태 모두 등록)
     const uuid = meta.uuid as string | undefined
     if (uuid) {
       map.set(uuid, { uuid, path: assetPath, relPath, type })
+      // CC 3.x: 씬/프리팹 파일에서 __type__으로 압축 UUID를 사용 → 압축 형태도 맵에 추가
+      const compressed = compressCCUuid(uuid)
+      if (compressed) {
+        map.set(compressed, { uuid: compressed, path: assetPath, relPath, type })
+      }
     }
 
     // subMetas (스프라이트 아틀라스 내 서브 텍스처, CC 2.x 스크립트 sub-uuid 등)
