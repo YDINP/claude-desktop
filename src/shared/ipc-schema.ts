@@ -160,6 +160,8 @@ export interface CCFileProjectInfo {
   assetsDir?: string
   scenes?: string[]
   port?: number
+  extensionStatus?: 'installed' | 'updated' | 'up-to-date' | 'error' | 'src-not-found'
+  extensionVersion?: string
 }
 
 export interface CCVec2 { x: number; y: number }

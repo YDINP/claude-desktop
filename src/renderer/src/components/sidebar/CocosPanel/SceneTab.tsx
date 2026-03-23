@@ -71,13 +71,13 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
             }
             if (dividerDragRef.current) {
               const dx = e.clientX - dividerDragRef.current.startX
-              const newW = Math.max(260, Math.min(700, dividerDragRef.current.startH - dx))
+              const newW = Math.max(300, Math.min(700, dividerDragRef.current.startH - dx))
               setSceneViewHeight(newW)
               localStorage.setItem('cc-inspector-width', String(newW))
             }
             if (assetDividerDragRef.current) {
               const dx = e.clientX - assetDividerDragRef.current.startX
-              const newW = Math.max(160, Math.min(500, assetDividerDragRef.current.startW + dx))
+              const newW = Math.max(160, Math.min(500, assetDividerDragRef.current.startW - dx))
               setAssetPanelWidth(newW)
               localStorage.setItem('cc-asset-panel-width', String(newW))
             }
@@ -128,7 +128,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               </div>
             )}
             {/* R2488: 복제 오프셋 설정 바 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.15)', borderBottom: '1px solid var(--border)', flexShrink: 0, fontSize: 9, color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 6px', background: 'rgba(0,0,0,0.15)', borderBottom: '1px solid var(--border)', flexShrink: 0, fontSize: 9, color: 'var(--text-muted)' }}>
               <span title="복제(Ctrl+D) 위치 오프셋 (R2488)" style={{ flexShrink: 0 }}>Δ복제</span>
               <span>X</span>
               <input type="number" value={dupeOffsetX} onChange={e => saveDupeOffset(parseInt(e.target.value) || 0, dupeOffsetY)}
@@ -146,7 +146,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               ))}
             </div>
             {/* SceneView — 남은 높이 채움 */}
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <CCFileSceneView
                 sceneFile={sceneFile}
                 selectedUuid={selectedNode?.uuid ?? null}
@@ -260,7 +260,20 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
             </div>
           )}
           {multiSelectedUuids.length <= 1 && selectedNode && (
-            <div ref={inspectorScrollRef} style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+            <div
+              ref={inspectorScrollRef}
+              style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}
+              onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' }}
+              onDrop={e => {
+                e.preventDefault()
+                try {
+                  const data = JSON.parse(e.dataTransfer.getData('application/cc-asset') || '{}')
+                  if (data.uuid && selectedNode) {
+                    window.dispatchEvent(new CustomEvent('cc-asset-drop-inspector', { detail: { ...data, nodeUuid: selectedNode.uuid } }))
+                  }
+                } catch {}
+              }}
+            >
               <div style={{ width: 'calc(100% / 1.12)', zoom: 1.12 }}>
               <InspectorErrorBoundary>
                 <CCFileNodeInspector

@@ -41,8 +41,9 @@ export function CCFileNodeInspector({
   const is3x = sceneFile.projectInfo?.version === '3x'
   return (
     <div style={{
-      flexShrink: 0, borderTop: '1px solid var(--border)',
+      borderTop: '1px solid var(--border)',
       padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)',
+      minWidth: 0, width: '100%', boxSizing: 'border-box',
     }}>
       <NodeInspectorHeader ctx={ctx} node={node} sceneFile={sceneFile} onUpdate={onUpdate} saveScene={saveScene} lockedUuids={lockedUuids} onToggleLocked={onToggleLocked} onPulse={onPulse} pinnedUuids={pinnedUuids} onTogglePin={onTogglePin} />
       <NodeTransformSection ctx={ctx} is3x={is3x} />

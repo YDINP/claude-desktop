@@ -39,7 +39,7 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
   const [assets, setAssets] = useState<Record<string, AssetEntry> | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(['prefab']))
   const [copied, setCopied] = useState<string | null>(null)
   // R1382: 뷰 모드 — 'group'(기존) vs 'tree'(폴더 트리)
   const [assetViewMode, setAssetViewMode] = useState<'group' | 'tree'>('group')
@@ -315,12 +315,17 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
               return (
                 <div
                   key={file.uuid}
+                  draggable={true}
+                  onDragStart={e => {
+                    e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: file.uuid, path: file.path, relPath: file.relPath, type: file.type }))
+                    e.dataTransfer.effectAllowed = 'copy'
+                  }}
                   onClick={() => handleCopy(file)}
-                  title={`${file.relPath}\n클릭하여 경로 복사`}
+                  title={`${file.relPath}\n클릭하여 경로 복사 / 드래그하여 인스펙터에 적용`}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     padding: '2px 4px 2px 22px', marginLeft: (depth + 1) * 12,
-                    cursor: 'pointer', fontSize: 10, borderRadius: 3,
+                    cursor: 'grab', fontSize: 10, borderRadius: 3,
                   }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)'; handleThumbEnter(file, e) }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; handleThumbLeave() }}
@@ -453,11 +458,16 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
             {expanded.has(g.key) && g.items.map(item => (
               <div
                 key={item.uuid}
+                draggable={true}
+                onDragStart={e => {
+                  e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: item.uuid, path: item.path, relPath: item.relPath, type: item.type }))
+                  e.dataTransfer.effectAllowed = 'copy'
+                }}
                 onClick={() => handleCopy(item)}
-                title={`${item.relPath}\n클릭하여 경로 복사`}
+                title={`${item.relPath}\n클릭하여 경로 복사 / 드래그하여 인스펙터에 적용`}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4, padding: '3px 6px 3px 22px',
-                  cursor: 'pointer', fontSize: 10, borderRadius: 3,
+                  cursor: 'grab', fontSize: 10, borderRadius: 3,
                 }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)'; handleThumbEnter(item, e) }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; handleThumbLeave() }}

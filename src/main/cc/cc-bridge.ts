@@ -159,6 +159,15 @@ class CCBridge {
     return resp.json()
   }
 
+  async reloadScene(): Promise<{ ok: boolean }> {
+    const resp = await fetch(`http://127.0.0.1:${this._port}/scene/reload`, {
+      method: 'POST',
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+    return resp.json()
+  }
+
   async checkStatus() {
     try {
       const resp = await fetch(`http://127.0.0.1:${this._port}/status`, { signal: AbortSignal.timeout(2000) })

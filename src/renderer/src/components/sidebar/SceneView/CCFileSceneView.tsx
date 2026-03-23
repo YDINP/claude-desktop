@@ -112,6 +112,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showHelp, setShowHelp] = useState(false)
   // R1489: 미니맵
   const [showMinimap, setShowMinimap] = useState(true)
+  const [mmPos, setMmPos] = useState<{ x: number; y: number } | null>(null)
+  const mmDragRef = useRef<{ startMouseX: number; startMouseY: number; startX: number; startY: number } | null>(null)
+  // 노드 선택 컨텍스트 메뉴 (겹친 노드 우클릭)
+  const [nodePickMenu, setNodePickMenu] = useState<{ x: number; y: number; nodes: Array<{ uuid: string; name: string }> } | null>(null)
+  const nodePickMenuRef = useRef<HTMLDivElement>(null)
   // R1496: 컨텍스트 메뉴
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; uuid: string | null } | null>(null)
   // R1500: 스냅 포인트 시각적 피드백
@@ -353,6 +358,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [showShortcutOverlay])
+
+  // 노드 선택 컨텍스트 메뉴 외부 클릭 닫기
+  useEffect(() => {
+    if (!nodePickMenu) return
+    const handler = (e: MouseEvent) => {
+      if (nodePickMenuRef.current && !nodePickMenuRef.current.contains(e.target as Node)) setNodePickMenu(null)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [nodePickMenu])
 
   // R2486: 씬 전환 시 해당 씬의 저장된 뷰 상태 복원
   const prevScenePath = useRef(sceneFile.scenePath)
@@ -2148,14 +2163,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       })()}
 
       {/* SVG 캔버스 */}
+      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' }}>
       <svg
         ref={svgRef}
-        style={{ flex: 1, background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : rotateOverride ? 'crosshair' : measureMode ? 'crosshair' : 'default', display: 'block' }}
+        style={{ width: '100%', height: '100%', background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : rotateOverride ? 'crosshair' : measureMode ? 'crosshair' : 'default', display: 'block' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={() => { handleMouseUp(); setMouseScenePos(null) }}
-        onContextMenu={e => { e.preventDefault(); setCtxMenu({ x: e.clientX, y: e.clientY, uuid: selectedUuid }) }}
+        onContextMenu={e => {
+          e.preventDefault()
+          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect()
+          const svgX = (e.clientX - rect.left - view.offsetX) / view.zoom
+          const svgY = (e.clientY - rect.top - view.offsetY) / view.zoom
+          // hit test all nodes for overlapping pick menu
+          const hits = flatNodes.filter(fn => {
+            if (!fn.node.size) return false
+            const nx = fn.worldX - (fn.node.anchor?.x ?? 0.5) * fn.node.size.x
+            const ny = fn.worldY - (1 - (fn.node.anchor?.y ?? 0.5)) * fn.node.size.y
+            return svgX >= nx && svgX <= nx + fn.node.size.x && svgY >= ny && svgY <= ny + fn.node.size.y
+          }).map(fn => ({ uuid: fn.node.uuid, name: fn.node.name }))
+          if (hits.length > 1) {
+            setNodePickMenu({ x: e.clientX, y: e.clientY, nodes: hits })
+          } else {
+            setCtxMenu({ x: e.clientX, y: e.clientY, uuid: selectedUuid })
+          }
+        }}
         onClick={() => { onSelect(null); setMultiSelected(new Set()); selBoxRef.current = null; setSelectionBox(null) }}
         onDoubleClick={e => {
           if (e.shiftKey || !onAddNode) { handleFit(); return }
@@ -4156,6 +4189,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           )
         })()}
       </svg>
+      </div>
       {/* R1522: 노드 호버 정보 패널 */}
       {hoverUuid && hoverClientPos && (() => {
         const fn = flatNodes.find(f => f.node.uuid === hoverUuid)
@@ -4210,65 +4244,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })}
               </div>
             )}
-          </div>
-        )
-      })()}
-      {/* 미니맵 */}
-      {view.zoom < 0.8 && (() => {
-        const mmW = 80; const mmH = 60
-        const mmScale = Math.min(mmW / designW, mmH / designH) * 0.95
-        const mmOffX = (mmW - designW * mmScale) / 2
-        const mmOffY = (mmH - designH * mmScale) / 2
-        // 현재 뷰포트를 게임 좌표로 변환
-        const svgEl = svgRef.current
-        const svgW = svgEl?.clientWidth ?? 300
-        const svgH = svgEl?.clientHeight ?? 200
-        const vpX = -view.offsetX / view.zoom
-        const vpY = -view.offsetY / view.zoom
-        const vpW = svgW / view.zoom
-        const vpH = svgH / view.zoom
-        return (
-          <div
-            title="클릭하면 해당 위치로 뷰 이동 (R2560)"
-            style={{
-              position: 'absolute', top: 28, right: 4,
-              width: mmW, height: mmH, background: 'rgba(0,0,0,0.7)',
-              border: '1px solid #444', borderRadius: 3, overflow: 'hidden',
-              cursor: 'crosshair',
-            }}
-            onClick={e => {
-              // R2560: 미니맵 클릭 → 씬 좌표로 뷰 팬
-              const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
-              const relX = e.clientX - rect.left, relY = e.clientY - rect.top
-              // mmOffX, mmScale 기반 역산 → SVG 좌표
-              const svgClickX = (relX - mmOffX) / mmScale
-              const svgClickY = (relY - mmOffY) / mmScale
-              const svgEl2 = svgRef.current
-              const svgW2 = svgEl2?.clientWidth ?? 300
-              const svgH2 = svgEl2?.clientHeight ?? 200
-              setView(v => ({ ...v, offsetX: svgW2 / 2 - svgClickX * v.zoom, offsetY: svgH2 / 2 - svgClickY * v.zoom }))
-            }}
-          >
-            <svg width={mmW} height={mmH}>
-              {/* 게임 캔버스 */}
-              <rect x={mmOffX} y={mmOffY} width={designW * mmScale} height={designH * mmScale}
-                fill={bgColorOverride ?? bgColor} stroke="#666" strokeWidth={0.5} />
-              {/* 노드들 */}
-              {flatNodes.filter(fn => fn.node.size?.x && fn.node.size?.y).map(({ node, worldX, worldY }) => {
-                const sx = mmOffX + (ccToSvg(worldX, worldY).x - (node.anchor?.x ?? 0.5) * (node.size.x)) * mmScale
-                const sy = mmOffY + (ccToSvg(worldX, worldY).y - (1 - (node.anchor?.y ?? 0.5)) * (node.size.y)) * mmScale
-                const sw = Math.abs(node.size.x) * mmScale; const sh = Math.abs(node.size.y) * mmScale
-                return <rect key={node.uuid} x={sx} y={sy} width={sw} height={sh}
-                  fill={node.uuid === selectedUuid ? 'rgba(88,166,255,0.4)' : 'rgba(255,255,255,0.1)'}
-                  stroke={node.uuid === selectedUuid ? '#58a6ff' : '#555'} strokeWidth={0.3} />
-              })}
-              {/* 뷰포트 박스 */}
-              <rect
-                x={mmOffX + vpX * mmScale} y={mmOffY + vpY * mmScale}
-                width={vpW * mmScale} height={vpH * mmScale}
-                fill="none" stroke="#58a6ff" strokeWidth={0.8} strokeDasharray="2,1"
-              />
-            </svg>
           </div>
         )
       })()}
@@ -4475,10 +4450,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         const vpW2 = vpW * s, vpH2 = vpH * s
         return (
           <div style={{
-            position: 'absolute', bottom: 8, right: 8, zIndex: 5,
-            width: MM_W, height: MM_H,
+            position: 'absolute',
+            ...(mmPos ? { left: mmPos.x, top: mmPos.y } : { bottom: 8, right: 8 }),
+            zIndex: 5,
+            width: MM_W,
             background: 'rgba(10,10,20,0.85)', border: '1px solid #333',
             borderRadius: 4, overflow: 'hidden', cursor: 'pointer',
+            display: 'flex', flexDirection: 'column' as const,
           }}
             onClick={e => {
               const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -4515,6 +4493,35 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             }}
             title="미니맵 — 노드 클릭으로 선택 / 빈 공간 클릭으로 이동 (R2470)"
           >
+            {/* drag handle */}
+            <div
+              style={{ height: 8, cursor: 'grab', background: 'rgba(255,255,255,0.08)', borderRadius: '3px 3px 0 0', flexShrink: 0 }}
+              onMouseDown={e => {
+                e.stopPropagation()
+                const parent = (e.currentTarget.parentElement?.parentElement) as HTMLElement | null
+                const rect = e.currentTarget.parentElement?.getBoundingClientRect()
+                if (!rect) return
+                mmDragRef.current = {
+                  startMouseX: e.clientX,
+                  startMouseY: e.clientY,
+                  startX: rect.left - (parent?.getBoundingClientRect().left ?? 0),
+                  startY: rect.top - (parent?.getBoundingClientRect().top ?? 0),
+                }
+                const onMove = (me: MouseEvent) => {
+                  if (!mmDragRef.current) return
+                  const dx = me.clientX - mmDragRef.current.startMouseX
+                  const dy = me.clientY - mmDragRef.current.startMouseY
+                  setMmPos({ x: mmDragRef.current.startX + dx, y: mmDragRef.current.startY + dy })
+                }
+                const onUp = () => {
+                  mmDragRef.current = null
+                  window.removeEventListener('mousemove', onMove)
+                  window.removeEventListener('mouseup', onUp)
+                }
+                window.addEventListener('mousemove', onMove)
+                window.addEventListener('mouseup', onUp)
+              }}
+            />
             <svg width={MM_W} height={MM_H}>
               {/* 씬 경계 */}
               <rect x={ofX} y={ofY} width={sceneW * s} height={sceneH * s} fill="none" stroke="#333" strokeWidth={0.5} />
@@ -4616,39 +4623,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           ))}
         </div>
       )}
-      {/* R1614: 화면 밖 선택 노드 방향 화살표 */}
-      {selectedUuid && (() => {
-        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
-        if (!fn) return null
-        const svgEl = svgRef.current
-        if (!svgEl) return null
-        const svgW = svgEl.clientWidth, svgH = svgEl.clientHeight
-        const sp = ccToSvg(fn.worldX, fn.worldY)
-        const MARGIN = 18
-        if (sp.x >= MARGIN && sp.x <= svgW - MARGIN && sp.y >= MARGIN && sp.y <= svgH - MARGIN) return null
-        // 중앙→노드 방향 벡터로 엣지 교점 계산
-        const cx = svgW / 2, cy = svgH / 2
-        const dx = sp.x - cx, dy = sp.y - cy
-        let t = Infinity
-        if (dx < 0) t = Math.min(t, (MARGIN - cx) / dx)
-        else if (dx > 0) t = Math.min(t, (svgW - MARGIN - cx) / dx)
-        if (dy < 0) t = Math.min(t, (MARGIN - cy) / dy)
-        else if (dy > 0) t = Math.min(t, (svgH - MARGIN - cy) / dy)
-        if (!isFinite(t)) return null
-        const tx = cx + dx * t, ty = cy + dy * t
-        const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI + 90
-        return (
-          <div
-            title="클릭: 선택 노드로 이동 (F)"
-            onClick={handleFitToSelected}
-            style={{ position: 'absolute', left: tx - 10, top: ty - 10, width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <svg width="20" height="20" style={{ transform: `rotate(${angleDeg}deg)`, filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))' }}>
-              <polygon points="10,2 17,17 10,13 3,17" fill="rgba(88,166,255,0.9)" />
-            </svg>
-          </div>
-        )
-      })()}
       {/* R1630: 회전 중 각도 레이블 */}
       {rotateOverride && hoverClientPos && (() => {
         const svgEl = svgRef.current
@@ -4719,6 +4693,28 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             return <span style={{ color: '#445' }}>{Math.round(w)}×{Math.round(h)}</span>
           })()}
           <span>{mouseScenePos.x}, {mouseScenePos.y}</span>
+        </div>
+      )}
+      {/* Right-click node context menu (overlapping nodes) */}
+      {nodePickMenu && (
+        <div ref={nodePickMenuRef} style={{
+          position: 'fixed', left: nodePickMenu.x, top: nodePickMenu.y, zIndex: 1000,
+          background: 'rgba(10,14,28,0.97)', border: '1px solid rgba(88,166,255,0.3)',
+          borderRadius: 5, padding: '4px 0', minWidth: 160, boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
+          fontSize: 10,
+        }}>
+          <div style={{ padding: '2px 10px 4px', fontSize: 9, color: '#556', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 2 }}>
+            노드 선택 ({nodePickMenu.nodes.length})
+          </div>
+          {nodePickMenu.nodes.map(n => (
+            <div
+              key={n.uuid}
+              onClick={() => { onSelect?.(n.uuid); setNodePickMenu(null) }}
+              style={{ padding: '3px 10px', cursor: 'pointer', color: '#ccc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.15)')}
+              onMouseLeave={e => (e.currentTarget.style.background = '')}
+            >{n.name}</div>
+          ))}
         </div>
       )}
     </div>

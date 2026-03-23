@@ -1,6 +1,6 @@
 {
   "name": "cc-ws-extension",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Claude Desktop WebSocket Bridge for Cocos Creator 2.x",
   "main": "main.js",
   "scene-scripts": ["scene-script.js"],

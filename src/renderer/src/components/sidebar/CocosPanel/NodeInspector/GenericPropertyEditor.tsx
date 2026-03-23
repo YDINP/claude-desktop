@@ -91,14 +91,46 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
               const uuid = (v as { __uuid__: string }).__uuid__
               return (
-                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
                   <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
-                  <span style={{
-                    flex: 1, fontSize: 9, color: '#888', fontFamily: 'monospace',
-                    background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '2px 5px',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    title: uuid,
-                  }} title={uuid}>
+                  <span
+                    style={{
+                      flex: 1, fontSize: 9, color: '#888', fontFamily: 'monospace',
+                      background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '2px 5px',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      cursor: 'copy', border: '1px dashed transparent',
+                      transition: 'border-color 0.1s, background 0.1s',
+                    }}
+                    title={`${uuid}\n에셋을 여기에 드롭하여 UUID 변경`}
+                    onDragOver={e => {
+                      if (e.dataTransfer.types.includes('application/cc-asset')) {
+                        e.preventDefault()
+                        e.dataTransfer.dropEffect = 'copy'
+                        ;(e.currentTarget as HTMLElement).style.borderColor = '#58a6ff'
+                        ;(e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.12)'
+                      }
+                    }}
+                    onDragLeave={e => {
+                      ;(e.currentTarget as HTMLElement).style.borderColor = 'transparent'
+                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'
+                    }}
+                    onDrop={e => {
+                      e.preventDefault()
+                      ;(e.currentTarget as HTMLElement).style.borderColor = 'transparent'
+                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'
+                      try {
+                        const data = JSON.parse(e.dataTransfer.getData('application/cc-asset') || '{}')
+                        if (data.uuid) {
+                          applyAndSave({
+                            components: draft.components.map((c, i) =>
+                              i === origIdx ? { ...c, props: { ...c.props, [k]: { __uuid__: data.uuid } } } : c
+                            )
+                          })
+                        }
+                      } catch {}
+                    }}
+                    onClick={() => navigator.clipboard.writeText(uuid).catch(() => {})}
+                  >
                     {uuid.slice(0, 8)}…
                   </span>
                 </div>
@@ -172,7 +204,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
               const axisColor: Record<string, string> = { x: '#e05555', y: '#55b055', z: '#4488dd' }
               if (isVecType && vecAxes) {
                 return (
-                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
                     <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                     <div style={{ display: 'flex', gap: 3, flex: 1 }}>
                       {vecAxes.map(axis => (
@@ -224,7 +256,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
               }
               if (numKeys.length >= 2 && numKeys.length <= 3) {
                 return (
-                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
                     <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                     <div style={{ display: 'flex', gap: 2, flex: 1 }}>
                       {numKeys.map(axis => (
@@ -366,7 +398,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             // fontStyle → 드롭다운
             if (k === 'fontStyle' && typeof v === 'number') {
               return (
-                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
                   <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                   <select
                     value={Number(v)}
@@ -406,7 +438,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             if (k in COCOS_ENUM_MAP && typeof v === 'number') {
               const enumOptions = COCOS_ENUM_MAP[k]
               return (
-                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
                   <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                   <select
                     value={Number(v)}
@@ -425,7 +457,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
               )
             }
             return (
-              <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+              <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
                 <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                 {isBool ? (
                   <BoolToggle

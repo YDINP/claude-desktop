@@ -87,37 +87,52 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
     return getCCBridge(port).moveNode(uuid, x, y)
   })
 
+  ipcMain.handle('cc:reloadScene', async (_e, port: number) => {
+    try { return await getCCBridge(port).reloadScene() } catch { return { ok: false } }
+  })
+
   ipcMain.handle(CC_DETECT_PROJECT, async (_e, rootPath: string) => {
     if (!rootPath) return { detected: false }
     const hasAssets = fs.existsSync(path.join(rootPath, 'assets'))
     if (!hasAssets) return { detected: false }
+
+    let base: Record<string, unknown> | null = null
+
     const has2x = fs.existsSync(path.join(rootPath, 'project.json'))
     if (has2x) {
       try {
         const pkg = JSON.parse(fs.readFileSync(path.join(rootPath, 'project.json'), 'utf-8'))
         const creatorVersion = pkg?.engine?.version as string | undefined
-        return { detected: true, version: '2x', creatorVersion: creatorVersion || '2.x', port: 9090, name: pkg.name || path.basename(rootPath) }
+        base = { detected: true, version: '2x', creatorVersion: creatorVersion || '2.x', port: 9090, name: pkg.name || path.basename(rootPath) }
       } catch {
-        return { detected: true, version: '2x', creatorVersion: '2.x', port: 9090, name: path.basename(rootPath) }
+        base = { detected: true, version: '2x', creatorVersion: '2.x', port: 9090, name: path.basename(rootPath) }
       }
     }
-    // CC 3.x: package.json creator.version 먼저 (정확한 버전)
-    const pkgJsonPath = path.join(rootPath, 'package.json')
-    if (fs.existsSync(pkgJsonPath)) {
-      try {
-        const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8'))
-        const creatorVersion = pkg?.creator?.version as string | undefined
-        if (creatorVersion && /^3\./.test(creatorVersion)) {
-          return { detected: true, version: '3x', creatorVersion, port: 9091, name: pkg.name || path.basename(rootPath) }
-        }
-      } catch { /* ignore */ }
+
+    if (!base) {
+      const pkgJsonPath = path.join(rootPath, 'package.json')
+      if (fs.existsSync(pkgJsonPath)) {
+        try {
+          const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8'))
+          const creatorVersion = pkg?.creator?.version as string | undefined
+          if (creatorVersion && /^3\./.test(creatorVersion)) {
+            base = { detected: true, version: '3x', creatorVersion, port: 9091, name: pkg.name || path.basename(rootPath) }
+          }
+        } catch { /* ignore */ }
+      }
     }
-    // CC 3.x: settings/project-setting.json fallback
-    const has3xSettings = fs.existsSync(path.join(rootPath, 'settings', 'project-setting.json'))
-    if (has3xSettings) {
-      return { detected: true, version: '3x', creatorVersion: '3.x', port: 9091, name: path.basename(rootPath) }
+
+    if (!base) {
+      const has3xSettings = fs.existsSync(path.join(rootPath, 'settings', 'project-setting.json'))
+      if (has3xSettings) {
+        base = { detected: true, version: '3x', creatorVersion: '3.x', port: 9091, name: path.basename(rootPath) }
+      }
     }
-    return { detected: false }
+
+    if (!base) return { detected: false }
+
+    const extStatus = _autoInstallExtension(rootPath, base.version as string, app.getAppPath())
+    return { ...base, ...extStatus }
   })
 
   ipcMain.handle('cc:openEditor', async (_e, projectPath: string, version: string, creatorVersion?: string) => {
@@ -197,4 +212,57 @@ export function registerCCHandlers(mainWindow: BrowserWindow) {
       return { success: false, message: String(e) }
     }
   })
+}
+
+/** CC 익스텐션 소스 경로 탐색 */
+function _findExtSrc(appPath: string, version: string): string | null {
+  const extName = version === '3x' ? 'cc-ws-extension-3x' : 'cc-ws-extension-2x'
+  const candidates = [
+    path.join(appPath, 'extensions', extName),
+    path.join(appPath, '..', '..', 'extensions', extName),
+    path.join(__dirname, '..', '..', 'extensions', extName),
+    path.join(__dirname, '..', '..', '..', 'extensions', extName),
+  ]
+  return candidates.find(p => fs.existsSync(p)) ?? null
+}
+
+/** CC 프로젝트 감지 시 익스텐션 자동 설치/업데이트 */
+function _autoInstallExtension(projectPath: string, version: string, appPath: string): {
+  extensionStatus: 'installed' | 'updated' | 'up-to-date' | 'error' | 'src-not-found'
+  extensionVersion?: string
+} {
+  try {
+    const extName = version === '3x' ? 'cc-ws-extension-3x' : 'cc-ws-extension-2x'
+    const extFolder = version === '3x' ? 'extensions' : 'packages'
+    const srcPath = _findExtSrc(appPath, version)
+    if (!srcPath) return { extensionStatus: 'src-not-found' }
+
+    const bundledVersion = JSON.parse(
+      fs.readFileSync(path.join(srcPath, 'package.json'), 'utf-8')
+    ).version as string
+
+    const destPath = path.join(projectPath, extFolder, extName)
+    const destPkgPath = path.join(destPath, 'package.json')
+
+    let installedVersion: string | null = null
+    if (fs.existsSync(destPkgPath)) {
+      try { installedVersion = JSON.parse(fs.readFileSync(destPkgPath, 'utf-8')).version } catch { /* ignore */ }
+    }
+
+    if (installedVersion === bundledVersion) {
+      return { extensionStatus: 'up-to-date', extensionVersion: installedVersion }
+    }
+
+    // 설치 또는 업데이트 — 파일 복사 후 npm install 백그라운드 실행
+    fs.mkdirSync(path.dirname(destPath), { recursive: true })
+    fs.cpSync(srcPath, destPath, { recursive: true, force: true })
+    spawn('npm', ['install'], { cwd: destPath, detached: true, stdio: 'ignore' }).unref()
+
+    return {
+      extensionStatus: installedVersion ? 'updated' : 'installed',
+      extensionVersion: bundledVersion,
+    }
+  } catch (e) {
+    return { extensionStatus: 'error', extensionVersion: String(e) }
+  }
 }

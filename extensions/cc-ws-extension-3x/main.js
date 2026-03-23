@@ -464,8 +464,19 @@ async function routeRequest3x(method, url, body, res) {
     return;
   }
 
+  // POST /scene/reload — 현재 씬을 디스크에서 다시 로드
+  if (method === 'POST' && url === '/scene/reload') {
+    try {
+      await Editor.Message.request('scene', 'reload-scene');
+      res.writeHead(200); res.end(JSON.stringify({ ok: true }));
+    } catch(e) {
+      res.writeHead(500); res.end(JSON.stringify({ error: String(e) }));
+    }
+    return;
+  }
+
   if (method === 'GET' && url === '/status') {
-    res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '3x', port: PORT, features: ['scene/tree', 'node', 'node/component', 'assets/tree'] }));
+    res.writeHead(200); res.end(JSON.stringify({ ok: true, version: '3x', port: PORT, features: ['scene/tree', 'node', 'node/component', 'assets/tree', 'scene/reload'] }));
     return;
   }
 

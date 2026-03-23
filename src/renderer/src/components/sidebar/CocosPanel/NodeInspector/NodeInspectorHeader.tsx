@@ -228,7 +228,7 @@ export function NodeInspectorHeader({ ctx, node, sceneFile, onUpdate, saveScene,
           </datalist>
         )
       })()}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2 }}>
         <input
           defaultValue={draft.name}
           list={`cc-node-names-${node.uuid}`}
@@ -236,7 +236,7 @@ export function NodeInspectorHeader({ ctx, node, sceneFile, onUpdate, saveScene,
           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyAndSave({ name: (e.target as HTMLInputElement).value }); (e.target as HTMLInputElement).blur() } }}
           style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', background: 'transparent', border: 'none', borderBottom: '1px solid var(--accent)', outline: 'none', flex: 1, minWidth: 0 }}
         />
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           {/* R683: 프로퍼티 검색 토글 */}
           <button
             onClick={() => { setShowPropSearch(o => !o); if (showPropSearch) setPropSearch('') }}
