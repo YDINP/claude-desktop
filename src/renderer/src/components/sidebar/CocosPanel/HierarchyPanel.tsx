@@ -33,6 +33,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
     handleReparent, handleTreeAddChild, handleTreeDelete, handleTreeDuplicate,
     handleTreeToggleActive, handleReorder, handleSortChildren,
     handleRenameInView, handleSaveAsPrefab,
+    showSceneStats, setShowSceneStats,
   } = ctx
 
   if (!sceneFile?.root) return null
@@ -294,6 +295,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
               </div>
             )}
             {/* R1559: 씬 파일명 + 통계 */}
+            {/* R1684: 씬 통계 패널 — showSceneStats 토글로 표시/숨김 */}
             {(() => {
               const statsMap: Record<string, number> = {}
               // R1731: 컴포넌트별 노드 uuid 맵
@@ -302,6 +304,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
               // R1718: 비활성 노드 카운트
               let inactiveCount = 0
               const inactiveUuids: string[] = []
+              // R1684: 씬 통계 — walkStats로 컴포넌트 분포 계산
               const walkStats = (n: CCSceneNode) => {
                 nodeCount++
                 if (!n.active) { inactiveCount++; inactiveUuids.push(n.uuid) }
@@ -316,6 +319,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
               walkStats(sceneFile.root)
               const topComps = Object.entries(statsMap).sort((a, b) => b[1] - a[1]).slice(0, 4)
               return (
+                <>
                 <div style={{ padding: '2px 6px', fontSize: 9, color: '#555', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
                   {/* R2322: 클릭으로 파일 탐색기에서 열기 */}
                   <div
@@ -358,6 +362,32 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                     ))}
                   </div>
                 </div>
+                {/* R2344: 씬 통계 컴포넌트 분포 인라인 바 시각화 */}
+                {showSceneStats && (() => {
+                  const compCounts = statsMap
+                  const totalComps = Object.values(compCounts).reduce((s, n) => s + n, 0)
+                  const maxCount = Math.max(...Object.values(compCounts), 1)
+                  const COMP_BAR_COLORS: Record<string, string> = {
+                    'cc.Label': '#58a6ff', 'cc.Sprite': '#4ade80',
+                    'cc.Button': '#fb923c', 'cc.Layout': '#a78bfa',
+                  }
+                  const barColor = (type: string) => COMP_BAR_COLORS[type] ?? '#64748b'
+                  return (
+                    <div style={{ padding: '4px 8px', borderTop: '1px solid var(--border)', fontSize: 8 }}>
+                      <div style={{ color: 'var(--text-muted)', marginBottom: 3 }}>컴포넌트 분포 ({totalComps}개)</div>
+                      {Object.entries(compCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([type, count]) => (
+                        <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                          <span style={{ width: 48, fontSize: 8, color: 'var(--text-muted)', textAlign: 'right', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{type.replace('cc.', '')}</span>
+                          <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                            <div style={{ width: `${(count / maxCount) * 100}%`, height: '100%', background: barColor(type), borderRadius: 3 }} />
+                          </div>
+                          <span style={{ width: 16, fontSize: 8, color: 'var(--text-muted)', textAlign: 'right', flexShrink: 0 }}>{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
+                </>
               )
             })()}
             {/* 즐겨찾기 */}

@@ -1508,6 +1508,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 <button onClick={() => setShowGrid(g => !g)} title={`그리드 오버레이 (${snapSize}px)`} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showGrid ? 'rgba(100,220,100,0.5)' : 'var(--border)'}`, background: showGrid ? 'rgba(100,220,100,0.1)' : 'none', color: showGrid ? 'rgba(100,220,100,0.9)' : 'var(--text-muted)' }}># 그리드</button>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>스냅</span>
+                  {/* R1674: SceneView snap 간격 custom 입력 — datalist 로 프리셋 제공 */}
                   <datalist id="snap-size-list-panel"><option value={1}/><option value={5}/><option value={10}/><option value={25}/><option value={50}/><option value={100}/></datalist>
                   <input type="number" min={1} max={500} value={snapSize} list="snap-size-list-panel" onChange={e => { const v = parseInt(e.target.value); if (v > 0) setSnapSize(v) }} title={`Ctrl+드래그 스냅 크기: ${snapSize}px`} style={{ width: 36, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }} />
                 </span>
@@ -3133,14 +3134,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const widgetComp = node.components.find(c => c.type === 'cc.Widget')
                   if (!widgetComp) return null
                   const alignFlags = (widgetComp.props.alignFlags ?? widgetComp.props._alignFlags ?? 0) as number
-                  if (!alignFlags) return null
+                  const flags = alignFlags
+                  if (!flags) return null
                   const color = '#7c3aed'
                   const sz = 4 / view.zoom
                   const indicators: React.ReactNode[] = []
-                  if (alignFlags & 1) indicators.push(<line key="L" x1={rectX} y1={rectY + h/2} x2={rectX - sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
-                  if (alignFlags & 2) indicators.push(<line key="R" x1={rectX + w} y1={rectY + h/2} x2={rectX + w + sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
-                  if (alignFlags & 4) indicators.push(<line key="T" x1={rectX + w/2} y1={rectY} x2={rectX + w/2} y2={rectY - sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
-                  if (alignFlags & 8) indicators.push(<line key="B" x1={rectX + w/2} y1={rectY + h} x2={rectX + w/2} y2={rectY + h + sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (flags & 1) indicators.push(<line key="L" x1={rectX} y1={rectY + h/2} x2={rectX - sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (flags & 2) indicators.push(<line key="R" x1={rectX + w} y1={rectY + h/2} x2={rectX + w + sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (flags & 4) indicators.push(<line key="T" x1={rectX + w/2} y1={rectY} x2={rectX + w/2} y2={rectY - sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (flags & 8) indicators.push(<line key="B" x1={rectX + w/2} y1={rectY + h} x2={rectX + w/2} y2={rectY + h + sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (flags & 16) indicators.push(<line key="HC" x1={rectX + w/2} y1={rectY + h/2} x2={rectX + w/2 - sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1/view.zoom} strokeDasharray={`${2/view.zoom},${2/view.zoom}`} style={{ pointerEvents: 'none' }} />)
+                  if (flags & 32) indicators.push(<line key="VC" x1={rectX + w/2} y1={rectY + h/2} x2={rectX + w/2} y2={rectY + h/2 - sz*2} stroke={color} strokeWidth={1/view.zoom} strokeDasharray={`${2/view.zoom},${2/view.zoom}`} style={{ pointerEvents: 'none' }} />)
                   if (indicators.length === 0) return null
                   return <>{indicators}</>
                 })()}
@@ -4218,6 +4222,41 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           )
         })()}
       </svg>
+      {/* R1614: 화면 밖 선택 노드 방향 화살표 */}
+      {selectedUuid && (() => {
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (!fn) return null
+        const svgEl = svgRef.current
+        if (!svgEl) return null
+        const rect = svgEl.getBoundingClientRect()
+        const svgCX = rect.width / 2
+        const svgCY = rect.height / 2
+        // 노드 SVG 좌표
+        const nSvgX = fn.worldX * view.zoom + view.offsetX
+        const nSvgY = (-fn.worldY) * view.zoom + view.zoom * (designH / 2) + view.offsetY
+        const padding = 20
+        const inView = nSvgX >= -padding && nSvgX <= rect.width + padding && nSvgY >= -padding && nSvgY <= rect.height + padding
+        if (inView) return null
+        // 방향 계산
+        const dx = nSvgX - svgCX
+        const dy = nSvgY - svgCY
+        const angleDeg = Math.atan2(dy, dx) * (180 / Math.PI)
+        const angleRad = angleDeg * (Math.PI / 180)
+        const edge = 36
+        const arrowX = svgCX + Math.cos(angleRad) * (Math.min(rect.width, rect.height) / 2 - edge)
+        const arrowY = svgCY + Math.sin(angleRad) * (Math.min(rect.width, rect.height) / 2 - edge)
+        return (
+          <div style={{
+            position: 'absolute',
+            left: arrowX - 10, top: arrowY - 10,
+            width: 20, height: 20,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#58a6ff', fontSize: 14,
+            transform: `rotate(${angleDeg}deg)`,
+            pointerEvents: 'none', userSelect: 'none', zIndex: 8,
+          }}>→</div>
+        )
+      })()}
       {/* R1699: 선택 노드 세부 정보 오버레이 (우상단) */}
       {selectedUuid && (() => {
         const fn = flatNodes.find(f => f.node.uuid === selectedUuid)

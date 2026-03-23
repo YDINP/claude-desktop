@@ -1,16 +1,11 @@
 # QA Report — Round latest
-> 2026-03-23T07:47:06.332Z
+> 2026-03-23T07:58:44.553Z
 
 ## Critical
 _없음_
 
 ## Warning
-- [sidebar/CocosPanel.tsx] CocosPanel 빌드 트리거 없음
-- [CCFileSceneView.tsx] Widget 방향 일부 미구현
-- [CCFileSceneView.tsx] SceneView 화면 밖 노드 방향 화살표 미구현
-- [CCFileSceneView.tsx] SceneView snap 간격 custom 입력 미구현
-- [CocosPanel.tsx] 씬 컴포넌트 통계 패널 미구현
-- [CocosPanel.tsx] 씬 통계 바 시각화 미구현
+_없음_
 
 ## Pass
 - bun run build 성공
@@ -1206,6 +1201,7 @@ _없음_
 - NodeRenderer Camera/ParticleSystem 시각 힌트 (테두리 + 라벨 접두사)
 - Inspector 노드 참조 필드 표시 (__id__/__uuid__ 감지, 링크 아이콘)
 - Inspector 컴포넌트 순서 변경 (↑↓ 버튼, 첫/마지막 비활성화)
+- CocosPanel CC 빌드 트리거 UI (플랫폼 드롭다운, CLI 미리보기)
 - NodeHierarchyList 색상 태그 dot 표시
 - cc-file-parser analyzeScene 복잡도 분석 (노드수/깊이/컴포넌트/draw call/경고)
 - cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs)
@@ -1295,6 +1291,7 @@ _없음_
 - CLI 입력 UI (monosapce placeholder + 피드백) 구현
 - Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)
 - SceneView cc.Widget alignFlags 제약 화살표 시각화 구현
+- TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현
 - alignGuides 상태 + ALIGN_SNAP_THRESHOLD 선언
 - 드래그 중 V/H 가이드라인 계산 로직 구현 (vPairs/hPairs)
 - SVG 정렬 가이드라인 렌더링 (빨간 점선) 구현
@@ -1405,6 +1402,7 @@ _없음_
 - SceneView 드래그 delta 표시 (Δx,y)
 - Inspector 자식 노드 빠른 탐색 칩
 - SceneView 형제 노드 하이라이트
+- SceneView 화면 밖 노드 방향 화살표
 - SceneView cc.Label 텍스트 미리보기
 - SceneView HUD 자식/컴포넌트 수 표시
 - Inspector 트랜스폼 복사/붙여넣기
@@ -1462,6 +1460,7 @@ _없음_
 - 앵커 9-point 프리셋 그리드
 - 노드 북마크 (Ctrl+1-9 설정, 1-9 이동)
 - 컴포넌트 prop diff 표시 (변경된 prop 황색 dot)
+- SceneView snap 간격 custom 입력 (datalist)
 - cc.Widget 정렬 시각 다이어그램
 - Ctrl+Shift+C 노드 JSON 클립보드 복사
 - 비활성 조상 경고 배너
@@ -1471,6 +1470,7 @@ _없음_
 - SceneView 선택 테두리 색상 사용자 설정
 - Inspector 위치/크기 빠른 복사 버튼
 - SceneView 드래그 ghost 원래 위치 표시
+- 씬 컴포넌트 통계 패널
 - SceneView Shift+드래그 축 제한
 - Inspector 균등 스케일 버튼 (⊟)
 - SceneView z-order 배지 (형제 순서 인덱스)
@@ -2156,6 +2156,7 @@ _없음_
 - BatchInspector matchPosition X/Y 위치 맞추기 구현 완료
 - BatchInspector matchSize 첫 번째 선택 노드 크기 맞추기 구현 완료
 - 씬 트리 북마크 퀵액세스 바 구현 완료
+- 씬 통계 컴포넌트 분포 인라인 바 시각화 구현 완료
 - Inspector 단일노드 _tag/_zIndex 편집 필드 구현 완료
 - Inspector cc.Scrollbar direction/enableAutoHide/autoHideTime 편집 구현 완료
 - Inspector cc.WebView url/visibleWithMouse 편집 구현 완료

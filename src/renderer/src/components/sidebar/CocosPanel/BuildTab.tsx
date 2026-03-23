@@ -3,6 +3,7 @@ import type { CCFileProjectUIProps } from './types'
 
 type ProjectInfo = NonNullable<CCFileProjectUIProps['fileProject']['projectInfo']>
 
+// R1406: CC_EDITOR_PATHS — CocosCreator 에디터 경로 목록 (자동 감지용)
 const CC_EDITOR_PATHS: Record<string, string> = {
   '2.4.13': 'C:/ProgramData/cocos/editors/Creator/2.4.13/CocosCreator.exe',
   '2.4.5': 'C:/ProgramData/cocos/editors/Creator/2.4.5/CocosCreator.exe',
