@@ -49,10 +49,10 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   // R1633: 노드 선택 시 초기값 스냅샷 (변경 인디케이터용)
   const origSnapUuidRef = useRef<string | null>(null)
   const origSnapRef = useRef<CCSceneNode | null>(null)
-  if (origSnapUuidRef.current !== node.uuid) {
+  useEffect(() => {
+    origSnapRef.current = typeof structuredClone !== 'undefined' ? structuredClone(node) : JSON.parse(JSON.stringify(node))
     origSnapUuidRef.current = node.uuid
-    origSnapRef.current = JSON.parse(JSON.stringify(node))
-  }
+  }, [node.uuid])
   const [draft, setDraft] = useState<CCSceneNode>(() => ({ ...node }))
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
@@ -277,7 +277,7 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   const [tintHexFocused, setTintHexFocused] = useState(false)
 
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
-  useMemo(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch(''); setShowPropSearch(false) }, [node.uuid])
+  useEffect(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch(''); setShowPropSearch(false) }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null)
@@ -293,25 +293,31 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingSaveRef = useRef<{ updated: CCSceneNode; root: CCSceneNode } | null>(null)
 
+  // flushSave 클로저 안정화: 최신 saveScene/onUpdate를 ref로 보관
+  const saveSceneRef = useRef(saveScene)
+  const onUpdateRef = useRef(onUpdate)
+  useEffect(() => { saveSceneRef.current = saveScene }, [saveScene])
+  useEffect(() => { onUpdateRef.current = onUpdate }, [onUpdate])
+
   // 실제 저장 실행 (debounced)
   const flushSave = useCallback(async () => {
     if (!pendingSaveRef.current) return
     const { updated, root } = pendingSaveRef.current
     pendingSaveRef.current = null
     setSaving(true)
-    const result = await saveScene(root)
+    const result = await saveSceneRef.current(root)
     setSaving(false)
     if (result.success) {
       setMsg({ ok: true, text: '저장됨' })
       setIsDirty(false)
       setSavedToast(true)
       setTimeout(() => setSavedToast(false), 1500)
-      onUpdate(updated)
+      onUpdateRef.current(updated)
     } else {
       setMsg({ ok: false, text: result.error ?? '저장 실패' })
     }
     setTimeout(() => setMsg(null), 2000)
-  }, [saveScene, onUpdate])
+  }, [])
 
   // useNodePresets에서 setPropHistory를 참조하기 위한 임시 ref — applyAndSave에서 사용
   const setPropHistoryRef = useRef<React.Dispatch<React.SetStateAction<PropHistoryEntry[]>> | null>(null)

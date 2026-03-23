@@ -61,7 +61,9 @@ interface CCFileSceneViewProps {
  */
 // R2486: 씬별 뷰 상태 영속화 — scenePath 기반 localStorage 키
 function sceneViewKey(scenePath: string) {
-  return 'sv-view2-' + scenePath.replace(/[^a-zA-Z0-9]/g, '_').slice(-60)
+  // Use full path to avoid truncation collision
+  const sanitized = scenePath.replace(/[^a-zA-Z0-9]/g, '_')
+  return 'sv-view2-' + sanitized.slice(-80)  // increased from 60 to 80
 }
 
 export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme, onAltDrag, collapsedUuids }: CCFileSceneViewProps) {
