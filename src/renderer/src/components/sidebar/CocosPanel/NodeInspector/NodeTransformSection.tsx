@@ -39,7 +39,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
       {!collapsed['transform'] && (
         <>
         {/* R1617: 트랜스폼 복사/붙여넣기 버튼 */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 4, flexWrap: 'wrap' }}>
           <span
             title="트랜스폼 복사 (위치·크기·회전·스케일)"
             onClick={() => { transformClipboard.current = { position: draft.position, rotation: draft.rotation, scale: draft.scale, size: draft.size }; setTransformClipFilled(true) }}
@@ -519,7 +519,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
           ))}
         </div>
         {/* R1609: 노드 색상(tint) 피커 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
           <span style={{ minWidth: 38, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>tint</span>
           <input
             type="color"

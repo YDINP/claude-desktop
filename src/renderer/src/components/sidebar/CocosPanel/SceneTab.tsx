@@ -128,7 +128,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               </div>
             )}
             {/* R2488: 복제 오프셋 설정 바 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.15)', borderBottom: '1px solid var(--border)', flexShrink: 0, fontSize: 9, color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 6px', background: 'rgba(0,0,0,0.15)', borderBottom: '1px solid var(--border)', flexShrink: 0, fontSize: 9, color: 'var(--text-muted)' }}>
               <span title="복제(Ctrl+D) 위치 오프셋 (R2488)" style={{ flexShrink: 0 }}>Δ복제</span>
               <span>X</span>
               <input type="number" value={dupeOffsetX} onChange={e => saveDupeOffset(parseInt(e.target.value) || 0, dupeOffsetY)}
@@ -146,7 +146,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               ))}
             </div>
             {/* SceneView — 남은 높이 채움 */}
-            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <CCFileSceneView
                 sceneFile={sceneFile}
                 selectedUuid={selectedNode?.uuid ?? null}

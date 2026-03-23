@@ -125,7 +125,35 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                       {/* R2335: 텍스처 썸네일 미리보기 */}
                       <SpriteThumb sfUuid={sfUuid} assetsDir={sceneFile.projectInfo.assetsDir ?? ''} />
                       <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>sf uuid</span>
-                      <span style={{ fontSize: 8, color: '#4ade80', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={sfUuid}>{sfUuid}</span>
+                      <span
+                        style={{ fontSize: 8, color: '#4ade80', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, cursor: 'copy', border: '1px dashed transparent', borderRadius: 3, padding: '1px 3px', transition: 'border-color 0.1s, background 0.1s' }}
+                        title={`${sfUuid}\n에셋을 여기에 드롭하여 spriteFrame 변경`}
+                        onDragOver={e => {
+                          if (e.dataTransfer.types.includes('application/cc-asset')) {
+                            e.preventDefault()
+                            e.dataTransfer.dropEffect = 'copy'
+                            ;(e.currentTarget as HTMLElement).style.borderColor = '#4ade80'
+                            ;(e.currentTarget as HTMLElement).style.background = 'rgba(74,222,128,0.12)'
+                          }
+                        }}
+                        onDragLeave={e => {
+                          ;(e.currentTarget as HTMLElement).style.borderColor = 'transparent'
+                          ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                        }}
+                        onDrop={e => {
+                          e.preventDefault()
+                          ;(e.currentTarget as HTMLElement).style.borderColor = 'transparent'
+                          ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                          try {
+                            const data = JSON.parse(e.dataTransfer.getData('application/cc-asset') || '{}')
+                            if (data.uuid) {
+                              const spriteKey = '_spriteFrame' in comp.props ? '_spriteFrame' : 'spriteFrame'
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [spriteKey]: { __uuid__: data.uuid } } } : c)
+                              applyAndSave({ components: updated })
+                            }
+                          } catch {}
+                        }}
+                      >{sfUuid}</span>
                       <span
                         title="spriteFrame UUID 복사"
                         onClick={() => navigator.clipboard.writeText(sfUuid).catch(() => {})}

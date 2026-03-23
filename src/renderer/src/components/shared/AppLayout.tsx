@@ -503,6 +503,7 @@ export function AppLayout({
                   display: (ccLayout === 'tab' && ccTab === 'claude') ? 'none' : 'flex',
                   flexDirection: 'column',
                   minWidth: ccLayout === 'split' ? 300 : undefined,
+                  minHeight: 0,
                 }}>
                   <CocosPanel />
                 </div>
