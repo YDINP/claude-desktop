@@ -46,32 +46,34 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
       {!collapsed['transform'] && (
         <>
         {/* R1617: 트랜스폼 복사/붙여넣기 버튼 */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 4, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 3, marginBottom: 6, flexWrap: 'wrap' }}>
           <span
             title="트랜스폼 복사 (위치·크기·회전·스케일)"
             onClick={() => { transformClipboard.current = { position: draft.position, rotation: draft.rotation, scale: draft.scale, size: draft.size }; setTransformClipFilled(true) }}
-            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
+            style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
-          >T↑복사</span>
+          >T↑</span>
           <span
             title={transformClipFilled ? '트랜스폼 붙여넣기 (위치·크기·회전·스케일)' : '복사된 트랜스폼 없음'}
             onClick={() => { if (transformClipboard.current) applyAndSave({ position: transformClipboard.current.position, rotation: transformClipboard.current.rotation, scale: transformClipboard.current.scale, size: transformClipboard.current.size }) }}
-            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: transformClipFilled ? 'pointer' : 'default', color: transformClipFilled ? '#58a6ff' : '#333', background: 'none', userSelect: 'none' }}
+            style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: transformClipFilled ? 'pointer' : 'default', color: transformClipFilled ? '#58a6ff' : '#333', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => { if (transformClipFilled) e.currentTarget.style.color = '#7fc6ff' }} onMouseLeave={e => { e.currentTarget.style.color = transformClipFilled ? '#58a6ff' : '#333' }}
-          >T↓붙여넣기</span>
+          >T↓</span>
+          <span style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch', margin: '0 2px' }} />
           {/* R2552: 위치 전용 복사/붙여넣기 */}
           <span
             title="위치(position) 복사 — 다른 노드에 붙여넣기 가능 (R2552)"
             onClick={() => { const pos = draft.position as { x: number; y: number }; posClipboard.current = { x: pos.x, y: pos.y }; setPosClipFilled(true) }}
-            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
+            style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
           >P↑</span>
           <span
             title={posClipFilled ? `위치 붙여넣기 (${posClipboard.current?.x}, ${posClipboard.current?.y}) — R2552` : '복사된 위치 없음'}
             onClick={() => { if (posClipboard.current) { const pos = draft.position as { x: number; y: number; z?: number }; applyAndSave({ position: { ...pos, x: posClipboard.current.x, y: posClipboard.current.y } }) } }}
-            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: posClipFilled ? 'pointer' : 'default', color: posClipFilled ? '#4ade80' : '#333', background: 'none', userSelect: 'none' }}
+            style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: posClipFilled ? 'pointer' : 'default', color: posClipFilled ? '#4ade80' : '#333', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => { if (posClipFilled) e.currentTarget.style.color = '#86efac' }} onMouseLeave={e => { e.currentTarget.style.color = posClipFilled ? '#4ade80' : '#333' }}
           >P↓</span>
+          <span style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch', margin: '0 2px' }} />
           {/* R2571: 전체 픽셀 반올림 버튼 */}
           <span
             title="위치/크기/스케일 전체를 정수 픽셀로 반올림 (R2571)"
@@ -84,20 +86,21 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
                 scale: { x: Math.round(draft.scale.x * 100) / 100, y: Math.round(draft.scale.y * 100) / 100, z: draft.scale.z ?? 1 },
               })
             }}
-            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: '#64748b', background: 'none', userSelect: 'none' }}
+            style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: '#64748b', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')} onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
           >⌊⌉All</span>
+          <span style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch', margin: '0 2px' }} />
           {/* R2553: 크기 전용 복사/붙여넣기 */}
           <span
             title="크기(size) 복사 — 다른 노드에 붙여넣기 가능 (R2553)"
             onClick={() => { const sz = draft.size as { x: number; y: number } | undefined; sizeClipboard.current = { w: sz?.x ?? 0, h: sz?.y ?? 0 }; setSizeClipFilled(true) }}
-            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
+            style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
           >S↑</span>
           <span
             title={sizeClipFilled ? `크기 붙여넣기 (${sizeClipboard.current?.w}×${sizeClipboard.current?.h}) — R2553` : '복사된 크기 없음'}
             onClick={() => { if (sizeClipboard.current) applyAndSave({ size: { x: sizeClipboard.current.w, y: sizeClipboard.current.h } }) }}
-            style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: sizeClipFilled ? 'pointer' : 'default', color: sizeClipFilled ? '#f472b6' : '#333', background: 'none', userSelect: 'none' }}
+            style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: sizeClipFilled ? 'pointer' : 'default', color: sizeClipFilled ? '#f472b6' : '#333', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => { if (sizeClipFilled) e.currentTarget.style.color = '#f9a8d4' }} onMouseLeave={e => { e.currentTarget.style.color = sizeClipFilled ? '#f472b6' : '#333' }}
           >S↓</span>
           {/* R1635: 세션 시작 상태로 트랜스폼 원복 */}
@@ -114,13 +117,13 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
               <span
                 title="선택 시 원래값으로 트랜스폼 복원"
                 onClick={() => applyAndSave({ position: os.position, rotation: os.rotation, scale: os.scale, size: os.size })}
-                style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid rgba(255,153,68,0.4)', cursor: 'pointer', color: '#ff9944', background: 'none', userSelect: 'none' }}
+                style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid rgba(255,153,68,0.4)', cursor: 'pointer', color: '#ff9944', background: 'none', userSelect: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.color = '#ffb366')} onMouseLeave={e => (e.currentTarget.style.color = '#ff9944')}
               >T↩원복</span>
             )
           })()}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 6px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 8px' }}>
           <div>
             <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 4 }}>
               위치

@@ -104,11 +104,11 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
               const uuid = (v as { __uuid__: string }).__uuid__
               return (
-                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
-                  <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, overflow: 'hidden' }}>
+                  <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                   <span
                     style={{
-                      flex: 1, fontSize: 9, color: '#888', fontFamily: 'monospace',
+                      flex: 1, fontSize: 11, color: '#888', fontFamily: 'monospace',
                       background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '2px 5px',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       cursor: 'copy', border: '1px dashed transparent',
@@ -164,8 +164,8 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                 const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
                 return (
                   <div key={k} className="prop-row" style={{ marginBottom: 3 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                       <input
                         type="color"
                         value={hex}
@@ -217,8 +217,8 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
               const axisColor: Record<string, string> = { x: '#e05555', y: '#55b055', z: '#4488dd' }
               if (isVecType && vecAxes) {
                 return (
-                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
-                    <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, overflow: 'hidden' }}>
+                    <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                     <div style={{ display: 'flex', gap: 3, flex: 1 }}>
                       {vecAxes.map(axis => (
                         <div key={axis} style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
@@ -258,7 +258,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                             }}
                             style={{
                               flex: 1, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-                              color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9,
+                              color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 11,
                             }}
                           />
                         </div>
@@ -269,8 +269,8 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
               }
               if (numKeys.length >= 2 && numKeys.length <= 3) {
                 return (
-                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
-                    <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, overflow: 'hidden' }}>
+                    <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                     <div style={{ display: 'flex', gap: 2, flex: 1 }}>
                       {numKeys.map(axis => (
                         <WheelInput key={axis} type="number" defaultValue={Number(vobj[axis])}
@@ -305,7 +305,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                           }}
                           style={{
                             flex: 1, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-                            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9,
+                            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 11,
                           }}
                         />
                       ))}
@@ -411,8 +411,8 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             // fontStyle → 드롭다운
             if (k === 'fontStyle' && typeof v === 'number') {
               return (
-                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
-                  <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, overflow: 'hidden' }}>
+                  <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                   <select
                     value={Number(v)}
                     onChange={e => applyAndSave({
@@ -420,7 +420,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                         i === origIdx ? { ...c, props: { ...c.props, [k]: Number(e.target.value) } } : c
                       )
                     })}
-                    style={{ flex: 1, fontSize: 10, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    style={{ flex: 1, fontSize: 11, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px' }}
                   >
                     <option value={0}>Normal</option>
                     <option value={1}>Bold</option>
@@ -451,8 +451,8 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             if (k in COCOS_ENUM_MAP && typeof v === 'number') {
               const enumOptions = COCOS_ENUM_MAP[k]
               return (
-                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
-                  <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, overflow: 'hidden' }}>
+                  <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                   <select
                     value={Number(v)}
                     onChange={e => applyAndSave({
@@ -460,7 +460,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                         i === origIdx ? { ...c, props: { ...c.props, [k]: Number(e.target.value) } } : c
                       )
                     })}
-                    style={{ flex: 1, fontSize: 10, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
+                    style={{ flex: 1, fontSize: 11, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px' }}
                   >
                     {Object.entries(enumOptions).map(([val, label]) => (
                       <option key={val} value={Number(val)}>{label}</option>
@@ -470,8 +470,8 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
               )
             }
             return (
-              <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3, overflow: 'hidden' }}>
-                <span style={{ minWidth: 52, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+              <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, overflow: 'hidden' }}>
+                <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
                 {isBool ? (
                   <BoolToggle
                     value={Boolean(v)}
@@ -530,7 +530,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                           })}
                           style={{
                             flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-                            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                            color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 11,
                             resize: 'vertical', fontFamily: 'inherit',
                           }}
                         />
@@ -571,7 +571,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                     }}
                     style={{
                       flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', borderRadius: 3, padding: '2px 4px', fontSize: 10,
+                      color: 'var(--text-primary)', borderRadius: 3, padding: '2px 6px', fontSize: 11,
                     }}
                   />
                 )}

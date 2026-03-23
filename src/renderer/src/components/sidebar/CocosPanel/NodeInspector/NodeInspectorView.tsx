@@ -124,7 +124,7 @@ export function CCFileNodeInspector({
       }}
       style={{
         borderTop: '1px solid var(--border)',
-        padding: '6px 10px',
+        padding: '8px 12px 12px',
         background: assetDragOver ? 'rgba(88,166,255,0.05)' : 'var(--bg-secondary, #0d0d1a)',
         minWidth: 0, width: '100%', boxSizing: 'border-box',
         outline: assetDragOver ? '2px dashed rgba(88,166,255,0.5)' : 'none',
@@ -210,7 +210,14 @@ export function CCFileNodeInspector({
         <div
           id={`cc-comp-${node.uuid}-${origIdx}`}
           key={`${node.uuid}-${origIdx}`}
-          style={{ marginTop: 6, borderTop: dragOverIdx === ci ? '2px solid var(--accent)' : '1px solid var(--border)', paddingTop: 5, opacity: draggingIdx === ci ? 0.4 : 1 }}
+          style={{
+            border: dragOverIdx === ci ? '2px solid var(--accent)' : '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 4,
+            marginBottom: 6,
+            overflow: 'hidden',
+            background: 'rgba(255,255,255,0.015)',
+            opacity: draggingIdx === ci ? 0.4 : 1,
+          }}
           onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverIdx(ci) }}
           onDragLeave={() => setDragOverIdx(null)}
           onDrop={e => {
@@ -235,7 +242,7 @@ export function CCFileNodeInspector({
             <div style={{ fontSize: 8, color: '#7cf', opacity: 0.6, marginTop: 2, marginBottom: 2, letterSpacing: 1 }}>── 커스텀 스크립트 ──</div>
           )}
           <div
-            style={{ fontSize: 9, color: isCustomScript(comp.type) ? '#7cf' : 'var(--accent)', fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
+            style={{ display: 'flex', alignItems: 'center', height: 28, padding: '0 8px', background: 'rgba(255,255,255,0.02)', cursor: 'pointer', userSelect: 'none' }}
             onClick={() => setCollapsedComps(s => {
               const n = new Set(s)
               if (n.has(comp.type)) n.delete(comp.type); else n.add(comp.type)
@@ -386,8 +393,11 @@ export function CCFileNodeInspector({
               onMouseLeave={e => (e.currentTarget.style.color = '#666')}
             >✕</span>
           </div>
-          {/* R1520: Component Quick Edit — extracted to ComponentQuickEdit.tsx */}          {!collapsedComps.has(comp.type) && <ComponentQuickEdit comp={comp} draft={draft} applyAndSave={applyAndSave} sceneFile={sceneFile} origIdx={origIdx} ci={ci} is3x={sceneFile.projectInfo?.version === '3x'} />}
-          <GenericPropertyEditor comp={comp} draft={draft} applyAndSave={applyAndSave} origIdx={origIdx} ci={ci} propSearch={propSearch} setPropSearch={setPropSearch} favProps={favProps} toggleFavProp={toggleFavProp} expandedArrayProps={expandedArrayProps} setExpandedArrayProps={setExpandedArrayProps} origSnapRef={origSnapRef} collapsedComps={collapsedComps} typeMatchedComps={typeMatchedComps} />
+          {/* R1520: Component Quick Edit — extracted to ComponentQuickEdit.tsx */}
+          <div style={{ padding: '4px 8px 6px' }}>
+            {!collapsedComps.has(comp.type) && <ComponentQuickEdit comp={comp} draft={draft} applyAndSave={applyAndSave} sceneFile={sceneFile} origIdx={origIdx} ci={ci} is3x={sceneFile.projectInfo?.version === '3x'} />}
+            <GenericPropertyEditor comp={comp} draft={draft} applyAndSave={applyAndSave} origIdx={origIdx} ci={ci} propSearch={propSearch} setPropSearch={setPropSearch} favProps={favProps} toggleFavProp={toggleFavProp} expandedArrayProps={expandedArrayProps} setExpandedArrayProps={setExpandedArrayProps} origSnapRef={origSnapRef} collapsedComps={collapsedComps} typeMatchedComps={typeMatchedComps} />
+          </div>
         </div>
       ))}
       </>
@@ -397,9 +407,10 @@ export function CCFileNodeInspector({
         const compTypes = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource', 'cc.RichText', 'cc.EditBox', 'cc.UIOpacity', 'cc.Mask']
         const doAddComp = (ct: string) => { applyAndSave({ components: [...draft.components, { type: ct, props: {} }] }); trackAddComp(ct) }
         return (
-          <details style={{ marginTop: 6 }}>
-            <summary style={{ fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', padding: '3px 0' }}>
-              + 컴포넌트 추가
+          <details style={{ marginTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 6 }}>
+            <summary style={{ fontSize: 10, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', padding: '4px 0', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 11 }}>⊕</span>
+              컴포넌트 추가
             </summary>
             {/* R2502: 최근 추가 이력 */}
             {recentAddedComps.length > 0 && (
@@ -408,7 +419,7 @@ export function CCFileNodeInspector({
                 {recentAddedComps.map(ct => (
                   <span key={ct} title={`최근 추가: ${ct}`}
                     onClick={() => doAddComp(ct)}
-                    style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.3)', color: '#fb923c', display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                    style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.3)', color: '#fb923c', display: 'inline-flex', alignItems: 'center', gap: 2 }}
                     onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
                     onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(251,146,60,0.3)')}
                   >
@@ -418,16 +429,16 @@ export function CCFileNodeInspector({
                 ))}
               </div>
             )}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 4 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
               {compTypes.map(ct => (
                 <span
                   key={ct}
                   title={COMP_DESCRIPTIONS[ct] ?? ct}
                   onClick={() => doAddComp(ct)}
                   style={{
-                    fontSize: 9, padding: '2px 5px', borderRadius: 3, cursor: 'pointer',
+                    fontSize: 10, padding: '3px 8px', height: 24, borderRadius: 4, cursor: 'pointer',
                     border: '1px solid var(--border)', color: 'var(--text-muted)',
-                    display: 'inline-flex', alignItems: 'center', gap: 2,
+                    display: 'inline-flex', alignItems: 'center', gap: 3,
                   }}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = '#58a6ff')}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
@@ -450,7 +461,7 @@ export function CCFileNodeInspector({
                   doAddComp(val);
                   (e.target as HTMLInputElement).value = ''
                 }}
-                style={{ flex: 1, fontSize: 9, padding: '2px 5px', borderRadius: 3, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+                style={{ flex: 1, fontSize: 11, padding: '3px 8px', height: 26, borderRadius: 4, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
               />
               <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }}>↵</span>
             </div>

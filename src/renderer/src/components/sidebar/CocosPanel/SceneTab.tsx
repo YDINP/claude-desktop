@@ -83,7 +83,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
             }
             if (dividerDragRef.current) {
               const dx = e.clientX - dividerDragRef.current.startX
-              const newW = Math.max(300, Math.min(700, dividerDragRef.current.startH - dx))
+              const newW = Math.max(320, Math.min(680, dividerDragRef.current.startH - dx))
               setSceneViewHeight(newW)
               localStorage.setItem('cc-inspector-width', String(newW))
             }
@@ -228,7 +228,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
           {/* R1516: 다중 선택 배치 편집 패널 */}
           {multiSelectedUuids.length > 1 && sceneFile?.root && (
             <div style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-              <div style={{ width: 'calc(100% / 1.08)', zoom: 1.08 }}>
+              <div style={{ width: '100%' }}>
               <InspectorErrorBoundary>
                 <CCFileBatchInspector
                   uuids={multiSelectedUuids}
@@ -286,7 +286,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                 } catch {}
               }}
             >
-              <div style={{ width: 'calc(100% / 1.08)', zoom: 1.08 }}>
+              <div style={{ width: '100%' }}>
               <InspectorErrorBoundary>
                 <CCFileNodeInspector
                   node={selectedNode}
