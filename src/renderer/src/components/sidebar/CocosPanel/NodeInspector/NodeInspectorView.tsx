@@ -40,6 +40,21 @@ export function CCFileNodeInspector({
   } = ctx
   const is3x = sceneFile.projectInfo?.version === '3x'
   const [assetDragOver, setAssetDragOver] = React.useState(false)
+  const similarNodes = React.useMemo(() => {
+    if (!sceneFile?.root || draft.components.length === 0) return []
+    const myTypes = new Set(draft.components.map(c => c.type))
+    const similar: Array<{ node: CCSceneNode; overlap: number }> = []
+    function walkSim(n: CCSceneNode) {
+      if (n.uuid !== node.uuid) {
+        const overlap = n.components.filter(c => myTypes.has(c.type)).length
+        if (overlap > 0) similar.push({ node: n, overlap })
+      }
+      n.children.forEach(walkSim)
+    }
+    walkSim(sceneFile.root)
+    similar.sort((a, b) => b.overlap - a.overlap)
+    return similar.slice(0, 5)
+  }, [sceneFile?.root, draft.components, node.uuid])
   return (
     <div
       onDragOver={e => {
@@ -711,38 +726,23 @@ export function CCFileNodeInspector({
         )
       })()}
       {/* R1668: 유사 노드 (공통 컴포넌트 타입 기반) */}
-      {sceneFile?.root && draft.components.length > 0 && (() => {
-        const myTypes = new Set(draft.components.map(c => c.type))
-        const similar: Array<{ node: CCSceneNode; overlap: number }> = []
-        function walkSim(n: CCSceneNode) {
-          if (n.uuid !== node.uuid) {
-            const overlap = n.components.filter(c => myTypes.has(c.type)).length
-            if (overlap > 0) similar.push({ node: n, overlap })
-          }
-          n.children.forEach(walkSim)
-        }
-        walkSim(sceneFile.root)
-        similar.sort((a, b) => b.overlap - a.overlap)
-        const top = similar.slice(0, 5)
-        if (top.length === 0) return null
-        return (
-          <div style={{ marginBottom: 4, padding: '3px 6px', background: 'rgba(88,166,255,0.04)', borderRadius: 3, border: '1px solid rgba(88,166,255,0.08)' }}>
-            <div style={{ fontSize: 8, color: '#445', marginBottom: 3 }}>⊞ 유사 노드 (공통 컴포넌트) — {top.length}개</div>
-            {top.map(({ node: sn, overlap }) => (
-              <div
-                key={sn.uuid}
-                onClick={() => onUpdate(sn)}
-                style={{ fontSize: 9, display: 'flex', justifyContent: 'space-between', padding: '1px 0', cursor: 'pointer', color: 'var(--text-secondary)', gap: 4 }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
-              >
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{sn.name}</span>
-                <span style={{ fontSize: 7, color: '#556', flexShrink: 0 }}>⊕×{overlap}</span>
-              </div>
-            ))}
-          </div>
-        )
-      })()}
+      {similarNodes.length > 0 && (
+        <div style={{ marginBottom: 4, padding: '3px 6px', background: 'rgba(88,166,255,0.04)', borderRadius: 3, border: '1px solid rgba(88,166,255,0.08)' }}>
+          <div style={{ fontSize: 8, color: '#445', marginBottom: 3 }}>⊞ 유사 노드 (공통 컴포넌트) — {similarNodes.length}개</div>
+          {similarNodes.map(({ node: sn, overlap }) => (
+            <div
+              key={sn.uuid}
+              onClick={() => onUpdate(sn)}
+              style={{ fontSize: 9, display: 'flex', justifyContent: 'space-between', padding: '1px 0', cursor: 'pointer', color: 'var(--text-secondary)', gap: 4 }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
+            >
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{sn.name}</span>
+              <span style={{ fontSize: 7, color: '#556', flexShrink: 0 }}>⊕×{overlap}</span>
+            </div>
+          ))}
+        </div>
+      )}
       {/* 씬 파일 정보 */}
       <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid rgba(255,255,255,0.04)', fontSize: 8, color: '#333', lineHeight: 1.6 }}>
         <div title={sceneFile.scenePath} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📄 {sceneFile.scenePath.split(/[\\/]/).pop()}</div>

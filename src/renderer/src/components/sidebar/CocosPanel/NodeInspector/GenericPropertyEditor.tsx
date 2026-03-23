@@ -30,6 +30,16 @@ const COMP_SKIP: Record<string, Set<string>> = {
   'cc.AudioSource': new Set(['clip', 'volume', 'loop', 'playOnAwake']),
 }
 
+/** Prop 변경 감지: 원시값/null은 직접 비교, 객체는 JSON.stringify 폴백 */
+function shallowEqualPropValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true
+  if (a === null || b === null) return false
+  if (typeof a !== typeof b) return false
+  if (typeof a !== 'object') return false
+  // 객체/배열: JSON.stringify 폴백 (드문 경우)
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
 /** Generic property editor for component props — renders typed inputs for each property */
 export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, propSearch, setPropSearch, favProps, toggleFavProp, expandedArrayProps, setExpandedArrayProps, origSnapRef, collapsedComps, typeMatchedComps }: GenericPropertyEditorProps): React.ReactElement | null {
   const [colorPickerProp, setColorPickerProp] = React.useState<string | null>(null)
@@ -72,7 +82,7 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             // R1673: 원본 대비 변경된 prop 감지
             const origComp = origSnapRef.current?.components[origIdx]
             const origVal = origComp?.props[k]
-            const isPropChanged = origComp !== undefined && JSON.stringify(v) !== JSON.stringify(origVal)
+            const isPropChanged = origComp !== undefined && !shallowEqualPropValue(v, origVal)
             // R1536: propSearch 매칭 시 키 이름 하이라이트
             const propKeyLabel = (key: string): React.ReactNode => {
               const baseLabel = (() => {
