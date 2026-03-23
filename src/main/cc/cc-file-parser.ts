@@ -30,7 +30,8 @@ export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo):
 
   if (!root) throw new Error(`루트 노드 파싱 실패 (depth 초과): ${scenePath}`)
 
-  // 커스텀 스크립트 UUID → 파일명 해결
+  // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames 맵 (인스펙터 표시용)
+  const scriptNames: Record<string, string> = {}
   if (projectInfo.assetsDir) {
     const uuidMap = buildUUIDMap(projectInfo.assetsDir)
     const scriptUuidToName = new Map<string, string>()
@@ -38,13 +39,15 @@ export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo):
       if (meta.type === 'script') {
         const name = meta.relPath.split('/').pop()?.replace(/\.(ts|js)$/, '') ?? uuid
         scriptUuidToName.set(uuid, name)
+        scriptNames[uuid] = name
       }
     }
     if (scriptUuidToName.size > 0) {
-      const IS_UUID = /^[0-9a-f]{8,}/i
+      // CC 2.x: Base62 UUID (alphanumeric), CC 3.x: dashed hex UUID
+      // dot(.)이 없는 컴포넌트 타입 → UUID일 가능성 있음 (map 직접 조회)
       function resolveCompTypes(node: CCSceneNode) {
         for (const comp of node.components) {
-          if (IS_UUID.test(comp.type)) {
+          if (!comp.type.includes('.')) {
             const resolved = scriptUuidToName.get(comp.type)
             if (resolved) (comp as CCSceneComponent).type = resolved
           }
@@ -52,17 +55,6 @@ export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo):
         node.children.forEach(resolveCompTypes)
       }
       resolveCompTypes(root)
-    }
-  }
-
-  // scriptNames 맵 생성 (UUID → 파일명, 인스펙터 표시용)
-  const scriptNames: Record<string, string> = {}
-  if (projectInfo.assetsDir) {
-    const uuidMap = buildUUIDMap(projectInfo.assetsDir)
-    for (const [uuid, meta] of uuidMap) {
-      if (meta.type === 'script') {
-        scriptNames[uuid] = meta.relPath.split('/').pop()?.replace(/\.(ts|js)$/, '') ?? uuid
-      }
     }
   }
 
@@ -1403,7 +1395,8 @@ export function parseCCSceneChunked(
       : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
   if (!root) throw new Error(`루트 노드 파싱 실패: ${scenePath}`)
 
-  // 커스텀 스크립트 UUID → 파일명 해결
+  // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames (인스펙터 표시용)
+  const scriptNamesChunked: Record<string, string> = {}
   if (projectInfo.assetsDir) {
     const uuidMap = buildUUIDMap(projectInfo.assetsDir)
     const scriptUuidToName = new Map<string, string>()
@@ -1411,20 +1404,20 @@ export function parseCCSceneChunked(
       if (meta.type === 'script') {
         const name = meta.relPath.split('/').pop()?.replace(/\.(ts|js)$/, '') ?? uuid
         scriptUuidToName.set(uuid, name)
+        scriptNamesChunked[uuid] = name
       }
     }
     if (scriptUuidToName.size > 0) {
-      const IS_UUID = /^[0-9a-f]{8,}/i
-      function resolveCompTypes(node: CCSceneNode) {
+      function resolveCompTypesChunked(node: CCSceneNode) {
         for (const comp of node.components) {
-          if (IS_UUID.test(comp.type)) {
+          if (!comp.type.includes('.')) {
             const resolved = scriptUuidToName.get(comp.type)
             if (resolved) (comp as CCSceneComponent).type = resolved
           }
         }
-        node.children.forEach(resolveCompTypes)
+        node.children.forEach(resolveCompTypesChunked)
       }
-      resolveCompTypes(root)
+      resolveCompTypesChunked(root)
     }
   }
 
@@ -1439,7 +1432,7 @@ export function parseCCSceneChunked(
       : root
 
   return {
-    scene: { projectInfo, scenePath, root: chunkedRoot, _raw: raw },
+    scene: { projectInfo, scenePath, root: chunkedRoot, _raw: raw, scriptNames: scriptNamesChunked },
     state: {
       done: parsedTopChildren >= totalTopChildren,
       parsedTopChildren,

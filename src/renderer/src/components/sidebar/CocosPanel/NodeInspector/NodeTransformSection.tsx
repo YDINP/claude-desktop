@@ -185,7 +185,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
                 { label: '↓', title: '부모 하단 정렬', y: -ph / 2 + nh * ay },
               ]
               return (
-                <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+                <div style={{ display: 'flex', gap: 2, marginTop: 2, flexWrap: 'wrap' }}>
                   {btns.map(b => (
                     <span key={b.label} title={b.title} onClick={() => {
                       const upd: Partial<CCSceneNode> = {}
@@ -243,7 +243,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
               applyAndSave({ rotation: r })
             })}
             {/* R1732: 회전 스텝 버튼 ±15°/±90° */}
-            <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+            <div style={{ display: 'flex', gap: 2, marginTop: 2, flexWrap: 'wrap' }}>
               {([-90, -15, 15, 90] as const).map(delta => (
                 <span
                   key={delta}
@@ -327,7 +327,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
               ))}
             </div>
             {/* R1744: 크기 배율 버튼 ×0.5/×2 / R1779: int 정수화 */}
-            <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+            <div style={{ display: 'flex', gap: 2, marginTop: 2, flexWrap: 'wrap' }}>
               {([0.5, 2] as const).map(mult => (
                 <span key={mult} title={`크기 ×${mult}`}
                   onClick={() => applyAndSave({ size: { x: draft.size.x * mult, y: lockSize ? draft.size.y * mult : draft.size.y * mult } })}
@@ -393,7 +393,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
               applyAndSave({ scale: lockScale ? { x: draft.scale.x * ratio, y: v, z: draft.scale.z ?? 1 } : { ...draft.scale, y: v } })
             }, 0.01)}
             {/* R1733: 스케일 스텝 버튼 ×0.5/×2 / R1782: int 정수화 */}
-            <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+            <div style={{ display: 'flex', gap: 2, marginTop: 2, flexWrap: 'wrap' }}>
               {([0.5, 2] as const).map(mult => (
                 <span
                   key={mult}
@@ -479,7 +479,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
             })}
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
           <span style={{ minWidth: 38, whiteSpace: 'nowrap', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>α (불투명)</span>
           <input
             type="range"
