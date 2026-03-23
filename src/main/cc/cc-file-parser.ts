@@ -16,7 +16,12 @@ type RawEntry = Record<string, unknown>
  * - 파일 확장자(.fire/.scene/.prefab) 또는 내부 필드(_trs/_lpos)로 버전 자동 감지
  */
 export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo): CCSceneFile {
-  const raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  let raw: RawEntry[]
+  try {
+    raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  } catch (e) {
+    throw new Error(`씬 파일 파싱 실패: ${e instanceof Error ? e.message : String(e)}`)
+  }
   const version = projectInfo.version ?? detectVersionFromRaw(raw)
 
   // SceneAsset → scene ref, Prefab → data ref, 없으면 cc.Scene / cc.Node 탐색
@@ -1383,7 +1388,12 @@ export function parseCCSceneChunked(
   chunkSize = 50,
   chunkOffset = 0
 ): { scene: CCSceneFile; state: CCSceneStreamState } {
-  const raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  let raw: RawEntry[]
+  try {
+    raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
+  } catch (e) {
+    throw new Error(`씬 파일 파싱 실패: ${e instanceof Error ? e.message : String(e)}`)
+  }
   const version = projectInfo.version ?? detectVersionFromRaw(raw)
   const rootIdx = resolveRootIdx(raw)
   if (rootIdx < 0) throw new Error(`씬 루트 노드를 찾을 수 없습니다: ${scenePath}`)

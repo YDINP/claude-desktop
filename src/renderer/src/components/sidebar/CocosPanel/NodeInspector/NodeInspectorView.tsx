@@ -576,7 +576,12 @@ export function CCFileNodeInspector({
             if (parsed.anchor !== undefined) patch.anchor = parsed.anchor
             if (parsed.opacity !== undefined) patch.opacity = Number(parsed.opacity)
             if (parsed.color !== undefined) patch.color = parsed.color
-            if (Array.isArray(parsed.components)) patch.components = parsed.components
+            if (Array.isArray(parsed.components)) {
+              const validComponents = (parsed.components as unknown[]).every(
+                (c) => c != null && typeof (c as Record<string, unknown>).type === 'string'
+              )
+              if (validComponents) patch.components = parsed.components as CCSceneNode['components']
+            }
             applyAndSave(patch)
             setJsonEditMode(false); setJsonEditErr('')
           } catch (e) { setJsonEditErr(String(e)) }

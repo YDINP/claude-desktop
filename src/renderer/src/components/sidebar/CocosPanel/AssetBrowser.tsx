@@ -116,6 +116,10 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
       const prefabContent = await window.api.readFile(entry.path)
       if (!prefabContent) { setInstantiating(null); return }
       const prefabRaw = JSON.parse(prefabContent) as Record<string, unknown>[]
+      if (!Array.isArray(prefabRaw)) {
+        console.warn('Invalid prefab format: expected array')
+        return
+      }
       // Prefab 루트 노드 찾기: cc.Prefab.data → __id__
       let rootIdx = -1
       for (const e of prefabRaw) {
