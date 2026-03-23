@@ -277,7 +277,7 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   const [tintHexFocused, setTintHexFocused] = useState(false)
 
   // 노드 교체 시 draft + 컴포넌트 접힘 상태 + propSearch 초기화
-  useMemo(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch(''); setShowPropSearch(false) }, [node.uuid])
+  useEffect(() => { setDraft({ ...node }); setExpandedArrayProps(new Set()); setPropSearch(''); setShowPropSearch(false) }, [node.uuid])
   const copiedCompRef = useRef<{ type: string; props: Record<string, unknown> } | null>(null)
   const [compCopied, setCompCopied] = useState<string | null>(null) // 복사된 comp type 표시용
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null)

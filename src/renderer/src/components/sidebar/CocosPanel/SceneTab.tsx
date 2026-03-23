@@ -69,7 +69,8 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
     }
     window.addEventListener('mouseup', resetDrag)
     return () => window.removeEventListener('mouseup', resetDrag)
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // refs are stable objects — empty deps is intentional
 
   return (
         <div

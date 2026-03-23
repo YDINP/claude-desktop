@@ -35,6 +35,7 @@ WheelInput.displayName = 'WheelInput'
 
 export function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   const [checked, setChecked] = useState(value)
+  useEffect(() => { setChecked(value) }, [value])
   return (
     <label style={{ position: 'relative', display: 'inline-block', width: 32, height: 16, flexShrink: 0, cursor: 'pointer' }}>
       <input
@@ -68,6 +69,19 @@ export function BoolToggle({ value, onChange }: { value: boolean; onChange: (v: 
 /** 스크러빙 라벨: 마우스 좌우 드래그로 숫자 값 조절 */
 export function ScrubLabel({ label, value, onChange, step = 1, inputRef, color, labelWidth }: { label: string; value: number; onChange: (v: number) => void; step?: number; inputRef?: React.RefObject<HTMLInputElement | null>; color?: string; labelWidth?: number }) {
   const startRef = useRef<{ x: number; v: number; moved: boolean } | null>(null)
+  const listenersRef = useRef<{ onMove: (e: MouseEvent) => void; onUp: (e: MouseEvent) => void } | null>(null)
+
+  useEffect(() => {
+    return () => {
+      // cleanup on unmount if drag is in progress
+      if (listenersRef.current) {
+        document.removeEventListener('mousemove', listenersRef.current.onMove)
+        document.removeEventListener('mouseup', listenersRef.current.onUp)
+        listenersRef.current = null
+      }
+    }
+  }, [])
+
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
     startRef.current = { x: e.clientX, v: value, moved: false }
@@ -82,6 +96,7 @@ export function ScrubLabel({ label, value, onChange, step = 1, inputRef, color, 
     const onUp = (ue: MouseEvent) => {
       const wasDrag = startRef.current?.moved ?? false
       startRef.current = null
+      listenersRef.current = null
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
       if (!wasDrag) {
@@ -90,6 +105,7 @@ export function ScrubLabel({ label, value, onChange, step = 1, inputRef, color, 
         inputRef?.current?.select()
       }
     }
+    listenersRef.current = { onMove, onUp }
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseup', onUp)
   }

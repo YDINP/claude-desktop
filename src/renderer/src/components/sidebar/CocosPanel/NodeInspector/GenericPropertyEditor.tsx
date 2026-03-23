@@ -33,7 +33,7 @@ const COMP_SKIP: Record<string, Set<string>> = {
 /** Generic property editor for component props — renders typed inputs for each property */
 export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, propSearch, setPropSearch, favProps, toggleFavProp, expandedArrayProps, setExpandedArrayProps, origSnapRef, collapsedComps, typeMatchedComps }: GenericPropertyEditorProps): React.ReactElement | null {
   const [colorPickerProp, setColorPickerProp] = React.useState<string | null>(null)
-  if (!((!collapsedComps.has(comp.type) || typeMatchedComps !== null))) return null
+  if (collapsedComps.has(comp.type) && typeMatchedComps === null) return null
             const compSkip = COMP_SKIP[comp.type]
             const allProps = Object.entries(comp.props).filter(([k]) => {
               if (HIDDEN.has(k)) return false
