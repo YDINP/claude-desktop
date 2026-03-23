@@ -393,32 +393,6 @@ export function CCFileNodeInspector({
       </>
       )
       })()}
-      {/* R1612: 자식 노드 빠른 탐색 */}
-      {node.children.length > 0 && (
-        <div style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 4 }}>
-          <div style={{ fontSize: 8, color: 'var(--text-muted)', marginBottom: 3 }}>▸ 자식 ({node.children.length})</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            {node.children.map(child => (
-              <span
-                key={child.uuid}
-                onClick={() => onUpdate(child)}
-                style={{ fontSize: 8, padding: '1px 5px', border: '1px solid var(--border)', borderRadius: 10, cursor: 'pointer', color: child.active ? 'var(--text-muted)' : '#555', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
-                onMouseLeave={e => (e.currentTarget.style.color = child.active ? 'var(--text-muted)' : '#555')}
-                title={`이동: ${child.name}${!child.active ? ' (비활성)' : ''}`}
-              >{!child.active ? '◌' : ''}{child.name}</span>
-            ))}
-          </div>
-        </div>
-      )}
-      {/* 씬 파일 정보 (Inspector 하단) */}
-      <div style={{ marginTop: 10, paddingTop: 6, borderTop: '1px solid var(--border)', fontSize: 9, color: '#444', lineHeight: 1.8 }}>
-        <div title={sceneFile.scenePath} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          📄 {sceneFile.scenePath.split(/[\\/]/).pop()}
-        </div>
-        <div>CC {sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x'} | {sceneFile.projectInfo.creatorVersion ?? ''}</div>
-      </div>
-
       {!collapsed['comps'] && (() => {
         const compTypes = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource', 'cc.RichText', 'cc.EditBox', 'cc.UIOpacity', 'cc.Mask']
         const doAddComp = (ct: string) => { applyAndSave({ components: [...draft.components, { type: ct, props: {} }] }); trackAddComp(ct) }
@@ -484,6 +458,24 @@ export function CCFileNodeInspector({
         )
       })()}
 
+      {/* R1612: 자식 노드 빠른 탐색 */}
+      {node.children.length > 0 && (
+        <div style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 4 }}>
+          <div style={{ fontSize: 8, color: 'var(--text-muted)', marginBottom: 3 }}>▸ 자식 ({node.children.length})</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {node.children.map(child => (
+              <span
+                key={child.uuid}
+                onClick={() => onUpdate(child)}
+                style={{ fontSize: 8, padding: '1px 5px', border: '1px solid var(--border)', borderRadius: 10, cursor: 'pointer', color: child.active ? 'var(--text-muted)' : '#555', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+                onMouseLeave={e => (e.currentTarget.style.color = child.active ? 'var(--text-muted)' : '#555')}
+                title={`이동: ${child.name}${!child.active ? ' (비활성)' : ''}`}
+              >{!child.active ? '◌' : ''}{child.name}</span>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Round 611: 변경 이력 트레이 */}
       {(() => {
         const fmtVal = (v: unknown): string => {
@@ -734,6 +726,11 @@ export function CCFileNodeInspector({
           </div>
         )
       })()}
+      {/* 씬 파일 정보 */}
+      <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid rgba(255,255,255,0.04)', fontSize: 8, color: '#333', lineHeight: 1.6 }}>
+        <div title={sceneFile.scenePath} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📄 {sceneFile.scenePath.split(/[\\/]/).pop()}</div>
+        <div>CC {sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x'} | {sceneFile.projectInfo.creatorVersion ?? ''}</div>
+      </div>
       {/* Round 643: 저장 완료 토스트 */}
       {savedToast && (
         <div style={{
