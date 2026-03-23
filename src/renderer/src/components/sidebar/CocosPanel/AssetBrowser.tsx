@@ -49,6 +49,12 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
   // R1434: 에셋 썸네일 미리보기 상태
   const [thumbHover, setThumbHover] = useState<{ path: string; x: number; y: number } | null>(null)
   const thumbTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // 에셋 액션 팝업 상태
+  const [actionPopup, setActionPopup] = React.useState<{
+    entry: AssetEntry
+    x: number
+    y: number
+  } | null>(null)
 
   // R1444: 씬에서 사용 중인 스크립트 UUID 집합
   const usedScriptUuids = useMemo(() => {
@@ -226,6 +232,18 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
     setTimeout(() => setCopied(null), 1500)
   }, [])
 
+  const handleItemClick = useCallback((entry: AssetEntry, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setActionPopup({ entry, x: e.clientX, y: e.clientY })
+  }, [])
+
+  const popupItemStyle: React.CSSProperties = {
+    display: 'block', width: '100%', textAlign: 'left',
+    padding: '5px 10px', background: 'transparent', border: 'none',
+    color: 'var(--text-primary)', cursor: 'pointer', fontSize: 10,
+    whiteSpace: 'nowrap',
+  }
+
   // R1434: 이미지 에셋 호버 → 썸네일 팝업
   const handleThumbEnter = useCallback((entry: AssetEntry, e: React.MouseEvent) => {
     const ext = entry.path.split('.').pop()?.toLowerCase() ?? ''
@@ -320,8 +338,9 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
                     e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: file.uuid, path: file.path, relPath: file.relPath, type: file.type }))
                     e.dataTransfer.effectAllowed = 'copy'
                   }}
-                  onClick={() => handleCopy(file)}
-                  title={`${file.relPath}\n클릭하여 경로 복사 / 드래그하여 인스펙터에 적용`}
+                  onClick={e => handleItemClick(file, e)}
+                  onContextMenu={e => { e.preventDefault(); handleItemClick(file, e) }}
+                  title={`${file.relPath}\n클릭: 액션 메뉴 / 드래그하여 인스펙터에 적용`}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     padding: '2px 4px 2px 22px', marginLeft: (depth + 1) * 12,
@@ -463,8 +482,9 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
                   e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: item.uuid, path: item.path, relPath: item.relPath, type: item.type }))
                   e.dataTransfer.effectAllowed = 'copy'
                 }}
-                onClick={() => handleCopy(item)}
-                title={`${item.relPath}\n클릭하여 경로 복사 / 드래그하여 인스펙터에 적용`}
+                onClick={e => handleItemClick(item, e)}
+                onContextMenu={e => { e.preventDefault(); handleItemClick(item, e) }}
+                title={`${item.relPath}\n클릭: 액션 메뉴 / 드래그하여 인스펙터에 적용`}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4, padding: '3px 6px 3px 22px',
                   cursor: 'grab', fontSize: 10, borderRadius: 3,
@@ -643,6 +663,81 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
         <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', background: '#1a1a2e', border: '1px solid #4caf50', borderRadius: 6, padding: '6px 14px', fontSize: 11, color: '#4caf50', pointerEvents: 'none', zIndex: 9999, whiteSpace: 'nowrap' }}>
           📋 JSON 복사됨: {jsonCopiedName}
         </div>
+      )}
+      {/* 에셋 액션 팝업 */}
+      {actionPopup && (
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 998 }}
+            onClick={() => setActionPopup(null)}
+          />
+          <div style={{
+            position: 'fixed',
+            left: Math.min(actionPopup.x, window.innerWidth - 180),
+            top: Math.min(actionPopup.y, window.innerHeight - 200),
+            zIndex: 999,
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border)',
+            borderRadius: 6,
+            padding: '4px 0',
+            minWidth: 170,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+            fontSize: 10,
+          }}>
+            {/* 파일명 헤더 */}
+            <div style={{ padding: '3px 10px 6px', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {actionPopup.entry.relPath.split('/').pop()}
+            </div>
+            {/* 편집기에서 열기 — 스크립트만 */}
+            {(actionPopup.entry.type === 'script' || /\.(ts|js)$/i.test(actionPopup.entry.path)) && (
+              <button
+                style={popupItemStyle}
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('cc:open-file', { detail: actionPopup.entry.path }))
+                  setActionPopup(null)
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.15)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >✏️ 편집기에서 열기</button>
+            )}
+            {/* 경로 복사 */}
+            <button
+              style={popupItemStyle}
+              onClick={() => {
+                navigator.clipboard.writeText(actionPopup.entry.relPath).catch(() => {})
+                setActionPopup(null)
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.15)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >📋 경로 복사</button>
+            {/* UUID 복사 */}
+            {actionPopup.entry.uuid && (
+              <button
+                style={popupItemStyle}
+                onClick={() => {
+                  navigator.clipboard.writeText(actionPopup.entry.uuid).catch(() => {})
+                  setActionPopup(null)
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.15)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >🔑 UUID 복사</button>
+            )}
+            {/* 절대경로 복사 */}
+            <button
+              style={popupItemStyle}
+              onClick={() => {
+                navigator.clipboard.writeText(actionPopup.entry.path).catch(() => {})
+                setActionPopup(null)
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.15)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >📁 절대경로 복사</button>
+            {/* 드래그 힌트 */}
+            <div style={{ padding: '4px 10px 3px', borderTop: '1px solid var(--border)', color: '#555', fontSize: 8, lineHeight: 1.4 }}>
+              💡 인스펙터로 드래그하여 연결
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

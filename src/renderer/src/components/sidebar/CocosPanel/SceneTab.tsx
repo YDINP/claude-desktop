@@ -216,7 +216,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
           {/* R1516: 다중 선택 배치 편집 패널 */}
           {multiSelectedUuids.length > 1 && sceneFile?.root && (
             <div style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-              <div style={{ width: 'calc(100% / 1.12)', zoom: 1.12 }}>
+              <div style={{ width: 'calc(100% / 1.08)', zoom: 1.08 }}>
               <InspectorErrorBoundary>
                 <CCFileBatchInspector
                   uuids={multiSelectedUuids}
@@ -274,7 +274,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                 } catch {}
               }}
             >
-              <div style={{ width: 'calc(100% / 1.12)', zoom: 1.12 }}>
+              <div style={{ width: 'calc(100% / 1.08)', zoom: 1.08 }}>
               <InspectorErrorBoundary>
                 <CCFileNodeInspector
                   node={selectedNode}

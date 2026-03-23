@@ -578,6 +578,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     )
     const uuids = labelComps
       .map(c => (c.props.font as { __uuid__?: string } | undefined)?.__uuid__
+             ?? (c.props._N$file as { __uuid__?: string } | undefined)?.__uuid__
              ?? (c.props.file as { __uuid__?: string } | undefined)?.__uuid__)
       .filter((u): u is string => !!u && !fontCacheRef.current.has(u))
     const uniqueUuids = [...new Set(uuids)]
@@ -3086,6 +3087,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const isSystemFont = (labelComp?.props?.isSystemFontUsed as boolean | undefined) ?? true
                   const sysFontFamily = labelComp?.props?.fontFamily as string | undefined
                   const fontUuid = (labelComp?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
+                               ?? (labelComp?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
                                ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
                   const cachedFont = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
                   const fontFamilyName = (!isSystemFont && cachedFont?.familyName)

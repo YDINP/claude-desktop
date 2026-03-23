@@ -349,7 +349,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                       </div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>fontSize</span>
                     <input type="number" defaultValue={fs} min={1} max={200}
                       onBlur={e => {
@@ -399,7 +399,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{lcR},{lcG},{lcB}</span>
                   </div>
                   {/* R1723: lineHeight */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>lineH</span>
                     <input type="number" defaultValue={lineHeight} min={0} step={1}
                       onBlur={e => {
@@ -461,6 +461,47 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                       onClick={() => setFontDropdownOpen(v => !v)}
                       style={{ fontSize: 9, padding: '1px 5px', background: fontDropdownOpen ? 'var(--accent)' : 'var(--bg-primary)', border: '1px solid var(--border)', color: fontDropdownOpen ? '#fff' : 'var(--text-muted)', borderRadius: 3, cursor: 'pointer', flexShrink: 0 }}
                     >F▾</button>
+                    {/* 폰트 에셋 드롭존 */}
+                    <span
+                      style={{
+                        fontSize: 8, padding: '1px 5px', borderRadius: 3, cursor: 'copy',
+                        border: '1px dashed var(--border)', color: '#555',
+                        transition: 'border-color 0.1s, background 0.1s',
+                      }}
+                      title="폰트 파일을 여기에 드롭"
+                      onDragOver={e => {
+                        if (e.dataTransfer.types.includes('application/cc-asset')) {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          e.dataTransfer.dropEffect = 'copy'
+                          ;(e.currentTarget as HTMLElement).style.borderColor = '#58a6ff'
+                          ;(e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.12)'
+                        }
+                      }}
+                      onDragLeave={e => {
+                        ;(e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'
+                        ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                      }}
+                      onDrop={e => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        ;(e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'
+                        ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                        try {
+                          const data = JSON.parse(e.dataTransfer.getData('application/cc-asset') || '{}')
+                          if (data.uuid) {
+                            const fontRef = { __uuid__: data.uuid }
+                            applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, font: fontRef, _N$file: fontRef } } : c
+                              )
+                            })
+                          }
+                        } catch {}
+                      }}
+                    >
+                      폰트드롭
+                    </span>
                     {fontDropdownOpen && (
                       <div style={{
                         position: 'absolute', top: '100%', right: 0, zIndex: 9999,

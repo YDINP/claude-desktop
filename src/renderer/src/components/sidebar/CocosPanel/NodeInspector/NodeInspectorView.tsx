@@ -1,5 +1,5 @@
 import React from 'react'
-import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
+import type { CCSceneNode, CCSceneFile, CCSceneComponent } from '@shared/ipc-schema'
 import { SpriteThumb, COMP_ICONS, COMP_DESCRIPTIONS, COLLAPSED_COMPS_KEY } from './constants'
 import { ComponentQuickEdit } from './ComponentQuickEdit'
 import { GenericPropertyEditor } from './GenericPropertyEditor'
@@ -39,12 +39,99 @@ export function CCFileNodeInspector({
     applyAndSave, compTypeCountMap,
   } = ctx
   const is3x = sceneFile.projectInfo?.version === '3x'
+  const [assetDragOver, setAssetDragOver] = React.useState(false)
   return (
-    <div style={{
-      borderTop: '1px solid var(--border)',
-      padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)',
-      minWidth: 0, width: '100%', boxSizing: 'border-box',
-    }}>
+    <div
+      onDragOver={e => {
+        if (e.dataTransfer.types.includes('application/cc-asset')) {
+          e.preventDefault()
+          e.dataTransfer.dropEffect = 'copy'
+          setAssetDragOver(true)
+        }
+      }}
+      onDragLeave={e => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setAssetDragOver(false)
+        }
+      }}
+      onDrop={e => {
+        e.preventDefault()
+        setAssetDragOver(false)
+        try {
+          const raw = e.dataTransfer.getData('application/cc-asset')
+          if (!raw) return
+          const data: { uuid?: string; path?: string; relPath?: string; type?: string } = JSON.parse(raw)
+          if (!data.uuid) return
+
+          const relPath = data.relPath ?? ''
+          const assetType = data.type ?? ''
+          const ext = relPath.split('.').pop()?.toLowerCase() ?? ''
+
+          if (assetType === 'script' || ext === 'ts' || ext === 'js') {
+            const scriptName = relPath.split('/').pop()?.replace(/\.(ts|js)$/, '') ?? 'Script'
+            const newComp: CCSceneComponent = { type: scriptName, props: { enabled: true } }
+            applyAndSave({ components: [...draft.components, newComp] })
+            return
+          }
+
+          if (assetType === 'texture' || assetType === 'sprite-atlas' || ['png', 'jpg', 'jpeg', 'webp', 'bmp'].includes(ext)) {
+            const spriteComp = draft.components.find(c => c.type.includes('Sprite'))
+            if (spriteComp) {
+              const spriteKey = '_spriteFrame' in spriteComp.props ? '_spriteFrame' : 'spriteFrame'
+              applyAndSave({
+                components: draft.components.map(c =>
+                  c === spriteComp
+                    ? { ...c, props: { ...c.props, [spriteKey]: { __uuid__: data.uuid } } }
+                    : c
+                )
+              })
+            } else {
+              const spriteKey = is3x ? 'spriteFrame' : '_spriteFrame'
+              applyAndSave({
+                components: [...draft.components, {
+                  type: 'cc.Sprite',
+                  props: { enabled: true, [spriteKey]: { __uuid__: data.uuid } }
+                }]
+              })
+            }
+            return
+          }
+
+          if (assetType === 'font' || ['ttf', 'otf', 'fnt', 'ttc'].includes(ext)) {
+            const labelComp = draft.components.find(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
+            if (labelComp) {
+              const fontKey = is3x ? 'font' : '_N$file'
+              applyAndSave({
+                components: draft.components.map(c =>
+                  c === labelComp
+                    ? { ...c, props: { ...c.props, [fontKey]: { __uuid__: data.uuid }, font: { __uuid__: data.uuid } } }
+                    : c
+                )
+              })
+            } else {
+              applyAndSave({
+                components: [...draft.components, {
+                  type: 'cc.Label',
+                  props: { enabled: true, font: { __uuid__: data.uuid }, _N$file: { __uuid__: data.uuid }, _string: 'Label' }
+                }]
+              })
+            }
+            return
+          }
+        } catch (err) {
+          console.warn('Inspector asset drop error:', err)
+        }
+      }}
+      style={{
+        borderTop: '1px solid var(--border)',
+        padding: '6px 10px',
+        background: assetDragOver ? 'rgba(88,166,255,0.05)' : 'var(--bg-secondary, #0d0d1a)',
+        minWidth: 0, width: '100%', boxSizing: 'border-box',
+        outline: assetDragOver ? '2px dashed rgba(88,166,255,0.5)' : 'none',
+        outlineOffset: -2,
+        transition: 'background 0.1s, outline 0.1s',
+      }}
+    >
       <NodeInspectorHeader ctx={ctx} node={node} sceneFile={sceneFile} onUpdate={onUpdate} saveScene={saveScene} lockedUuids={lockedUuids} onToggleLocked={onToggleLocked} onPulse={onPulse} pinnedUuids={pinnedUuids} onTogglePin={onTogglePin} />
       <NodeTransformSection ctx={ctx} is3x={is3x} />
 
@@ -80,6 +167,12 @@ export function CCFileNodeInspector({
         const skipTypes = ['cc.UITransform', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
         // R1473: 커스텀 스크립트 컴포넌트 (cc. 접두사 없는 타입) 항상 표시
         const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
+        const IS_UUID = /^[0-9a-f-]{8,}/i
+        // UUID를 스크립트 이름으로 변환 (scriptNames 맵 또는 UUID 단축 표시)
+        const resolveScriptName = (type: string): string => {
+          if (!IS_UUID.test(type)) return type
+          return sceneFile.scriptNames?.[type] ?? `Script:${type.slice(0, 8)}`
+        }
         const visibleComps = draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
           if (skipTypes.includes(c.type)) return false
           if (isCustomScript(c.type)) return true // 커스텀 스크립트는 props 여부 무관 표시
@@ -173,7 +266,7 @@ export function CCFileNodeInspector({
             />
             <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(comp.type) ? '▸' : '▾'}</span>
             {/* R2328: 컴포넌트 타입 설명 tooltip */}
-            <span title={COMP_DESCRIPTIONS[comp.type] ?? comp.type} style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1, color: (() => {
+            <span title={COMP_DESCRIPTIONS[comp.type] ?? resolveScriptName(comp.type)} style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1, color: (() => {
               // R1680: 컴포넌트 타입별 색상 구분
               const typeColorMap: Record<string, string> = {
                 'cc.Label': '#58a6ff', 'cc.RichText': '#58a6ff',
@@ -189,7 +282,7 @@ export function CCFileNodeInspector({
               return typeColorMap[comp.type] ?? (isCustomScript(comp.type) ? '#c084fc' : 'var(--text-primary)')
             })() }}>
               {/* R2330: 컴포넌트 타입 아이콘 */}
-              {isCustomScript(comp.type) ? '📝 ' : COMP_ICONS[comp.type] ? <span style={{ fontSize: 9, marginRight: 3, opacity: 0.8 }}>{COMP_ICONS[comp.type]}</span> : null}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
+              {isCustomScript(comp.type) ? '📝 ' : COMP_ICONS[comp.type] ? <span style={{ fontSize: 9, marginRight: 3, opacity: 0.8 }}>{COMP_ICONS[comp.type]}</span> : null}{(() => { const resolved = resolveScriptName(comp.type); return resolved.includes('.') ? resolved.split('.').pop() : resolved })()}
             </span>
             {/* R1660/R1662: 씬 내 동일 타입 노드 수 배지 + 팝업 */}
             {(compTypeCountMap[comp.type] ?? 0) > 1 && (
@@ -300,32 +393,6 @@ export function CCFileNodeInspector({
       </>
       )
       })()}
-      {/* R1612: 자식 노드 빠른 탐색 */}
-      {node.children.length > 0 && (
-        <div style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 4 }}>
-          <div style={{ fontSize: 8, color: 'var(--text-muted)', marginBottom: 3 }}>▸ 자식 ({node.children.length})</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            {node.children.map(child => (
-              <span
-                key={child.uuid}
-                onClick={() => onUpdate(child)}
-                style={{ fontSize: 8, padding: '1px 5px', border: '1px solid var(--border)', borderRadius: 10, cursor: 'pointer', color: child.active ? 'var(--text-muted)' : '#555', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
-                onMouseLeave={e => (e.currentTarget.style.color = child.active ? 'var(--text-muted)' : '#555')}
-                title={`이동: ${child.name}${!child.active ? ' (비활성)' : ''}`}
-              >{!child.active ? '◌' : ''}{child.name}</span>
-            ))}
-          </div>
-        </div>
-      )}
-      {/* 씬 파일 정보 (Inspector 하단) */}
-      <div style={{ marginTop: 10, paddingTop: 6, borderTop: '1px solid var(--border)', fontSize: 9, color: '#444', lineHeight: 1.8 }}>
-        <div title={sceneFile.scenePath} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          📄 {sceneFile.scenePath.split(/[\\/]/).pop()}
-        </div>
-        <div>CC {sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x'} | {sceneFile.projectInfo.creatorVersion ?? ''}</div>
-      </div>
-
       {!collapsed['comps'] && (() => {
         const compTypes = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource', 'cc.RichText', 'cc.EditBox', 'cc.UIOpacity', 'cc.Mask']
         const doAddComp = (ct: string) => { applyAndSave({ components: [...draft.components, { type: ct, props: {} }] }); trackAddComp(ct) }
@@ -391,6 +458,24 @@ export function CCFileNodeInspector({
         )
       })()}
 
+      {/* R1612: 자식 노드 빠른 탐색 */}
+      {node.children.length > 0 && (
+        <div style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 4 }}>
+          <div style={{ fontSize: 8, color: 'var(--text-muted)', marginBottom: 3 }}>▸ 자식 ({node.children.length})</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {node.children.map(child => (
+              <span
+                key={child.uuid}
+                onClick={() => onUpdate(child)}
+                style={{ fontSize: 8, padding: '1px 5px', border: '1px solid var(--border)', borderRadius: 10, cursor: 'pointer', color: child.active ? 'var(--text-muted)' : '#555', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
+                onMouseLeave={e => (e.currentTarget.style.color = child.active ? 'var(--text-muted)' : '#555')}
+                title={`이동: ${child.name}${!child.active ? ' (비활성)' : ''}`}
+              >{!child.active ? '◌' : ''}{child.name}</span>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Round 611: 변경 이력 트레이 */}
       {(() => {
         const fmtVal = (v: unknown): string => {
@@ -641,6 +726,11 @@ export function CCFileNodeInspector({
           </div>
         )
       })()}
+      {/* 씬 파일 정보 */}
+      <div style={{ marginTop: 6, paddingTop: 4, borderTop: '1px solid rgba(255,255,255,0.04)', fontSize: 8, color: '#333', lineHeight: 1.6 }}>
+        <div title={sceneFile.scenePath} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📄 {sceneFile.scenePath.split(/[\\/]/).pop()}</div>
+        <div>CC {sceneFile.projectInfo.version === '3x' ? '3.x' : '2.x'} | {sceneFile.projectInfo.creatorVersion ?? ''}</div>
+      </div>
       {/* Round 643: 저장 완료 토스트 */}
       {savedToast && (
         <div style={{
