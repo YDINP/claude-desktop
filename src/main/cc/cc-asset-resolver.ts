@@ -86,7 +86,8 @@ function parseMeta(metaPath: string, assetsDir: string, map: UUIDMap) {
       map.set(uuid, { uuid, path: assetPath, relPath, type })
     }
 
-    // subMetas (스프라이트 아틀라스 내 서브 텍스처 등)
+    // subMetas (스프라이트 아틀라스 내 서브 텍스처, CC 2.x 스크립트 sub-uuid 등)
+    // CC 2.x 스크립트는 .fire에서 sub-meta UUID를 __type__으로 사용 → 부모 타입 상속
     const subMetas = meta.subMetas as Record<string, { uuid: string }> | undefined
     if (subMetas) {
       for (const sub of Object.values(subMetas)) {
@@ -95,7 +96,7 @@ function parseMeta(metaPath: string, assetsDir: string, map: UUIDMap) {
             uuid: sub.uuid,
             path: assetPath,
             relPath,
-            type: 'texture',
+            type: type === 'script' ? 'script' : 'texture',
           })
         }
       }
