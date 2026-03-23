@@ -1317,12 +1317,16 @@ export function diffScenes(
     // anchor
     if (bNode.anchor.x !== aNode.anchor.x || bNode.anchor.y !== aNode.anchor.y) changedFields.push('anchor')
     // rotation
-    if (JSON.stringify(bNode.rotation) !== JSON.stringify(aNode.rotation)) changedFields.push('rotation')
+    if (typeof bNode.rotation !== typeof aNode.rotation ||
+        (typeof bNode.rotation === 'number'
+          ? bNode.rotation !== aNode.rotation
+          : Math.abs((bNode.rotation as {z?:number}).z ?? 0) - Math.abs((aNode.rotation as {z?:number}).z ?? 0) > 0.001)
+    ) changedFields.push('rotation')
     // color
     if (bNode.color.r !== aNode.color.r || bNode.color.g !== aNode.color.g || bNode.color.b !== aNode.color.b || bNode.color.a !== aNode.color.a) changedFields.push('color')
     // components count
     if (bNode.components.length !== aNode.components.length) changedFields.push('components')
-    else if (JSON.stringify(bNode.components.map(c => c.type)) !== JSON.stringify(aNode.components.map(c => c.type))) changedFields.push('components')
+    else if (bNode.components.some((c, i) => c.type !== aNode.components[i].type)) changedFields.push('components')
     // children count
     if (bNode.children.length !== aNode.children.length) changedFields.push('children')
 
