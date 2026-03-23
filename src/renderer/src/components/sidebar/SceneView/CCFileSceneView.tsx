@@ -391,6 +391,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return
       if (e.code === 'Space' && !isSpaceDownRef.current) {
         const el = e.target as HTMLElement
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
@@ -1044,6 +1045,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return
       const el = e.target as HTMLElement
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
       if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
