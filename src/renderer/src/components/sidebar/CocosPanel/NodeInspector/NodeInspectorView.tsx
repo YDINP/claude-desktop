@@ -167,11 +167,12 @@ export function CCFileNodeInspector({
         const skipTypes = ['cc.UITransform', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
         // R1473: 커스텀 스크립트 컴포넌트 (cc. 접두사 없는 타입) 항상 표시
         const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
-        const IS_UUID = /^[0-9a-f-]{8,}/i
-        // UUID를 스크립트 이름으로 변환 (scriptNames 맵 또는 UUID 단축 표시)
+        // UUID를 스크립트 이름으로 변환
+        // IS_UUID regex 제거: CC 2.x Base62 UUID(a2VdBXYC 등 비-hex 포함)는 hex regex로 매칭 불가
+        // → dot 없는 타입은 scriptNames 맵에서 직접 조회, 없으면 그대로 표시
         const resolveScriptName = (type: string): string => {
-          if (!IS_UUID.test(type)) return type
-          return sceneFile.scriptNames?.[type] ?? `Script:${type.slice(0, 8)}`
+          if (type.includes('.')) return type
+          return sceneFile.scriptNames?.[type] ?? type
         }
         const visibleComps = draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
           if (skipTypes.includes(c.type)) return false
