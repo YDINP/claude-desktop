@@ -52,13 +52,13 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
             onClick={() => { transformClipboard.current = { position: draft.position, rotation: draft.rotation, scale: draft.scale, size: draft.size }; setTransformClipFilled(true) }}
             style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-muted)', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
-          >T↑</span>
+          >T↑복사</span>
           <span
             title={transformClipFilled ? '트랜스폼 붙여넣기 (위치·크기·회전·스케일)' : '복사된 트랜스폼 없음'}
             onClick={() => { if (transformClipboard.current) applyAndSave({ position: transformClipboard.current.position, rotation: transformClipboard.current.rotation, scale: transformClipboard.current.scale, size: transformClipboard.current.size }) }}
             style={{ fontSize: 10, padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)', cursor: transformClipFilled ? 'pointer' : 'default', color: transformClipFilled ? '#58a6ff' : '#333', background: 'none', userSelect: 'none' }}
             onMouseEnter={e => { if (transformClipFilled) e.currentTarget.style.color = '#7fc6ff' }} onMouseLeave={e => { e.currentTarget.style.color = transformClipFilled ? '#58a6ff' : '#333' }}
-          >T↓</span>
+          >T↓붙여넣기</span>
           <span style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch', margin: '0 2px' }} />
           {/* R2552: 위치 전용 복사/붙여넣기 */}
           <span

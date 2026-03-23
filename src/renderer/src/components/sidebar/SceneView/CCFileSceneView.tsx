@@ -1652,7 +1652,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                 <button onClick={handleFit} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>⊞ Fit</button>
                 <button onClick={panToCenter} disabled={!selectedUuid && multiSelected.size === 0} title="선택 노드 중심으로 이동" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: !selectedUuid && multiSelected.size === 0 ? 'not-allowed' : 'pointer', border: '1px solid var(--border)', background: 'none', color: !selectedUuid && multiSelected.size === 0 ? 'var(--text-muted-disabled)' : 'var(--text-muted)', opacity: !selectedUuid && multiSelected.size === 0 ? 0.5 : 1 }}>⊕C 중심이동</button>
-                <input placeholder="x,y 이동" title="CC 좌표로 이동 (예: 100,-50) Enter"
+                {/* R2540: Go-to XY — CC 좌표 직접 입력으로 뷰 이동 */}
+                <input placeholder="x,y 이동" title="R2540 Go-to XY: CC 좌표로 이동 (예: 100,-50) Enter"
                   onKeyDown={e => {
                     if (e.key !== 'Enter') return
                     const svg = svgRef.current; if (!svg) return
@@ -1684,6 +1685,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>잠금</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                 <button onClick={() => setViewLock(l => !l)} title={viewLock ? '편집 잠금 해제' : '편집 잠금'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${viewLock ? '#f85149' : 'var(--border)'}`, background: viewLock ? 'rgba(248,81,73,0.12)' : 'none', color: viewLock ? '#f85149' : 'var(--text-muted)' }}>{viewLock ? '🔒 잠금됨' : '🔓 잠금해제'}</button>
+                {/* R2711: 노드 잠금 버튼 */}
                 {!viewLock && selectedUuid && (
                   <button onClick={() => toggleLock(selectedUuid)} title={lockedUuids.has(selectedUuid) ? '노드 잠금 해제' : '노드 잠금'} style={{ fontSize: 9, padding: '1px 5px', background: lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.12)' : 'var(--bg-secondary)', border: `1px solid ${lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, borderRadius: 3, color: lockedUuids.has(selectedUuid) ? '#fbbf24' : 'var(--text-muted)', cursor: 'pointer' }}>{lockedUuids.has(selectedUuid) ? '🔒 노드잠금' : '🔓 노드잠금'}</button>
                 )}
@@ -3126,6 +3128,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   r={3 / view.zoom}
                   fill={isSelected ? '#58a6ff' : '#888'}
                 />
+                {/* R1510: Widget alignFlags 제약 시각화 */}
+                {showCompBadges && (() => {
+                  const widgetComp = node.components.find(c => c.type === 'cc.Widget')
+                  if (!widgetComp) return null
+                  const alignFlags = (widgetComp.props.alignFlags ?? widgetComp.props._alignFlags ?? 0) as number
+                  if (!alignFlags) return null
+                  const color = '#7c3aed'
+                  const sz = 4 / view.zoom
+                  const indicators: React.ReactNode[] = []
+                  if (alignFlags & 1) indicators.push(<line key="L" x1={rectX} y1={rectY + h/2} x2={rectX - sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (alignFlags & 2) indicators.push(<line key="R" x1={rectX + w} y1={rectY + h/2} x2={rectX + w + sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (alignFlags & 4) indicators.push(<line key="T" x1={rectX + w/2} y1={rectY} x2={rectX + w/2} y2={rectY - sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (alignFlags & 8) indicators.push(<line key="B" x1={rectX + w/2} y1={rectY + h} x2={rectX + w/2} y2={rectY + h + sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  if (indicators.length === 0) return null
+                  return <>{indicators}</>
+                })()}
                 {/* R2579: 컴포넌트 배지 오버레이 */}
                 {showCompBadges && view.zoom > 0.25 && node.components.length > 0 && (() => {
                   const BADGE_ICONS: Record<string, string> = {
@@ -4200,6 +4218,30 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           )
         })()}
       </svg>
+      {/* R1699: 선택 노드 세부 정보 오버레이 (우상단) */}
+      {selectedUuid && (() => {
+        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
+        if (!fn) return null
+        const pos = fn.node.position as { x: number; y: number }
+        const sz = fn.node.size
+        const rot = typeof fn.node.rotation === 'number' ? fn.node.rotation : (fn.node.rotation as { z?: number })?.z ?? 0
+        return (
+          <div style={{
+            position: 'absolute', top: 6, right: 6, zIndex: 10,
+            background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 4, padding: '3px 7px',
+            fontSize: 9, color: 'var(--text-muted)', fontFamily: 'monospace',
+            lineHeight: 1.6, pointerEvents: 'none', userSelect: 'none',
+          }}>
+            <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 1, fontSize: 8, letterSpacing: '0.3px' }}>
+              {fn.node.name}
+            </div>
+            <div>X <span style={{ color: '#e05555' }}>{Math.round(pos.x)}</span>  Y <span style={{ color: '#55b055' }}>{Math.round(pos.y)}</span></div>
+            {sz && <div>W <span style={{ color: '#58a6ff' }}>{Math.round(sz.x)}</span>  H <span style={{ color: '#a78bfa' }}>{Math.round(sz.y)}</span></div>}
+            {Math.abs(rot) > 0.01 && <div>R <span style={{ color: '#f472b6' }}>{rot.toFixed(1)}°</span></div>}
+          </div>
+        )
+      })()}
       </div>
       {/* R1522: 노드 호버 정보 패널 */}
       {hoverUuid && hoverClientPos && (() => {
@@ -4451,11 +4493,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         const scaleX = MM_W / sceneW
         const scaleY = MM_H / sceneH
         const s = Math.min(scaleX, scaleY)
-        const ofX = (MM_W - sceneW * s) / 2
-        const ofY = (MM_H - sceneH * s) / 2
+        const mmOffX = (MM_W - sceneW * s) / 2
+        const mmOffY = (MM_H - sceneH * s) / 2
         const toMM = (x: number, y: number) => ({
-          x: (x - sceneX) * s + ofX,
-          y: (sceneH - (y - sceneY)) * s + ofY,  // Y 반전 (CC Y축 위=+)
+          x: (x - sceneX) * s + mmOffX,
+          y: (sceneH - (y - sceneY)) * s + mmOffY,  // Y 반전 (CC Y축 위=+)
         })
         const vpMM = toMM(vpX, vpY + vpH)
         const vpW2 = vpW * s, vpH2 = vpH * s
@@ -4490,17 +4532,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               }
               if (hitUuid) { onSelect(hitUuid); return }
               // R1498: 빈 공간 클릭 → 씬 좌표 역변환 → pan
-              const scX = (mmX - ofX) / s + sceneX
-              const scY = sceneH - (mmY - ofY) / s + sceneY
+              const scX = (mmX - mmOffX) / s + sceneX
+              const scY = sceneH - (mmY - mmOffY) / s + sceneY
               const svgEl = svgRef.current
               if (!svgEl) return
               const svgRect = svgEl.getBoundingClientRect()
               const z = viewRef.current.zoom
-              setView(v => ({
-                ...v,
-                offsetX: svgRect.width / 2 - scX * z,
-                offsetY: svgRect.height / 2 + scY * z,
-              }))
+              // R2560: 미니맵 클릭 팬 — 씬 좌표 역변환
+              const svgClickX = svgRect.width / 2 - scX * z
+              const svgClickY = svgRect.height / 2 + scY * z
+              setView(v => ({ ...v, offsetX: svgClickX, offsetY: svgClickY }))
             }}
             title="미니맵 — 노드 클릭으로 선택 / 빈 공간 클릭으로 이동 (R2470)"
           >
@@ -4535,7 +4576,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             />
             <svg width={MM_W} height={MM_H}>
               {/* 씬 경계 */}
-              <rect x={ofX} y={ofY} width={sceneW * s} height={sceneH * s} fill="none" stroke="#333" strokeWidth={0.5} />
+              <rect x={mmOffX} y={mmOffY} width={sceneW * s} height={sceneH * s} fill="none" stroke="#333" strokeWidth={0.5} />
               {/* R1554: 노드 rect/점 (크기 반영) */}
               {flatNodes.map(fn => {
                 const p = toMM(fn.worldX, fn.worldY)
