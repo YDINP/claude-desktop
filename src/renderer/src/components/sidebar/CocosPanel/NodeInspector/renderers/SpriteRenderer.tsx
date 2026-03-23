@@ -164,7 +164,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     </div>
                   )}
                   {/* R1788: Sprite type/sizeMode 버튼 (applyAndSave) */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 3, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>type</span>
                     {SPRITE_TYPE.map((l, i) => (
                       <span key={i} title={l}
@@ -173,7 +173,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                       >{l}</span>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>size</span>
                     {SIZE_MODE.map((l, i) => (
                       <span key={i} title={l}

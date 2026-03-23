@@ -446,7 +446,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     </div>
                   )}
                   {/* R1757: fontFamily 입력 + 폰트 에셋 드롭다운 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }} ref={fontDropdownRef}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative', flexWrap: 'wrap' }} ref={fontDropdownRef}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>fontFam</span>
                     <input type="text" defaultValue={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} placeholder="폰트 이름 (빈칸=기본)"
                       onBlur={e => {
@@ -579,9 +579,9 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                       <option value={3}>ResizeH</option>
                     </select>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>align</span>
-                    <div style={{ display: 'flex', gap: 2, flex: 1 }}>
+                    <div style={{ display: 'flex', gap: 2, flex: 1, flexWrap: 'wrap' }}>
                       {(['L', 'C', 'R'] as const).map((lbl, i) => (
                         <span key={lbl}
                           onClick={() => {

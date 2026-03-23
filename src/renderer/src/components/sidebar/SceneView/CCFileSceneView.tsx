@@ -391,6 +391,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return
       if (e.code === 'Space' && !isSpaceDownRef.current) {
         const el = e.target as HTMLElement
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
@@ -1044,6 +1045,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return
       const el = e.target as HTMLElement
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
       if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
@@ -3268,11 +3270,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
                   const fontFamilyName = fontEntry?.familyName
                     || (lc?.props?.fontFamily as string | undefined)
+                    || (lc?.props?._fontFamily as string | undefined)
+                    || (lc?.props?.['_N$fontFamily'] as string | undefined)
                     || undefined
                   return (
                     <text
                       x={rectX + w / 2} y={rectY + h / 2}
-                      fontSize={fs / view.zoom}
+                      fontSize={fs}
                       fill={`rgb(${cr},${cg},${cb})`}
                       textAnchor="middle" dominantBaseline="middle"
                       fontFamily={fontFamilyName}

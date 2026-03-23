@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { CCFileSceneView } from '../SceneView/CCFileSceneView'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { CCFileBatchInspector } from './BatchInspector'
@@ -58,6 +58,18 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
   } = ctx
 
   if (!sceneFile?.root) return null
+
+  // 탭 전환 시 display:none으로 onMouseLeave 미발화 → 드래그 ref 누수 방지
+  // window mouseup으로 패널 외부에서 마우스 릴리즈 시 강제 정리
+  useEffect(() => {
+    const resetDrag = () => {
+      hDividerDragRef.current = null
+      dividerDragRef.current = null
+      assetDividerDragRef.current = null
+    }
+    window.addEventListener('mouseup', resetDrag)
+    return () => window.removeEventListener('mouseup', resetDrag)
+  }, [hDividerDragRef, dividerDragRef, assetDividerDragRef])
 
   return (
         <div

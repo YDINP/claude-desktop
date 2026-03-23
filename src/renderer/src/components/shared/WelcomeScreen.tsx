@@ -23,8 +23,7 @@ export function WelcomeScreen({ onOpenFolder, onOpenPath, onOpenSession }: {
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      height: '100vh', background: 'var(--bg-primary)', gap: 32,
-      WebkitAppRegion: 'drag',
+      height: '100%', background: 'var(--bg-primary)', gap: 32,
     } as React.CSSProperties}>
       <div style={{ textAlign: 'center' }}>
         <div style={{ fontSize: 32, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>Claude Desktop</div>
