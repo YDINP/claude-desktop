@@ -1,5 +1,5 @@
 import React from 'react'
-import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
+import type { CCSceneNode, CCSceneFile, CCSceneComponent } from '@shared/ipc-schema'
 import { SpriteThumb, COMP_ICONS, COMP_DESCRIPTIONS, COLLAPSED_COMPS_KEY } from './constants'
 import { ComponentQuickEdit } from './ComponentQuickEdit'
 import { GenericPropertyEditor } from './GenericPropertyEditor'
@@ -39,12 +39,99 @@ export function CCFileNodeInspector({
     applyAndSave, compTypeCountMap,
   } = ctx
   const is3x = sceneFile.projectInfo?.version === '3x'
+  const [assetDragOver, setAssetDragOver] = React.useState(false)
   return (
-    <div style={{
-      borderTop: '1px solid var(--border)',
-      padding: '6px 10px', background: 'var(--bg-secondary, #0d0d1a)',
-      minWidth: 0, width: '100%', boxSizing: 'border-box',
-    }}>
+    <div
+      onDragOver={e => {
+        if (e.dataTransfer.types.includes('application/cc-asset')) {
+          e.preventDefault()
+          e.dataTransfer.dropEffect = 'copy'
+          setAssetDragOver(true)
+        }
+      }}
+      onDragLeave={e => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setAssetDragOver(false)
+        }
+      }}
+      onDrop={e => {
+        e.preventDefault()
+        setAssetDragOver(false)
+        try {
+          const raw = e.dataTransfer.getData('application/cc-asset')
+          if (!raw) return
+          const data: { uuid?: string; path?: string; relPath?: string; type?: string } = JSON.parse(raw)
+          if (!data.uuid) return
+
+          const relPath = data.relPath ?? ''
+          const assetType = data.type ?? ''
+          const ext = relPath.split('.').pop()?.toLowerCase() ?? ''
+
+          if (assetType === 'script' || ext === 'ts' || ext === 'js') {
+            const scriptName = relPath.split('/').pop()?.replace(/\.(ts|js)$/, '') ?? 'Script'
+            const newComp: CCSceneComponent = { type: scriptName, props: { enabled: true } }
+            applyAndSave({ components: [...draft.components, newComp] })
+            return
+          }
+
+          if (assetType === 'texture' || assetType === 'sprite-atlas' || ['png', 'jpg', 'jpeg', 'webp', 'bmp'].includes(ext)) {
+            const spriteComp = draft.components.find(c => c.type.includes('Sprite'))
+            if (spriteComp) {
+              const spriteKey = '_spriteFrame' in spriteComp.props ? '_spriteFrame' : 'spriteFrame'
+              applyAndSave({
+                components: draft.components.map(c =>
+                  c === spriteComp
+                    ? { ...c, props: { ...c.props, [spriteKey]: { __uuid__: data.uuid } } }
+                    : c
+                )
+              })
+            } else {
+              const spriteKey = is3x ? 'spriteFrame' : '_spriteFrame'
+              applyAndSave({
+                components: [...draft.components, {
+                  type: 'cc.Sprite',
+                  props: { enabled: true, [spriteKey]: { __uuid__: data.uuid } }
+                }]
+              })
+            }
+            return
+          }
+
+          if (assetType === 'font' || ['ttf', 'otf', 'fnt', 'ttc'].includes(ext)) {
+            const labelComp = draft.components.find(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
+            if (labelComp) {
+              const fontKey = is3x ? 'font' : '_N$file'
+              applyAndSave({
+                components: draft.components.map(c =>
+                  c === labelComp
+                    ? { ...c, props: { ...c.props, [fontKey]: { __uuid__: data.uuid }, font: { __uuid__: data.uuid } } }
+                    : c
+                )
+              })
+            } else {
+              applyAndSave({
+                components: [...draft.components, {
+                  type: 'cc.Label',
+                  props: { enabled: true, font: { __uuid__: data.uuid }, _N$file: { __uuid__: data.uuid }, _string: 'Label' }
+                }]
+              })
+            }
+            return
+          }
+        } catch (err) {
+          console.warn('Inspector asset drop error:', err)
+        }
+      }}
+      style={{
+        borderTop: '1px solid var(--border)',
+        padding: '6px 10px',
+        background: assetDragOver ? 'rgba(88,166,255,0.05)' : 'var(--bg-secondary, #0d0d1a)',
+        minWidth: 0, width: '100%', boxSizing: 'border-box',
+        outline: assetDragOver ? '2px dashed rgba(88,166,255,0.5)' : 'none',
+        outlineOffset: -2,
+        transition: 'background 0.1s, outline 0.1s',
+      }}
+    >
       <NodeInspectorHeader ctx={ctx} node={node} sceneFile={sceneFile} onUpdate={onUpdate} saveScene={saveScene} lockedUuids={lockedUuids} onToggleLocked={onToggleLocked} onPulse={onPulse} pinnedUuids={pinnedUuids} onTogglePin={onTogglePin} />
       <NodeTransformSection ctx={ctx} is3x={is3x} />
 
