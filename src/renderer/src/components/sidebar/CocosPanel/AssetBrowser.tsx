@@ -97,7 +97,7 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
     // 스크립트 이름으로 유추 (UUID가 다를 수 있으므로)
     const scriptName = entry.relPath.split(/[\\/]/).pop()?.replace(/\.(ts|js)$/, '') ?? ''
     for (const typeId of usedScriptUuids) {
-      if (typeId.includes(scriptName)) return true
+      if (typeId === scriptName) return true
     }
     return false
   }, [isScriptFile, usedScriptUuids])

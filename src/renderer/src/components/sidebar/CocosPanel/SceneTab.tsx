@@ -69,7 +69,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
     }
     window.addEventListener('mouseup', resetDrag)
     return () => window.removeEventListener('mouseup', resetDrag)
-  }, [hDividerDragRef, dividerDragRef, assetDividerDragRef])
+  }, [])
 
   return (
         <div

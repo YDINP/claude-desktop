@@ -19,19 +19,20 @@ interface GenericPropertyEditorProps {
   typeMatchedComps: Array<{ comp: CCSceneNode['components'][number]; origIdx: number }> | null
 }
 
+const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
+// 컴포넌트별 전용 렌더러(ComponentQuickEdit)가 이미 표시하는 prop 중복 제거
+const COMP_SKIP: Record<string, Set<string>> = {
+  'cc.Label': new Set(['string', '_string', 'fontSize', 'lineHeight', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', '_N$horizontalAlign', 'verticalAlign', 'overflow', '_N$overflow', 'cacheMode', 'isBold', 'isItalic', 'isUnderline']),
+  'cc.RichText': new Set(['string', '_string', 'fontSize', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', 'maxWidth', 'lineHeight']),
+  'cc.Sprite': new Set(['spriteFrame', '_spriteFrame', 'type', 'sizeMode', 'trim', 'grayscale', '_N$type', '_N$sizeMode', '_N$trim', '_N$grayscale']),
+  'cc.Button': new Set(['interactable', 'transition', 'duration', 'zoomScale', 'normalColor', 'pressedColor', 'hoverColor', 'disabledColor']),
+  'cc.Layout': new Set(['type', 'resizeMode', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight', 'spacingX', 'spacingY', 'horizontalDirection', 'verticalDirection']),
+  'cc.AudioSource': new Set(['clip', 'volume', 'loop', 'playOnAwake']),
+}
+
 /** Generic property editor for component props — renders typed inputs for each property */
 export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, propSearch, setPropSearch, favProps, toggleFavProp, expandedArrayProps, setExpandedArrayProps, origSnapRef, collapsedComps, typeMatchedComps }: GenericPropertyEditorProps): React.ReactElement | null {
   if (!((!collapsedComps.has(comp.type) || typeMatchedComps !== null))) return null
-            const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
-            // 컴포넌트별 전용 렌더러(ComponentQuickEdit)가 이미 표시하는 prop 중복 제거
-            const COMP_SKIP: Record<string, Set<string>> = {
-              'cc.Label': new Set(['string', '_string', 'fontSize', 'lineHeight', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', '_N$horizontalAlign', 'verticalAlign', 'overflow', '_N$overflow', 'cacheMode', 'isBold', 'isItalic', 'isUnderline']),
-              'cc.RichText': new Set(['string', '_string', 'fontSize', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', 'maxWidth', 'lineHeight']),
-              'cc.Sprite': new Set(['spriteFrame', '_spriteFrame', 'type', 'sizeMode', 'trim', 'grayscale', '_N$type', '_N$sizeMode', '_N$trim', '_N$grayscale']),
-              'cc.Button': new Set(['interactable', 'transition', 'duration', 'zoomScale', 'normalColor', 'pressedColor', 'hoverColor', 'disabledColor']),
-              'cc.Layout': new Set(['type', 'resizeMode', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight', 'spacingX', 'spacingY', 'horizontalDirection', 'verticalDirection']),
-              'cc.AudioSource': new Set(['clip', 'volume', 'loop', 'playOnAwake']),
-            }
             const compSkip = COMP_SKIP[comp.type]
             const allProps = Object.entries(comp.props).filter(([k]) => {
               if (HIDDEN.has(k)) return false

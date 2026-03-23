@@ -141,8 +141,8 @@ export function CCFileNodeInspector({
         {/* R1689: 컴포넌트 일괄 접기/펴기 */}
         {!collapsed['comps'] && draft.components.length > 1 && (
           <div style={{ display: 'flex', gap: 3, marginBottom: 3 }}>
-            <span title="모두 접기" onClick={() => { const allTypes = draft.components.map(c => c.type); setCollapsedComps(prev => { const n = new Set(prev); allTypes.forEach(t => n.add(t)); localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n])); return n }) }} style={{ fontSize: 8, cursor: 'pointer', color: '#555', padding: '0 3px' }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>▸▸</span>
-            <span title="모두 펴기" onClick={() => { const allTypes = draft.components.map(c => c.type); setCollapsedComps(prev => { const n = new Set(prev); allTypes.forEach(t => n.delete(t)); localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n])); return n }) }} style={{ fontSize: 8, cursor: 'pointer', color: '#555', padding: '0 3px' }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>▾▾</span>
+            <span title="모두 접기" onClick={() => { const allTypes = draft.components.map(c => c.type); setCollapsedComps(prev => { const n = new Set(prev); allTypes.forEach(t => n.add(t)); setTimeout(() => localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n])), 100); return n }) }} style={{ fontSize: 8, cursor: 'pointer', color: '#555', padding: '0 3px' }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>▸▸</span>
+            <span title="모두 펴기" onClick={() => { const allTypes = draft.components.map(c => c.type); setCollapsedComps(prev => { const n = new Set(prev); allTypes.forEach(t => n.delete(t)); setTimeout(() => localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n])), 100); return n }) }} style={{ fontSize: 8, cursor: 'pointer', color: '#555', padding: '0 3px' }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>▾▾</span>
             {/* R1704: 전체 컴포넌트 enabled 토글 */}
             {(() => {
               const allEnabled = draft.components.every(c => c.props.enabled !== false)
@@ -239,7 +239,7 @@ export function CCFileNodeInspector({
             onClick={() => setCollapsedComps(s => {
               const n = new Set(s)
               if (n.has(comp.type)) n.delete(comp.type); else n.add(comp.type)
-              localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n]))
+              setTimeout(() => localStorage.setItem(COLLAPSED_COMPS_KEY, JSON.stringify([...n])), 100)
               return n
             })}
           >
