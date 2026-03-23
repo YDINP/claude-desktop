@@ -55,7 +55,18 @@ export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo):
     }
   }
 
-  return { projectInfo, scenePath, root, _raw: raw }
+  // scriptNames 맵 생성 (UUID → 파일명, 인스펙터 표시용)
+  const scriptNames: Record<string, string> = {}
+  if (projectInfo.assetsDir) {
+    const uuidMap = buildUUIDMap(projectInfo.assetsDir)
+    for (const [uuid, meta] of uuidMap) {
+      if (meta.type === 'script') {
+        scriptNames[uuid] = meta.relPath.split('/').pop()?.replace(/\.(ts|js)$/, '') ?? uuid
+      }
+    }
+  }
+
+  return { projectInfo, scenePath, root, _raw: raw, scriptNames }
 }
 
 function resolveRootIdx(raw: RawEntry[]): number {

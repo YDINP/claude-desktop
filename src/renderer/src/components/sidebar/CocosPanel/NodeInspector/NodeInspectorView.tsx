@@ -167,6 +167,12 @@ export function CCFileNodeInspector({
         const skipTypes = ['cc.UITransform', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
         // R1473: 커스텀 스크립트 컴포넌트 (cc. 접두사 없는 타입) 항상 표시
         const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
+        const IS_UUID = /^[0-9a-f-]{8,}/i
+        // UUID를 스크립트 이름으로 변환 (scriptNames 맵 또는 UUID 단축 표시)
+        const resolveScriptName = (type: string): string => {
+          if (!IS_UUID.test(type)) return type
+          return sceneFile.scriptNames?.[type] ?? `Script:${type.slice(0, 8)}`
+        }
         const visibleComps = draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
           if (skipTypes.includes(c.type)) return false
           if (isCustomScript(c.type)) return true // 커스텀 스크립트는 props 여부 무관 표시
@@ -260,7 +266,7 @@ export function CCFileNodeInspector({
             />
             <span style={{ fontSize: 7, color: 'var(--text-muted)', marginRight: 3 }}>{collapsedComps.has(comp.type) ? '▸' : '▾'}</span>
             {/* R2328: 컴포넌트 타입 설명 tooltip */}
-            <span title={COMP_DESCRIPTIONS[comp.type] ?? comp.type} style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1, color: (() => {
+            <span title={COMP_DESCRIPTIONS[comp.type] ?? resolveScriptName(comp.type)} style={{ flex: 1, opacity: comp.props.enabled === false ? 0.5 : 1, color: (() => {
               // R1680: 컴포넌트 타입별 색상 구분
               const typeColorMap: Record<string, string> = {
                 'cc.Label': '#58a6ff', 'cc.RichText': '#58a6ff',
@@ -276,7 +282,7 @@ export function CCFileNodeInspector({
               return typeColorMap[comp.type] ?? (isCustomScript(comp.type) ? '#c084fc' : 'var(--text-primary)')
             })() }}>
               {/* R2330: 컴포넌트 타입 아이콘 */}
-              {isCustomScript(comp.type) ? '📝 ' : COMP_ICONS[comp.type] ? <span style={{ fontSize: 9, marginRight: 3, opacity: 0.8 }}>{COMP_ICONS[comp.type]}</span> : null}{comp.type.includes('.') ? comp.type.split('.').pop() : comp.type}
+              {isCustomScript(comp.type) ? '📝 ' : COMP_ICONS[comp.type] ? <span style={{ fontSize: 9, marginRight: 3, opacity: 0.8 }}>{COMP_ICONS[comp.type]}</span> : null}{(() => { const resolved = resolveScriptName(comp.type); return resolved.includes('.') ? resolved.split('.').pop() : resolved })()}
             </span>
             {/* R1660/R1662: 씬 내 동일 타입 노드 수 배지 + 팝업 */}
             {(compTypeCountMap[comp.type] ?? 0) > 1 && (

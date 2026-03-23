@@ -209,6 +209,8 @@ export interface CCSceneFile {
   root: CCSceneNode
   /** 원본 flat 배열 (patch 기반 저장용) */
   _raw?: unknown[]
+  /** 커스텀 스크립트 UUID → 파일명 매핑 (인스펙터 표시용) */
+  scriptNames?: Record<string, string>
 }
 
 // ── AG-UI Protocol Events ─────────────────────────────────────────────────────
