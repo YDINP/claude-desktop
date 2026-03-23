@@ -1,22 +1,11 @@
 # QA Report — Round latest
-> 2026-03-23T07:09:58.951Z
+> 2026-03-23T07:58:44.553Z
 
 ## Critical
 _없음_
 
 ## Warning
-- [sidebar/CocosPanel.tsx] CocosPanel 빌드 트리거 없음
-- [CCFileSceneView.tsx] Widget 시각화 미구현
-- [CCFileSceneView.tsx] Widget 방향 일부 미구현
-- [CCFileSceneView.tsx] SceneView 화면 밖 노드 방향 화살표 미구현
-- [CocosPanel.tsx] Inspector 트랜스폼 복사/붙여넣기 미구현
-- [CCFileSceneView.tsx] SceneView snap 간격 custom 입력 미구현
-- [CocosPanel.tsx] 씬 컴포넌트 통계 패널 미구현
-- [CCFileSceneView.tsx] SceneView 선택 노드 정보 오버레이 미구현
-- [CocosPanel.tsx] 씬 통계 바 시각화 미구현
-- [CCFileSceneView.tsx] R2711 노드 잠금 버튼 미구현
-- [CCFileSceneView.tsx] R2560 미니맵 클릭 팬 미구현
-- [CCFileSceneView.tsx] R2540 Go-to XY 미구현
+_없음_
 
 ## Pass
 - bun run build 성공
@@ -1212,6 +1201,7 @@ _없음_
 - NodeRenderer Camera/ParticleSystem 시각 힌트 (테두리 + 라벨 접두사)
 - Inspector 노드 참조 필드 표시 (__id__/__uuid__ 감지, 링크 아이콘)
 - Inspector 컴포넌트 순서 변경 (↑↓ 버튼, 첫/마지막 비활성화)
+- CocosPanel CC 빌드 트리거 UI (플랫폼 드롭다운, CLI 미리보기)
 - NodeHierarchyList 색상 태그 dot 표시
 - cc-file-parser analyzeScene 복잡도 분석 (노드수/깊이/컴포넌트/draw call/경고)
 - cc-asset-resolver UUID→파일명 캐시 고도화 (resolveUUIDToPath, getAssetInfo, getAllTextureUUIDs)
@@ -1300,6 +1290,8 @@ _없음_
 - pos/size/rot/scale/alpha/color/name/active 명령 파서 구현
 - CLI 입력 UI (monosapce placeholder + 피드백) 구현
 - Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)
+- SceneView cc.Widget alignFlags 제약 화살표 시각화 구현
+- TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현
 - alignGuides 상태 + ALIGN_SNAP_THRESHOLD 선언
 - 드래그 중 V/H 가이드라인 계산 로직 구현 (vPairs/hPairs)
 - SVG 정렬 가이드라인 렌더링 (빨간 점선) 구현
@@ -1410,8 +1402,10 @@ _없음_
 - SceneView 드래그 delta 표시 (Δx,y)
 - Inspector 자식 노드 빠른 탐색 칩
 - SceneView 형제 노드 하이라이트
+- SceneView 화면 밖 노드 방향 화살표
 - SceneView cc.Label 텍스트 미리보기
 - SceneView HUD 자식/컴포넌트 수 표시
+- Inspector 트랜스폼 복사/붙여넣기
 - SceneView HUD depth 레벨 표시
 - SceneView S/E 단방향 리사이즈 핸들
 - Inspector cc.Label Quick Edit
@@ -1466,6 +1460,7 @@ _없음_
 - 앵커 9-point 프리셋 그리드
 - 노드 북마크 (Ctrl+1-9 설정, 1-9 이동)
 - 컴포넌트 prop diff 표시 (변경된 prop 황색 dot)
+- SceneView snap 간격 custom 입력 (datalist)
 - cc.Widget 정렬 시각 다이어그램
 - Ctrl+Shift+C 노드 JSON 클립보드 복사
 - 비활성 조상 경고 배너
@@ -1475,6 +1470,7 @@ _없음_
 - SceneView 선택 테두리 색상 사용자 설정
 - Inspector 위치/크기 빠른 복사 버튼
 - SceneView 드래그 ghost 원래 위치 표시
+- 씬 컴포넌트 통계 패널
 - SceneView Shift+드래그 축 제한
 - Inspector 균등 스케일 버튼 (⊟)
 - SceneView z-order 배지 (형제 순서 인덱스)
@@ -1488,6 +1484,7 @@ _없음_
 - cc.Sprite spriteFrame uuid 복사
 - SceneView 레이블 폰트 크기 조정
 - 다중 선택 공통 컴포넌트 표시
+- SceneView 선택 노드 정보 오버레이
 - cc.Animation 클립 이름 복사
 - cc.AudioSource 클립 uuid 복사
 - Inspector 노드 UUID 표시 + 복사
@@ -2159,6 +2156,7 @@ _없음_
 - BatchInspector matchPosition X/Y 위치 맞추기 구현 완료
 - BatchInspector matchSize 첫 번째 선택 노드 크기 맞추기 구현 완료
 - 씬 트리 북마크 퀵액세스 바 구현 완료
+- 씬 통계 컴포넌트 분포 인라인 바 시각화 구현 완료
 - Inspector 단일노드 _tag/_zIndex 편집 필드 구현 완료
 - Inspector cc.Scrollbar direction/enableAutoHide/autoHideTime 편집 구현 완료
 - Inspector cc.WebView url/visibleWithMouse 편집 구현 완료
@@ -2407,6 +2405,7 @@ _없음_
 - R2708 이름 정규식 필터 선택 구현 완료
 - R2709 커스텀 비율 가이드 구현 완료
 - R2710 크기 고정값 일괄 설정 구현 완료
+- R2711 노드 잠금 툴바 버튼 구현 완료
 - R2712 Label fontSize 일괄 설정 구현 완료
 - R2714 조건부 active 토글 구현 완료
 - R2700 형제 강조 오버레이 구현 완료
@@ -2549,6 +2548,7 @@ _없음_
 - R2563 회전 클립보드 구현 완료
 - R2562 색상 클립보드 구현 완료
 - R2561 위치 역전 버튼 구현 완료
+- R2560 미니맵 클릭 팬 구현 완료
 - R2559 선택 노드 JSON 내보내기 구현 완료
 - R2558 씬 통계 팝업 구현 완료
 - R2557 Label 텍스트 오버레이 구현 완료
@@ -2567,6 +2567,7 @@ _없음_
 - R2543 뷰 북마크 구현 완료
 - R2542 사이즈 정수화 구현 완료
 - R2541 스케일/회전 리셋 구현 완료
+- R2540 Go-to XY 좌표 이동 구현 완료
 - R2539 breadcrumb 계층 경로 구현 완료
 - R2538 랜덤 색상 할당 구현 완료
 - R2537 W/H 인라인 편집 구현 완료
