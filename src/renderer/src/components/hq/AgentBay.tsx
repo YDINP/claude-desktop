@@ -224,7 +224,37 @@ export function AgentBay({ sessions = [], agents = [], activeSessionId, isStream
 
       {/* 서브에이전트 카드 */}
       <div style={{ flex: 1, overflow: 'auto', padding: '10px 12px' }}>
-        {agents.length === 0 && localSessions.length === 0 && (
+        {/* 메인 에이전트 카드 */}
+        {isStreaming && (
+          <div style={{
+            border: `1px solid ${runningTool ? 'rgba(220,220,170,0.5)' : 'rgba(0,152,255,0.5)'}`,
+            borderRadius: 6,
+            padding: '10px 12px',
+            marginBottom: 8,
+            background: runningTool ? 'rgba(220,220,170,0.05)' : 'rgba(0,152,255,0.06)',
+            boxShadow: runningTool ? '0 0 12px rgba(220,220,170,0.15)' : '0 0 12px rgba(0,152,255,0.2)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <span style={{
+                fontSize: 10,
+                color: runningTool ? '#d4d46e' : '#4db8ff',
+                animation: 'hq-blink 0.6s infinite',
+              }}>●</span>
+              <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#e0e8ff', letterSpacing: '0.5px' }}>
+                MAIN
+              </span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: 'rgba(200,210,240,0.5)', fontFamily: 'var(--font-mono)' }}>
+                {runningTool ? 'TOOL' : 'STREAMING'}
+              </span>
+            </div>
+            {runningTool && (
+              <div style={{ fontSize: 11, color: '#d4d46e', fontFamily: 'var(--font-mono)' }}>
+                ↻ {runningTool.name}
+              </div>
+            )}
+          </div>
+        )}
+        {agents.length === 0 && localSessions.length === 0 && !isStreaming && (
           <div style={{ padding: '24px 8px', textAlign: 'center', color: 'rgba(200,210,240,0.65)', fontSize: 12, fontFamily: 'var(--font-mono)' }}>
             <div style={{ marginBottom: 10, fontSize: 20, opacity: 0.4 }}>◌</div>
             NO ACTIVE AGENTS

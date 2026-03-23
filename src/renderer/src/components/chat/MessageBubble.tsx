@@ -955,6 +955,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
   const isWide = viewMode === 'wide'
   const isUser = msg.role === 'user'
   const isError = msg.isError === true
+  const [showToolUses, setShowToolUses] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [msgCopied, setMsgCopied] = useState(false)
   const [mdCopied, setMdCopied] = useState(false)
@@ -1899,12 +1900,37 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
         </div>
       )}
 
-      {/* Tool uses */}
+      {/* Tool uses — 기본 접힘, 토글로 확인 */}
       {msg.toolUses.length > 0 && (
-        <div style={{ marginTop: 8 }}>
-          {msg.toolUses.map((t) => (
-            <ToolUseIndicator key={t.id} tool={t} />
-          ))}
+        <div style={{ marginTop: 6 }}>
+          <button
+            onClick={() => setShowToolUses(v => !v)}
+            style={{
+              background: 'none',
+              border: '1px solid var(--border)',
+              borderRadius: 4,
+              color: 'var(--text-muted)',
+              fontSize: 11,
+              padding: '2px 8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
+          >
+            <span style={{ opacity: 0.6 }}>{showToolUses ? '▾' : '▸'}</span>
+            {msg.toolUses.length}개 도구 사용
+            {msg.toolUses.some(t => t.status === 'running') && (
+              <span style={{ color: 'var(--accent)', animation: 'pulse 1s infinite' }}>●</span>
+            )}
+          </button>
+          {showToolUses && (
+            <div style={{ marginTop: 4 }}>
+              {msg.toolUses.map((t) => (
+                <ToolUseIndicator key={t.id} tool={t} />
+              ))}
+            </div>
+          )}
         </div>
       )}
 

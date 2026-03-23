@@ -516,6 +516,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const [showTagPanel, setShowTagPanel] = useState(false)
   const [chatHistorySearch, setChatHistorySearch] = useState('')
   const [historySearchResults, setHistorySearchResults] = useState<number[]>([])
+  const [scrollContainerHeight, setScrollContainerHeight] = useState(0)
 
   const onSelectSuggestion = useCallback((text: string) => {
     setSuggestionPendingInsert(text)
@@ -740,12 +741,27 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     }
   }, [handleSearchPrev, handleSearchNext])
 
+  const contentPaddingStart = Math.max(0, scrollContainerHeight - (displayMessages.length * 250) - 40)
+
   const virtualizer = useVirtualizer({
     count: displayMessages.length,
     getScrollElement: () => scrollContainerRef.current,
     estimateSize: () => 250,
     overscan: 5,
+    paddingStart: contentPaddingStart,
   })
+
+  // 스크롤 컨테이너 높이 추적 (bottom-anchor paddingStart 계산용)
+  useEffect(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    setScrollContainerHeight(el.clientHeight)
+    const obs = new ResizeObserver(([entry]) => {
+      setScrollContainerHeight(entry.contentRect.height)
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 세션 전환 시 스크롤 위치 저장/복원
   useEffect(() => {
