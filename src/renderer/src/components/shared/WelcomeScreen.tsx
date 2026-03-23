@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 interface RecentSession { id: string; title: string; cwd: string; updatedAt: number }
 
 export function WelcomeScreen({ onOpenFolder, onOpenPath, onOpenSession }: {
-  onOpenFolder: () => void
-  onOpenPath: (p: string) => void
-  onOpenSession: (id: string, path: string) => void
+  onOpenFolder?: () => void
+  onOpenPath?: (p: string) => void
+  onOpenSession?: (id: string, path: string) => void
 }) {
   const [recents, setRecents] = useState<string[]>([])
   const [recentSessions, setRecentSessions] = useState<RecentSession[]>([])
@@ -32,7 +32,7 @@ export function WelcomeScreen({ onOpenFolder, onOpenPath, onOpenSession }: {
       </div>
 
       <button
-        onClick={onOpenFolder}
+        onClick={() => onOpenFolder?.()}
         style={{
           padding: '10px 28px', background: 'var(--accent)', color: '#fff',
           borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer',
@@ -51,7 +51,7 @@ export function WelcomeScreen({ onOpenFolder, onOpenPath, onOpenSession }: {
             {recentSessions.map(s => (
               <div
                 key={s.id}
-                onClick={() => onOpenSession(s.id, s.cwd)}
+                onClick={() => onOpenSession?.(s.id, s.cwd)}
                 style={{
                   padding: '8px 12px', borderRadius: 6, cursor: 'pointer',
                   color: 'var(--text-secondary)', fontSize: 12,
@@ -82,7 +82,7 @@ export function WelcomeScreen({ onOpenFolder, onOpenPath, onOpenSession }: {
             {recents.slice(0, 6).map(p => (
               <div
                 key={p}
-                onClick={() => onOpenPath(p)}
+                onClick={() => onOpenPath?.(p)}
                 style={{
                   padding: '8px 12px', borderRadius: 6, cursor: 'pointer',
                   color: 'var(--text-secondary)', fontSize: 12,
