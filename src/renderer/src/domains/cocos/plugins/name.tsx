@@ -7,7 +7,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
   const uuids = nodes.map(n => n.uuid)
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
-  const { patchNodes } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
+  const { patchNodes, patchComponents } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
 
   // R2642: 노드 이름 접두사/접미사
   const [namePrefix, setNamePrefix] = useState<string>('')
@@ -36,6 +36,9 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
   const [batchReplaceStr, setBatchReplaceStr] = useState<string>('')
   // R2708: 이름 정규식 필터 선택
   const [batchNameRegexFilter, setBatchNameRegexFilter] = useState<string>('')
+  // R2737: Label 텍스트 일괄 수정
+  const [labelText, setLabelText] = useState<string>('') /* R2737 */
+  const [labelMode, setLabelMode] = useState<'set' | 'prefix' | 'suffix'>('set') /* R2737 */
 
   const mkBtnS = (color: string, extra?: React.CSSProperties): React.CSSProperties => ({
     fontSize: 9, padding: '1px 5px', cursor: 'pointer',
@@ -507,6 +510,41 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
           ))}
         </div>
       </div>
+
+      {/* R2737: Label 텍스트 일괄 수정 */}
+      {uuids.length >= 1 && (() => {
+        const applyLabelText = async () => {
+          if (!labelText && labelMode === 'set') return
+          const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
+          await patchComponents(
+            c => c.type === 'cc.Label',
+            c => {
+              const prev = typeof c.props['string'] === 'string' ? c.props['string'] as string : ''
+              const next = labelMode === 'set' ? labelText : labelMode === 'prefix' ? labelText + prev : prev + labelText
+              return { ...c, props: { ...c.props, string: next, _string: next, '_N$string': next } }
+            },
+            `Label텍스트 ${labelMode}="${labelText}" (${uuids.length}개)`,
+          )
+          void inS
+        }
+        const inS: React.CSSProperties = { fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', minWidth: 80 }
+        return (
+          <div style={{ marginBottom: 4, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>Label텍스트 (R2737)</span>
+            <select value={labelMode} onChange={e => setLabelMode(e.target.value as 'set' | 'prefix' | 'suffix')}
+              style={{ fontSize: 9, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3 }}>
+              <option value="set">지정</option>
+              <option value="prefix">접두사</option>
+              <option value="suffix">접미사</option>
+            </select>
+            <input value={labelText} onChange={e => setLabelText(e.target.value)}
+              style={inS} placeholder="텍스트..." />
+            <span onClick={applyLabelText}
+              title="선택된 Label 노드에 텍스트 적용"
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>적용</span>
+          </div>
+        )
+      })()}
     </div>
   )
 }

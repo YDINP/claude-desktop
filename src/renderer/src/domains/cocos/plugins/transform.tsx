@@ -27,6 +27,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
   const [absScaleY, setAbsScaleY] = useState<number>(1)
   const [scaleMulFactor, setScaleMulFactor] = useState<number>(2.0) /* R2728 */
   const [scaleLinkedPreset, setScaleLinkedPreset] = useState<boolean>(true) /* R2728 */
+  const [layerInput, setLayerInput] = useState<number>(1073741824) /* R2736 — UI: 1073741824(Default) */
   const [batchRot, setBatchRot] = useState<string>('')
   const [batchScaleX, setBatchScaleX] = useState<string>('')
   const [batchScaleY, setBatchScaleY] = useState<string>('')
@@ -600,6 +601,38 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
                 title={`선택 노드 scale.x * scale.y * ${scaleMulFactor} (R2728)`}
                 style={bsP}>×{scaleMulFactor}</span>
             </div>
+          </div>
+        )
+      })()}
+
+      {/* R2736: Layer 일괄 설정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const LAYER_PRESETS = [
+          { label: 'Default', value: 1073741824 },
+          { label: 'UI', value: 33554432 },
+          { label: 'Node', value: 524288 },
+          { label: 'Gizmos', value: 268435456 },
+        ] as const
+        const bsL: React.CSSProperties = {
+          fontSize: 9, padding: '1px 5px', cursor: 'pointer',
+          border: '1px solid var(--border)', borderRadius: 2,
+          color: 'var(--text-muted)', background: 'var(--bg-hover)', userSelect: 'none',
+        }
+        const applyLayer = async (v: number) => {
+          await patchNodes(n => ({ ...n, _layer: v }), `layer=${v} (R2736)`)
+        }
+        return (
+          <div style={{ marginBottom: 4, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>Layer (R2736)</span>
+            {LAYER_PRESETS.map(({ label, value }) => (
+              <span key={label} onClick={() => applyLayer(value)}
+                style={bsL}
+                title={`_layer = ${value}`}>{label}</span>
+            ))}
+            <input type="number" value={layerInput}
+              onChange={e => setLayerInput(Number(e.target.value))}
+              style={mkNiS(90)} title="직접 입력 (bitmask)" />
+            <span onClick={() => applyLayer(layerInput)} style={bsL}>지정</span>
           </div>
         )
       })()}
