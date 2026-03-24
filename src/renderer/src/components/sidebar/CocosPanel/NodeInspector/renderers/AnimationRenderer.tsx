@@ -277,7 +277,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     {([['NORM', 0], ['ADD', 10], ['MULT', 12]] as const).map(([l, v]) => {
                       const cur = Number(p.blendMode ?? p._blendMode ?? 0)
                       return (
-                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, blendMode: v, _blendMode: v } } : c); applyAndSave({ components: u }) }}
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, blendMode: v, _blendMode: v, _N$blendMode: v } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#c084fc' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#c084fc' : 'var(--text-muted)', userSelect: 'none' }}
                         >{l}</span>
                       )

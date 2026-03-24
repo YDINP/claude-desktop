@@ -28,6 +28,16 @@ const COMP_SKIP: Record<string, Set<string>> = {
   'cc.Button': new Set(['interactable', 'transition', 'duration', 'zoomScale', 'normalColor', 'pressedColor', 'hoverColor', 'disabledColor']),
   'cc.Layout': new Set(['type', 'resizeMode', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight', 'spacingX', 'spacingY', 'horizontalDirection', 'verticalDirection']),
   'cc.AudioSource': new Set(['clip', 'volume', 'loop', 'playOnAwake']),
+  'cc.Camera': new Set(['clearFlags', '_clearFlags', '_N$clearFlags', 'backgroundColor', '_backgroundColor', '_N$backgroundColor', 'depth', '_depth', '_N$depth', 'fov', '_fov', '_N$fov', 'orthoHeight', '_orthoHeight', '_N$orthoHeight', 'near', '_near', '_N$near', 'far', '_far', '_N$far', 'clearDepth', '_clearDepth', '_N$clearDepth', 'cullingMask', '_cullingMask', '_N$cullingMask', 'ortho', '_ortho', '_N$ortho']),
+  'cc.Widget': new Set(['isAlignTop', '_isAlignTop', '_N$isAlignTop', 'isAlignBottom', '_isAlignBottom', '_N$isAlignBottom', 'isAlignLeft', '_isAlignLeft', '_N$isAlignLeft', 'isAlignRight', '_isAlignRight', '_N$isAlignRight', 'isAlignHorizontalCenter', '_isAlignHorizontalCenter', '_N$isAlignHorizontalCenter', 'isAlignVerticalCenter', '_isAlignVerticalCenter', '_N$isAlignVerticalCenter', 'top', '_top', '_N$top', 'bottom', '_bottom', '_N$bottom', 'left', '_left', '_N$left', 'right', '_right', '_N$right', 'alignMode', '_alignMode', '_N$alignMode', 'horizontalCenter', '_horizontalCenter', '_N$horizontalCenter', 'verticalCenter', '_verticalCenter', '_N$verticalCenter']),
+  'cc.ProgressBar': new Set(['barSprite', '_barSprite', '_N$barSprite', 'progress', '_progress', '_N$progress', 'totalLength', '_totalLength', '_N$totalLength', 'reverse', '_reverse', '_N$reverse', 'mode', '_mode', '_N$mode']),
+  'cc.UIOpacity': new Set(['opacity', '_opacity', '_N$opacity']),
+  'cc.UITransform': new Set(['priority', '_priority', '_N$priority', 'anchorPoint', '_anchorPoint', '_N$anchorPoint']),
+  'cc.Mask': new Set(['type', '_type', '_N$type', 'inverted', '_inverted', '_N$inverted', 'segments', '_segments', '_N$segments']),
+  'cc.DirectionalLight': new Set(['intensity', '_intensity', '_N$intensity', 'color', '_color', '_N$color']),
+  'cc.PointLight': new Set(['intensity', '_intensity', '_N$intensity', 'color', '_color', '_N$color', 'range', '_range', '_N$range']),
+  'cc.SpotLight': new Set(['intensity', '_intensity', '_N$intensity', 'color', '_color', '_N$color', 'range', '_range', '_N$range', 'spotAngle', '_spotAngle', '_N$spotAngle']),
+  'cc.MotionStreak': new Set(['fade', '_fade', '_N$fade', 'minSeg', '_minSeg', '_N$minSeg', 'stroke', '_stroke', '_N$stroke', 'color', '_color', '_N$color', 'fastMode', '_fastMode', '_N$fastMode', 'timeToLive', '_timeToLive', '_N$timeToLive', 'speedThreshold', '_speedThreshold', '_N$speedThreshold']),
 }
 
 /** Prop 변경 감지: 원시값/null은 직접 비교, 객체는 JSON.stringify 폴백 */

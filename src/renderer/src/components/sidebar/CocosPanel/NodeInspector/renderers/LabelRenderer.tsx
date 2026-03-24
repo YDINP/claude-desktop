@@ -668,7 +668,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                         style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const v = Number(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, width: v, _width: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, width: v, _width: v, _N$width: v } } : c)
                           applyAndSave({ components: updated })
                         }} />
                       <label style={{ fontSize: 11 }}>color</label>
@@ -676,7 +676,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                         style={{ width: 36, height: 22, border: 'none', background: 'none', cursor: 'pointer' }}
                         onChange={ev => {
                           const col = { ...fromHex(ev.target.value), a: 255 }
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -713,7 +713,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                           style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                           onBlur={ev => {
                             const v = Number(ev.target.value)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, blur: v, _blur: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, blur: v, _blur: v, _N$blur: v } } : c)
                             applyAndSave({ components: updated })
                           }} />
                       </div>
@@ -723,7 +723,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                           style={{ width: '100%', height: 22, border: '1px solid #444', borderRadius: 3, cursor: 'pointer' }}
                           onChange={ev => {
                             const col = { ...fromHex(ev.target.value), a: 255 }
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: col, _color: col, _N$color: col } } : c)
                             applyAndSave({ components: updated })
                           }} />
                       </div>
@@ -892,7 +892,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   {/* R2446: handleTouchEvent (BatchInspector R2164) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.handleTouchEvent ?? p._handleTouchEvent ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, handleTouchEvent: e.target.checked, _handleTouchEvent: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, handleTouchEvent: e.target.checked, _handleTouchEvent: e.target.checked, _N$handleTouchEvent: e.target.checked } } : c); applyAndSave({ components: u }) }}
                     />handleTouchEvent
                   </label>
                 </div>
@@ -1002,7 +1002,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.handleTouchEvent ?? p._handleTouchEvent ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, handleTouchEvent: e.target.checked, _handleTouchEvent: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, handleTouchEvent: e.target.checked, _handleTouchEvent: e.target.checked, _N$handleTouchEvent: e.target.checked } } : c); applyAndSave({ components: u }) }}
                     />handleTouchEvent
                   </label>
                   {/* R2418: horizontalAlign + fontSize + maxWidth + fontColor */}

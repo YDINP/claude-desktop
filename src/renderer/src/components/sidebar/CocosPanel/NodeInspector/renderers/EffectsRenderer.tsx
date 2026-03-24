@@ -336,7 +336,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
             }
             // R1579: cc.DirectionalLight/PointLight Quick Edit
             if (comp.type === 'cc.DirectionalLight' || comp.type === 'cc.PointLight') {
-              const intensity = Number(p.intensity ?? 1)
+              const intensity = Number(p.intensity ?? p._intensity ?? p._N$intensity ?? 1)
               const lightColor = p.color as { r?: number; g?: number; b?: number } | undefined
               const hexColor = lightColor
                 ? `#${(lightColor.r ?? 255).toString(16).padStart(2, '0')}${(lightColor.g ?? 255).toString(16).padStart(2, '0')}${(lightColor.b ?? 255).toString(16).padStart(2, '0')}`
@@ -382,7 +382,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
             }
             // R1573: cc.SpotLight Quick Edit
             if (comp.type === 'cc.SpotLight') {
-              const intensity = Number(p.intensity ?? 1800)
+              const intensity = Number(p.intensity ?? p._intensity ?? p._N$intensity ?? 1800)
               const range = Number(p.range ?? 1)
               const spotAngle = Number(p.spotAngle ?? 30)
               const lightColor = p.color as { r?: number; g?: number; b?: number } | undefined
@@ -454,7 +454,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
               const minSeg = Number(p.minSeg ?? p._minSeg ?? p._N$minSeg ?? 1)
               const stroke = Number(p.stroke ?? p._stroke ?? p._N$stroke ?? 64)
               const fastMode = !!(p.fastMode ?? false)
-              const mc = p.color ?? p._N$color as { r?: number; g?: number; b?: number } | undefined
+              const mc = (p.color ?? p._color ?? p._N$color) as { r?: number; g?: number; b?: number } | undefined
               const mr = (mc as Record<string,number>|undefined)?.r ?? 255
               const mg = (mc as Record<string,number>|undefined)?.g ?? 255
               const mb = (mc as Record<string,number>|undefined)?.b ?? 255
@@ -505,7 +505,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>TTL</span>
                     <input type="number" defaultValue={Number(p.timeToLive ?? p._timeToLive ?? 1)} min={0} step={0.1}
-                      onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeToLive: v, _timeToLive: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, timeToLive: v, _timeToLive: v, _N$timeToLive: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       title="timeToLive (초)"
                     />

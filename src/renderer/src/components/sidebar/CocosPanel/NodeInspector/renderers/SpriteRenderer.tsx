@@ -250,7 +250,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                           title="Sprite _color (CC3.x)"
                         />
                         <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>α</span>
-                        <input type="number" defaultValue={colRaw?.a ?? 255} min={0} max={255} step={1}
+                        <input type="number" key={`alpha-${colRaw?.a ?? 255}`} defaultValue={colRaw?.a ?? 255} min={0} max={255} step={1}
                           onBlur={e => { const a = Math.max(0, Math.min(255, parseInt(e.target.value) || 255)); const col = { ...(colRaw ?? { r: 255, g: 255, b: 255 }), a }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _color: col } } : c); applyAndSave({ components: u }) }}
                           style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                         />
