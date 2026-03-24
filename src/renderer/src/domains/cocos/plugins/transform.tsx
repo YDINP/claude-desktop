@@ -23,6 +23,9 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
   const [randomRotRange, setRandomRotRange] = useState<number>(30)
   const [absRotValue, setAbsRotValue] = useState<number>(45)
   const [rotDeltaStep, setRotDeltaStep] = useState<number>(90) /* R2727 */
+  const [rotDelta, setRotDelta] = useState<number>(15) /* R2494 */
+  const [snapGrid, setSnapGrid2] = useState<number>(16) /* R2495 */
+  const [rotOffsetInput, setRotOffsetInput] = useState<string>('15') /* R2612 */
   const [absScaleX, setAbsScaleX] = useState<number>(1)
   const [absScaleY, setAbsScaleY] = useState<number>(1)
   const [scaleMulFactor, setScaleMulFactor] = useState<number>(2.0) /* R2728 */
@@ -777,7 +780,6 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
 
       {/* R2494: 회전 델타 applyRotDelta */}
       {sceneFile.root && uuids.length >= 1 && (() => {
-        const [rotDelta, setRotDelta] = useState<number>(15)
         const applyRotDelta = async (dir: 1 | -1) => {
           const d = rotDelta * dir
           await patchNodes(n => {
@@ -799,7 +801,6 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
 
       {/* R2495: 그리드 스냅 applySnap snapGrid 스냅px */}
       {sceneFile.root && uuids.length >= 1 && (() => {
-        const [snapGrid, setSnapGrid2] = useState<number>(16)
         const applySnap = async () => {
           const g = snapGrid
           if (g < 1) return
@@ -993,7 +994,6 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
 
       {/* R2612: rotation 오프셋 rotOffsetInput addRot rot+= (R2612) */}
       {sceneFile.root && uuids.length >= 1 && (() => {
-        const [rotOffsetInput, setRotOffsetInput] = useState<string>('15')
         const addRot = async () => {
           const d = parseFloat(rotOffsetInput)
           if (isNaN(d)) return

@@ -229,7 +229,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
           </label>
           <button
             onClick={async () => {
-              if (!nameReplaceFrom) return
+              if (!nameReplaceFrom || nameReplaceFrom.length > 200) return
               await patchNodes(n => {
                 if (!uuidSet.has(n.uuid)) return n
                 try {
