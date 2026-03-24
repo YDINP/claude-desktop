@@ -938,3 +938,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2738 | QA 체크 2개 추가 (R2736/R2737) — QA 2625→2627 Pass | ✅ |
 | R2739 | BatchInspector opacity 그라데이션 — from→to 선형 보간 일괄 적용 | ✅ |
 | R2740 | SceneView 가이드라인 드래그 이동 — 투명 hitbox + mousemove/up 핸들러 | ✅ |
+| R2741 | QA 체크 2개 추가 (R2739/R2740) — QA 2627→2629 Pass | ✅ |
+| R2742 | SceneView 가이드라인 auto-snap — 드래그 시 8px 이내 가이드에 자동 snap | ✅ |
+| R2743 | BatchInspector 색상 밝기 조절 — +/- delta로 RGB 일괄 증감 | ✅ |
