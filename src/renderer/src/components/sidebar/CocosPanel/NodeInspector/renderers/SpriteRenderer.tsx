@@ -584,8 +584,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                 </div>
               )
             }
-            // R1892: cc.Camera — backgroundColor / clearFlags / depth
-            // R1919: + fov
+            // R2341: cc.WebView url/visibleWithMouse
             if (comp.type === 'cc.WebView') {
               const url = String(p.url ?? p._url ?? p._N$url ?? '')
               const visibleWithMouse = !!(p.visibleWithMouse ?? p._N$visibleWithMouse ?? false)

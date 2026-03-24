@@ -418,7 +418,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [, setSpriteCacheVer] = useState(0)
   // Font 캐시: UUID → { dataUrl, familyName }
   const fontCacheRef = useRef<Map<string, { dataUrl: string; familyName: string }>>(new Map())
-  const [, setFontCacheVer] = useState(0)
+  const [fontCacheVer, setFontCacheVer] = useState(0)
 
   // 캔버스 크기 + 배경색 추정
   const { designW, designH, bgColor } = useMemo(() => {
@@ -454,19 +454,38 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // 씬 트리 → flat 목록 (world position 누적)
   const flatNodes = useMemo(() => {
     const result: FlatNode[] = []
-    function walk(node: CCSceneNode, worldX: number, worldY: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number) {
-      const x = worldX + (typeof node.position === 'object' ? (node.position as { x: number }).x : 0)
-      const y = worldY + (typeof node.position === 'object' ? (node.position as { y: number }).y : 0)
-      result.push({ node, worldX: x, worldY: y, depth, parentUuid, siblingIdx, siblingTotal })
+    // Simple 2D matrix transform: parent rotation/scale applied to local offset
+    const applyParentTransform = (
+      parentRotDeg: number, parentSx: number, parentSy: number,
+      parentWorldX: number, parentWorldY: number,
+      localX: number, localY: number
+    ): [number, number] => {
+      const r = -parentRotDeg * Math.PI / 180
+      const cos = Math.cos(r), sin = Math.sin(r)
+      const wx = parentWorldX + (cos * parentSx * localX - sin * parentSy * localY)
+      const wy = parentWorldY + (sin * parentSx * localX + cos * parentSy * localY)
+      return [wx, wy]
+    }
+    function walk(node: CCSceneNode, parentWorldX: number, parentWorldY: number, parentRotDeg: number, parentSx: number, parentSy: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number) {
+      const localX = typeof node.position === 'object' ? (node.position as { x: number }).x : 0
+      const localY = typeof node.position === 'object' ? (node.position as { y: number }).y : 0
+      const [worldX, worldY] = applyParentTransform(parentRotDeg, parentSx, parentSy, parentWorldX, parentWorldY, localX, localY)
+      const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number })?.z ?? 0
+      const cumRotZ = parentRotDeg + rotZ
+      const sx = (node.scale as { x?: number })?.x ?? 1
+      const sy = (node.scale as { y?: number })?.y ?? 1
+      const cumSx = parentSx * sx
+      const cumSy = parentSy * sy
+      result.push({ node, worldX, worldY, depth, parentUuid, siblingIdx, siblingTotal })
       // R2726: 씬 트리에서 접힌 노드는 자식을 SceneView에서도 숨김
       if (collapsedUuids?.has(node.uuid)) return
       for (let i = 0; i < node.children.length; i++) {
-        walk(node.children[i], x, y, depth + 1, node.uuid, i, node.children.length)
+        walk(node.children[i], worldX, worldY, cumRotZ, cumSx, cumSy, depth + 1, node.uuid, i, node.children.length)
       }
     }
     // Scene 루트 자체는 건너뜀 (이름 없는 컨테이너)
     for (let i = 0; i < sceneFile.root.children.length; i++) {
-      walk(sceneFile.root.children[i], 0, 0, 0, null, i, sceneFile.root.children.length)
+      walk(sceneFile.root.children[i], 0, 0, 0, 1, 1, 0, null, i, sceneFile.root.children.length)
     }
     return result
   }, [sceneFile, collapsedUuids])
@@ -2174,6 +2193,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' }}>
       <svg
         ref={svgRef}
+        data-font-ver={fontCacheVer}
         style={{ width: '100%', height: '100%', background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : rotateOverride ? 'crosshair' : measureMode ? 'crosshair' : 'default', display: 'block' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -2520,7 +2540,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const depthDim = depthFilterMax !== null && depth > depthFilterMax && !isSelected ? 0.08 : 1
             // R2551: 컴포넌트 타입 필터 — 해당 타입 없는 노드 dim
             const compDim = compFilterType && !isSelected ? (node.components.some(c => c.type === compFilterType) ? 1 : 0.1) : 1
-            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
+            // Check cc.UIOpacity component (CC3.x)
+            const uiOpacityComp = node.components?.find(c => c.type === 'cc.UIOpacity')
+            const uiOpacityVal = uiOpacityComp ? Number(uiOpacityComp.props?.opacity ?? uiOpacityComp.props?._opacity ?? 255) : undefined
+            const nodeOpacity = (node.active !== false ? (uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
@@ -2530,7 +2553,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const rotZ = rotateOverride?.uuid === node.uuid
               ? rotateOverride.angle
               : (typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0)
-            const rotTransform = rotZ !== 0 ? `rotate(${-rotZ}, ${svgPos.x}, ${svgPos.y})` : undefined
+            const sx = (node.scale as { x?: number; y?: number } | null)?.x ?? 1
+            const sy = (node.scale as { x?: number; y?: number } | null)?.y ?? 1
+            const rotTransform = (sx !== 1 || sy !== 1 || rotZ !== 0)
+              ? (sx !== 1 || sy !== 1)
+                ? `translate(${svgPos.x},${svgPos.y}) rotate(${-rotZ}) scale(${sx},${sy}) translate(${-svgPos.x},${-svgPos.y})`
+                : `translate(${svgPos.x},${svgPos.y}) rotate(${-rotZ}) translate(${-svgPos.x},${-svgPos.y})`
+              : undefined
 
             const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
             const hasSprite = node.components.some(c => c.type === 'cc.Sprite' || c.type === 'Sprite' || c.type === 'cc.Sprite2D')
@@ -3142,8 +3171,91 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   if (flags & 2) indicators.push(<line key="R" x1={rectX + w} y1={rectY + h/2} x2={rectX + w + sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
                   if (flags & 4) indicators.push(<line key="T" x1={rectX + w/2} y1={rectY} x2={rectX + w/2} y2={rectY - sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
                   if (flags & 8) indicators.push(<line key="B" x1={rectX + w/2} y1={rectY + h} x2={rectX + w/2} y2={rectY + h + sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  // Widget offset value labels
+                  const OFFSET_KEYS: Record<string, string[]> = {
+                    L: ['left', '_left', '_N$left'],
+                    R: ['right', '_right', '_N$right'],
+                    T: ['top', '_top', '_N$top'],
+                    B: ['bottom', '_bottom', '_N$bottom'],
+                  }
+                  const getOffset = (keys: string[]) => {
+                    for (const k of keys) {
+                      const v = widgetComp.props[k]
+                      if (v !== undefined && v !== null) return Number(v)
+                    }
+                    return null
+                  }
+                  if (flags & 1) {
+                    const val = getOffset(OFFSET_KEYS.L)
+                    if (val !== null && view.zoom > 0.4) {
+                      indicators.push(
+                        <text key="Lv" x={rectX - sz * 2 - 2/view.zoom} y={rectY + h/2}
+                          fontSize={7/view.zoom} fill={color} textAnchor="end" dominantBaseline="middle"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }} fontFamily="monospace"
+                        >{Math.round(val)}</text>
+                      )
+                    }
+                  }
+                  if (flags & 2) {
+                    const val = getOffset(OFFSET_KEYS.R)
+                    if (val !== null && view.zoom > 0.4) {
+                      indicators.push(
+                        <text key="Rv" x={rectX + w + sz * 2 + 2/view.zoom} y={rectY + h/2}
+                          fontSize={7/view.zoom} fill={color} textAnchor="start" dominantBaseline="middle"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }} fontFamily="monospace"
+                        >{Math.round(val)}</text>
+                      )
+                    }
+                  }
+                  if (flags & 4) {
+                    const val = getOffset(OFFSET_KEYS.T)
+                    if (val !== null && view.zoom > 0.4) {
+                      indicators.push(
+                        <text key="Tv" x={rectX + w/2} y={rectY - sz * 2 - 2/view.zoom}
+                          fontSize={7/view.zoom} fill={color} textAnchor="middle" dominantBaseline="auto"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }} fontFamily="monospace"
+                        >{Math.round(val)}</text>
+                      )
+                    }
+                  }
+                  if (flags & 8) {
+                    const val = getOffset(OFFSET_KEYS.B)
+                    if (val !== null && view.zoom > 0.4) {
+                      indicators.push(
+                        <text key="Bv" x={rectX + w/2} y={rectY + h + sz * 2 + 8/view.zoom}
+                          fontSize={7/view.zoom} fill={color} textAnchor="middle" dominantBaseline="hanging"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }} fontFamily="monospace"
+                        >{Math.round(val)}</text>
+                      )
+                    }
+                  }
                   if (flags & 16) indicators.push(<line key="HC" x1={rectX + w/2} y1={rectY + h/2} x2={rectX + w/2 - sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1/view.zoom} strokeDasharray={`${2/view.zoom},${2/view.zoom}`} style={{ pointerEvents: 'none' }} />)
                   if (flags & 32) indicators.push(<line key="VC" x1={rectX + w/2} y1={rectY + h/2} x2={rectX + w/2} y2={rectY + h/2 - sz*2} stroke={color} strokeWidth={1/view.zoom} strokeDasharray={`${2/view.zoom},${2/view.zoom}`} style={{ pointerEvents: 'none' }} />)
+                  // Stretch: L+R active = width stretch, T+B active = height stretch
+                  const isStretchW = (flags & 3) === 3
+                  const isStretchH = (flags & 12) === 12
+                  if (isStretchW) {
+                    indicators.push(
+                      <line key="SW"
+                        x1={rectX - sz*2} y1={rectY + h/2}
+                        x2={rectX + w + sz*2} y2={rectY + h/2}
+                        stroke={color} strokeWidth={1/view.zoom}
+                        strokeDasharray={`${3/view.zoom},${2/view.zoom}`}
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    )
+                  }
+                  if (isStretchH) {
+                    indicators.push(
+                      <line key="SH"
+                        x1={rectX + w/2} y1={rectY - sz*2}
+                        x2={rectX + w/2} y2={rectY + h + sz*2}
+                        stroke={color} strokeWidth={1/view.zoom}
+                        strokeDasharray={`${3/view.zoom},${2/view.zoom}`}
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    )
+                  }
                   if (indicators.length === 0) return null
                   return <>{indicators}</>
                 })()}
@@ -3247,14 +3359,76 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   if (!imgUrl) return null
                   const iw = Math.abs(w) || 1
                   const ih = Math.abs(h) || 1
+                  const { r: tr = 255, g: tg = 255, b: tb = 255 } = (node.color as { r?: number; g?: number; b?: number } | null) ?? {}
+                  const hasTint = tr !== 255 || tg !== 255 || tb !== 255
+                  const isGrayscale = !!(sc?.props?.grayscale ?? sc?.props?._grayscale ?? sc?.props?.['_N$grayscale'] ?? false)
+                  // Sprite type badge (only for non-simple types)
+                  const spriteType = Number(sc?.props?.type ?? sc?.props?._type ?? 0)
+                  // 0=Simple, 1=Sliced, 2=Tiled, 3=Filled
+                  const SPRITE_TYPE_LABELS: Record<number, string> = { 1: '9', 2: '⊞', 3: '◔' }
+                  const spriteTypeLabel = SPRITE_TYPE_LABELS[spriteType]
+                  // 0=Custom, 1=Trimmed, 2=Raw
+                  const sizeMode = Number(sc?.props?.sizeMode ?? sc?.props?._sizeMode ?? 1)
                   return (
-                    <image
-                      href={imgUrl}
-                      x={rectX} y={rectY}
-                      width={iw} height={ih}
-                      preserveAspectRatio="xMidYMid meet"
-                      style={{ pointerEvents: 'none' }}
-                    />
+                    <>
+                      {hasTint ? (
+                        <>
+                          <image
+                            href={imgUrl}
+                            x={rectX} y={rectY}
+                            width={iw} height={ih}
+                            preserveAspectRatio="xMidYMid meet"
+                            style={{ pointerEvents: 'none', filter: isGrayscale ? 'grayscale(1)' : undefined }}
+                          />
+                          <rect
+                            x={rectX} y={rectY} width={iw} height={ih}
+                            fill={`rgb(${tr},${tg},${tb})`}
+                            opacity={0.45}
+                            style={{ pointerEvents: 'none', mixBlendMode: 'multiply' as const }}
+                          />
+                        </>
+                      ) : (
+                        <image
+                          href={imgUrl}
+                          x={rectX} y={rectY}
+                          width={iw} height={ih}
+                          preserveAspectRatio="xMidYMid meet"
+                          style={{ pointerEvents: 'none', filter: isGrayscale ? 'grayscale(1)' : undefined }}
+                        />
+                      )}
+                      {spriteTypeLabel && view.zoom > 0.3 && (
+                        <text
+                          x={rectX + 2 / view.zoom}
+                          y={rectY + 10 / view.zoom}
+                          fontSize={9 / view.zoom}
+                          fill="rgba(250,204,21,0.85)"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }}
+                          fontFamily="monospace"
+                        >{spriteTypeLabel}</text>
+                      )}
+                      {sizeMode === 0 && view.zoom > 0.3 && (
+                        <text x={rectX + w - 8/view.zoom} y={rectY + 10/view.zoom}
+                          fontSize={7/view.zoom} fill="rgba(148,163,184,0.7)"
+                          textAnchor="end" style={{ pointerEvents: 'none', userSelect: 'none' }}
+                          fontFamily="monospace">C</text>
+                      )}
+                      {spriteType === 3 && (() => {
+                        const fillRange = Number(sc?.props?.fillRange ?? sc?.props?._fillRange ?? 1)
+                        const cx2 = rectX + iw / 2, cy2 = rectY + ih / 2
+                        const r2 = Math.min(iw, ih) / 2 * 0.8
+                        const angle = fillRange * 2 * Math.PI
+                        const x2end = cx2 + r2 * Math.sin(angle)
+                        const y2end = cy2 - r2 * Math.cos(angle)
+                        const largeArc = fillRange > 0.5 ? 1 : 0
+                        return (
+                          <path
+                            d={`M ${cx2} ${cy2 - r2} A ${r2} ${r2} 0 ${largeArc} 1 ${x2end} ${y2end}`}
+                            fill="none" stroke="rgba(250,204,21,0.6)" strokeWidth={1.5 / view.zoom}
+                            style={{ pointerEvents: 'none' }}
+                          />
+                        )
+                      })()}
+                    </>
                   )
                 })()}
                 {/* Label 텍스트 렌더링 + R1491 더블클릭 인라인 편집 */}
@@ -3263,7 +3437,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const str = (lc?.props?.string as string | undefined) ?? (lc?.props?._string as string | undefined) ?? ''
                   if (!str && editingLabelUuid !== node.uuid) return null
                   const fs = Math.min(Math.max((lc?.props?.fontSize as number | undefined) ?? 20, 8), 200)
-                  const { r: cr = 255, g: cg = 255, b: cb = 255 } = node.color ?? {}
+                  // Label 텍스트 색상: comp.props.color 우선, 없으면 노드 tint
+                  const labelTextColorProp = lc?.props?.color as { r?: number; g?: number; b?: number } | undefined
+                  const { r: cr = 255, g: cg = 255, b: cb = 255 } = labelTextColorProp ?? node.color ?? {}
                   if (editingLabelUuid === node.uuid) {
                     return (
                       <foreignObject
@@ -3294,27 +3470,132 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                              ?? (lc?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
                              ?? (lc?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
                   const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
-                  const fontFamilyName = fontEntry?.familyName
+                  // isSystemFontUsed=true면 fontFamily(시스템) 우선, false면 TTF 우선
+                  const isSystemFont = !!(lc?.props?.isSystemFontUsed ?? lc?.props?.['_N$isSystemFontUsed'] ?? true)
+                  const fontFamilyName = (!isSystemFont && fontEntry?.familyName)
                     || (lc?.props?.fontFamily as string | undefined)
                     || (lc?.props?._fontFamily as string | undefined)
                     || (lc?.props?.['_N$fontFamily'] as string | undefined)
+                    || (!isSystemFont ? fontEntry?.familyName : undefined)
                     || undefined
+                  // Outline: CC3.x enableOutline 또는 cc.LabelOutline 컴포넌트
+                  const enableOutline = !!(lc?.props?.enableOutline ?? lc?.props?._enableOutline ?? false)
+                  const outlineComp = node.components.find(c => c.type === 'cc.LabelOutline')
+                  const hasOutline = enableOutline || !!outlineComp
+                  const outlineColorProp = (enableOutline
+                    ? lc?.props?.outlineColor
+                    : outlineComp?.props?.color ?? outlineComp?.props?._color) as { r?: number; g?: number; b?: number } | undefined
+                  const { r: or = 0, g: og = 0, b: ob = 0 } = outlineColorProp ?? {}
+                  const outlineWidth = enableOutline
+                    ? Number(lc?.props?.outlineWidth ?? lc?.props?._outlineWidth ?? 1)
+                    : Number(outlineComp?.props?.width ?? outlineComp?.props?._width ?? 1)
+                  // Shadow: CC3.x enableShadow or cc.LabelShadow component
+                  const enableShadow = !!(lc?.props?.enableShadow ?? lc?.props?._enableShadow ?? false)
+                  const shadowComp = node.components.find(c => c.type === 'cc.LabelShadow')
+                  const hasShadow = enableShadow || !!shadowComp
+
+                  const shadowColorProp = (enableShadow
+                    ? lc?.props?.shadowColor
+                    : shadowComp?.props?.color ?? shadowComp?.props?._color) as { r?: number; g?: number; b?: number; a?: number } | undefined
+                  const { r: shr = 0, g: shg = 0, b: shb = 0, a: sha = 200 } = shadowColorProp ?? {}
+
+                  const shadowOffsetProp = (enableShadow
+                    ? lc?.props?.shadowOffset
+                    : shadowComp?.props?.offset ?? shadowComp?.props?._offset) as { x?: number; y?: number } | undefined
+                  const shOffX = Number(shadowOffsetProp?.x ?? 2) / view.zoom
+                  const shOffY = Number(shadowOffsetProp?.y ?? -2) / view.zoom
+
+                  const shadowBlurVal = enableShadow
+                    ? Number(lc?.props?.shadowBlur ?? lc?.props?._shadowBlur ?? 2)
+                    : Number(shadowComp?.props?.blur ?? shadowComp?.props?._blur ?? 2)
+                  const shBlur = shadowBlurVal / view.zoom
+
+                  // Gradient: CC3.x enableGradient
+                  const enableGradient = !!(lc?.props?.enableGradient ?? lc?.props?._enableGradient ?? false)
+                  const colorTopProp = lc?.props?.colorTop as { r?: number; g?: number; b?: number } | undefined
+                  const colorBotProp = lc?.props?.colorBottom as { r?: number; g?: number; b?: number } | undefined
+                  const { r: gtr = cr, g: gtg = cg, b: gtb = cb } = colorTopProp ?? {}
+                  const { r: gbr = cr, g: gbg = cg, b: gbb = cb } = colorBotProp ?? {}
+                  const gradientId = enableGradient ? `lbl-grad-${node.uuid.replace(/[^a-z0-9]/gi, '')}` : undefined
+
+                  // RichText: strip markup tags for display
+                  const stripRichText = (src: string) => src
+                    .replace(/<color=[^>]+>/g, '').replace(/<\/color>/g, '')
+                    .replace(/<b>/g, '').replace(/<\/b>/g, '')
+                    .replace(/<i>/g, '').replace(/<\/i>/g, '')
+                    .replace(/<u>/g, '').replace(/<\/u>/g, '')
+                    .replace(/<size=\d+>/g, '').replace(/<\/size>/g, '')
+                    .replace(/<br\/>/g, '\n').replace(/<\/br>/g, '\n')
+                  const displayStr = lc?.type === 'cc.RichText' ? stripRichText(str) : str
+
+                  // Overflow: 0=None, 1=Clamp, 2=Shrink, 3=ResizeH
+                  const overflowMode = Number(lc?.props?.overflow ?? lc?.props?._overflow ?? lc?.props?.['_N$overflow'] ?? 0)
+                  const needsClip = overflowMode >= 1
+                  const clipId = needsClip ? `lbl-clip-${node.uuid.replace(/[^a-z0-9]/gi, '')}` : undefined
+
+                  // Horizontal alignment: 0=Left, 1=Center, 2=Right
+                  const hAlign = Number(lc?.props?.horizontalAlign ?? lc?.props?._horizontalAlign ?? lc?.props?.['_N$horizontalAlign'] ?? 1)
+                  // Vertical alignment: 0=Top, 1=Center/Middle, 2=Bottom
+                  const vAlign = Number(lc?.props?.verticalAlign ?? lc?.props?._verticalAlign ?? lc?.props?.['_N$verticalAlign'] ?? 1)
+
+                  const textAnchorVal = hAlign === 0 ? 'start' : hAlign === 2 ? 'end' : 'middle'
+                  const textX = hAlign === 0 ? rectX : hAlign === 2 ? rectX + w : rectX + w / 2
+                  const dominantBaselineVal = vAlign === 0 ? 'hanging' : vAlign === 2 ? 'auto' : 'middle'
+                  const textY = vAlign === 0 ? rectY : vAlign === 2 ? rectY + h : rectY + h / 2
+
+                  const lines = displayStr.split('\n')
+                  const lineHeightProp = Number(lc?.props?.lineHeight ?? lc?.props?._lineHeight ?? 0)
+                  const lineH = lineHeightProp > 0 ? lineHeightProp : fs * 1.2
+
+                  const totalHeight = lines.length * lineH
+                  const startY = vAlign === 0
+                    ? textY
+                    : vAlign === 2
+                      ? textY - totalHeight + lineH
+                      : textY - (totalHeight - lineH) / 2
+
                   return (
-                    <text
-                      x={rectX + w / 2} y={rectY + h / 2}
-                      fontSize={fs}
-                      fill={`rgb(${cr},${cg},${cb})`}
-                      textAnchor="middle" dominantBaseline="middle"
-                      fontFamily={fontFamilyName}
-                      style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
-                      onDoubleClick={e => {
-                        e.stopPropagation()
-                        setEditingLabelUuid(node.uuid)
-                        setTimeout(() => editLabelRef.current?.focus(), 30)
-                      }}
-                    >
-                      {str}
-                    </text>
+                    <>
+                      {needsClip && (
+                        <clipPath id={clipId}>
+                          <rect x={rectX} y={rectY} width={Math.max(w, 0)} height={Math.max(h, 0)} />
+                        </clipPath>
+                      )}
+                      {enableGradient && gradientId && (
+                        <defs>
+                          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={`rgb(${gtr},${gtg},${gtb})`} />
+                            <stop offset="100%" stopColor={`rgb(${gbr},${gbg},${gbb})`} />
+                          </linearGradient>
+                        </defs>
+                      )}
+                      <text
+                        x={textX}
+                        y={lines.length === 1 ? textY : startY}
+                        fontSize={fs}
+                        fill={enableGradient && gradientId ? `url(#${gradientId})` : `rgb(${cr},${cg},${cb})`}
+                        textAnchor={textAnchorVal}
+                        dominantBaseline={lines.length === 1 ? dominantBaselineVal : 'auto'}
+                        fontFamily={fontFamilyName}
+                        stroke={hasOutline ? `rgb(${or},${og},${ob})` : undefined}
+                        strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) / view.zoom : undefined}
+                        paintOrder={hasOutline ? 'stroke' : undefined}
+                        filter={hasShadow ? `drop-shadow(${shOffX}px ${shOffY}px ${shBlur}px rgba(${shr},${shg},${shb},${sha / 255}))` : undefined}
+                        clipPath={needsClip ? `url(#${clipId})` : undefined}
+                        style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
+                        onDoubleClick={e => {
+                          e.stopPropagation()
+                          setEditingLabelUuid(node.uuid)
+                          setTimeout(() => editLabelRef.current?.focus(), 30)
+                        }}
+                      >
+                        {lines.length === 1 ? displayStr : lines.map((line, i) => (
+                          <tspan key={i} x={textX} dy={i === 0 ? 0 : lineH}>
+                            {line}
+                          </tspan>
+                        ))}
+                      </text>
+                    </>
                   )
                 })()}
                 {/* R1543: 잠금 아이콘 (locked nodes) */}

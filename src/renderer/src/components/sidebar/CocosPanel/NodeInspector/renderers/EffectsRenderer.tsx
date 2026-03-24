@@ -165,7 +165,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                 </div>
               )
             }
-            // R1620: cc.Label — 텍스트 Quick Edit (string + fontSize)
+            // R1790/R1892: cc.Camera — clearFlags + backgroundColor 편집
             if (comp.type === 'cc.Camera') {
               const bg = p.backgroundColor as { r?: number; g?: number; b?: number; a?: number } | undefined
               const bgHex = `#${((bg?.r ?? 0)).toString(16).padStart(2,'0')}${((bg?.g ?? 0)).toString(16).padStart(2,'0')}${((bg?.b ?? 0)).toString(16).padStart(2,'0')}`
@@ -198,7 +198,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>clearFlags</span>
                     {([['None',0],['Depth',2],['Color+D',7],['All',15]] as [string,number][]).map(([l,v]) => (
                       <span key={v} title={`clearFlags=${v}`}
-                        onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearFlags: v, _clearFlags: v } } : c); applyAndSave({ components: u }) }}
+                        onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearFlags: v, _clearFlags: v, _N$clearFlags: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${clearFlags === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: clearFlags === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
                       >{l}</span>
                     ))}
@@ -208,7 +208,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <input type="number" defaultValue={depth} step={1} key={`cdepth-${depth}`}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || 0
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, depth: v, _depth: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, depth: v, _depth: v, _N$depth: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -227,7 +227,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
                   </div>
-                  {/* R2442: CC3.x orthoHeight/near/far (dead block 2 props 통합) */}
+                  {/* R2365/R2442: CC3.x orthoHeight/near/far (dead block 2 props 통합) */}
                   {is3x && (
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -277,7 +277,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                       />
                     </div>
                   )}
-                  {/* R2449: clearDepth (BatchInspector R2187) */}
+                  {/* R2412/R2449: clearDepth cc.Camera (BatchInspector R2187) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>clearDepth</span>
                     <input type="number" defaultValue={Number(p.clearDepth ?? p._clearDepth ?? 1)} min={0} max={1} step={0.5}
@@ -306,7 +306,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                       )
                     })}
                   </div>
-                  {/* R2449: cullingMask (BatchInspector R1989) */}
+                  {/* R2412/R2449: cullingMask (BatchInspector R1989) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>cullingMask</span>
                     {([['All', -1], ['None', 0], ['Dflt', 1]] as [string, number][]).map(([l, v]) => (
@@ -445,170 +445,6 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{hexColor}</span>
                   </div>
-                </div>
-              )
-            }
-            // R2341: cc.WebView — url/visibleWithMouse Quick Edit
-            if (comp.type === 'cc.Camera') {
-              const depth = Number(p.depth ?? 0)
-              const zoomRatio = Number(p.zoomRatio ?? 1)
-              const fov = Number(p.fov ?? 45)
-              const is3x = typeof p.fov !== 'undefined'
-              return (
-                <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>depth</span>
-                    <input type="number" defaultValue={depth} step={1}
-                      onBlur={e => {
-                        const v = parseInt(e.target.value) || 0
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, depth: v, _depth: v, _N$depth: v } } : c)
-                        applyAndSave({ components: updated })
-                      }}
-                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
-                    />
-                  </div>
-                  {!is3x && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>zoomRatio</span>
-                      <input type="number" defaultValue={zoomRatio} min={0.01} step={0.1}
-                        onBlur={e => {
-                          const v = parseFloat(e.target.value) || 1
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, zoomRatio: v, _zoomRatio: v } } : c)
-                          applyAndSave({ components: updated })
-                        }}
-                        style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
-                      />
-                    </div>
-                  )}
-                  {is3x && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>fov</span>
-                      <input type="number" defaultValue={fov} min={1} max={180} step={1}
-                        onBlur={e => {
-                          const v = Math.max(1, Math.min(180, parseFloat(e.target.value) || 45))
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fov: v, _fov: v } } : c)
-                          applyAndSave({ components: updated })
-                        }}
-                        style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
-                      />
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>°</span>
-                    </div>
-                  )}
-                  {/* R2365: CC3.x orthoHeight + near/far */}
-                  {is3x && (
-                    <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>orthoH</span>
-                        <input type="number" min={1} step={10}
-                          defaultValue={Number(p.orthoHeight ?? p._orthoHeight ?? 540)}
-                          key={`oh-${Number(p.orthoHeight ?? 540)}`}
-                          onBlur={e => {
-                            const v = Math.max(1, parseFloat(e.target.value) || 540)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v } } : c)
-                            applyAndSave({ components: updated })
-                          }}
-                          style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: '#93c5fd', borderRadius: 3, padding: '1px 4px' }}
-                        />
-                        {[360, 540, 720, 1080].map(v => (
-                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v } } : c); applyAndSave({ components: u }) }}
-                            style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>{v}</span>
-                        ))}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>near/far</span>
-                        <input type="number" step={0.1}
-                          defaultValue={Number(p.near ?? p._near ?? 1)}
-                          key={`cn-${Number(p.near ?? 1)}`}
-                          onBlur={e => {
-                            const v = parseFloat(e.target.value) || 1
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, near: v, _near: v } } : c)
-                            applyAndSave({ components: updated })
-                          }}
-                          style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
-                          title="near"
-                        />
-                        <input type="number" step={10}
-                          defaultValue={Number(p.far ?? p._far ?? 4096)}
-                          key={`cf-${Number(p.far ?? 4096)}`}
-                          onBlur={e => {
-                            const v = parseFloat(e.target.value) || 4096
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, far: v, _far: v } } : c)
-                            applyAndSave({ components: updated })
-                          }}
-                          style={{ width: 60, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
-                          title="far"
-                        />
-                      </div>
-                    </>
-                  )}
-                  {/* R2412: cullingMask (BatchInspector R1989) */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>cullMask</span>
-                    {([['All', -1], ['Dflt', 1], ['None', 0]] as const).map(([l, v]) => {
-                      const cur = Number(p.cullingMask ?? p._cullingMask ?? -1)
-                      return (
-                        <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cullingMask: v, _cullingMask: v } } : c); applyAndSave({ components: u }) }}
-                          style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#818cf8' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#818cf8' : 'var(--text-muted)', userSelect: 'none' }}
-                        >{l}</span>
-                      )
-                    })}
-                    <input type="number" defaultValue={Number(p.cullingMask ?? p._cullingMask ?? -1)} step={1}
-                      onBlur={e => { const v = parseInt(e.target.value) || -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cullingMask: v, _cullingMask: v } } : c); applyAndSave({ components: u }) }}
-                      style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
-                      title="cullingMask"
-                    />
-                  </div>
-                  {/* R2412: clearDepth (CC3.x, BatchInspector R2187) */}
-                  {is3x && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>clearDepth</span>
-                      <input type="number" defaultValue={Number(p.clearDepth ?? p._clearDepth ?? 1)} min={0} max={1} step={0.1}
-                        onBlur={e => { const v = Math.max(0, Math.min(1, parseFloat(e.target.value) || 1)); const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c); applyAndSave({ components: u }) }}
-                        style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
-                        title="clearDepth (CC3.x)"
-                      />
-                      {[0, 0.5, 1].map(v => (
-                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c); applyAndSave({ components: u }) }}
-                          style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
-                        >{v}</span>
-                      ))}
-                    </div>
-                  )}
-                  {/* R1790: clearFlags + backgroundColor */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>clear</span>
-                    {([['Color', 1], ['Depth', 2], ['None', 4]] as const).map(([l, v]) => {
-                      const clearFlags = Number(p.clearFlags ?? p._clearFlags ?? 1)
-                      return (
-                        <span key={l} title={`clearFlags = ${l}`}
-                          onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearFlags: v, _clearFlags: v } } : c); applyAndSave({ components: updated }) }}
-                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${clearFlags === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: clearFlags === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
-                        >{l}</span>
-                      )
-                    })}
-                  </div>
-                  {(() => {
-                    const bgRaw = p.backgroundColor ?? p._backgroundColor as { r?: number; g?: number; b?: number } | undefined
-                    const bgR = (bgRaw as Record<string,number> | undefined)?.r ?? 0
-                    const bgG = (bgRaw as Record<string,number> | undefined)?.g ?? 0
-                    const bgB = (bgRaw as Record<string,number> | undefined)?.b ?? 0
-                    const bgHex = `#${bgR.toString(16).padStart(2,'0')}${bgG.toString(16).padStart(2,'0')}${bgB.toString(16).padStart(2,'0')}`
-                    return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>bg color</span>
-                        <input type="color" value={bgHex}
-                          onChange={e => {
-                            const h = e.target.value
-                            const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, backgroundColor: { r, g, b, a: 255 }, _backgroundColor: { r, g, b, a: 255 } } } : c)
-                            applyAndSave({ components: updated })
-                          }}
-                          style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
-                        />
-                        <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{bgR},{bgG},{bgB}</span>
-                      </div>
-                    )
-                  })()}
                 </div>
               )
             }
