@@ -196,6 +196,10 @@ contextBridge.exposeInMainWorld('api', {
   templateSave: (t: { id: string; name: string; prompt: string }) => ipcRenderer.invoke('template:save', t),
   templateDelete: (id: string) => ipcRenderer.invoke('template:delete', id),
 
+  // Custom slash commands (workflow / .claude/commands)
+  commandScan: (projectPath: string) => ipcRenderer.invoke('command:scan', { projectPath }),
+  commandLoadWorkflow: (filePath: string) => ipcRenderer.invoke('command:loadWorkflow', { filePath }),
+
   // Plugins
   pluginsList: () => ipcRenderer.invoke('plugins:list'),
   pluginsOpenFolder: () => ipcRenderer.invoke('plugins:openFolder'),
@@ -525,6 +529,8 @@ declare global {
       templateList: () => Promise<Array<{ id: string; name: string; prompt: string }>>
       templateSave: (t: { id: string; name: string; prompt: string }) => Promise<boolean>
       templateDelete: (id: string) => Promise<boolean>
+      commandScan: (projectPath: string) => Promise<Array<{ cmd: string; label: string; description: string; filePath: string; source: 'commands' | 'workflows' }>>
+      commandLoadWorkflow: (filePath: string) => Promise<{ content: string; error?: string }>
       onCloseTab: (cb: () => void) => () => void
       onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => () => void
       settingsGet: () => Promise<{ theme: string; fontSize: number; maxTokensPerRequest: number; temperature: number; showTimestamps: boolean; selectedModel: string; accentColor: string; compactMode: boolean; soundEnabled: boolean; customCSS: string }>
