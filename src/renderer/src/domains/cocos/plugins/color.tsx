@@ -4,7 +4,7 @@ import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
 
 export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
-  const uuids = nodes.map(n => n.uuid)
+  const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   const { patchNodes, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
@@ -16,6 +16,8 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
 
   const [opGradFrom, setOpGradFrom] = useState<number>(255)
   const [opGradTo, setOpGradTo] = useState<number>(0)
+  const [opacGradFrom, setOpacGradFrom] = useState<number>(255) /* R2739 */
+  const [opacGradTo, setOpacGradTo] = useState<number>(0) /* R2739 */
   const [colorGradFrom, setColorGradFrom] = useState<string>('#ffffff')
   const [colorGradTo, setColorGradTo] = useState<string>('#ff0000')
   const [colorBlendTarget, setColorBlendTarget] = useState<string>('#ff0000')
@@ -26,6 +28,7 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
   const [colorDeltaA, setColorDeltaA] = useState<number>(0)
   const [opacityMult, setOpacityMult] = useState<number>(80)
   const [opacityFixed, setOpacityFixed] = useState<number>(255)
+  const [brightDelta, setBrightDelta] = useState<number>(20) /* R2743 */
 
   const mkBtnS = (color: string, extra?: React.CSSProperties): React.CSSProperties => ({
     fontSize: 9, padding: '1px 5px', cursor: 'pointer',
@@ -37,6 +40,20 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
     borderRadius: 2, background: 'var(--bg-secondary)',
     color: 'var(--text-primary)', textAlign: 'center',
   })
+
+  // R2743: 색상 밝기 조절
+  const applyBrightness = async (delta: number) => {
+    await patchNodes(n => {
+      const c = n._color as { r: number; g: number; b: number; a: number } | undefined
+      if (!c) return n
+      const clamp = (v: number) => Math.max(0, Math.min(255, v))
+      return {
+        ...n,
+        _color: { ...c, r: clamp(c.r + delta), g: clamp(c.g + delta), b: clamp(c.b + delta) },
+        color: { ...c, r: clamp(c.r + delta), g: clamp(c.g + delta), b: clamp(c.b + delta) },
+      }
+    }, `밝기 ${delta > 0 ? '+' : ''}${delta} (R2743)`)
+  }
 
   // R1575: 색상 일괄 변경
   const colorRgb = (() => {
@@ -417,6 +434,31 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         )
       })()}
 
+      {/* R2739: opacity 그라데이션 */}
+      {uuids.length >= 2 && (() => {
+        const applyOpacGrad = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0.5
+          const opacity = Math.round(opacGradFrom + (opacGradTo - opacGradFrom) * t)
+          const clamped = Math.max(0, Math.min(255, opacity))
+          return { ...n, opacity: clamped }
+        }, `opacity 그라데이션 ${opacGradFrom}→${opacGradTo} (${uuids.length}개) (R2739)`)
+        const niS = mkNiS(36)
+        const btnS = mkBtnS('#c084fc')
+        return (
+          <div style={{ marginBottom: 4, display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>opacity그라데이션 (R2739)</span>
+            <input type="number" value={opacGradFrom} min={0} max={255}
+              onChange={e => setOpacGradFrom(Math.max(0, Math.min(255, Number(e.target.value))))}
+              style={niS} title="시작 opacity (0-255)" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={opacGradTo} min={0} max={255}
+              onChange={e => setOpacGradTo(Math.max(0, Math.min(255, Number(e.target.value))))}
+              style={niS} title="끝 opacity (0-255)" />
+            <span onClick={applyOpacGrad} style={btnS} title="opacity 선형 보간 적용">적용</span>
+          </div>
+        )
+      })()}
+
       {/* R2704: 색상 채널 오프셋 */}
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyColorDelta = async () => {
@@ -445,6 +487,18 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
           </div>
         )
       })()}
+
+      {/* R2743: 색상 밝기 조절 */}
+      {uuids.length >= 1 && (() => (
+        <div style={{ marginBottom: 4, display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>밝기조절 (R2743)</span>
+          <input type="number" value={brightDelta} min={1} max={255}
+            onChange={e => setBrightDelta(Math.max(1, Number(e.target.value)))}
+            style={mkNiS(40)} title="밝기 조절 값 (1-255)" />
+          <span onClick={() => applyBrightness(brightDelta)} style={mkBtnS('#3a5a3a')} title="밝게">☀+</span>
+          <span onClick={() => applyBrightness(-brightDelta)} style={mkBtnS('#3a3a5a')} title="어둡게">☀-</span>
+        </div>
+      ))()}
     </div>
   )
 }

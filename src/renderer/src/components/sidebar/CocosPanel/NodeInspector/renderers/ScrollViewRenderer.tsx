@@ -1,21 +1,32 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import type { RendererPropsWithSave } from './types'
+import type { CCSceneNode } from '@shared/ipc-schema'
+
+function findContentNode(n: CCSceneNode): CCSceneNode | null {
+  for (const ch of n.children) {
+    if (ch.name.toLowerCase() === 'content') return ch
+    const found = findContentNode(ch)
+    if (found) return found
+  }
+  return null
+}
 
 /** cc.PageView, cc.PageViewIndicator, cc.ScrollView, cc.Scrollbar Quick Edit renderer */
 export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x, saveScene }: RendererPropsWithSave): React.ReactElement | null {
+  const contentNode = useMemo(() => comp.type === 'cc.ScrollView' ? findContentNode(draft) : null, [comp.type, draft])
             const p = comp.props
             if (comp.type === 'cc.PageView') {
               const direction = Number(p.direction ?? p._direction ?? p._N$direction ?? 0)
-              const scrollThreshold = Number(p.scrollThreshold ?? p._N$scrollThreshold ?? 0.5)
-              const autoThreshold = Number(p.autoPageTurningThreshold ?? p._N$autoPageTurningThreshold ?? 0.3)
+              const scrollThreshold = Number(p.scrollThreshold ?? p._scrollThreshold ?? p._N$scrollThreshold ?? 0.5)
+              const autoThreshold = Number(p.autoPageTurningThreshold ?? p._autoPageTurningThreshold ?? p._N$autoPageTurningThreshold ?? 0.3)
               // R1847: slideDuration
-              const slideDuration = Number(p.slideDuration ?? p._N$slideDuration ?? 0.3)
+              const slideDuration = Number(p.slideDuration ?? p._slideDuration ?? p._N$slideDuration ?? 0.3)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* R2435: enabled (BatchInspector R2200) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>
@@ -147,6 +158,12 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
               const spacingY = Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>direction</span>
                     {[['H', 0], ['V', 1]].map(([label, v]) => (
@@ -181,29 +198,20 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                 </div>
               )
             }
-            // R2340: cc.SpotLight — intensity/range/spotAngle Quick Edit
+            // R2340: cc.ScrollView — horizontal/vertical/inertia/elastic/brake Quick Edit
             if (comp.type === 'cc.ScrollView') {
               const horizontal = !!(p.horizontal ?? p._horizontal ?? p._N$horizontal ?? false)
               const vertical = !!(p.vertical ?? p._vertical ?? p._N$vertical ?? true)
               const inertia = !!(p.inertia ?? p._inertia ?? p._N$inertia ?? true)
               const elastic = !!(p.elastic ?? p._elastic ?? p._N$elastic ?? true)
               const brake = Number(p.brake ?? p._brake ?? p._N$brake ?? 0.75)
-              // R1740: content 자식 노드 찾기 (이름 'content', 대소문자 무시)
-              function findContentNode(n: CCSceneNode): CCSceneNode | null {
-                for (const ch of n.children) {
-                  if (ch.name.toLowerCase() === 'content') return ch
-                  const found = findContentNode(ch)
-                  if (found) return found
-                }
-                return null
-              }
-              const contentNode = findContentNode(draft)
+              // R1740: content 자식 노드 찾기 (useMemo로 컴포넌트 상단에서 계산됨)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* R2438: enabled (BatchInspector R2193) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>
@@ -404,9 +412,9 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                             if (n.uuid === contentNode!.uuid) return { ...n, size: { ...n.size, x: v } }
                             return { ...n, children: n.children.map(patchContent) }
                           }
-                          saveScene(patchContent(sceneFile.root))
+                          saveScene(patchContent(sceneFile.root)).catch(err => console.error('[ScrollView] save failed', err))
                         }}
-                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
                       />
                       <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>H</span>
                       <input type="number" defaultValue={Math.round(contentNode.size.y)}
@@ -418,9 +426,9 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                             if (n.uuid === contentNode!.uuid) return { ...n, size: { ...n.size, y: v } }
                             return { ...n, children: n.children.map(patchContent) }
                           }
-                          saveScene(patchContent(sceneFile.root))
+                          saveScene(patchContent(sceneFile.root)).catch(err => console.error('[ScrollView] save failed', err))
                         }}
-                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
                       />
                     </div>
                   )}
@@ -437,7 +445,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   {/* R2430: enabled (BatchInspector R2198) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>

@@ -4,7 +4,7 @@ import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
 
 export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, onSelectNode, lockedUuids, onSetLockedUuids }: BatchPluginProps) {
-  const uuids = nodes.map(n => n.uuid)
+  const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   const { patchNodes, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
@@ -92,7 +92,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
                 if (n.uuid === uuidB) return { ...n, position: posA, children }
                 return { ...n, children }
               }
-              await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+              await saveScene(patch(sceneFile.root))
               setBatchMsg('✓ 위치 교환 (R2531)')
               setTimeout(() => setBatchMsg(null), 2000)
             }}
@@ -226,6 +226,109 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>{label}</span>
             ))}
             <span style={{ fontSize: 8, color: '#555' }}>{distNodes.length}개</span>
+          </div>
+        )
+      })()}
+      {/* R2733: 크기 고려 균등 간격 (size-aware even gap) */}
+      {uuids.length >= 3 && sceneFile.root && (() => {
+        const gapNodes: CCSceneNode[] = []
+        function collectGap(n: CCSceneNode) { if (uuidSet.has(n.uuid)) gapNodes.push(n); n.children.forEach(collectGap) }
+        collectGap(sceneFile.root)
+        if (gapNodes.length < 3) return null
+        const bsP: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }
+        const applyEvenGap = async (axis: 'x' | 'y', mode: 'auto' | 'fixed') => {
+          if (!sceneFile.root) return
+          const sorted = [...gapNodes].sort((a, b) => {
+            const pa = a.position as { x: number; y: number }
+            const pb = b.position as { x: number; y: number }
+            return axis === 'y' ? pb[axis] - pa[axis] : pa[axis] - pb[axis]
+          })
+          const getSize = (n: CCSceneNode) => axis === 'x' ? (n.size?.x ?? 0) : (n.size?.y ?? 0)
+          const getAnchor = (n: CCSceneNode) => axis === 'x' ? (n.anchor?.x ?? 0.5) : (n.anchor?.y ?? 0.5)
+          let gap: number
+          let firstEdge: number
+          if (mode === 'auto') {
+            const totalSize = sorted.reduce((s, n) => s + getSize(n), 0)
+            const first = sorted[0], last = sorted[sorted.length - 1]
+            const firstPos = (first.position as { x: number; y: number })[axis]
+            const lastPos = (last.position as { x: number; y: number })[axis]
+            const fe = axis === 'y' ? firstPos - getSize(first) * getAnchor(first) : firstPos - getSize(first) * getAnchor(first)
+            const le = axis === 'y' ? lastPos + getSize(last) * (1 - getAnchor(last)) : lastPos + getSize(last) * (1 - getAnchor(last))
+            const span = le - fe
+            gap = (span - totalSize) / (sorted.length - 1)
+            firstEdge = fe
+          } else {
+            gap = evenSpacing
+            const first = sorted[0]
+            const firstPos = (first.position as { x: number; y: number })[axis]
+            firstEdge = firstPos - getSize(first) * getAnchor(first)
+          }
+          let cursor = firstEdge
+          const posMap = new Map<string, number>()
+          for (const n of sorted) {
+            const sz = getSize(n)
+            const ak = getAnchor(n)
+            posMap.set(n.uuid, cursor + sz * ak)
+            cursor += sz + gap
+          }
+          await patchNodes(n => {
+            const newVal = posMap.get(n.uuid)
+            if (newVal == null) return n
+            const pos = n.position as { x: number; y: number; z?: number }
+            return { ...n, position: { ...pos, [axis]: Math.round(newVal) } }
+          }, `evenGap ${axis.toUpperCase()} ${mode} (${gapNodes.length}개, gap=${Math.round(gap)})`)
+        }
+        return (
+          <div style={{ marginBottom: 4, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>균등갭</span>
+            <input type="number" value={evenSpacing} onChange={e => setEvenSpacing(Number(e.target.value))}
+              style={mkNiS(44)} title="고정 갭 px" min={0} />
+            <span onClick={() => applyEvenGap('x', 'auto')} style={bsP} title="X 방향 자동 균등 간격 (R2733)">Auto H</span>
+            <span onClick={() => applyEvenGap('y', 'auto')} style={bsP} title="Y 방향 자동 균등 간격 (R2733)">Auto V</span>
+            <span onClick={() => applyEvenGap('x', 'fixed')} style={bsP} title="X 방향 고정 갭 (R2733)">Fix H</span>
+            <span onClick={() => applyEvenGap('y', 'fixed')} style={bsP} title="Y 방향 고정 갭 (R2733)">Fix V</span>
+          </div>
+        )
+      })()}
+      {/* R2695: 위치 선형 그라데이션 */}
+      {uuids.length >= 2 && sceneFile?.root && (() => {
+        const bsP: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }
+        const applyPosGrad = async (axis: 'x' | 'y') => {
+          if (!sceneFile.root) return
+          const gradNodes: CCSceneNode[] = []
+          function collectGrad(n: CCSceneNode) { if (uuidSet.has(n.uuid)) gradNodes.push(n); n.children.forEach(collectGrad) }
+          collectGrad(sceneFile.root)
+          const sorted = [...gradNodes].sort((a, b) => {
+            const pa = a.position as { x: number; y: number }
+            const pb = b.position as { x: number; y: number }
+            return axis === 'y' ? pb[axis] - pa[axis] : pa[axis] - pb[axis]
+          })
+          const n = sorted.length
+          const posMap = new Map<string, number>()
+          for (let i = 0; i < n; i++) {
+            const val = n === 1
+              ? (posGradFrom + posGradTo) / 2
+              : posGradFrom + (posGradTo - posGradFrom) * i / (n - 1)
+            posMap.set(sorted[i].uuid, Math.round(val))
+          }
+          await patchNodes(node => {
+            const newVal = posMap.get(node.uuid)
+            if (newVal == null) return node
+            const pos = node.position as { x: number; y: number; z?: number }
+            return { ...node, position: { ...pos, [axis]: newVal } }
+          }, `posGrad ${axis.toUpperCase()} ${posGradFrom}→${posGradTo} (${n}개)`)
+        }
+        return (
+          <div style={{ marginBottom: 4, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>위치그라데이션 (R2695)</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>from</span>
+            <input type="number" value={posGradFrom} onChange={e => setPosGradFrom(Number(e.target.value))}
+              style={mkNiS(44)} />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>to</span>
+            <input type="number" value={posGradTo} onChange={e => setPosGradTo(Number(e.target.value))}
+              style={mkNiS(44)} />
+            <span onClick={() => applyPosGrad('x')} style={bsP} title="X 방향 위치 선형 보간">→X</span>
+            <span onClick={() => applyPosGrad('y')} style={bsP} title="Y 방향 위치 선형 보간">↑Y</span>
           </div>
         )
       })()}
@@ -382,7 +485,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             if (n.uuid === b.uuid) return { ...n, position: { ...a.pos }, children: ch }
             return { ...n, children: ch }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -441,7 +544,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             if (!p) return { ...n, children: ch }
             return { ...n, position: { ...n.position, ...p }, children: ch }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
           setBatchMsg(`✓ 위치 ${axis.toUpperCase()} 미러 (${selNodes.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -520,7 +623,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             const pos = n.position as { x: number; y: number; z?: number }
             return { ...n, position: { ...pos, x: Math.round(p.x), y: Math.round(p.y) }, children: ch }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
           setBatchMsg(`✓ 격자 배치 ${cols}열 (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -568,7 +671,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             indices.forEach((idx, i) => { result[idx] = selected[i] })
             return { ...n, children: result }
           }
-          await saveScene({ ...sceneFile, root: walkSort(sceneFile.root!) } as unknown as CCSceneNode)
+          await saveScene(walkSort(sceneFile.root!))
           setBatchMsg(`✓ ${axis.toUpperCase()}축 위치 순 Z-order 정렬 — R2582`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -594,7 +697,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             const result = dir === 'front' ? [...others, ...selCh] : [...selCh, ...others]
             return { ...n, children: result }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
           setBatchMsg(`✓ ${dir === 'front' ? '최전면' : '최후면'} 이동 (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -613,7 +716,9 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const applyDuplicate = async () => {
           if (!sceneFile.root) return
           function deepClone(n: CCSceneNode, dx: number, dy: number, topLevel: boolean): CCSceneNode {
-            const newUuid = `clone-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+            const newUuid = typeof crypto !== 'undefined' && crypto.randomUUID
+              ? crypto.randomUUID()
+              : `clone-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
             const pos = n.position as { x: number; y: number; z?: number }
             return {
               ...n,
@@ -632,7 +737,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             const cloned = selChildren.map(c => deepClone(c, cloneOffsetX, cloneOffsetY, true))
             return { ...n, children: [...ch, ...cloned] }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
           setBatchMsg(`✓ 복제 +${cloneOffsetX},${cloneOffsetY} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -1394,14 +1499,14 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const applyLock = () => {
           const newLocked = new Set(lockedUuids ?? [])
           uuids.forEach(u => newLocked.add(u))
-          onSetLockedUuids?.(Array.from(newLocked))
+          onSetLockedUuids?.(() => newLocked)
           setBatchMsg(`✓ 일괄 잠금 ${uuids.length}개 (R2725)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
         const applyUnlock = () => {
           const newLocked = new Set(lockedUuids ?? [])
           uuids.forEach(u => newLocked.delete(u))
-          onSetLockedUuids?.(Array.from(newLocked))
+          onSetLockedUuids?.(() => newLocked)
           setBatchMsg(`✓ 일괄 잠금 해제 ${uuids.length}개 (R2725)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }

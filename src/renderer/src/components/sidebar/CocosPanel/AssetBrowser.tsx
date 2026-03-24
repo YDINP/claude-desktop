@@ -14,6 +14,86 @@ export { TreeSearch } from './TreeSearch'
 // R1434: 이미지 에셋 호버 → 썸네일 팝업
 const THUMB_IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'])
 
+interface FolderFileItemProps {
+  file: AssetEntry
+  depth: number
+  copied: string | null
+  isScript: boolean
+  isUsed: boolean
+  instantiating: string | null
+  hasPrefabButton: boolean
+  onDoubleClick: (e: React.MouseEvent) => void
+  onContextMenu: (e: React.MouseEvent) => void
+  onOpenScript: (e: React.MouseEvent) => void
+  onInstantiate: (e: React.MouseEvent) => void
+  onDragStart: (e: React.DragEvent) => void
+  onMouseEnter: (e: React.MouseEvent) => void
+  onMouseLeave: () => void
+  onMouseMove: (e: React.MouseEvent) => void
+}
+
+const FolderFileItem = React.memo(function FolderFileItem({
+  file, depth, copied, isScript, isUsed, instantiating, hasPrefabButton,
+  onDoubleClick, onContextMenu, onOpenScript, onInstantiate, onDragStart,
+  onMouseEnter, onMouseLeave, onMouseMove,
+}: FolderFileItemProps) {
+  const fileName = file.relPath.split(/[\\/]/).pop() ?? file.relPath
+  return (
+    <div
+      draggable={true}
+      onDragStart={onDragStart}
+      onDoubleClick={onDoubleClick}
+      onContextMenu={onContextMenu}
+      title={`${file.relPath}\n더블클릭: 파일 열기 / 우클릭: 액션 메뉴`}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 4,
+        padding: `2px 4px 2px ${(depth + 1) * 12 + 22}px`,
+        cursor: 'pointer', fontSize: 10, borderRadius: 3,
+      }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onMouseMove={onMouseMove}
+    >
+      {isScript && (
+        <span style={{
+          width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+          background: isUsed ? '#22c55e' : '#6b7280',
+        }} title={isUsed ? '씬에서 사용 중' : '미사용'} />
+      )}
+      <span style={{ flexShrink: 0 }}>{getAssetFileIcon(fileName)}</span>
+      <span style={{
+        flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        color: copied === file.uuid ? 'var(--accent)' : 'var(--text-primary)',
+      }}>
+        {copied === file.uuid ? '✓ 복사됨' : fileName}
+      </span>
+      {isScript && (
+        <button
+          onClick={onOpenScript}
+          onDoubleClick={e => e.stopPropagation()}
+          title="파일 탭에서 편집"
+          style={{
+            fontSize: 9, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
+            borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
+          }}
+        >{'\u270F\uFE0F'}</button>
+      )}
+      {hasPrefabButton && (
+        <button
+          onClick={onInstantiate}
+          disabled={instantiating === file.uuid}
+          title="씬에 추가"
+          style={{
+            fontSize: 10, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
+            borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
+            opacity: instantiating === file.uuid ? 0.5 : 1,
+          }}
+        >{instantiating === file.uuid ? '...' : '+'}</button>
+      )}
+    </div>
+  )
+})
+
 export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNode, showProjectWizard, setShowProjectWizard, wizardStep, setWizardStep, wizardProjectName, setWizardProjectName, wizardSavePath, setWizardSavePath, wizardCCVersion, setWizardCCVersion, wizardTemplate, setWizardTemplate, wizardCreating, wizardError, handleCreateProject, jsonCopiedName }: {
   assetsDir: string
   sceneFile?: CCSceneFile
@@ -107,6 +187,11 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
     window.dispatchEvent(new CustomEvent('cc:open-file', { detail: entry.path }))
   }, [])
 
+  // 더블클릭 → 파일 열기 (cc:open-file 이벤트 → 앱이 확장자별로 라우팅)
+  const handleDoubleClickAsset = useCallback((entry: AssetEntry) => {
+    window.dispatchEvent(new CustomEvent('cc:open-file', { detail: entry.path }))
+  }, [])
+
   // R1398: .prefab 파일을 현재 씬에 인스턴스화
   const handleInstantiatePrefab = useCallback(async (entry: AssetEntry) => {
     if (!sceneFile?.root || !sceneFile._raw) return
@@ -115,7 +200,17 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
       // prefab 파일 읽기 + 파싱 (readFile → JSON parse → 루트 노드 추출)
       const prefabContent = await window.api.readFile(entry.path)
       if (!prefabContent) { setInstantiating(null); return }
-      const prefabRaw = JSON.parse(prefabContent) as Record<string, unknown>[]
+      if (prefabContent.length > 5 * 1024 * 1024) {
+        console.warn('[AssetBrowser] prefab too large:', entry.path)
+        setInstantiating(null); return
+      }
+      let prefabRaw: Record<string, unknown>[]
+      try {
+        prefabRaw = JSON.parse(prefabContent) as Record<string, unknown>[]
+      } catch (e) {
+        console.warn('[AssetBrowser] prefab parse error:', entry.path, e)
+        setInstantiating(null); return
+      }
       if (!Array.isArray(prefabRaw)) {
         console.warn('Invalid prefab format: expected array')
         return
@@ -193,6 +288,10 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
       setInstantiating(null)
     }
   }, [sceneFile, saveScene, onSelectNode])
+
+  useEffect(() => {
+    return () => { if (thumbTimerRef.current) clearTimeout(thumbTimerRef.current) }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -312,6 +411,39 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
   const renderFolderNode = (node: FolderNode, depth: number): React.ReactNode => {
     const hasContent = node.children.length > 0 || node.files.length > 0
     if (!hasContent) return null
+
+    // root node는 헤더 없이 children + files 바로 렌더링
+    if (!node.path) {
+      return (
+        <React.Fragment key="root">
+          {node.children.map(child => renderFolderNode(child, depth))}
+          {node.files.map(file => (
+            <FolderFileItem
+              key={file.uuid}
+              file={file}
+              depth={depth}
+              copied={copied}
+              isScript={isScriptFile(file)}
+              isUsed={isScriptUsed(file)}
+              instantiating={instantiating}
+              hasPrefabButton={file.type === 'prefab' && !!sceneFile?.root}
+              onDoubleClick={() => handleDoubleClickAsset(file)}
+              onContextMenu={e => { e.preventDefault(); handleItemClick(file, e) }}
+              onOpenScript={e => { e.stopPropagation(); handleOpenScript(file) }}
+              onInstantiate={e => { e.stopPropagation(); handleInstantiatePrefab(file) }}
+              onDragStart={e => {
+                e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: file.uuid, path: file.path, relPath: file.relPath, type: file.type }))
+                e.dataTransfer.effectAllowed = 'copy'
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)'; handleThumbEnter(file, e) }}
+              onMouseLeave={() => { handleThumbLeave() }}
+              onMouseMove={handleThumbMove}
+            />
+          ))}
+        </React.Fragment>
+      )
+    }
+
     const isOpen = treeExpanded.has(node.path)
     return (
       <div key={node.path || 'root'} style={{ marginLeft: depth * 12 }}>
@@ -332,71 +464,29 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
         {isOpen && (
           <>
             {node.children.map(child => renderFolderNode(child, depth + 1))}
-            {node.files.map(file => {
-              const fileName = file.relPath.split(/[\\/]/).pop() ?? file.relPath
-              return (
-                <div
-                  key={file.uuid}
-                  draggable={true}
-                  onDragStart={e => {
-                    e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: file.uuid, path: file.path, relPath: file.relPath, type: file.type }))
-                    e.dataTransfer.effectAllowed = 'copy'
-                  }}
-                  onClick={e => handleItemClick(file, e)}
-                  onContextMenu={e => { e.preventDefault(); handleItemClick(file, e) }}
-                  title={`${file.relPath}\n클릭: 액션 메뉴 / 드래그하여 인스펙터에 적용`}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 4,
-                    padding: '2px 4px 2px 22px', marginLeft: (depth + 1) * 12,
-                    cursor: 'grab', fontSize: 10, borderRadius: 3,
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)'; handleThumbEnter(file, e) }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; handleThumbLeave() }}
-                  onMouseMove={handleThumbMove}
-                >
-                  {/* R1444: 스크립트 사용 상태 dot */}
-                  {isScriptFile(file) && (
-                    <span style={{
-                      width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-                      background: isScriptUsed(file) ? '#22c55e' : '#6b7280',
-                    }} title={isScriptUsed(file) ? '씬에서 사용 중' : '미사용'} />
-                  )}
-                  <span style={{ flexShrink: 0 }}>{getAssetFileIcon(fileName)}</span>
-                  <span style={{
-                    flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    color: copied === file.uuid ? 'var(--accent)' : 'var(--text-primary)',
-                  }}>
-                    {copied === file.uuid ? '✓ 복사됨' : fileName}
-                  </span>
-                  {/* R1444: 스크립트 편집 버튼 */}
-                  {isScriptFile(file) && (
-                    <button
-                      onClick={e => { e.stopPropagation(); handleOpenScript(file) }}
-                      onDoubleClick={e => { e.stopPropagation(); handleOpenScript(file) }}
-                      title="파일 탭에서 편집"
-                      style={{
-                        fontSize: 9, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
-                        borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
-                      }}
-                    >{'\u270F\uFE0F'}</button>
-                  )}
-                  {/* R1398: .prefab 트리 뷰 인스턴스화 버튼 */}
-                  {file.type === 'prefab' && sceneFile?.root && (
-                    <button
-                      onClick={e => { e.stopPropagation(); handleInstantiatePrefab(file) }}
-                      disabled={instantiating === file.uuid}
-                      title="씬에 추가"
-                      style={{
-                        fontSize: 10, padding: '0 4px', background: 'none', border: '1px solid var(--accent)',
-                        borderRadius: 3, color: 'var(--accent)', cursor: 'pointer', flexShrink: 0, lineHeight: '16px',
-                        opacity: instantiating === file.uuid ? 0.5 : 1,
-                      }}
-                    >{instantiating === file.uuid ? '...' : '+'}
-                    </button>
-                  )}
-                </div>
-              )
-            })}
+            {node.files.map(file => (
+              <FolderFileItem
+                key={file.uuid}
+                file={file}
+                depth={depth}
+                copied={copied}
+                isScript={isScriptFile(file)}
+                isUsed={isScriptUsed(file)}
+                instantiating={instantiating}
+                hasPrefabButton={file.type === 'prefab' && !!sceneFile?.root}
+                onDoubleClick={() => handleDoubleClickAsset(file)}
+                onContextMenu={e => { e.preventDefault(); handleItemClick(file, e) }}
+                onOpenScript={e => { e.stopPropagation(); handleOpenScript(file) }}
+                onInstantiate={e => { e.stopPropagation(); handleInstantiatePrefab(file) }}
+                onDragStart={e => {
+                  e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: file.uuid, path: file.path, relPath: file.relPath, type: file.type }))
+                  e.dataTransfer.effectAllowed = 'copy'
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)'; handleThumbEnter(file, e) }}
+                onMouseLeave={() => { handleThumbLeave() }}
+                onMouseMove={handleThumbMove}
+              />
+            ))}
           </>
         )}
       </div>
@@ -486,9 +576,9 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
                   e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: item.uuid, path: item.path, relPath: item.relPath, type: item.type }))
                   e.dataTransfer.effectAllowed = 'copy'
                 }}
-                onClick={e => handleItemClick(item, e)}
+                onDoubleClick={e => { e.stopPropagation(); handleDoubleClickAsset(item) }}
                 onContextMenu={e => { e.preventDefault(); handleItemClick(item, e) }}
-                title={`${item.relPath}\n클릭: 액션 메뉴 / 드래그하여 인스펙터에 적용`}
+                title={`${item.relPath}\n더블클릭: 파일 열기 / 우클릭: 액션 메뉴`}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4, padding: '3px 6px 3px 22px',
                   cursor: 'grab', fontSize: 10, borderRadius: 3,

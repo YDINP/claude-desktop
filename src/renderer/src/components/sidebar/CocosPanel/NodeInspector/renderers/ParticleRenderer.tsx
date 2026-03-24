@@ -5,8 +5,8 @@ import type { RendererProps } from './types'
 export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.ParticleSystem' || comp.type === 'cc.ParticleSystem2D') {
-              const duration = Number(p.duration ?? -1)
-              const maxParticles = Number(p.maxParticles ?? 150)
+              const duration = Number(p.duration ?? p._duration ?? p._N$duration ?? -1)
+              const maxParticles = Number(p.maxParticles ?? p._maxParticles ?? p._N$maxParticles ?? 150)
               const emitRate = Number(p.emissionRate ?? p._emissionRate ?? p._N$emissionRate ?? 10)
               const startSize = Number(p.startSize ?? p._startSize ?? p._N$startSize ?? 50)
               const endSize = Number(p.endSize ?? p._endSize ?? p._N$endSize ?? 0)
@@ -14,15 +14,15 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
               const lifespan = Number(p.life ?? p._life ?? p._N$life ?? 1)
               const lifespanVar = Number(p.lifeVar ?? p._lifeVar ?? p._N$lifeVar ?? 0)
               // R1845: gravity
-              const grav = p.gravity ?? p._gravity ?? p._N$gravity as { x?: number; y?: number } | undefined
-              const gravX = Number((grav as Record<string,number>|undefined)?.x ?? 0)
-              const gravY = Number((grav as Record<string,number>|undefined)?.y ?? 0)
+              const grav = (p.gravity ?? p._gravity ?? p._N$gravity) as { x?: number; y?: number } | undefined
+              const gravX = Number(grav?.x ?? 0)
+              const gravY = Number(grav?.y ?? 0)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* R2436: enabled (BatchInspector R2194) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>
@@ -30,7 +30,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>duration</span>
                     <input type="number" defaultValue={duration} step={0.5}
                       onBlur={e => {
-                        const v = parseFloat(e.target.value) || -1
+                        const v = e.target.value === '' || isNaN(parseFloat(e.target.value)) ? -1 : parseFloat(e.target.value)
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, duration: v, _duration: v, _N$duration: v } } : c)
                         applyAndSave({ components: updated })
                       }}
@@ -165,10 +165,10 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>s</span>
                   </div>
-                  {/* R1834: startColor / endColor */}
-                  {(() => {
-                    const sc = p.startColor ?? p._startColor ?? p._N$startColor as { r?: number; g?: number; b?: number } | undefined
-                    const ec = p.endColor ?? p._endColor ?? p._N$endColor as { r?: number; g?: number; b?: number } | undefined
+                  {/* R1834: startColor / endColor — CC2.x only (CC3.x has its own section below) */}
+                  {!is3x && (() => {
+                    const sc = (p.startColor ?? p._startColor ?? p._N$startColor) as { r?: number; g?: number; b?: number } | undefined
+                    const ec = (p.endColor ?? p._endColor ?? p._N$endColor) as { r?: number; g?: number; b?: number } | undefined
                     const sr = (sc as Record<string,number>|undefined)?.r ?? 255, sg = (sc as Record<string,number>|undefined)?.g ?? 255, sb = (sc as Record<string,number>|undefined)?.b ?? 255
                     const er = (ec as Record<string,number>|undefined)?.r ?? 255, eg = (ec as Record<string,number>|undefined)?.g ?? 0, eb = (ec as Record<string,number>|undefined)?.b ?? 0
                     const startHex = `#${sr.toString(16).padStart(2,'0')}${sg.toString(16).padStart(2,'0')}${sb.toString(16).padStart(2,'0')}`
@@ -517,8 +517,8 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   })()}
                   {/* R2448: startColorVar / endColorVar (BatchInspector PS color variation) */}
                   {(() => {
-                    const scvRaw = p.startColorVar as { r?: number; g?: number; b?: number; a?: number } | undefined
-                    const ecvRaw = p.endColorVar as { r?: number; g?: number; b?: number; a?: number } | undefined
+                    const scvRaw = (p.startColorVar ?? p._startColorVar ?? p._N$startColorVar) as { r?: number; g?: number; b?: number; a?: number } | undefined
+                    const ecvRaw = (p.endColorVar ?? p._endColorVar ?? p._N$endColorVar) as { r?: number; g?: number; b?: number; a?: number } | undefined
                     const scvHex = `#${((scvRaw?.r ?? 0)).toString(16).padStart(2,'0')}${((scvRaw?.g ?? 0)).toString(16).padStart(2,'0')}${((scvRaw?.b ?? 0)).toString(16).padStart(2,'0')}`
                     const ecvHex = `#${((ecvRaw?.r ?? 0)).toString(16).padStart(2,'0')}${((ecvRaw?.g ?? 0)).toString(16).padStart(2,'0')}${((ecvRaw?.b ?? 0)).toString(16).padStart(2,'0')}`
                     return (
@@ -572,7 +572,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   {/* R2448: startRotation / startRotationVar + endRotation / endRotationVar (BatchInspector — Radius mode) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>startRot</span>
-                    <input type="number" defaultValue={Number(p.startRotation ?? p._startRotation ?? 0)} step={1}
+                    <input type="number" defaultValue={Number(p.startRotation ?? p._startRotation ?? p._N$startRotation ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startRotation: v, _startRotation: v, _N$startRotation: v } } : c)
@@ -581,7 +581,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>var</span>
-                    <input type="number" defaultValue={Number(p.startRotationVar ?? p._startRotationVar ?? 0)} step={1}
+                    <input type="number" defaultValue={Number(p.startRotationVar ?? p._startRotationVar ?? p._N$startRotationVar ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, startRotationVar: v, _startRotationVar: v, _N$startRotationVar: v } } : c)
@@ -592,7 +592,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>endRot</span>
-                    <input type="number" defaultValue={Number(p.endRotation ?? p._endRotation ?? 0)} step={1}
+                    <input type="number" defaultValue={Number(p.endRotation ?? p._endRotation ?? p._N$endRotation ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endRotation: v, _endRotation: v, _N$endRotation: v } } : c)
@@ -601,7 +601,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 40, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 4 }}>var</span>
-                    <input type="number" defaultValue={Number(p.endRotationVar ?? p._endRotationVar ?? 0)} step={1}
+                    <input type="number" defaultValue={Number(p.endRotationVar ?? p._endRotationVar ?? p._N$endRotationVar ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, endRotationVar: v, _endRotationVar: v, _N$endRotationVar: v } } : c)
@@ -622,7 +622,7 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
                       )
                     })}
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginLeft: 8 }}>
-                      <input type="checkbox" checked={!!(p.autoRemoveOnFinish ?? p._autoRemoveOnFinish ?? false)}
+                      <input type="checkbox" checked={!!(p.autoRemoveOnFinish ?? p._autoRemoveOnFinish ?? p._N$autoRemoveOnFinish ?? false)}
                         onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, autoRemoveOnFinish: e.target.checked, _autoRemoveOnFinish: e.target.checked, _N$autoRemoveOnFinish: e.target.checked } } : c); applyAndSave({ components: u }) }}
                         style={{ margin: 0 }}
                       />autoRm

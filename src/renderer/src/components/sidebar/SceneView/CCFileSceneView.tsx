@@ -133,6 +133,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showCrossGuide, setShowCrossGuide] = useState(false)
   // R2511: 선택 노드 엣지-캔버스 거리 가이드선
   const [showEdgeGuides, setShowEdgeGuides] = useState(false)
+  // R2734: 사용자 영구 가이드라인
+  const [userGuides, setUserGuides] = useState<Array<{ type: 'V' | 'H'; pos: number }>>([])
+  const [showUserGuides, setShowUserGuides] = useState(false)
+  // R2740: 가이드라인 드래그
+  const guideDragRef = useRef<{ idx: number; type: 'V' | 'H'; startMouse: number; startPos: number } | null>(null)
   // R1605: 편집 잠금 (View-only lock)
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
@@ -601,22 +606,27 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     )
     const uuids = labelComps
       .map(c => (c.props.font as { __uuid__?: string } | undefined)?.__uuid__
+             ?? (c.props._font as { __uuid__?: string } | undefined)?.__uuid__
              ?? (c.props._N$file as { __uuid__?: string } | undefined)?.__uuid__
-             ?? (c.props.file as { __uuid__?: string } | undefined)?.__uuid__)
+             ?? (c.props.file as { __uuid__?: string } | undefined)?.__uuid__
+             ?? (c.props._file as { __uuid__?: string } | undefined)?.__uuid__)
       .filter((u): u is string => !!u && !fontCacheRef.current.has(u))
     const uniqueUuids = [...new Set(uuids)]
     if (!uniqueUuids.length) return
+    let cancelled = false
     uniqueUuids.forEach(uuid => {
       fontCacheRef.current.set(uuid, { dataUrl: '', familyName: '' }) // pending sentinel
       window.api.ccFileResolveFont?.(uuid, assetsDir).then((result: { dataUrl: string; familyName: string } | null) => {
+        if (cancelled) return
         if (result) {
           fontCacheRef.current.set(uuid, result)
         } else {
           fontCacheRef.current.delete(uuid)
         }
         setFontCacheVer(v => v + 1)
-      }).catch(() => { fontCacheRef.current.delete(uuid) })
+      }).catch(() => { if (!cancelled) fontCacheRef.current.delete(uuid) })
     })
+    return () => { cancelled = true }
   }, [sceneFile, flatNodes])
 
   // CC 좌표 → SVG 좌표 변환
@@ -677,6 +687,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [view, measureMode])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // R2740: 가이드라인 드래그
+    if (guideDragRef.current) {
+      const gd = guideDragRef.current
+      const delta = gd.type === 'V'
+        ? (e.clientX - gd.startMouse) / viewRef.current.zoom
+        : (e.clientY - gd.startMouse) / viewRef.current.zoom
+      const newPos = gd.startPos + delta
+      setUserGuides(gs => gs.map((g, i) => i === gd.idx ? { ...g, pos: newPos } : g))
+      return
+    }
     // R1598: 마우스 위치 씬 좌표 업데이트
     {
       const svg = svgRef.current
@@ -764,6 +784,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         setSnapIndicator({ x: nx, y: ny })
       } else {
         setSnapIndicator(null)
+      }
+      // R2742: 가이드라인 auto-snap (Ctrl/Shift 없을 때)
+      if (!e.ctrlKey && !e.metaKey && !e.shiftKey && showUserGuides && userGuides.length > 0) {
+        const SNAP_THRESH = 8 / viewRef.current.zoom
+        let snapped = false
+        for (const g of userGuides) {
+          if (g.type === 'V') {
+            const gWorld = g.pos - cx
+            if (Math.abs(nx - gWorld) < SNAP_THRESH) { nx = gWorld; snapped = true; break }
+          } else {
+            const gWorld = cy - g.pos
+            if (Math.abs(ny - gWorld) < SNAP_THRESH) { ny = gWorld; snapped = true; break }
+          }
+        }
+        if (snapped) setSnapIndicator({ x: nx, y: ny })
       }
       setDragOverride({ uuid: dragRef.current.uuid, x: nx, y: ny })
       // R1512: 정렬 가이드라인 계산
@@ -894,6 +929,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [isPanning, cx, cy, snapSize, flatNodes])
 
   const handleMouseUp = useCallback((e?: React.MouseEvent) => {
+    // R2740: 가이드라인 드래그 완료
+    if (guideDragRef.current) { guideDragRef.current = null; return }
     // R2465: 측정 도구 — 드래그 완료 시 start ref 해제 (측정 선은 유지)
     if (measureStartRef.current) {
       measureStartRef.current = null
@@ -989,6 +1026,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     selBoxRef.current = null
     setSelectionBox(null)
   }, [anchorOverride, rotateOverride, dragOverride, resizeOverride, selectionBox, flatNodes, ccToSvg, onAnchorMove, onRotate, onMove, onResize, onSelect])
+
+  // R2734: 가이드라인 추가
+  const addUserGuide = (type: 'V' | 'H') => {
+    const pos = type === 'V' ? effectiveW / 2 : effectiveH / 2
+    setUserGuides(g => [...g, { type, pos }])
+    setShowUserGuides(true)
+  }
+  const clearUserGuides = () => setUserGuides([])
 
   // Fit to view
   const handleFit = useCallback(() => {
@@ -1534,6 +1579,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 <button onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')} title={`그리드: ${gridStyle === 'none' ? '없음' : gridStyle === 'line' ? '선' : '점'}`} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: gridStyle !== 'none' ? 'rgba(88,166,255,0.12)' : 'none', color: gridStyle !== 'none' ? '#58a6ff' : 'var(--text-muted)' }}>{gridStyle === 'dot' ? '· 점' : '⊹ 선'}</button>
                 <button onClick={() => setShowCrossGuide(g => !g)} title="중심선 가이드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrossGuide ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showCrossGuide ? 'rgba(251,146,60,0.1)' : 'none', color: showCrossGuide ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>⊕ 중심선</button>
                 <button onClick={() => setShowEdgeGuides(g => !g)} title="엣지 가이드선" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEdgeGuides ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showEdgeGuides ? 'rgba(129,140,248,0.1)' : 'none', color: showEdgeGuides ? 'rgba(129,140,248,0.9)' : 'var(--text-muted)' }}>⊢ 엣지</button>
+                <button onClick={() => addUserGuide('V')} title="수직 가이드라인 추가 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', opacity: showUserGuides ? 1 : 0.5 }}>┃V</button>
+                <button onClick={() => addUserGuide('H')} title="수평 가이드라인 추가 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', opacity: showUserGuides ? 1 : 0.5 }}>━H</button>
+                <button onClick={() => setShowUserGuides(g => !g)} title="가이드라인 표시/숨김 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUserGuides ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showUserGuides ? 'rgba(251,146,60,0.2)' : 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>🔸</button>
+                <button onClick={clearUserGuides} title="가이드라인 전체 삭제 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>✕G</button>
                 <button onClick={() => setShowRuler(r => !r)} title="눈금자" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showRuler ? 'rgba(88,166,255,0.12)' : 'none', color: showRuler ? '#58a6ff' : 'var(--text-muted)' }}>尺 눈금자</button>
                 <button onClick={() => setShowCrosshair(v => !v)} title="마우스 크로스헤어" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrosshair ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showCrosshair ? 'rgba(148,163,184,0.12)' : 'none', color: showCrosshair ? '#94a3b8' : 'var(--text-muted)' }}>✛ 크로스</button>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -2239,9 +2288,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <style>{
               [...fontCacheRef.current.entries()]
                 .filter(([, v]) => v.dataUrl)
-                .map(([, { dataUrl, familyName }]) =>
-                  `@font-face { font-family: '${familyName}'; src: url('${dataUrl}'); }`
-                ).join('\n')
+                .map(([, { dataUrl, familyName }]) => {
+                  const safeName = familyName.replace(/['"\\]/g, '_')
+                  return `@font-face { font-family: '${safeName}'; src: url('${dataUrl}'); }`
+                }).join('\n')
             }</style>
           )}
           {/* 캔버스 외부 빗금 패턴 */}
@@ -2507,6 +2557,36 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   : <line key={`ag-h-${i}`} x1={0} y1={g.pos} x2={designW} y2={g.pos} stroke="#ff4488" strokeWidth={1 / view.zoom} opacity={0.7} strokeDasharray={`${4/view.zoom} ${3/view.zoom}`} />
               )}
             </g>
+          )}
+          {/* R2734: 사용자 영구 가이드라인 */}
+          {showUserGuides && userGuides.map((g, i) =>
+            g.type === 'V'
+              ? <g key={`ug-v-${i}`}>
+                  <line x1={g.pos} y1={0} x2={g.pos} y2={effectiveH}
+                    stroke="rgba(251,146,60,0.7)" strokeWidth={1 / view.zoom}
+                    strokeDasharray={`${6/view.zoom},${3/view.zoom}`} pointerEvents="none" />
+                  <line x1={g.pos} y1={0} x2={g.pos} y2={effectiveH}
+                    stroke="rgba(251,146,60,0.7)" strokeWidth={Math.max(6, 1/view.zoom)}
+                    strokeOpacity={0} pointerEvents="stroke"
+                    style={{ cursor: 'ew-resize' }}
+                    onMouseDown={e => {
+                      e.stopPropagation()
+                      guideDragRef.current = { idx: i, type: 'V', startMouse: e.clientX, startPos: g.pos }
+                    }} />
+                </g>
+              : <g key={`ug-h-${i}`}>
+                  <line x1={0} y1={g.pos} x2={effectiveW} y2={g.pos}
+                    stroke="rgba(251,146,60,0.7)" strokeWidth={1 / view.zoom}
+                    strokeDasharray={`${6/view.zoom},${3/view.zoom}`} pointerEvents="none" />
+                  <line x1={0} y1={g.pos} x2={effectiveW} y2={g.pos}
+                    stroke="rgba(251,146,60,0.7)" strokeWidth={Math.max(6, 1/view.zoom)}
+                    strokeOpacity={0} pointerEvents="stroke"
+                    style={{ cursor: 'ns-resize' }}
+                    onMouseDown={e => {
+                      e.stopPropagation()
+                      guideDragRef.current = { idx: i, type: 'H', startMouse: e.clientY, startPos: g.pos }
+                    }} />
+                </g>
           )}
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
           {flatNodes.map(({ node, worldX, worldY, depth }) => {
@@ -3123,9 +3203,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const isSystemFont = (labelComp?.props?.isSystemFontUsed as boolean | undefined) ?? true
                   const sysFontFamily = labelComp?.props?.fontFamily as string | undefined
                   const fontUuid = (labelComp?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
+                               ?? (labelComp?.props?._font as { __uuid__?: string } | undefined)?.__uuid__
                                ?? (labelComp?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
                                ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
-                               ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
+                               ?? (labelComp?.props?._file as { __uuid__?: string } | undefined)?.__uuid__
                   const cachedFont = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
                   const fontFamilyName = (!isSystemFont && cachedFont?.familyName)
                     || (isSystemFont && sysFontFamily)
@@ -3467,16 +3548,17 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     )
                   }
                   const fontUuid = (lc?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
+                             ?? (lc?.props?._font as { __uuid__?: string } | undefined)?.__uuid__
                              ?? (lc?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
                              ?? (lc?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
+                             ?? (lc?.props?._file as { __uuid__?: string } | undefined)?.__uuid__
                   const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
-                  // isSystemFontUsed=true면 fontFamily(시스템) 우선, false면 TTF 우선
-                  const isSystemFont = !!(lc?.props?.isSystemFontUsed ?? lc?.props?.['_N$isSystemFontUsed'] ?? true)
+                  // fontUuid가 있으면 커스텀 폰트 모드 (isSystemFontUsed 기본값 false)
+                  const isSystemFont = !!(lc?.props?.isSystemFontUsed ?? lc?.props?.['_N$isSystemFontUsed'] ?? !fontUuid)
                   const fontFamilyName = (!isSystemFont && fontEntry?.familyName)
                     || (lc?.props?.fontFamily as string | undefined)
                     || (lc?.props?._fontFamily as string | undefined)
                     || (lc?.props?.['_N$fontFamily'] as string | undefined)
-                    || (!isSystemFont ? fontEntry?.familyName : undefined)
                     || 'sans-serif'
                   // Outline: CC3.x enableOutline 또는 cc.LabelOutline 컴포넌트
                   const enableOutline = !!(lc?.props?.enableOutline ?? lc?.props?._enableOutline ?? false)

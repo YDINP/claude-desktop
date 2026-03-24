@@ -18,6 +18,16 @@ import type { CCFileProjectInfo, CCSceneFile, CCSceneNode } from '../../shared/i
 let _registered = false
 let _watchUnsubscribe: (() => void) | null = null
 let _partialUpdateUnsubscribe: (() => void) | null = null
+
+// UUID 맵 캐시 (assetsDir → map, 30초 TTL) — buildUUIDMap은 디렉토리 전체 스캔이므로 캐싱 필수
+const _uuidMapCache = new Map<string, { map: ReturnType<typeof buildUUIDMap>; ts: number }>()
+function getCachedUUIDMap(assetsDir: string): ReturnType<typeof buildUUIDMap> {
+  const cached = _uuidMapCache.get(assetsDir)
+  if (cached && Date.now() - cached.ts < 30000) return cached.map
+  const map = buildUUIDMap(assetsDir)
+  _uuidMapCache.set(assetsDir, { map, ts: Date.now() })
+  return map
+}
 // R1438: 씬 공유 로컬 서버
 let _sceneServer: http.Server | null = null
 let _sceneServerTimer: ReturnType<typeof setTimeout> | null = null
@@ -153,7 +163,7 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   })
 
   ipcMain.handle('cc:file:isLargeScene', async (_e, scenePath: string) => {
-    return isLargeScene(scenePath)
+    try { return isLargeScene(scenePath) } catch { return false }
   })
 
   ipcMain.handle('cc:file:watch', async (_e, paths: string | string[]) => {
@@ -173,7 +183,7 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
 
   /** UUID 맵 빌드 (assetsDir 전수 스캔) */
   ipcMain.handle('cc:file:buildUUIDMap', async (_e, assetsDir: string) => {
-    const map = buildUUIDMap(assetsDir)
+    const map = getCachedUUIDMap(assetsDir)
     // Map → plain object (IPC 전달 가능하도록)
     const obj: Record<string, { uuid: string; path: string; relPath: string; type: string }> = {}
     for (const [k, v] of map) obj[k] = v
@@ -182,7 +192,7 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
 
   /** UUID → 텍스처 data URL 변환 (base64) */
   ipcMain.handle('cc:file:resolveTexture', async (_e, uuid: string, assetsDir: string) => {
-    const map = buildUUIDMap(assetsDir)
+    const map = getCachedUUIDMap(assetsDir)
     const asset = map.get(uuid)
     if (!asset) return null
     if (asset.type !== 'texture' && asset.type !== 'sprite-atlas') return null
@@ -210,19 +220,23 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   /** R1410: UUID → 에셋 상세 정보 */
   ipcMain.handle('cc:file:getAssetInfo', async (_e, uuid: string, assetsDir: string) => {
     const { getAssetInfo } = await import('../cc/cc-asset-resolver')
-    const map = buildUUIDMap(assetsDir)
+    const map = getCachedUUIDMap(assetsDir)
     return getAssetInfo(uuid, map)
   })
 
   /** R1410: 이미지 에셋 UUID 전체 목록 */
   ipcMain.handle('cc:file:getAllTextureUUIDs', async (_e, assetsDir: string) => {
     const { getAllTextureUUIDs } = await import('../cc/cc-asset-resolver')
-    const map = buildUUIDMap(assetsDir)
+    const map = getCachedUUIDMap(assetsDir)
     return getAllTextureUUIDs(map)
   })
 
   /** R1438: 씬 로컬 HTTP 서버로 공유 (7332포트, 60초 후 종료) */
   ipcMain.handle('cc:file:serveScene', async (_e, sceneJson: string) => {
+    // 크기 제한 (10MB)
+    if (typeof sceneJson !== 'string' || sceneJson.length > 10 * 1024 * 1024) {
+      return { success: false, error: 'payload too large or invalid' }
+    }
     // 기존 서버 정리
     if (_sceneServer) { try { _sceneServer.close() } catch { /* ignore */ } }
     if (_sceneServerTimer) { clearTimeout(_sceneServerTimer); _sceneServerTimer = null }
@@ -230,7 +244,7 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     const port = 7332
     const server = http.createServer((req, res) => {
       if (req.url === '/scene.json') {
-        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
+        res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(sceneJson)
       } else {
         res.writeHead(404)
@@ -258,7 +272,7 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
 
   /** 폰트 파일 (TTF/OTF/WOFF) → base64 data URL */
   ipcMain.handle('cc:file:resolveFont', async (_e, uuid: string, assetsDir: string) => {
-    const map = buildUUIDMap(assetsDir)
+    const map = getCachedUUIDMap(assetsDir)
     const asset = map.get(uuid)
     if (!asset) return null
     const ext = asset.path.split('.').pop()?.toLowerCase() ?? ''
@@ -272,7 +286,8 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
       }
       const mime = mimeMap[ext] ?? 'font/truetype'
       // fontFamily 이름은 파일명 (확장자 제거)
-      const familyName = asset.path.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') ?? uuid.slice(0, 8)
+      const familyName = (asset.path.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') ?? uuid.slice(0, 8))
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
       return { dataUrl: `data:${mime};base64,${data.toString('base64')}`, familyName }
     } catch { return null }
   })

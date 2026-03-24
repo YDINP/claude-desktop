@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-24T05:46:33.584Z
+> 2026-03-24T08:24:47.274Z
 
 ## Critical
 _없음_
@@ -12,7 +12,7 @@ _없음_
 - tsc --noEmit 오류 없음
 - 191개 소스 파일 검사 완료
 - package.json 파싱 성공 (name: claude-desktop)
-- preload expose 메서드 342개 확인
+- preload expose 메서드 343개 확인
 - ipcMain.handle 등록: 13개 이상
 - 의존성 설치됨: electron
 - 의존성 설치됨: react
@@ -2591,6 +2591,21 @@ _없음_
 - R2728 SceneView 잠금 노드 🔒 오버레이 구현 완료
 - R2729 프리셋 노드에서 캡처 구현 완료
 - R2730 BatchInspector 컴포넌트 타입 필터 구현 완료
+- R2727 회전 프리셋 버튼 구현 완료
+- R2728 스케일 프리셋 버튼 구현 완료
+- R2730 LayoutRenderer 전수감사 완료
+- R2731 ParticleRenderer 전수감사 완료
+- R2732 ScrollViewRenderer 전수감사 완료
+- R2733 균등간격 구현 완료
+- R2695 위치 선형 그라데이션 구현 완료
+- R2734 사용자 가이드라인 구현 완료
+- R2736 BatchInspector Layer 일괄 설정 구현 완료
+- R2737 Label 텍스트 일괄 수정 구현 완료
+- R2739 opacity 그라데이션 구현 완료
+- R2740 가이드라인 드래그 이동 구현 완료
+- R2741 QA 체크 추가 완료 (R2739/R2740)
+- R2742 가이드라인 snap 구현 완료
+- R2743 색상 밝기 조절 구현 완료
 - 파일 탭 미저장 ● 인디케이터 존재
 - UndoEntry prop 타입 지원 (Inspector 속성 변경 undo)
 - 씬뷰 노드 검색 하이라이트 존재
@@ -2624,3 +2639,4 @@ _없음_
 - R2452 씬 드롭다운 버그 수정 + 마지막 씬 자동 로드 구현 완료
 - R2466 다중 선택 노드 그룹화 구현 완료
 - R2549 맨 앞/뒤 이동 버튼 구현 완료
+- R2729 편집 히스토리 플러그인 구현 완료

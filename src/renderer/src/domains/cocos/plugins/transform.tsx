@@ -4,7 +4,7 @@ import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
 
 export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onMultiSelectChange, lockedUuids, onSetLockedUuids }: BatchPluginProps) {
-  const uuids = nodes.map(n => n.uuid)
+  const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   const { patchNodes, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
@@ -23,10 +23,14 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
   const [randomRotRange, setRandomRotRange] = useState<number>(30)
   const [absRotValue, setAbsRotValue] = useState<number>(45)
   const [rotDeltaStep, setRotDeltaStep] = useState<number>(90) /* R2727 */
+  const [rotDelta, setRotDelta] = useState<number>(15) /* R2494 */
+  const [snapGrid, setSnapGrid2] = useState<number>(16) /* R2495 */
+  const [rotOffsetInput, setRotOffsetInput] = useState<string>('15') /* R2612 */
   const [absScaleX, setAbsScaleX] = useState<number>(1)
   const [absScaleY, setAbsScaleY] = useState<number>(1)
   const [scaleMulFactor, setScaleMulFactor] = useState<number>(2.0) /* R2728 */
   const [scaleLinkedPreset, setScaleLinkedPreset] = useState<boolean>(true) /* R2728 */
+  const [layerInput, setLayerInput] = useState<number>(1073741824) /* R2736 — UI: 1073741824(Default) */
   const [batchRot, setBatchRot] = useState<string>('')
   const [batchScaleX, setBatchScaleX] = useState<string>('')
   const [batchScaleY, setBatchScaleY] = useState<string>('')
@@ -94,7 +98,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         return { ...n, children: moved }
       }
     }
-    await saveScene({ ...sceneFile, root: patch(sceneFile.root) } as unknown as CCSceneNode)
+    await saveScene(patch(sceneFile.root))
     setBatchMsg(`Z-Order ${dir}`)
     setTimeout(() => setBatchMsg(null), 2000)
   }, [sceneFile, uuidSet, saveScene])
@@ -604,6 +608,38 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         )
       })()}
 
+      {/* R2736: Layer 일괄 설정 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const LAYER_PRESETS = [
+          { label: 'Default', value: 1073741824 },
+          { label: 'UI', value: 33554432 },
+          { label: 'Node', value: 524288 },
+          { label: 'Gizmos', value: 268435456 },
+        ] as const
+        const bsL: React.CSSProperties = {
+          fontSize: 9, padding: '1px 5px', cursor: 'pointer',
+          border: '1px solid var(--border)', borderRadius: 2,
+          color: 'var(--text-muted)', background: 'var(--bg-hover)', userSelect: 'none',
+        }
+        const applyLayer = async (v: number) => {
+          await patchNodes(n => ({ ...n, _layer: v }), `layer=${v} (R2736)`)
+        }
+        return (
+          <div style={{ marginBottom: 4, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>Layer (R2736)</span>
+            {LAYER_PRESETS.map(({ label, value }) => (
+              <span key={label} onClick={() => applyLayer(value)}
+                style={bsL}
+                title={`_layer = ${value}`}>{label}</span>
+            ))}
+            <input type="number" value={layerInput}
+              onChange={e => setLayerInput(Number(e.target.value))}
+              style={mkNiS(90)} title="직접 입력 (bitmask)" />
+            <span onClick={() => applyLayer(layerInput)} style={bsL}>지정</span>
+          </div>
+        )
+      })()}
+
       {/* R1706: 일괄 회전 편집 */}
       {sceneFile.root && (() => {
         const applyBatchRot = async () => {
@@ -744,7 +780,6 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
 
       {/* R2494: 회전 델타 applyRotDelta */}
       {sceneFile.root && uuids.length >= 1 && (() => {
-        const [rotDelta, setRotDelta] = useState<number>(15)
         const applyRotDelta = async (dir: 1 | -1) => {
           const d = rotDelta * dir
           await patchNodes(n => {
@@ -766,7 +801,6 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
 
       {/* R2495: 그리드 스냅 applySnap snapGrid 스냅px */}
       {sceneFile.root && uuids.length >= 1 && (() => {
-        const [snapGrid, setSnapGrid2] = useState<number>(16)
         const applySnap = async () => {
           const g = snapGrid
           if (g < 1) return
@@ -960,7 +994,6 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
 
       {/* R2612: rotation 오프셋 rotOffsetInput addRot rot+= (R2612) */}
       {sceneFile.root && uuids.length >= 1 && (() => {
-        const [rotOffsetInput, setRotOffsetInput] = useState<string>('15')
         const addRot = async () => {
           const d = parseFloat(rotOffsetInput)
           if (isNaN(d)) return

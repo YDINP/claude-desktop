@@ -5,17 +5,21 @@
  * 스캔 대상:
  *   1. {projectRoot}/.claude/commands/*.md   (프로젝트 커맨드)
  *   2. {projectRoot}/.agents/workflows/*.md  (워크플로우)
+ *   3. ~/.claude/commands/                   (글로벌 Claude Code 스킬)
+ *      - 직접 .md 파일: ultrawork.md → /ultrawork
+ *      - 서브폴더 skill.md: ultrawork/skill.md → /ultrawork
  */
 import { ipcMain } from 'electron'
 import { readdir, readFile, stat } from 'fs/promises'
 import { join, basename, extname } from 'path'
+import { homedir } from 'os'
 
 interface WorkflowCommandMeta {
   cmd: string
   label: string
   description: string
   filePath: string
-  source: 'commands' | 'workflows'
+  source: 'commands' | 'workflows' | 'global-commands'
 }
 
 /**
@@ -76,18 +80,80 @@ async function scanDir(dirPath: string, source: 'commands' | 'workflows'): Promi
   }
 }
 
+/**
+ * ~/.claude/commands/ 스캔:
+ * - 직접 .md 파일 (ultrawork.md → /ultrawork)
+ * - 서브폴더 내 skill.md (ultrawork/skill.md → /ultrawork, 폴더명 사용)
+ * 동일 cmd는 직접 .md가 우선.
+ */
+async function scanGlobalCommands(): Promise<WorkflowCommandMeta[]> {
+  const globalDir = join(homedir(), '.claude', 'commands')
+  try {
+    const dirStat = await stat(globalDir).catch(() => null)
+    if (!dirStat?.isDirectory()) return []
+
+    const entries = await readdir(globalDir, { withFileTypes: true })
+    const results = new Map<string, WorkflowCommandMeta>()
+
+    for (const entry of entries) {
+      const entryPath = join(globalDir, entry.name)
+
+      if (entry.isFile() && extname(entry.name) === '.md') {
+        // 직접 .md 파일
+        const cmd = basename(entry.name, '.md').toLowerCase().replace(/\s+/g, '-')
+        try {
+          const content = await readFile(entryPath, 'utf-8')
+          const description = extractDescription(content) || `글로벌 커맨드: ${cmd}`
+          results.set(cmd, { cmd, label: `/${cmd}`, description, filePath: entryPath, source: 'global-commands' })
+        } catch { /* skip */ }
+      } else if (entry.isDirectory()) {
+        // 서브폴더: skill.md 또는 폴더명.md 탐색
+        const cmd = entry.name.toLowerCase().replace(/\s+/g, '-')
+        if (results.has(cmd)) continue // 직접 .md가 우선
+
+        const candidates = ['skill.md', `${entry.name}.md`]
+        for (const candidate of candidates) {
+          const filePath = join(entryPath, candidate)
+          try {
+            const content = await readFile(filePath, 'utf-8')
+            const description = extractDescription(content) || `글로벌 스킬: ${cmd}`
+            results.set(cmd, { cmd, label: `/${cmd}`, description, filePath, source: 'global-commands' })
+            break
+          } catch { /* try next */ }
+        }
+      }
+    }
+
+    return [...results.values()]
+  } catch {
+    return []
+  }
+}
+
 export function registerCommandHandlers(): void {
   /**
    * command:scan — 프로젝트 경로를 받아 사용 가능한 커맨드/워크플로우 목록 반환
+   * 우선순위: 프로젝트 커맨드 > 워크플로우 > 글로벌 커맨드 (동일 cmd 시 앞이 우선)
    */
   ipcMain.handle(
     'command:scan',
     async (_, { projectPath }: { projectPath: string }): Promise<WorkflowCommandMeta[]> => {
-      const [commands, workflows] = await Promise.all([
+      const [commands, workflows, globalCmds] = await Promise.all([
         scanDir(join(projectPath, '.claude', 'commands'), 'commands'),
         scanDir(join(projectPath, '.agents', 'workflows'), 'workflows'),
+        scanGlobalCommands(),
       ])
-      return [...commands, ...workflows]
+
+      // 프로젝트 커맨드가 글로벌보다 우선 (중복 cmd 제거)
+      const seen = new Set<string>()
+      const merged: WorkflowCommandMeta[] = []
+      for (const item of [...commands, ...workflows, ...globalCmds]) {
+        if (!seen.has(item.cmd)) {
+          seen.add(item.cmd)
+          merged.push(item)
+        }
+      }
+      return merged
     }
   )
 

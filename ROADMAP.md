@@ -926,3 +926,19 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2727 | BatchInspector 회전 프리셋 버튼 (0°/45°/90°/180°/270° + Δ증감) | ✅ |
 | R2728 | BatchInspector 스케일 프리셋 버튼 (×0.5/1/1.5/2 + XY연동 배수) | ✅ |
 | R2729 | BatchInspector 편집 히스토리 플러그인 (localStorage, 자동/수동 기록, 클릭 재선택) | ✅ |
+| R2730 | LayoutRenderer 전수감사 — _N$enabled 추가, #aaa 하드코딩 수정 | ✅ |
+| R2731 | ParticleRenderer 전수감사 — read chain 8건 보완, _N$enabled, CC2.x color 섹션 조건분기 | ✅ |
+| R2732 | ScrollViewRenderer 전수감사 — _N$enabled 3곳, read chain 3건, CSS fallback 수정, PageViewIndicator enabled 추가 | ✅ |
+| R2733 | BatchInspector 균등 간격 — size 고려 엣지-투-엣지 갭, auto/fixed 두 모드 | ✅ |
+| R2695 | BatchInspector 위치 선형 그라데이션 — from/to 범위 선형 보간 재배치 | ✅ |
+| R2734 | SceneView 사용자 영구 가이드라인 — V/H 가이드라인 추가/표시토글/전체삭제 | ✅ |
+| R2735 | QA 체크 9개 추가 (R2727-rotation~R2734) — QA 2616→2625 Pass | ✅ |
+| R2736 | BatchInspector Layer 일괄 설정 (Default/UI/Node/Gizmos 프리셋 + 직접 입력) | ✅ |
+| R2737 | BatchInspector Label 텍스트 일괄 수정 (지정/접두사/접미사 모드) | ✅ |
+| R2738 | QA 체크 2개 추가 (R2736/R2737) — QA 2625→2627 Pass | ✅ |
+| R2739 | BatchInspector opacity 그라데이션 — from→to 선형 보간 일괄 적용 | ✅ |
+| R2740 | SceneView 가이드라인 드래그 이동 — 투명 hitbox + mousemove/up 핸들러 | ✅ |
+| R2741 | QA 체크 2개 추가 (R2739/R2740) — QA 2627→2629 Pass | ✅ |
+| R2742 | SceneView 가이드라인 auto-snap — 드래그 시 8px 이내 가이드에 자동 snap | ✅ |
+| R2743 | BatchInspector 색상 밝기 조절 — +/- delta로 RGB 일괄 증감 | ✅ |
+| R2744 | QA 체크 3개 추가 (R2741/R2742/R2743) — QA 2629→2632 Pass | ✅ |

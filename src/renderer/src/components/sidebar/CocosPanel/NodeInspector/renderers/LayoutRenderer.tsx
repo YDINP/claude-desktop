@@ -5,7 +5,7 @@ import type { RendererProps } from './types'
 export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Layout') {
-              const layoutType = Number(p.type ?? p._type ?? p._N$type ?? 0)
+              const layoutType = Number(p.type ?? p.layoutType ?? p._type ?? p._layoutType ?? p._N$type ?? p._N$layoutType ?? 0)
               const resizeMode = Number(p.resizeMode ?? p._resizeMode ?? p._N$resizeMode ?? 0)
               const spacingX = Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)
               const spacingY = Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)
@@ -19,7 +19,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   {/* R2433: enabled (BatchInspector R2197) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>
@@ -96,7 +96,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         applyAndSave({ components: updated })
                       }}
                       style={{ fontSize: 8, cursor: 'pointer', padding: '0 3px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
                       onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                     >=</span>
                     {/* R1796: padding 퀵 프리셋 */}
@@ -226,14 +226,14 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   {/* R2410: wrapMode (BatchInspector R2057) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>wrapMode</span>
-                    {([['NoWrap', 0], ['Wrap', 1], ['1Line', 2]] as const).map(([l, v]) => {
+                    {(() => {
                       const cur = Number(p.wrapMode ?? p._wrapMode ?? p._N$wrapMode ?? 0)
-                      return (
+                      return ([['NoWrap', 0], ['Wrap', 1], ['1Line', 2]] as const).map(([l, v]) => (
                         <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, wrapMode: v, _wrapMode: v, _N$wrapMode: v } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
                         >{l}</span>
-                      )
-                    })}
+                      ))
+                    })()}
                   </div>
                 </div>
               )

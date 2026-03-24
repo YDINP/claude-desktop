@@ -18,10 +18,14 @@ contextBridge.exposeInMainWorld('api', {
   claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) =>
     ipcRenderer.send('claude:permission-reply', { requestId, allow, allowSession }),
   onClaudeMessage: (cb: (event: unknown) => void) => {
-    ipcRenderer.on('claude:message', (_, data) => cb(data))
+    const handler = (_e: unknown, data: unknown) => cb(data)
+    ipcRenderer.on('claude:message', handler)
+    return () => ipcRenderer.removeListener('claude:message', handler)
   },
   onClaudePermission: (cb: (req: unknown) => void) => {
-    ipcRenderer.on('claude:permission', (_, data) => cb(data))
+    const handler = (_e: unknown, data: unknown) => cb(data)
+    ipcRenderer.on('claude:permission', handler)
+    return () => ipcRenderer.removeListener('claude:permission', handler)
   },
   removeClaudeListeners: () => {
     ipcRenderer.removeAllListeners('claude:message')
@@ -355,6 +359,8 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:isLargeScene', scenePath),
   ccFileResolveTexture: (uuid: string, assetsDir: string): Promise<string | null> =>
     ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
+  ccFileResolveFont: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; familyName: string } | null> =>
+    ipcRenderer.invoke('cc:file:resolveFont', uuid, assetsDir),
   ccFileExtractUUIDs: (raw: unknown[]): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:extractUUIDs', raw),
   // R1438: 씬 로컬 HTTP 공유
@@ -388,8 +394,8 @@ declare global {
       claudeClose: () => void
       claudeResume: (sessionId: string) => void
       claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) => void
-      onClaudeMessage: (cb: (event: unknown) => void) => void
-      onClaudePermission: (cb: (req: unknown) => void) => void
+      onClaudeMessage: (cb: (event: unknown) => void) => () => void
+      onClaudePermission: (cb: (req: unknown) => void) => () => void
       removeClaudeListeners: () => void
       terminalCreate: (id: string, cwd: string) => void
       terminalWrite: (id: string, data: string) => void
@@ -529,7 +535,7 @@ declare global {
       templateList: () => Promise<Array<{ id: string; name: string; prompt: string }>>
       templateSave: (t: { id: string; name: string; prompt: string }) => Promise<boolean>
       templateDelete: (id: string) => Promise<boolean>
-      commandScan: (projectPath: string) => Promise<Array<{ cmd: string; label: string; description: string; filePath: string; source: 'commands' | 'workflows' }>>
+      commandScan: (projectPath: string) => Promise<Array<{ cmd: string; label: string; description: string; filePath: string; source: 'commands' | 'workflows' | 'global-commands' }>>
       commandLoadWorkflow: (filePath: string) => Promise<{ content: string; error?: string }>
       onCloseTab: (cb: () => void) => () => void
       onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => () => void
@@ -615,6 +621,7 @@ declare global {
       onCCFileChanged: (cb: (event: { type: string; path: string; timestamp: number }) => void) => () => void
       ccFileBuildUUIDMap: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
       ccFileResolveTexture: (uuid: string, assetsDir: string) => Promise<string | null>
+      ccFileResolveFont: (uuid: string, assetsDir: string) => Promise<{ dataUrl: string; familyName: string } | null>
       ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
       // R1438
       ccFileServeScene: (sceneJson: string) => Promise<{ success: boolean; url?: string; error?: string }>
