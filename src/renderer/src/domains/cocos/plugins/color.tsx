@@ -4,7 +4,7 @@ import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
 
 export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
-  const uuids = nodes.map(n => n.uuid)
+  const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   const { patchNodes, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })

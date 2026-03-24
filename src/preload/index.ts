@@ -18,10 +18,14 @@ contextBridge.exposeInMainWorld('api', {
   claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) =>
     ipcRenderer.send('claude:permission-reply', { requestId, allow, allowSession }),
   onClaudeMessage: (cb: (event: unknown) => void) => {
-    ipcRenderer.on('claude:message', (_, data) => cb(data))
+    const handler = (_e: unknown, data: unknown) => cb(data)
+    ipcRenderer.on('claude:message', handler)
+    return () => ipcRenderer.removeListener('claude:message', handler)
   },
   onClaudePermission: (cb: (req: unknown) => void) => {
-    ipcRenderer.on('claude:permission', (_, data) => cb(data))
+    const handler = (_e: unknown, data: unknown) => cb(data)
+    ipcRenderer.on('claude:permission', handler)
+    return () => ipcRenderer.removeListener('claude:permission', handler)
   },
   removeClaudeListeners: () => {
     ipcRenderer.removeAllListeners('claude:message')
@@ -390,8 +394,8 @@ declare global {
       claudeClose: () => void
       claudeResume: (sessionId: string) => void
       claudePermissionReply: (requestId: string, allow: boolean, allowSession?: boolean) => void
-      onClaudeMessage: (cb: (event: unknown) => void) => void
-      onClaudePermission: (cb: (req: unknown) => void) => void
+      onClaudeMessage: (cb: (event: unknown) => void) => () => void
+      onClaudePermission: (cb: (req: unknown) => void) => () => void
       removeClaudeListeners: () => void
       terminalCreate: (id: string, cwd: string) => void
       terminalWrite: (id: string, data: string) => void

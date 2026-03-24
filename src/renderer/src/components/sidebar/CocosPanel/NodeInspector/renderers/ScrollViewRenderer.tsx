@@ -198,7 +198,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                 </div>
               )
             }
-            // R2340: cc.SpotLight — intensity/range/spotAngle Quick Edit
+            // R2340: cc.ScrollView — horizontal/vertical/inertia/elastic/brake Quick Edit
             if (comp.type === 'cc.ScrollView') {
               const horizontal = !!(p.horizontal ?? p._horizontal ?? p._N$horizontal ?? false)
               const vertical = !!(p.vertical ?? p._vertical ?? p._N$vertical ?? true)
@@ -412,7 +412,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                             if (n.uuid === contentNode!.uuid) return { ...n, size: { ...n.size, x: v } }
                             return { ...n, children: n.children.map(patchContent) }
                           }
-                          saveScene(patchContent(sceneFile.root))
+                          saveScene(patchContent(sceneFile.root)).catch(err => console.error('[ScrollView] save failed', err))
                         }}
                         style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
                       />
@@ -426,7 +426,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                             if (n.uuid === contentNode!.uuid) return { ...n, size: { ...n.size, y: v } }
                             return { ...n, children: n.children.map(patchContent) }
                           }
-                          saveScene(patchContent(sceneFile.root))
+                          saveScene(patchContent(sceneFile.root)).catch(err => console.error('[ScrollView] save failed', err))
                         }}
                         style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
                       />

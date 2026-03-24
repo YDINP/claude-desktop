@@ -312,6 +312,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
           onClick={async () => {
             if (!sceneFile.root || !batchRegexPat) return
             let re: RegExp
+            if (batchRegexPat.length > 200) { setBatchRegexErr(true); setBatchMsg('✗ 정규식이 너무 깁니다'); setTimeout(() => setBatchMsg(null), 2000); return }
             try { re = new RegExp(batchRegexPat, 'g'); setBatchRegexErr(false) } catch { setBatchRegexErr(true); setBatchMsg('✗ 잘못된 정규식'); setTimeout(() => setBatchMsg(null), 2000); return }
             function applyRegex(n: CCSceneNode): CCSceneNode {
               const children = n.children.map(applyRegex)
@@ -478,6 +479,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
             disabled={!batchNameRegexFilter}
             onClick={() => {
               if (!sceneFile.root || !batchNameRegexFilter) return
+              if (batchNameRegexFilter.length > 200) return
               try {
                 const re = new RegExp(batchNameRegexFilter, 'i')
                 const matched: string[] = []

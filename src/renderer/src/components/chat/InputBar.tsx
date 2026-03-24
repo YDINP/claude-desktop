@@ -56,6 +56,7 @@ interface InputBarProps {
   onPendingInsertConsumed?: () => void
   onOpenPromptChain?: () => void
   onTextChange?: (text: string) => void
+  projectPath?: string | null
 }
 
 const MAX_HISTORY = 100
@@ -189,7 +190,7 @@ function parseVarTrigger(text: string, cursorPos: number): { triggerStart: numbe
   return { triggerStart, partial: match[1] }
 }
 
-export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pausedTask, isStreaming, disabled, focusTrigger, pendingInsert, onPendingInsertConsumed, onOpenPromptChain, onTextChange }: InputBarProps) {
+export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pausedTask, isStreaming, disabled, focusTrigger, pendingInsert, onPendingInsertConsumed, onOpenPromptChain, onTextChange, projectPath }: InputBarProps) {
   const onTextChangeRef = useRef(onTextChange)
   useEffect(() => { onTextChangeRef.current = onTextChange }, [onTextChange])
   const [text, _setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
@@ -227,7 +228,10 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [smartInput, setSmartInput] = useState<boolean>(() => localStorage.getItem('smart-input') === 'true')
   const [historySearch, setHistorySearch] = useState('')
   const [historySearchOpen, setHistorySearchOpen] = useState(false)
-  const [voiceMacros, setVoiceMacros] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('voice-macros') ?? '{}'))
+  const [voiceMacros, setVoiceMacros] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('voice-macros') ?? '{}') }
+    catch { return {} }
+  })
   const [autoIndent, setAutoIndent] = useState(true)
   const [savedCursorPos, setSavedCursorPos] = useState(0)
   const [pasteMode, setPasteMode] = useState<'text' | 'code' | 'auto'>('auto')
@@ -455,7 +459,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const handleModelChange = (model: string) => {
     setSelectedModel(model)
     localStorage.setItem('selected-model', model)
-    ;(window as any).__selectedModel = model
     window.dispatchEvent(new CustomEvent('model-change', { detail: { model } }))
   }
 
@@ -584,9 +587,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     })
 
     // .claude/commands 및 .agents/workflows 워크플로우 스캔
-    const projectPath = (window as any).__projectPath || ''
-    if (projectPath) {
-      window.api.commandScan(projectPath).then((results) => {
+    const scanPath = projectPath || ''
+    if (scanPath) {
+      window.api.commandScan(scanPath).then((results) => {
         const wfCmds = results.map((r) => ({
           cmd: r.cmd,
           label: r.label,

@@ -4,7 +4,7 @@ import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
 
 export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, onSelectNode, lockedUuids, onSetLockedUuids }: BatchPluginProps) {
-  const uuids = nodes.map(n => n.uuid)
+  const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   const { patchNodes, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
@@ -716,7 +716,9 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const applyDuplicate = async () => {
           if (!sceneFile.root) return
           function deepClone(n: CCSceneNode, dx: number, dy: number, topLevel: boolean): CCSceneNode {
-            const newUuid = `clone-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+            const newUuid = typeof crypto !== 'undefined' && crypto.randomUUID
+              ? crypto.randomUUID()
+              : `clone-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
             const pos = n.position as { x: number; y: number; z?: number }
             return {
               ...n,
@@ -1497,14 +1499,14 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const applyLock = () => {
           const newLocked = new Set(lockedUuids ?? [])
           uuids.forEach(u => newLocked.add(u))
-          onSetLockedUuids?.(Array.from(newLocked))
+          onSetLockedUuids?.(() => newLocked)
           setBatchMsg(`✓ 일괄 잠금 ${uuids.length}개 (R2725)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
         const applyUnlock = () => {
           const newLocked = new Set(lockedUuids ?? [])
           uuids.forEach(u => newLocked.delete(u))
-          onSetLockedUuids?.(Array.from(newLocked))
+          onSetLockedUuids?.(() => newLocked)
           setBatchMsg(`✓ 일괄 잠금 해제 ${uuids.length}개 (R2725)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }

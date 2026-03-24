@@ -1043,6 +1043,20 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       .replace(/\{\{day\}\}/g, ['일','월','화','수','목','금','토'][now.getDay()])
   }
 
+  // ── Workflow inject state ──
+  const [workflowPrompt, setWorkflowPrompt] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (detail?.systemPrompt) {
+        setWorkflowPrompt(detail.systemPrompt)
+      }
+    }
+    window.addEventListener('workflow-inject', handler)
+    return () => window.removeEventListener('workflow-inject', handler)
+  }, [])
+
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
     const model = project.selectedModel
@@ -1066,7 +1080,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       window.api.openaiSend?.({ model: openaiModel, messages: history })
     } else {
       const resolvedSystemPrompt = customSystemPrompt ? resolveVars(customSystemPrompt) : ''
-      const parts = [resolvedSystemPrompt, projectSummary, ccCtx.contextString, ccFileCtx.contextString, ctxFiles.contextString].filter(Boolean)
+      const parts = [resolvedSystemPrompt, workflowPrompt, projectSummary, ccCtx.contextString, ccFileCtx.contextString, ctxFiles.contextString].filter(Boolean)
       const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
       window.api.claudeSend({
         text,
@@ -1074,8 +1088,9 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         model,
         ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
       })
+      if (workflowPrompt) setWorkflowPrompt(null)
     }
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, ccFileCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, ccFileCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle, workflowPrompt])
 
   const handleSendWithVarCheck = useCallback((text: string) => {
     const vars = extractVars(text)
@@ -1148,7 +1163,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const [msgFormatMode, setMsgFormatMode] = React.useState<'plain' | 'markdown'>('markdown')
   const [showFormatToolbar, setShowFormatToolbar] = React.useState(false)
   const [foldedMsgs, setFoldedMsgs] = React.useState<string[]>([])
-  const [foldThreshold, setFoldThreshold] = React.useState(500)
+  const [msgFoldThreshold, setMsgFoldThreshold] = React.useState(500)
   const [msgColors, setMsgColors] = React.useState<Record<string, string>>({})
   const [showColorPalette, setShowColorPalette] = React.useState(false)
   const [shareTarget, setShareTarget] = React.useState<string | null>(null)
@@ -1461,7 +1476,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
             fontSize: 13, cursor: 'pointer', padding: '2px 4px', lineHeight: 1,
           }}
         >🕐</button>
-        {chat.messages.length >= foldThreshold && (
+        {chat.messages.length >= msgFoldThreshold && (
           <button
             onClick={toggleFoldMessages}
             title={foldedMessages.size > 0 ? '접힌 메시지 펼치기' : '중간 메시지 접기'}
@@ -2394,6 +2409,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         pausedTask={pausedTask}
         isStreaming={chat.isStreaming}
         disabled={!project.currentPath}
+        projectPath={project.currentPath}
         focusTrigger={focusTrigger}
         pendingInsert={suggestionPendingInsert ?? welcomePendingInsert ?? pendingInsert}
         onPendingInsertConsumed={() => {

@@ -40,7 +40,6 @@ const FolderFileItem = React.memo(function FolderFileItem({
   const fileName = file.relPath.split(/[\\/]/).pop() ?? file.relPath
   return (
     <div
-      key={file.uuid}
       draggable={true}
       onDragStart={onDragStart}
       onDoubleClick={onDoubleClick}
@@ -289,6 +288,10 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
       setInstantiating(null)
     }
   }, [sceneFile, saveScene, onSelectNode])
+
+  useEffect(() => {
+    return () => { if (thumbTimerRef.current) clearTimeout(thumbTimerRef.current) }
+  }, [])
 
   useEffect(() => {
     let cancelled = false

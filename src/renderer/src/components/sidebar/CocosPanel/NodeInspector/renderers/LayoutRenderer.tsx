@@ -5,7 +5,7 @@ import type { RendererProps } from './types'
 export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Layout') {
-              const layoutType = Number(p.type ?? p._type ?? p._N$type ?? 0)
+              const layoutType = Number(p.type ?? p.layoutType ?? p._type ?? p._layoutType ?? p._N$type ?? p._N$layoutType ?? 0)
               const resizeMode = Number(p.resizeMode ?? p._resizeMode ?? p._N$resizeMode ?? 0)
               const spacingX = Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)
               const spacingY = Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)
