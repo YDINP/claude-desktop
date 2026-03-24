@@ -3231,6 +3231,31 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   }
                   if (flags & 16) indicators.push(<line key="HC" x1={rectX + w/2} y1={rectY + h/2} x2={rectX + w/2 - sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1/view.zoom} strokeDasharray={`${2/view.zoom},${2/view.zoom}`} style={{ pointerEvents: 'none' }} />)
                   if (flags & 32) indicators.push(<line key="VC" x1={rectX + w/2} y1={rectY + h/2} x2={rectX + w/2} y2={rectY + h/2 - sz*2} stroke={color} strokeWidth={1/view.zoom} strokeDasharray={`${2/view.zoom},${2/view.zoom}`} style={{ pointerEvents: 'none' }} />)
+                  // Stretch: L+R active = width stretch, T+B active = height stretch
+                  const isStretchW = (flags & 3) === 3
+                  const isStretchH = (flags & 12) === 12
+                  if (isStretchW) {
+                    indicators.push(
+                      <line key="SW"
+                        x1={rectX - sz*2} y1={rectY + h/2}
+                        x2={rectX + w + sz*2} y2={rectY + h/2}
+                        stroke={color} strokeWidth={1/view.zoom}
+                        strokeDasharray={`${3/view.zoom},${2/view.zoom}`}
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    )
+                  }
+                  if (isStretchH) {
+                    indicators.push(
+                      <line key="SH"
+                        x1={rectX + w/2} y1={rectY - sz*2}
+                        x2={rectX + w/2} y2={rectY + h + sz*2}
+                        stroke={color} strokeWidth={1/view.zoom}
+                        strokeDasharray={`${3/view.zoom},${2/view.zoom}`}
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    )
+                  }
                   if (indicators.length === 0) return null
                   return <>{indicators}</>
                 })()}
@@ -3336,11 +3361,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const ih = Math.abs(h) || 1
                   const { r: tr = 255, g: tg = 255, b: tb = 255 } = (node.color as { r?: number; g?: number; b?: number } | null) ?? {}
                   const hasTint = tr !== 255 || tg !== 255 || tb !== 255
+                  const isGrayscale = !!(sc?.props?.grayscale ?? sc?.props?._grayscale ?? sc?.props?.['_N$grayscale'] ?? false)
                   // Sprite type badge (only for non-simple types)
                   const spriteType = Number(sc?.props?.type ?? sc?.props?._type ?? 0)
                   // 0=Simple, 1=Sliced, 2=Tiled, 3=Filled
                   const SPRITE_TYPE_LABELS: Record<number, string> = { 1: '9', 2: '⊞', 3: '◔' }
                   const spriteTypeLabel = SPRITE_TYPE_LABELS[spriteType]
+                  // 0=Custom, 1=Trimmed, 2=Raw
+                  const sizeMode = Number(sc?.props?.sizeMode ?? sc?.props?._sizeMode ?? 1)
                   return (
                     <>
                       {hasTint ? (
@@ -3350,7 +3378,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                             x={rectX} y={rectY}
                             width={iw} height={ih}
                             preserveAspectRatio="xMidYMid meet"
-                            style={{ pointerEvents: 'none' }}
+                            style={{ pointerEvents: 'none', filter: isGrayscale ? 'grayscale(1)' : undefined }}
                           />
                           <rect
                             x={rectX} y={rectY} width={iw} height={ih}
@@ -3365,7 +3393,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           x={rectX} y={rectY}
                           width={iw} height={ih}
                           preserveAspectRatio="xMidYMid meet"
-                          style={{ pointerEvents: 'none' }}
+                          style={{ pointerEvents: 'none', filter: isGrayscale ? 'grayscale(1)' : undefined }}
                         />
                       )}
                       {spriteTypeLabel && view.zoom > 0.3 && (
@@ -3377,6 +3405,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           style={{ pointerEvents: 'none', userSelect: 'none' }}
                           fontFamily="monospace"
                         >{spriteTypeLabel}</text>
+                      )}
+                      {sizeMode === 0 && view.zoom > 0.3 && (
+                        <text x={rectX + w - 8/view.zoom} y={rectY + 10/view.zoom}
+                          fontSize={7/view.zoom} fill="rgba(148,163,184,0.7)"
+                          textAnchor="end" style={{ pointerEvents: 'none', userSelect: 'none' }}
+                          fontFamily="monospace">C</text>
                       )}
                       {spriteType === 3 && (() => {
                         const fillRange = Number(sc?.props?.fillRange ?? sc?.props?._fillRange ?? 1)
@@ -3476,6 +3510,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     : Number(shadowComp?.props?.blur ?? shadowComp?.props?._blur ?? 2)
                   const shBlur = shadowBlurVal / view.zoom
 
+                  // Gradient: CC3.x enableGradient
+                  const enableGradient = !!(lc?.props?.enableGradient ?? lc?.props?._enableGradient ?? false)
+                  const colorTopProp = lc?.props?.colorTop as { r?: number; g?: number; b?: number } | undefined
+                  const colorBotProp = lc?.props?.colorBottom as { r?: number; g?: number; b?: number } | undefined
+                  const { r: gtr = cr, g: gtg = cg, b: gtb = cb } = colorTopProp ?? {}
+                  const { r: gbr = cr, g: gbg = cg, b: gbb = cb } = colorBotProp ?? {}
+                  const gradientId = enableGradient ? `lbl-grad-${node.uuid.replace(/[^a-z0-9]/gi, '')}` : undefined
+
+                  // RichText: strip markup tags for display
+                  const stripRichText = (src: string) => src
+                    .replace(/<color=[^>]+>/g, '').replace(/<\/color>/g, '')
+                    .replace(/<b>/g, '').replace(/<\/b>/g, '')
+                    .replace(/<i>/g, '').replace(/<\/i>/g, '')
+                    .replace(/<u>/g, '').replace(/<\/u>/g, '')
+                    .replace(/<size=\d+>/g, '').replace(/<\/size>/g, '')
+                    .replace(/<br\/>/g, '\n').replace(/<\/br>/g, '\n')
+                  const displayStr = lc?.type === 'cc.RichText' ? stripRichText(str) : str
+
                   // Overflow: 0=None, 1=Clamp, 2=Shrink, 3=ResizeH
                   const overflowMode = Number(lc?.props?.overflow ?? lc?.props?._overflow ?? lc?.props?.['_N$overflow'] ?? 0)
                   const needsClip = overflowMode >= 1
@@ -3491,7 +3543,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const dominantBaselineVal = vAlign === 0 ? 'hanging' : vAlign === 2 ? 'auto' : 'middle'
                   const textY = vAlign === 0 ? rectY : vAlign === 2 ? rectY + h : rectY + h / 2
 
-                  const lines = str.split('\n')
+                  const lines = displayStr.split('\n')
                   const lineHeightProp = Number(lc?.props?.lineHeight ?? lc?.props?._lineHeight ?? 0)
                   const lineH = lineHeightProp > 0 ? lineHeightProp : fs * 1.2
 
@@ -3509,11 +3561,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           <rect x={rectX} y={rectY} width={Math.max(w, 0)} height={Math.max(h, 0)} />
                         </clipPath>
                       )}
+                      {enableGradient && gradientId && (
+                        <defs>
+                          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={`rgb(${gtr},${gtg},${gtb})`} />
+                            <stop offset="100%" stopColor={`rgb(${gbr},${gbg},${gbb})`} />
+                          </linearGradient>
+                        </defs>
+                      )}
                       <text
                         x={textX}
                         y={lines.length === 1 ? textY : startY}
                         fontSize={fs}
-                        fill={`rgb(${cr},${cg},${cb})`}
+                        fill={enableGradient && gradientId ? `url(#${gradientId})` : `rgb(${cr},${cg},${cb})`}
                         textAnchor={textAnchorVal}
                         dominantBaseline={lines.length === 1 ? dominantBaselineVal : 'auto'}
                         fontFamily={fontFamilyName}
@@ -3529,7 +3589,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           setTimeout(() => editLabelRef.current?.focus(), 30)
                         }}
                       >
-                        {lines.length === 1 ? str : lines.map((line, i) => (
+                        {lines.length === 1 ? displayStr : lines.map((line, i) => (
                           <tspan key={i} x={textX} dy={i === 0 ? 0 : lineH}>
                             {line}
                           </tspan>
