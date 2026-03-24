@@ -165,6 +165,18 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                 </div>
               )
             }
+            // 내부 참조 타입 {__id__: N}
+            if (v && typeof v === 'object' && '__id__' in (v as object)) {
+              const refId = (v as { __id__: number }).__id__
+              return (
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, overflow: 'hidden' }}>
+                  <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                  <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '2px 5px', flex: 1 }} title={`내부 참조 ID: ${refId}`}>
+                    ref[{refId}]
+                  </span>
+                </div>
+              )
+            }
             // 벡터 타입 {x,y} 또는 {x,y,z} → 인라인 숫자 인풋
             if (v && typeof v === 'object' && !('__uuid__' in (v as object)) && !('__id__' in (v as object))) {
               const vobj = v as Record<string, unknown>
@@ -329,6 +341,45 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                   </div>
                 )
               }
+              if (numKeys.length >= 4 && numKeys.length <= 8) {
+                return (
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 4, marginBottom: 4, overflow: 'hidden' }}>
+                    <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, flex: 1 }}>
+                      {numKeys.map(axis => (
+                        <div key={axis} style={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                          <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>{axis}</span>
+                          <WheelInput type="number" defaultValue={Number(vobj[axis])}
+                            onBlur={e => {
+                              const val = parseFloat((e.target as HTMLInputElement).value)
+                              if (!isNaN(val)) applyAndSave({
+                                components: draft.components.map((c, i) =>
+                                  i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
+                                )
+                              })
+                            }}
+                            onWheelChange={e => {
+                              e.preventDefault()
+                              const el = e.target as HTMLInputElement
+                              const cur = parseFloat(el.value)
+                              if (isNaN(cur)) return
+                              const delta = e.deltaY < 0 ? 1 : -1
+                              const newVal = cur + delta * (e.shiftKey ? 10 : 1)
+                              el.value = String(newVal)
+                              applyAndSave({
+                                components: draft.components.map((c, i) =>
+                                  i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: newVal } } } : c
+                                )
+                              })
+                            }}
+                            style={{ width: 44, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9 }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
               return null
             }
             // 배열 타입 — 펼치기/접기 토글 + 요소별 편집
@@ -354,12 +405,46 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                   {isExpanded && arr.map((elem, elemIdx) => {
                     const elemLabel = `[${elemIdx}]`
                     if (elem !== null && typeof elem === 'object' && '__type__' in (elem as object)) {
+                      const elemObj = elem as Record<string, unknown>
+                      const numSubKeys = Object.keys(elemObj).filter(k2 => typeof elemObj[k2] === 'number' && k2 !== '__type__')
                       return (
-                        <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
-                          <span style={{ minWidth: 44, whiteSpace: 'nowrap', fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
-                          <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '1px 4px' }}>
-                            {String((elem as Record<string, unknown>).__type__)}
-                          </span>
+                        <div key={elemIdx} style={{ paddingLeft: 16, marginTop: 2 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ minWidth: 44, whiteSpace: 'nowrap', fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                            <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '1px 4px' }}>
+                              {String(elemObj.__type__)}
+                            </span>
+                          </div>
+                          {numSubKeys.length > 0 && numSubKeys.length <= 4 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, paddingLeft: 48, marginTop: 2 }}>
+                              {numSubKeys.map(sk => (
+                                <div key={sk} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{sk}</span>
+                                  <WheelInput type="number" defaultValue={Number(elemObj[sk])}
+                                    onBlur={e => {
+                                      const val = parseFloat((e.target as HTMLInputElement).value)
+                                      if (isNaN(val)) return
+                                      const newArr = [...arr]
+                                      newArr[elemIdx] = { ...elemObj, [sk]: val }
+                                      applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                                    }}
+                                    onWheelChange={e => {
+                                      e.preventDefault()
+                                      const el = e.target as HTMLInputElement
+                                      const cur = parseFloat(el.value)
+                                      if (isNaN(cur)) return
+                                      const newVal = cur + (e.deltaY < 0 ? 1 : -1) * (e.shiftKey ? 10 : 1)
+                                      el.value = String(newVal)
+                                      const newArr = [...arr]
+                                      newArr[elemIdx] = { ...elemObj, [sk]: newVal }
+                                      applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                                    }}
+                                    style={{ width: 44, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px', fontSize: 9 }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )
                     }
