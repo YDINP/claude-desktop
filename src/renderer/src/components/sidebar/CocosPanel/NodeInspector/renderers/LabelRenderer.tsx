@@ -130,7 +130,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       onChange={e => {
                         const h = e.target.value
                         const nr = parseInt(h.slice(1,3),16), ng = parseInt(h.slice(3,5),16), nb = parseInt(h.slice(5,7),16)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r: nr, g: ng, b: nb, a: 255 }, _color: { r: nr, g: ng, b: nb, a: 255 } } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r: nr, g: ng, b: nb, a: 255 }, _color: { r: nr, g: ng, b: nb, a: 255 }, _N$color: { r: nr, g: ng, b: nb, a: 255 } } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
@@ -897,6 +897,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                 </div>
               )
             }
+            // R1620: cc.Label — 텍스트 Quick Edit (string + fontSize)
             // R1755: cc.Canvas — 해상도 + fitWidth/fitHeight 퀵 편집
             if (comp.type === 'cc.Label') {
               return <LabelQuickEdit comp={comp} draft={draft} applyAndSave={applyAndSave} sceneFile={sceneFile} origIdx={origIdx} ci={ci} is3x={is3x} />

@@ -4,36 +4,10 @@ import type { RendererProps } from './types'
 /** cc.Toggle, cc.ToggleContainer, cc.EditBox, cc.Button, cc.Slider Quick Edit renderer */
 export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
-            if (comp.type === 'cc.Toggle' || comp.type === 'cc.ToggleContainer') {
+            if (comp.type === 'cc.ToggleContainer') {
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
-                  {comp.type === 'cc.Toggle' && (
-                    <>
-                      {/* R2426: enabled (BatchInspector R2195) */}
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, fontSize: 12 }}>
-                        <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                          onChange={ev => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: ev.target.checked, _enabled: ev.target.checked } } : c); applyAndSave({ components: u }) }} />
-                        enabled
-                      </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, fontSize: 12 }}>
-                        <input type="checkbox" checked={!!(p.isChecked ?? false)}
-                          onChange={ev => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: ev.target.checked, _isChecked: ev.target.checked, _N$isChecked: ev.target.checked } } : c)
-                            applyAndSave({ components: updated })
-                          }} />
-                        isChecked
-                      </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-                        <input type="checkbox" checked={!!(p.interactable ?? true)}
-                          onChange={ev => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: ev.target.checked, _interactable: ev.target.checked, _N$interactable: ev.target.checked } } : c)
-                            applyAndSave({ components: updated })
-                          }} />
-                        interactable
-                      </label>
-                    </>
-                  )}
                   {comp.type === 'cc.ToggleContainer' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                       {/* R2427: ToggleContainer enabled (BatchInspector R2199) */}
@@ -328,8 +302,8 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={interactable}
-                        onChange={e => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: e.target.checked, _interactable: e.target.checked, _N$interactable: e.target.checked } } : c)
+                        onChange={ev => {
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, interactable: ev.target.checked, _interactable: ev.target.checked, _N$interactable: ev.target.checked } } : c)
                           applyAndSave({ components: updated })
                         }}
                       />interactable
@@ -393,18 +367,19 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
               return (
                 // R1716: isChecked + interactable 편집
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  {/* R2451: enabled (BatchInspector R2195) */}
+                  {/* R2426/R2451: cc.Toggle enabled (BatchInspector R2195) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={ev => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: ev.target.checked, _enabled: ev.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>isChecked</span>
                     <input type="checkbox" checked={checked}
-                      onChange={e => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: e.target.checked, _isChecked: e.target.checked, _N$isChecked: e.target.checked } } : c)
+                      onChange={ev => {
+                        // compat: _isChecked: e.target.checked, _N$isChecked: e.target.checked
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isChecked: ev.target.checked, _isChecked: ev.target.checked, _N$isChecked: ev.target.checked } } : c)
                         applyAndSave({ components: updated })
                       }}
                     />
