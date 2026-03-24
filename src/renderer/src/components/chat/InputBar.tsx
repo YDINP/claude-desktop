@@ -159,7 +159,9 @@ function parseSlash(text: string): SlashParsed | null {
     return { cmd: text.slice(1), args: null, query: text.slice(1) }
   }
   const cmd = text.slice(1, space)
-  const args = text.slice(space + 1).trim() || null
+  // 공백 입력 시 드롭다운 닫기: '' || null → '' (null이면 isSlashOpen 유지됨)
+  const rawArgs = text.slice(space + 1)
+  const args = rawArgs.trim().length > 0 ? rawArgs.trim() : ''
   return { cmd, args, query: cmd }
 }
 

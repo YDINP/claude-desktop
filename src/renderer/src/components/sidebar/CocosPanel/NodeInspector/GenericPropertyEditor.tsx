@@ -19,7 +19,7 @@ interface GenericPropertyEditorProps {
   typeMatchedComps: Array<{ comp: CCSceneNode['components'][number]; origIdx: number }> | null
 }
 
-const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
+const HIDDEN = new Set(['objFlags', '_objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip', 'name', '_name'])
 // 컴포넌트별 전용 렌더러(ComponentQuickEdit)가 이미 표시하는 prop 중복 제거
 const COMP_SKIP: Record<string, Set<string>> = {
   'cc.Label': new Set(['string', '_string', 'fontSize', 'lineHeight', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', '_N$horizontalAlign', 'verticalAlign', 'overflow', '_N$overflow', 'cacheMode', 'isBold', 'isItalic', 'isUnderline']),
