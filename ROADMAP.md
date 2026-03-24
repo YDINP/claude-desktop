@@ -932,3 +932,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2733 | BatchInspector 균등 간격 — size 고려 엣지-투-엣지 갭, auto/fixed 두 모드 | ✅ |
 | R2695 | BatchInspector 위치 선형 그라데이션 — from/to 범위 선형 보간 재배치 | ✅ |
 | R2734 | SceneView 사용자 영구 가이드라인 — V/H 가이드라인 추가/표시토글/전체삭제 | ✅ |
+| R2735 | QA 체크 9개 추가 (R2727-rotation~R2734) — QA 2616→2625 Pass | ✅ |
+| R2736 | BatchInspector Layer 일괄 설정 (Default/UI/Node/Gizmos 프리셋 + 직접 입력) | ✅ |
+| R2737 | BatchInspector Label 텍스트 일괄 수정 (지정/접두사/접미사 모드) | ✅ |
