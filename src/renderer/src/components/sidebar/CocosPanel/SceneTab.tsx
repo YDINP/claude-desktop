@@ -57,6 +57,8 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
     showAssetPanel, assetPanelWidth, setAssetPanelWidth, assetDividerDragRef, projectInfo,
   } = ctx
 
+  const [dupeBarOpen, setDupeBarOpen] = React.useState(() => localStorage.getItem('cc-dupe-bar-open') !== 'false')
+
   if (!sceneFile?.root) return null
 
   // 탭 전환 시 display:none으로 onMouseLeave 미발화 → 드래그 ref 누수 방지
@@ -140,23 +142,33 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                 ))}
               </div>
             )}
-            {/* R2488: 복제 오프셋 설정 바 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 6px', background: 'rgba(0,0,0,0.15)', borderBottom: '1px solid var(--border)', flexShrink: 0, fontSize: 9, color: 'var(--text-muted)' }}>
-              <span title="복제(Ctrl+D) 위치 오프셋 (R2488)" style={{ flexShrink: 0 }}>Δ복제</span>
-              <span>X</span>
-              <input type="number" value={dupeOffsetX} onChange={e => saveDupeOffset(parseInt(e.target.value) || 0, dupeOffsetY)}
-                style={{ width: 38, fontSize: 9, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
-                title="복제 X 오프셋 (R2488)" />
-              <span>Y</span>
-              <input type="number" value={dupeOffsetY} onChange={e => saveDupeOffset(dupeOffsetX, parseInt(e.target.value) || 0)}
-                style={{ width: 38, fontSize: 9, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
-                title="복제 Y 오프셋 (R2488)" />
-              <span style={{ color: 'var(--border)', fontSize: 10 }}>|</span>
-              {([0, 10, 20, 50] as const).map(v => (
-                <span key={v} onClick={() => saveDupeOffset(v, v)} title={`Δ${v}px`}
-                  style={{ fontSize: 8, cursor: 'pointer', padding: '0 3px', borderRadius: 2, border: '1px solid var(--border)', color: dupeOffsetX === v && dupeOffsetY === v ? '#58a6ff' : 'var(--text-muted)' }}
-                >{v}</span>
-              ))}
+            {/* R2488: 복제 오프셋 설정 바 (토글 가능) */}
+            <div style={{ flexShrink: 0, borderBottom: '1px solid var(--border)', background: 'rgba(0,0,0,0.15)' }}>
+              {dupeBarOpen ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 6px', fontSize: 9, color: 'var(--text-muted)' }}>
+                  <span title="접기" onClick={() => { setDupeBarOpen(false); localStorage.setItem('cc-dupe-bar-open', 'false') }}
+                    style={{ flexShrink: 0, cursor: 'pointer' }}>Δ복제 ▲</span>
+                  <span>X</span>
+                  <input type="number" value={dupeOffsetX} onChange={e => saveDupeOffset(parseInt(e.target.value) || 0, dupeOffsetY)}
+                    style={{ width: 38, fontSize: 9, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                    title="복제 X 오프셋 (R2488)" />
+                  <span>Y</span>
+                  <input type="number" value={dupeOffsetY} onChange={e => saveDupeOffset(dupeOffsetX, parseInt(e.target.value) || 0)}
+                    style={{ width: 38, fontSize: 9, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                    title="복제 Y 오프셋 (R2488)" />
+                  <span style={{ color: 'var(--border)', fontSize: 10 }}>|</span>
+                  {([0, 10, 20, 50] as const).map(v => (
+                    <span key={v} onClick={() => saveDupeOffset(v, v)} title={`Δ${v}px`}
+                      style={{ fontSize: 8, cursor: 'pointer', padding: '0 3px', borderRadius: 2, border: '1px solid var(--border)', color: dupeOffsetX === v && dupeOffsetY === v ? '#58a6ff' : 'var(--text-muted)' }}
+                    >{v}</span>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', padding: '1px 6px', fontSize: 9, color: 'var(--text-muted)' }}>
+                  <span title="복제 오프셋 펼치기" onClick={() => { setDupeBarOpen(true); localStorage.setItem('cc-dupe-bar-open', 'true') }}
+                    style={{ cursor: 'pointer' }}>Δ ▼</span>
+                </div>
+              )}
             </div>
             {/* SceneView — 남은 높이 채움 */}
             <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

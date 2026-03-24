@@ -22,11 +22,42 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                       style={{ margin: 0 }}
                     />enabled
                   </label>
-                  {/* R1701: 오디오 클립 uuid 표시 + 복사 */}
-                  {clipUuid && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>clip uuid</span>
-                      <span style={{ fontSize: 8, color: '#facc15', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={clipUuid}>{clipUuid}</span>
+                  {/* R1701: 오디오 클립 uuid 표시 + 복사 / R_CLIP_DROP: 드래그 드롭으로 클립 교체 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>clip</span>
+                    <span
+                      title={clipUuid ? `${clipUuid}\n드래그로 클립 교체 가능` : '오디오 클립을 여기에 드래그'}
+                      style={{ fontSize: 8, color: clipUuid ? '#facc15' : 'var(--text-muted)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, border: '1px dashed transparent', borderRadius: 3, padding: '1px 3px', cursor: 'copy', background: 'rgba(255,255,255,0.04)' }}
+                      onDragOver={e => {
+                        if (e.dataTransfer.types.includes('application/cc-asset')) {
+                          e.preventDefault()
+                          e.dataTransfer.dropEffect = 'copy';
+                          (e.currentTarget as HTMLElement).style.borderColor = '#58a6ff';
+                          (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.12)'
+                        }
+                      }}
+                      onDragLeave={e => {
+                        (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'
+                      }}
+                      onDrop={e => {
+                        e.preventDefault();
+                        (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'
+                        try {
+                          const data = JSON.parse(e.dataTransfer.getData('application/cc-asset') || '{}')
+                          if (data.uuid) {
+                            const clipRef = { __uuid__: data.uuid }
+                            applyAndSave({
+                              components: draft.components.map((c, i) =>
+                                i === origIdx ? { ...c, props: { ...c.props, clip: clipRef, _clip: clipRef, _N$clip: clipRef } } : c
+                              )
+                            })
+                          }
+                        } catch {}
+                      }}
+                    >{clipUuid ?? '(none)'}</span>
+                    {clipUuid && (
                       <span
                         title="클립 UUID 복사"
                         onClick={() => navigator.clipboard.writeText(clipUuid).catch(() => {})}
@@ -34,8 +65,8 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                         onMouseEnter={e => (e.currentTarget.style.color = '#facc15')}
                         onMouseLeave={e => (e.currentTarget.style.color = '#555')}
                       >⎘</span>
-                    </div>
-                  )}
+                    )}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 56 }}>volume</span>
                     <input type="range" min={0} max={1} step={0.01} value={volume}
@@ -65,7 +96,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <input type="range" min={0.5} max={2} step={0.05} value={pitch}
                       onChange={e => {
                         const v = parseFloat(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pitch: v, _pitch: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pitch: v, _pitch: v, _N$pitch: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1 }}
@@ -76,7 +107,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     {[0.5, 0.75, 1, 1.25, 1.5, 2].map(v => (
                       <span key={v} title={`pitch = ${v}`}
                         onClick={() => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pitch: v, _pitch: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, pitch: v, _pitch: v, _N$pitch: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Math.abs(pitch - v) < 0.01 ? '#facc15' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(pitch - v) < 0.01 ? '#facc15' : 'var(--text-muted)', userSelect: 'none' }}

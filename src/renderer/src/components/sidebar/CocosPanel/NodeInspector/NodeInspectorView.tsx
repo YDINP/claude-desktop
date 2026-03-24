@@ -36,8 +36,27 @@ export function CCFileNodeInspector({
     copiedCompRef, compCopied, setCompCopied,
     draggingIdx, setDraggingIdx, dragOverIdx, setDragOverIdx,
     sameCompPopup, setSameCompPopup, rotation,
-    applyAndSave, compTypeCountMap,
+    applyAndSave, compTypeCountMap, handleUndo, handleRedo,
   } = ctx
+  const handleUndoRef = React.useRef(handleUndo)
+  const handleRedoRef = React.useRef(handleRedo)
+  React.useEffect(() => { handleUndoRef.current = handleUndo }, [handleUndo])
+  React.useEffect(() => { handleRedoRef.current = handleRedo }, [handleRedo])
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        handleUndoRef.current()
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault()
+        handleRedoRef.current()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
   const is3x = sceneFile.projectInfo?.version === '3x'
   const [assetDragOver, setAssetDragOver] = React.useState(false)
   const similarNodes = React.useMemo(() => {
@@ -55,6 +74,31 @@ export function CCFileNodeInspector({
     similar.sort((a, b) => b.overlap - a.overlap)
     return similar.slice(0, 5)
   }, [sceneFile?.root, draft.components, node.uuid])
+  const skipTypes = ['cc.UITransform', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
+  const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
+  const visibleComps = React.useMemo(
+    () => draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
+      if (skipTypes.includes(c.type)) return false
+      if (isCustomScript(c.type)) return true
+      return Object.values(c.props).some(v => {
+        if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return true
+        if (v && typeof v === 'object') {
+          if ('__uuid__' in (v as object)) return true
+          const keys = Object.keys(v as object).filter(k => typeof (v as Record<string, unknown>)[k] === 'number')
+          if (keys.length >= 2 && keys.length <= 3) return true
+        }
+        return false
+      })
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [draft.components]
+  )
+  const typeMatchedComps = React.useMemo(
+    () => propSearch
+      ? visibleComps.filter(({ comp: c }) => c.type.toLowerCase().includes(propSearch.toLowerCase()))
+      : null,
+    [visibleComps, propSearch]
+  )
   return (
     <div
       onDragOver={e => {
@@ -179,9 +223,6 @@ export function CCFileNodeInspector({
       </div>
       {/* R1536: PropSearch 키 하이라이트 헬퍼 */}
       {!collapsed['comps'] && (() => {
-        const skipTypes = ['cc.UITransform', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
-        // R1473: 커스텀 스크립트 컴포넌트 (cc. 접두사 없는 타입) 항상 표시
-        const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
         // UUID를 스크립트 이름으로 변환
         // IS_UUID regex 제거: CC 2.x Base62 UUID(a2VdBXYC 등 비-hex 포함)는 hex regex로 매칭 불가
         // → dot 없는 타입은 scriptNames 맵에서 직접 조회, 없으면 그대로 표시
@@ -189,23 +230,6 @@ export function CCFileNodeInspector({
           if (type.includes('.')) return type
           return sceneFile.scriptNames?.[type] ?? type
         }
-        const visibleComps = draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
-          if (skipTypes.includes(c.type)) return false
-          if (isCustomScript(c.type)) return true // 커스텀 스크립트는 props 여부 무관 표시
-          return Object.values(c.props).some(v => {
-            if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return true
-            if (v && typeof v === 'object') {
-              if ('__uuid__' in (v as object)) return true
-              const keys = Object.keys(v as object).filter(k => typeof (v as Record<string, unknown>)[k] === 'number')
-              if (keys.length >= 2 && keys.length <= 3) return true
-            }
-            return false
-          })
-        })
-        // propSearch로 컴포넌트 타입 매칭: 해당 타입은 전체 표시 (자동 펼침)
-        const typeMatchedComps = propSearch
-          ? visibleComps.filter(({ comp: c }) => c.type.toLowerCase().includes(propSearch.toLowerCase()))
-          : null
         const showComps = typeMatchedComps ?? visibleComps
         return (
         <>
@@ -641,90 +665,7 @@ export function CCFileNodeInspector({
           </div>
         )
       })()}
-      {/* R1508: 빠른 편집 CLI 입력 바 */}
-      {(() => {
-        const runCmd = (cmd: string) => {
-          const parts = cmd.trim().split(/\s+/)
-          const op = parts[0]?.toLowerCase()
-          const nums = parts.slice(1).map(Number)
-          let patch: Partial<CCSceneNode> | null = null
-          if ((op === 'pos' || op === 'position') && nums.length >= 2 && !isNaN(nums[0]) && !isNaN(nums[1])) {
-            patch = { position: { ...draft.position, x: nums[0], y: nums[1] } }
-          } else if ((op === 'size' || op === 'sz') && nums.length >= 2 && !isNaN(nums[0]) && !isNaN(nums[1])) {
-            patch = { size: { x: nums[0], y: nums[1] } }
-          } else if ((op === 'rot' || op === 'rotation') && nums.length >= 1 && !isNaN(nums[0])) {
-            patch = { rotation: typeof draft.rotation === 'number' ? nums[0] : { ...(draft.rotation as object), z: nums[0] } }
-          } else if ((op === 'scale' || op === 'sc') && nums.length >= 1 && !isNaN(nums[0])) {
-            const sy = !isNaN(nums[1]) ? nums[1] : nums[0]
-            patch = { scale: { ...draft.scale, x: nums[0], y: sy } }
-          } else if ((op === 'alpha' || op === 'opacity') && nums.length >= 1 && !isNaN(nums[0])) {
-            patch = { opacity: Math.max(0, Math.min(255, Math.round(nums[0]))) }
-          } else if ((op === 'color' || op === 'col') && parts[1]) {
-            const hex = parts[1].replace('#', '')
-            if (/^[0-9a-fA-F]{6}$/.test(hex)) {
-              patch = { color: { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16), a: draft.color.a } }
-            }
-          } else if (op === 'name' && parts.slice(1).join(' ').trim()) {
-            patch = { name: parts.slice(1).join(' ').trim() }
-          } else if (op === 'active' || op === 'on') {
-            patch = { active: true }
-          } else if (op === 'inactive' || op === 'off') {
-            patch = { active: false }
-          } else if (op === 'toggle') {
-            patch = { active: !draft.active }
-          } else if ((op === 'anchor' || op === 'ax') && nums.length >= 2 && !isNaN(nums[0]) && !isNaN(nums[1])) {
-            patch = { anchor: { x: Math.max(0,Math.min(1,nums[0])), y: Math.max(0,Math.min(1,nums[1])) } }
-          // R1560: 추가 명령어
-          } else if (op === 'layer' && nums.length >= 1 && !isNaN(nums[0])) {
-            patch = { layer: Math.round(nums[0]) }
-          } else if (op === 'tag' && nums.length >= 1 && !isNaN(nums[0])) {
-            patch = { tag: Math.round(nums[0]) }
-          } else if (op === 'z' && nums.length >= 1 && !isNaN(nums[0])) {
-            const pos = draft.position as { x: number; y: number; z?: number }
-            patch = { position: { ...pos, z: nums[0] } }
-          } else if (op === 'flip' && parts[1]) {
-            const axis = parts[1].toLowerCase()
-            const sc = draft.scale as { x: number; y: number; z?: number }
-            if (axis === 'x') patch = { scale: { ...sc, x: -sc.x } }
-            else if (axis === 'y') patch = { scale: { ...sc, y: -sc.y } }
-          } else if (op === 'reset') {
-            patch = { position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, opacity: 255 }
-          } else if (op === 'help' || op === '?') {
-            setCliMsg('pos|size|rot|scale|alpha|color|name|active|anchor|layer|tag|z|flip x/y|reset')
-            setTimeout(() => setCliMsg(null), 4000)
-            setCliVal('')
-            return
-          }
-          if (patch) {
-            applyAndSave(patch)
-            setCliMsg(`✓ ${op}`)
-            setTimeout(() => setCliMsg(null), 1500)
-            setCliVal('')
-          } else {
-            setCliMsg('? 알 수 없는 명령 (help/?로 목록)')
-            setTimeout(() => setCliMsg(null), 2000)
-          }
-        }
-        return (
-          <div style={{ marginTop: 6, borderTop: '1px solid var(--border)', paddingTop: 4 }}>
-            <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: '#555', flexShrink: 0 }}>›_</span>
-              <input
-                value={cliVal}
-                onChange={e => setCliVal(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { runCmd(cliVal); e.preventDefault() } }}
-                placeholder="pos X Y · size W H · rot Z · help/?로 목록"
-                style={{
-                  flex: 1, fontSize: 9, background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)',
-                  color: 'var(--text-secondary)', borderRadius: 3, padding: '2px 5px', fontFamily: 'monospace',
-                }}
-                title="R1508/R1560 Quick Edit: pos|size|rot|scale|alpha|color|name|active/inactive/toggle|anchor|layer|tag|z|flip x/y|reset|help"
-              />
-              {cliMsg && <span style={{ fontSize: 9, color: cliMsg.startsWith('✓') ? '#4ade80' : '#f85149', flexShrink: 0 }}>{cliMsg}</span>}
-            </div>
-          </div>
-        )
-      })()}
+
       {/* R1668: 유사 노드 (공통 컴포넌트 타입 기반) */}
       {similarNodes.length > 0 && (
         <div style={{ marginBottom: 4, padding: '3px 6px', background: 'rgba(88,166,255,0.04)', borderRadius: 3, border: '1px solid rgba(88,166,255,0.08)' }}>

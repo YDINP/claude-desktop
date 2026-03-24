@@ -144,7 +144,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         {([[0,'None'],[1,'LT'],[5,'C'],[9,'RB'],[4,'LC'],[6,'RC']] as const).map(([v, l]) => (
                           <span key={v} title={`childAlignment = ${alignNames[v] ?? v}`}
                             onClick={() => {
-                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, childAlignment: v, _childAlignment: v } } : c)
+                              const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, childAlignment: v, _childAlignment: v, _N$childAlignment: v } } : c)
                               applyAndSave({ components: updated })
                             }}
                             style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${childAlign === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: childAlign === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}

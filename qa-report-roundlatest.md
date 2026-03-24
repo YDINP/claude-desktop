@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-03-23T07:58:44.553Z
+> 2026-03-24T03:04:39.360Z
 
 ## Critical
 _없음_
@@ -10,9 +10,9 @@ _없음_
 ## Pass
 - bun run build 성공
 - tsc --noEmit 오류 없음
-- 188개 소스 파일 검사 완료
+- 190개 소스 파일 검사 완료
 - package.json 파싱 성공 (name: claude-desktop)
-- preload expose 메서드 338개 확인
+- preload expose 메서드 342개 확인
 - ipcMain.handle 등록: 13개 이상
 - 의존성 설치됨: electron
 - 의존성 설치됨: react
@@ -1286,10 +1286,6 @@ _없음_
 - SceneView anchorRef + anchorOverride 상태 구현
 - SceneView 앵커 다이아몬드 핸들 + onAnchorMove 연결
 - CocosPanel handleAnchorMove 콜백 + 0~1 클램핑 구현
-- Inspector Quick Edit CLI 입력 상태 + runCmd 함수 구현
-- pos/size/rot/scale/alpha/color/name/active 명령 파서 구현
-- CLI 입력 UI (monosapce placeholder + 피드백) 구현
-- Quick Edit CLI useState 컴포넌트 최상위 선언 (Rules of Hooks 준수)
 - SceneView cc.Widget alignFlags 제약 화살표 시각화 구현
 - TOP/BOT/LEFT/RIGHT 4방향 제약 화살표 모두 구현
 - alignGuides 상태 + ALIGN_SNAP_THRESHOLD 선언
@@ -1363,7 +1359,6 @@ _없음_
 - TreeSearch ↑↓ 키보드 탐색 + Enter 선택 + Escape 닫기
 - 컴포넌트 타입 검색 (이름 + 타입 모두 검색)
 - 씬 통계 패널 (nodeCount + 상위 4개 컴포넌트 타입 분포)
-- Quick Edit CLI 확장: layer/tag/z/flip x|y/reset/help
 - 정렬 버튼이 effectiveW/H 기반으로 동작
 - cc.Slider + cc.VideoPlayer Inspector Quick Edit 구현
 - cc.ScrollView Inspector Quick Edit: horizontal/vertical/inertia/elastic/brake

@@ -19,10 +19,10 @@ interface GenericPropertyEditorProps {
   typeMatchedComps: Array<{ comp: CCSceneNode['components'][number]; origIdx: number }> | null
 }
 
-const HIDDEN = new Set(['objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip'])
+const HIDDEN = new Set(['objFlags', '_objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip', 'name', '_name'])
 // 컴포넌트별 전용 렌더러(ComponentQuickEdit)가 이미 표시하는 prop 중복 제거
 const COMP_SKIP: Record<string, Set<string>> = {
-  'cc.Label': new Set(['string', '_string', 'fontSize', 'lineHeight', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', '_N$horizontalAlign', 'verticalAlign', 'overflow', '_N$overflow', 'cacheMode', 'isBold', 'isItalic', 'isUnderline']),
+  'cc.Label': new Set(['string', '_string', 'fontSize', 'lineHeight', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', '_N$horizontalAlign', 'verticalAlign', 'overflow', '_N$overflow', 'cacheMode', 'isBold', 'isItalic', 'isUnderline', 'color', '_color', '_N$color', 'spacingX', '_spacingX', '_N$spacingX', 'spacingY', '_spacingY', '_N$spacingY', 'enableWrapText', '_enableWrapText', '_N$enableWrapText', '_isBold', '_N$isBold', '_isItalic', '_N$isItalic', '_isUnderline', '_N$isUnderline', 'isStrikethrough', '_isStrikethrough', '_N$isStrikethrough', 'platformFont', '_platformFont', '_N$platformFont', '_cacheMode', '_N$cacheMode']),
   'cc.RichText': new Set(['string', '_string', 'fontSize', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', 'maxWidth', 'lineHeight']),
   'cc.Sprite': new Set(['spriteFrame', '_spriteFrame', 'type', 'sizeMode', 'trim', 'grayscale', '_N$type', '_N$sizeMode', '_N$trim', '_N$grayscale']),
   'cc.Button': new Set(['interactable', 'transition', 'duration', 'zoomScale', 'normalColor', 'pressedColor', 'hoverColor', 'disabledColor']),
@@ -36,6 +36,10 @@ function shallowEqualPropValue(a: unknown, b: unknown): boolean {
   if (a === null || b === null) return false
   if (typeof a !== typeof b) return false
   if (typeof a !== 'object') return false
+  // 키 수 다르면 즉시 false (JSON.stringify 비용 절감)
+  const aKeys = Object.keys(a as object)
+  const bKeys = Object.keys(b as object)
+  if (aKeys.length !== bKeys.length) return false
   // 객체/배열: JSON.stringify 폴백 (드문 경우)
   return JSON.stringify(a) === JSON.stringify(b)
 }
@@ -61,6 +65,19 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
               ...baseFiltered.filter(([k]) => favProps.has(`${comp.type}:${k}`)),
               ...baseFiltered.filter(([k]) => !favProps.has(`${comp.type}:${k}`)),
             ]
+            // R1536: propSearch 매칭 시 키 이름 하이라이트 — map 밖에서 한 번만 정의
+            const buildPropKeyLabel = (key: string, isChanged: boolean): React.ReactNode => {
+              const baseLabel = (() => {
+                if (!propSearch) return key
+                const lk = key.toLowerCase(), lq = propSearch.toLowerCase()
+                const i = lk.indexOf(lq)
+                if (i < 0) return key
+                return <>{key.slice(0, i)}<mark style={{ background: 'rgba(250,204,21,0.25)', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{key.slice(i, i + propSearch.length)}</mark>{key.slice(i + propSearch.length)}</>
+              })()
+              return isChanged
+                ? <><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: '#fbbf24', marginRight: 3, flexShrink: 0, verticalAlign: 'middle' }} title="변경됨" />{baseLabel}</>
+                : baseLabel
+            }
             return (
               <>
                 {showFilter && (
@@ -83,19 +100,6 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             const origComp = origSnapRef.current?.components[origIdx]
             const origVal = origComp?.props[k]
             const isPropChanged = origComp !== undefined && !shallowEqualPropValue(v, origVal)
-            // R1536: propSearch 매칭 시 키 이름 하이라이트
-            const propKeyLabel = (key: string): React.ReactNode => {
-              const baseLabel = (() => {
-                if (!propSearch) return key
-                const lk = key.toLowerCase(), lq = propSearch.toLowerCase()
-                const i = lk.indexOf(lq)
-                if (i < 0) return key
-                return <>{key.slice(0, i)}<mark style={{ background: 'rgba(250,204,21,0.25)', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{key.slice(i, i + propSearch.length)}</mark>{key.slice(i + propSearch.length)}</>
-              })()
-              return isPropChanged
-                ? <><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: '#fbbf24', marginRight: 3, flexShrink: 0, verticalAlign: 'middle' }} title="변경됨" />{baseLabel}</>
-                : baseLabel
-            }
             const favBtn = (
               <span
                 key="fav"
@@ -111,6 +115,8 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                 }}
               >{isFavProp ? '★' : '☆'}</span>
             )
+            // R1536: per-key wrapper — JSX uses {propKeyLabel(k)}{favBtn}
+            const propKeyLabel = (key: string) => buildPropKeyLabel(key, isPropChanged)
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
               const uuid = (v as { __uuid__: string }).__uuid__
               return (
@@ -155,6 +161,18 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                     onClick={() => navigator.clipboard.writeText(uuid).catch(() => {})}
                   >
                     {uuid.slice(0, 8)}…
+                  </span>
+                </div>
+              )
+            }
+            // 내부 참조 타입 {__id__: N}
+            if (v && typeof v === 'object' && '__id__' in (v as object)) {
+              const refId = (v as { __id__: number }).__id__
+              return (
+                <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, overflow: 'hidden' }}>
+                  <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                  <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '2px 5px', flex: 1 }} title={`내부 참조 ID: ${refId}`}>
+                    ref[{refId}]
                   </span>
                 </div>
               )
@@ -323,6 +341,45 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                   </div>
                 )
               }
+              if (numKeys.length >= 4 && numKeys.length <= 8) {
+                return (
+                  <div key={k} className="prop-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 4, marginBottom: 4, overflow: 'hidden' }}>
+                    <span style={{ minWidth: 64, whiteSpace: 'nowrap', fontSize: 10, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>{propKeyLabel(k)}{favBtn}</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, flex: 1 }}>
+                      {numKeys.map(axis => (
+                        <div key={axis} style={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                          <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>{axis}</span>
+                          <WheelInput type="number" defaultValue={Number(vobj[axis])}
+                            onBlur={e => {
+                              const val = parseFloat((e.target as HTMLInputElement).value)
+                              if (!isNaN(val)) applyAndSave({
+                                components: draft.components.map((c, i) =>
+                                  i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: val } } } : c
+                                )
+                              })
+                            }}
+                            onWheelChange={e => {
+                              e.preventDefault()
+                              const el = e.target as HTMLInputElement
+                              const cur = parseFloat(el.value)
+                              if (isNaN(cur)) return
+                              const delta = e.deltaY < 0 ? 1 : -1
+                              const newVal = cur + delta * (e.shiftKey ? 10 : 1)
+                              el.value = String(newVal)
+                              applyAndSave({
+                                components: draft.components.map((c, i) =>
+                                  i === origIdx ? { ...c, props: { ...c.props, [k]: { ...vobj, [axis]: newVal } } } : c
+                                )
+                              })
+                            }}
+                            style={{ width: 44, minWidth: 0, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px', fontSize: 9 }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
               return null
             }
             // 배열 타입 — 펼치기/접기 토글 + 요소별 편집
@@ -348,12 +405,46 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                   {isExpanded && arr.map((elem, elemIdx) => {
                     const elemLabel = `[${elemIdx}]`
                     if (elem !== null && typeof elem === 'object' && '__type__' in (elem as object)) {
+                      const elemObj = elem as Record<string, unknown>
+                      const numSubKeys = Object.keys(elemObj).filter(k2 => typeof elemObj[k2] === 'number' && k2 !== '__type__')
                       return (
-                        <div key={elemIdx} style={{ display: 'flex', alignItems: 'center', gap: 4, paddingLeft: 16, marginTop: 2 }}>
-                          <span style={{ minWidth: 44, whiteSpace: 'nowrap', fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
-                          <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '1px 4px' }}>
-                            {String((elem as Record<string, unknown>).__type__)}
-                          </span>
+                        <div key={elemIdx} style={{ paddingLeft: 16, marginTop: 2 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ minWidth: 44, whiteSpace: 'nowrap', fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{elemLabel}</span>
+                            <span style={{ fontSize: 9, color: '#666', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', borderRadius: 3, padding: '1px 4px' }}>
+                              {String(elemObj.__type__)}
+                            </span>
+                          </div>
+                          {numSubKeys.length > 0 && numSubKeys.length <= 4 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, paddingLeft: 48, marginTop: 2 }}>
+                              {numSubKeys.map(sk => (
+                                <div key={sk} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{sk}</span>
+                                  <WheelInput type="number" defaultValue={Number(elemObj[sk])}
+                                    onBlur={e => {
+                                      const val = parseFloat((e.target as HTMLInputElement).value)
+                                      if (isNaN(val)) return
+                                      const newArr = [...arr]
+                                      newArr[elemIdx] = { ...elemObj, [sk]: val }
+                                      applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                                    }}
+                                    onWheelChange={e => {
+                                      e.preventDefault()
+                                      const el = e.target as HTMLInputElement
+                                      const cur = parseFloat(el.value)
+                                      if (isNaN(cur)) return
+                                      const newVal = cur + (e.deltaY < 0 ? 1 : -1) * (e.shiftKey ? 10 : 1)
+                                      el.value = String(newVal)
+                                      const newArr = [...arr]
+                                      newArr[elemIdx] = { ...elemObj, [sk]: newVal }
+                                      applyAndSave({ components: draft.components.map((c, i) => i === origIdx ? { ...c, props: { ...c.props, [k]: newArr } } : c) })
+                                    }}
+                                    style={{ width: 44, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px', fontSize: 9 }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )
                     }

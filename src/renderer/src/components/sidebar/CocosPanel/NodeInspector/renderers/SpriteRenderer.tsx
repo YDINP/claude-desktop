@@ -2,6 +2,22 @@ import React from 'react'
 import type { RendererProps } from './types'
 import { SpriteThumb } from '../constants'
 
+const BLEND_FACTOR: Record<number, string> = {
+  0: 'ZERO',
+  1: 'ONE',
+  512: 'DST_ALPHA',
+  513: 'ONE_MINUS_DST_ALPHA',
+  770: 'SRC_ALPHA',
+  771: 'ONE_MINUS_SRC_ALPHA',
+  772: 'DST_COLOR',
+  773: 'ONE_MINUS_DST_COLOR',
+  776: 'SRC_ALPHA_SATURATE',
+  32769: 'CONSTANT_COLOR',
+  32770: 'ONE_MINUS_CONSTANT_COLOR',
+  32771: 'CONSTANT_ALPHA',
+  32772: 'ONE_MINUS_CONSTANT_ALPHA',
+}
+
 /** cc.Graphics, cc.Sprite, cc.Sprite2D, cc.VideoPlayer, cc.WebView, cc.TiledMap, cc.TiledLayer Quick Edit renderer */
 export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
@@ -175,8 +191,8 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     {SPRITE_TYPE.map((l, i) => (
                       <span key={i} title={l}
                         role="button" tabIndex={0}
-                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: i, _type: i } } : c); applyAndSave({ components: updated }) }}
-                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: i, _type: i } } : c); applyAndSave({ components: updated }) } }}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: i, _type: i, _N$type: i } } : c); applyAndSave({ components: updated }) }}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, type: i, _type: i, _N$type: i } } : c); applyAndSave({ components: updated }) } }}
                         style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${spriteTypeVal === i ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: spriteTypeVal === i ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
                       >{l}</span>
                     ))}
@@ -186,8 +202,8 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     {SIZE_MODE.map((l, i) => (
                       <span key={i} title={l}
                         role="button" tabIndex={0}
-                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sizeMode: i, _sizeMode: i } } : c); applyAndSave({ components: updated }) }}
-                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sizeMode: i, _sizeMode: i } } : c); applyAndSave({ components: updated }) } }}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sizeMode: i, _sizeMode: i, _N$sizeMode: i } } : c); applyAndSave({ components: updated }) }}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sizeMode: i, _sizeMode: i, _N$sizeMode: i } } : c); applyAndSave({ components: updated }) } }}
                         style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${sizeModeVal === i ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: sizeModeVal === i ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
                       >{l}</span>
                     ))}
@@ -242,22 +258,32 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     )
                   })()}
                   {/* R1865: srcBlendFactor / dstBlendFactor 퀵 버튼 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>blend</span>
-                    {([['Normal', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => {
-                      const curSrc = Number(p.srcBlendFactor ?? p._srcBlendFactor ?? 770)
-                      const curDst = Number(p.dstBlendFactor ?? p._dstBlendFactor ?? 771)
-                      const active = curSrc === src && curDst === dst
-                      return (
-                        <span key={l} title={`srcBlend=${src} dstBlend=${dst}`}
-                          role="button" tabIndex={0}
-                          onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) }}
-                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) } }}
-                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${active ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: active ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
-                        >{l}</span>
-                      )
-                    })}
-                  </div>
+                  {(() => {
+                    const curSrc = Number(p.srcBlendFactor ?? p._srcBlendFactor ?? 770)
+                    const curDst = Number(p.dstBlendFactor ?? p._dstBlendFactor ?? 771)
+                    return (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>blend</span>
+                          {([['Normal', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => {
+                            const active = curSrc === src && curDst === dst
+                            return (
+                              <span key={l} title={`src=${BLEND_FACTOR[src] ?? src} dst=${BLEND_FACTOR[dst] ?? dst}`}
+                                role="button" tabIndex={0}
+                                onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, _N$srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst, _N$dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) }}
+                                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, _N$srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst, _N$dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) } }}
+                                style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${active ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: active ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
+                              >{l}</span>
+                            )
+                          })}
+                        </div>
+                        <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 2, paddingLeft: 35 }}>
+                          src: <span style={{ color: '#ccc' }}>{BLEND_FACTOR[curSrc] ?? curSrc}</span>
+                          {'  '}dst: <span style={{ color: '#ccc' }}>{BLEND_FACTOR[curDst] ?? curDst}</span>
+                        </div>
+                      </>
+                    )
+                  })()}
                   {/* R1827: 색조(hue) 슬라이더 — 노드 tint 색상 H 조정 */}
                   {(() => {
                     const c = draft.color ?? { r: 255, g: 255, b: 255, a: 255 }
@@ -308,7 +334,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         <select value={Number(p.fillType ?? 0)}
                           onChange={ev => {
                             const v = parseInt(ev.target.value)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillType: v, _fillType: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillType: v, _fillType: v, _N$fillType: v } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
@@ -323,7 +349,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         <input type="range" min={0} max={1} step={0.01} value={Number(p.fillStart ?? 0)}
                           onChange={ev => {
                             const v = parseFloat(ev.target.value)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillStart: v, _fillStart: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillStart: v, _fillStart: v, _N$fillStart: v } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ flex: 1 }} />
@@ -334,7 +360,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         <input type="range" min={0} max={1} step={0.01} value={Number(p.fillRange ?? 1)}
                           onChange={ev => {
                             const v = parseFloat(ev.target.value)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillRange: v, _fillRange: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fillRange: v, _fillRange: v, _N$fillRange: v } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ flex: 1 }} />
@@ -356,7 +382,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                       <input type="checkbox" checked={!!(p.packable ?? p._packable ?? true)}
                         onChange={e => {
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, packable: e.target.checked, _packable: e.target.checked } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, packable: e.target.checked, _packable: e.target.checked, _N$packable: e.target.checked } } : c)
                           applyAndSave({ components: updated })
                         }}
                       />packable
@@ -376,10 +402,10 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         <span key={v} title={`meshType=${l}(${v})`}
                           role="button" tabIndex={0}
                           onClick={() => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, meshType: v, _meshType: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, meshType: v, _meshType: v, _N$meshType: v } } : c)
                             applyAndSave({ components: updated })
                           }}
-                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, meshType: v, _meshType: v } } : c); applyAndSave({ components: updated }) } }}
+                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, meshType: v, _meshType: v, _N$meshType: v } } : c); applyAndSave({ components: updated }) } }}
                           style={{ fontSize: 8, padding: '0 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
                         >{l}</span>
                       )

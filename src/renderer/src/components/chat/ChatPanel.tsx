@@ -992,18 +992,24 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     virtualizer.scrollToIndex(targetIdx, { align: 'center', behavior: 'smooth' })
   }, [chat.messages, virtualizer])
 
+  const scrollStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const handleScroll = useCallback(() => {
     const el = scrollContainerRef.current
     if (!el) return
     const dist = el.scrollHeight - el.scrollTop - el.clientHeight
+    // isAtBottom은 즉시 업데이트 (auto-scroll 정확성)
     isAtBottomRef.current = dist < 100
-    setShowScrollBtn(dist > 150)
-    setShowTopBtn(el.scrollTop > 500)
-    setMinimapScroll({
-      scrollTop: el.scrollTop,
-      clientHeight: el.clientHeight,
-      totalScrollHeight: el.scrollHeight - el.clientHeight,
-    })
+    // UI state 업데이트는 debounce — 매 스크롤 이벤트마다 re-render 방지 (깜빡임 수정)
+    if (scrollStateTimerRef.current) clearTimeout(scrollStateTimerRef.current)
+    scrollStateTimerRef.current = setTimeout(() => {
+      setShowScrollBtn(dist > 150)
+      setShowTopBtn(el.scrollTop > 500)
+      setMinimapScroll({
+        scrollTop: el.scrollTop,
+        clientHeight: el.clientHeight,
+        totalScrollHeight: el.scrollHeight - el.clientHeight,
+      })
+    }, 50)
   }, [])
 
   const scrollToBottom = useCallback(() => {
