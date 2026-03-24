@@ -785,6 +785,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       } else {
         setSnapIndicator(null)
       }
+      // R2742: 가이드라인 auto-snap (Ctrl/Shift 없을 때)
+      if (!e.ctrlKey && !e.metaKey && !e.shiftKey && showUserGuides && userGuides.length > 0) {
+        const SNAP_THRESH = 8 / viewRef.current.zoom
+        let snapped = false
+        for (const g of userGuides) {
+          if (g.type === 'V') {
+            const gWorld = g.pos - cx
+            if (Math.abs(nx - gWorld) < SNAP_THRESH) { nx = gWorld; snapped = true; break }
+          } else {
+            const gWorld = cy - g.pos
+            if (Math.abs(ny - gWorld) < SNAP_THRESH) { ny = gWorld; snapped = true; break }
+          }
+        }
+        if (snapped) setSnapIndicator({ x: nx, y: ny })
+      }
       setDragOverride({ uuid: dragRef.current.uuid, x: nx, y: ny })
       // R1512: 정렬 가이드라인 계산
       const draggedFn = flatNodes.find(fn => fn.node.uuid === dragRef.current!.uuid)

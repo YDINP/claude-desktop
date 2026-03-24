@@ -2653,6 +2653,8 @@ export const ROUND_CHECKS: RoundCheck[] = [
   { round: 'R2734-user-guides', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['R2734', 'userGuides', 'addUserGuide'], operator: 'and', failLevel: 'warning', passMsg: 'R2734 사용자 가이드라인 구현 완료', failMsg: 'R2734 사용자 가이드라인 미구현', failFile: 'CCFileSceneView.tsx' },
   { round: 'R2736-layer-batch', file: 'src/renderer/src/domains/cocos/plugins/transform.tsx', keywords: ['R2736', 'layerInput', 'LAYER_PRESETS'], operator: 'and', failLevel: 'warning', passMsg: 'R2736 BatchInspector Layer 일괄 설정 구현 완료', failMsg: 'R2736 Layer 일괄 설정 미구현', failFile: 'transform.tsx' },
   { round: 'R2737-label-text-batch', file: 'src/renderer/src/domains/cocos/plugins/name.tsx', keywords: ['R2737', 'labelText', 'applyLabelText'], operator: 'and', failLevel: 'warning', passMsg: 'R2737 Label 텍스트 일괄 수정 구현 완료', failMsg: 'R2737 Label 텍스트 일괄 수정 미구현', failFile: 'name.tsx' },
+  { round: 'R2739-opacity-gradient', file: 'src/renderer/src/domains/cocos/plugins/color.tsx', keywords: ['R2739', 'opacGradFrom', 'applyOpacGrad'], operator: 'and', failLevel: 'warning', passMsg: 'R2739 opacity 그라데이션 구현 완료', failMsg: 'R2739 opacity 그라데이션 미구현', failFile: 'color.tsx' },
+  { round: 'R2740-guide-drag', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['R2740', 'guideDragRef', 'addUserGuide'], operator: 'and', failLevel: 'warning', passMsg: 'R2740 가이드라인 드래그 이동 구현 완료', failMsg: 'R2740 가이드라인 드래그 이동 미구현', failFile: 'CCFileSceneView.tsx' },
 ]
 
 export const MULTI_FILE_CHECKS: MultiFileCheck[] = [

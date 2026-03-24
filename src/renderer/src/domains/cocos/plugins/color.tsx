@@ -28,6 +28,7 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
   const [colorDeltaA, setColorDeltaA] = useState<number>(0)
   const [opacityMult, setOpacityMult] = useState<number>(80)
   const [opacityFixed, setOpacityFixed] = useState<number>(255)
+  const [brightDelta, setBrightDelta] = useState<number>(20) /* R2743 */
 
   const mkBtnS = (color: string, extra?: React.CSSProperties): React.CSSProperties => ({
     fontSize: 9, padding: '1px 5px', cursor: 'pointer',
@@ -39,6 +40,20 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
     borderRadius: 2, background: 'var(--bg-secondary)',
     color: 'var(--text-primary)', textAlign: 'center',
   })
+
+  // R2743: 색상 밝기 조절
+  const applyBrightness = async (delta: number) => {
+    await patchNodes(n => {
+      const c = n._color as { r: number; g: number; b: number; a: number } | undefined
+      if (!c) return n
+      const clamp = (v: number) => Math.max(0, Math.min(255, v))
+      return {
+        ...n,
+        _color: { ...c, r: clamp(c.r + delta), g: clamp(c.g + delta), b: clamp(c.b + delta) },
+        color: { ...c, r: clamp(c.r + delta), g: clamp(c.g + delta), b: clamp(c.b + delta) },
+      }
+    }, `밝기 ${delta > 0 ? '+' : ''}${delta} (R2743)`)
+  }
 
   // R1575: 색상 일괄 변경
   const colorRgb = (() => {
@@ -472,6 +487,18 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
           </div>
         )
       })()}
+
+      {/* R2743: 색상 밝기 조절 */}
+      {uuids.length >= 1 && (() => (
+        <div style={{ marginBottom: 4, display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>밝기조절 (R2743)</span>
+          <input type="number" value={brightDelta} min={1} max={255}
+            onChange={e => setBrightDelta(Math.max(1, Number(e.target.value)))}
+            style={mkNiS(40)} title="밝기 조절 값 (1-255)" />
+          <span onClick={() => applyBrightness(brightDelta)} style={mkBtnS('#3a5a3a')} title="밝게">☀+</span>
+          <span onClick={() => applyBrightness(-brightDelta)} style={mkBtnS('#3a3a5a')} title="어둡게">☀-</span>
+        </div>
+      ))()}
     </div>
   )
 }
