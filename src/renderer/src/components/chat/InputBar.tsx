@@ -691,6 +691,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       window.api.commandLoadWorkflow(cmd.workflowPath).then(({ content, error }) => {
         if (error || !content) {
           setText(`[${cmd.label}: 워크플로우 로드 실패]`)
+          setTimeout(() => textareaRef.current?.focus(), 0)
           return
         }
         // $ARGUMENTS 치환 — 인자는 나중에 사용자가 입력
@@ -700,8 +701,14 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           detail: { systemPrompt: processed, label: cmd.label }
         }))
         setText(``)
+        // 워크플로우 주입 후 즉시 포커스 복구 — Space/입력 불가 버그 방지
+        setTimeout(() => {
+          const ta = textareaRef.current
+          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = 0 }
+        }, 0)
       }).catch(() => {
         setText(`[${cmd.label}: 워크플로우 로드 실패]`)
+        setTimeout(() => textareaRef.current?.focus(), 0)
       })
       setSlashSelected(0)
       return
