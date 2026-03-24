@@ -929,3 +929,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2730 | LayoutRenderer 전수감사 — _N$enabled 추가, #aaa 하드코딩 수정 | ✅ |
 | R2731 | ParticleRenderer 전수감사 — read chain 8건 보완, _N$enabled, CC2.x color 섹션 조건분기 | ✅ |
 | R2732 | ScrollViewRenderer 전수감사 — _N$enabled 3곳, read chain 3건, CSS fallback 수정, PageViewIndicator enabled 추가 | ✅ |
+| R2733 | BatchInspector 균등 간격 — size 고려 엣지-투-엣지 갭, auto/fixed 두 모드 | ✅ |
+| R2695 | BatchInspector 위치 선형 그라데이션 — from/to 범위 선형 보간 재배치 | ✅ |
+| R2734 | SceneView 사용자 영구 가이드라인 — V/H 가이드라인 추가/표시토글/전체삭제 | ✅ |
