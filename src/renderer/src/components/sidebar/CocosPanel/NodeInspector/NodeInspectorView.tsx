@@ -36,8 +36,24 @@ export function CCFileNodeInspector({
     copiedCompRef, compCopied, setCompCopied,
     draggingIdx, setDraggingIdx, dragOverIdx, setDragOverIdx,
     sameCompPopup, setSameCompPopup, rotation,
-    applyAndSave, compTypeCountMap,
+    applyAndSave, compTypeCountMap, handleUndo, handleRedo,
   } = ctx
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      // Only intercept when not in an input/textarea
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        handleUndo()
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault()
+        handleRedo()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [handleUndo, handleRedo])
   const is3x = sceneFile.projectInfo?.version === '3x'
   const [assetDragOver, setAssetDragOver] = React.useState(false)
   const similarNodes = React.useMemo(() => {

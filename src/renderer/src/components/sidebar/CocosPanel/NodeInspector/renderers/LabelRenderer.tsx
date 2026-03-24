@@ -324,6 +324,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0, marginTop: 2 }}>string</span>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <textarea
+                        key={str}
                         defaultValue={str}
                         rows={2}
                         onBlur={e => {
@@ -351,7 +352,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>fontSize</span>
-                    <input type="number" defaultValue={fs} min={1} max={200}
+                    <input type="number" key={fs} defaultValue={fs} min={1} max={200}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || fs
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c)
@@ -386,7 +387,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   {/* R1714: 텍스트 색상 피커 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>color</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>textColor</span>
                     <input type="color" value={lcHex}
                       onChange={e => {
                         const h = e.target.value
@@ -401,7 +402,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   {/* R1723: lineHeight */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>lineH</span>
-                    <input type="number" defaultValue={lineHeight} min={0} step={1}
+                    <input type="number" key={lineHeight} defaultValue={lineHeight} min={0} step={1}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _lineHeight: v, _N$lineHeight: v } } : c)
@@ -448,7 +449,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   {/* R1757: fontFamily 입력 + 폰트 에셋 드롭다운 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative', flexWrap: 'wrap' }} ref={fontDropdownRef}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>fontFam</span>
-                    <input type="text" defaultValue={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} placeholder="폰트 이름 (빈칸=기본)"
+                    <input type="text" key={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} defaultValue={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} placeholder="폰트 이름 (빈칸=기본)"
                       onBlur={e => {
                         const v = e.target.value.trim()
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontFamily: v, _fontFamily: v, _N$fontFamily: v } } : c)
@@ -620,7 +621,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                       )
                     })()}
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 8, flexShrink: 0 }}>spcX</span>
-                    <input type="number" defaultValue={Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)} step={1}
+                    <input type="number" key={Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)} defaultValue={Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingX: v, _spacingX: v, _N$spacingX: v } } : c)
@@ -630,7 +631,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     />
                     {/* R2364: spacingY */}
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 4, flexShrink: 0 }}>Y</span>
-                    <input type="number" defaultValue={Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)} step={1}
+                    <input type="number" key={Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)} defaultValue={Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingY: v, _spacingY: v, _N$spacingY: v } } : c)

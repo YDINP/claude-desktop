@@ -22,7 +22,7 @@ interface GenericPropertyEditorProps {
 const HIDDEN = new Set(['objFlags', '_objFlags', 'enabled', 'playOnLoad', 'id', 'prefab', 'compPrefabInfo', 'contentSize', 'anchorPoint', 'N$file', 'N$spriteAtlas', 'N$clips', 'N$defaultClip', 'name', '_name'])
 // 컴포넌트별 전용 렌더러(ComponentQuickEdit)가 이미 표시하는 prop 중복 제거
 const COMP_SKIP: Record<string, Set<string>> = {
-  'cc.Label': new Set(['string', '_string', 'fontSize', 'lineHeight', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', '_N$horizontalAlign', 'verticalAlign', 'overflow', '_N$overflow', 'cacheMode', 'isBold', 'isItalic', 'isUnderline']),
+  'cc.Label': new Set(['string', '_string', 'fontSize', 'lineHeight', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', '_N$horizontalAlign', 'verticalAlign', 'overflow', '_N$overflow', 'cacheMode', 'isBold', 'isItalic', 'isUnderline', 'color', '_color', '_N$color', 'spacingX', '_spacingX', '_N$spacingX', 'spacingY', '_spacingY', '_N$spacingY', 'enableWrapText', '_enableWrapText', '_N$enableWrapText', '_isBold', '_N$isBold', '_isItalic', '_N$isItalic', '_isUnderline', '_N$isUnderline', 'isStrikethrough', '_isStrikethrough', '_N$isStrikethrough', 'platformFont', '_platformFont', '_N$platformFont', '_cacheMode', '_N$cacheMode']),
   'cc.RichText': new Set(['string', '_string', 'fontSize', 'fontFamily', 'font', '_N$file', 'isSystemFontUsed', 'horizontalAlign', 'maxWidth', 'lineHeight']),
   'cc.Sprite': new Set(['spriteFrame', '_spriteFrame', 'type', 'sizeMode', 'trim', 'grayscale', '_N$type', '_N$sizeMode', '_N$trim', '_N$grayscale']),
   'cc.Button': new Set(['interactable', 'transition', 'duration', 'zoomScale', 'normalColor', 'pressedColor', 'hoverColor', 'disabledColor']),

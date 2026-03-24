@@ -2,6 +2,22 @@ import React from 'react'
 import type { RendererProps } from './types'
 import { SpriteThumb } from '../constants'
 
+const BLEND_FACTOR: Record<number, string> = {
+  0: 'ZERO',
+  1: 'ONE',
+  512: 'DST_ALPHA',
+  513: 'ONE_MINUS_DST_ALPHA',
+  770: 'SRC_ALPHA',
+  771: 'ONE_MINUS_SRC_ALPHA',
+  772: 'DST_COLOR',
+  773: 'ONE_MINUS_DST_COLOR',
+  774: 'SRC_ALPHA_SATURATE',
+  32769: 'CONSTANT_COLOR',
+  32770: 'ONE_MINUS_CONSTANT_COLOR',
+  32771: 'CONSTANT_ALPHA',
+  32772: 'ONE_MINUS_CONSTANT_ALPHA',
+}
+
 /** cc.Graphics, cc.Sprite, cc.Sprite2D, cc.VideoPlayer, cc.WebView, cc.TiledMap, cc.TiledLayer Quick Edit renderer */
 export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
@@ -242,22 +258,32 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     )
                   })()}
                   {/* R1865: srcBlendFactor / dstBlendFactor 퀵 버튼 */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>blend</span>
-                    {([['Normal', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => {
-                      const curSrc = Number(p.srcBlendFactor ?? p._srcBlendFactor ?? 770)
-                      const curDst = Number(p.dstBlendFactor ?? p._dstBlendFactor ?? 771)
-                      const active = curSrc === src && curDst === dst
-                      return (
-                        <span key={l} title={`srcBlend=${src} dstBlend=${dst}`}
-                          role="button" tabIndex={0}
-                          onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) }}
-                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) } }}
-                          style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${active ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: active ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
-                        >{l}</span>
-                      )
-                    })}
-                  </div>
+                  {(() => {
+                    const curSrc = Number(p.srcBlendFactor ?? p._srcBlendFactor ?? 770)
+                    const curDst = Number(p.dstBlendFactor ?? p._dstBlendFactor ?? 771)
+                    return (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
+                          <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 32, whiteSpace: 'nowrap', flexShrink: 0 }}>blend</span>
+                          {([['Normal', 770, 771], ['Add', 770, 1], ['Mul', 774, 771]] as [string, number, number][]).map(([l, src, dst]) => {
+                            const active = curSrc === src && curDst === dst
+                            return (
+                              <span key={l} title={`src=${BLEND_FACTOR[src] ?? src} dst=${BLEND_FACTOR[dst] ?? dst}`}
+                                role="button" tabIndex={0}
+                                onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) }}
+                                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, srcBlendFactor: src, _srcBlendFactor: src, dstBlendFactor: dst, _dstBlendFactor: dst } } : c); applyAndSave({ components: updated }) } }}
+                                style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${active ? '#4ade80' : 'var(--border)'}`, borderRadius: 2, color: active ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
+                              >{l}</span>
+                            )
+                          })}
+                        </div>
+                        <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 2, paddingLeft: 35 }}>
+                          src: <span style={{ color: '#ccc' }}>{BLEND_FACTOR[curSrc] ?? curSrc}</span>
+                          {'  '}dst: <span style={{ color: '#ccc' }}>{BLEND_FACTOR[curDst] ?? curDst}</span>
+                        </div>
+                      </>
+                    )
+                  })()}
                   {/* R1827: 색조(hue) 슬라이더 — 노드 tint 색상 H 조정 */}
                   {(() => {
                     const c = draft.color ?? { r: 255, g: 255, b: 255, a: 255 }
