@@ -3263,7 +3263,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const str = (lc?.props?.string as string | undefined) ?? (lc?.props?._string as string | undefined) ?? ''
                   if (!str && editingLabelUuid !== node.uuid) return null
                   const fs = Math.min(Math.max((lc?.props?.fontSize as number | undefined) ?? 20, 8), 200)
-                  const { r: cr = 255, g: cg = 255, b: cb = 255 } = node.color ?? {}
+                  // Label 텍스트 색상: comp.props.color 우선, 없으면 노드 tint
+                  const labelTextColorProp = lc?.props?.color as { r?: number; g?: number; b?: number } | undefined
+                  const { r: cr = 255, g: cg = 255, b: cb = 255 } = labelTextColorProp ?? node.color ?? {}
                   if (editingLabelUuid === node.uuid) {
                     return (
                       <foreignObject
@@ -3294,11 +3296,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                              ?? (lc?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
                              ?? (lc?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
                   const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
-                  const fontFamilyName = fontEntry?.familyName
+                  // isSystemFontUsed=true면 fontFamily(시스템) 우선, false면 TTF 우선
+                  const isSystemFont = !!(lc?.props?.isSystemFontUsed ?? lc?.props?.['_N$isSystemFontUsed'] ?? true)
+                  const fontFamilyName = (!isSystemFont && fontEntry?.familyName)
                     || (lc?.props?.fontFamily as string | undefined)
                     || (lc?.props?._fontFamily as string | undefined)
                     || (lc?.props?.['_N$fontFamily'] as string | undefined)
+                    || (!isSystemFont ? fontEntry?.familyName : undefined)
                     || undefined
+                  // Outline: CC3.x enableOutline 또는 cc.LabelOutline 컴포넌트
+                  const enableOutline = !!(lc?.props?.enableOutline ?? lc?.props?._enableOutline ?? false)
+                  const outlineComp = node.components.find(c => c.type === 'cc.LabelOutline')
+                  const hasOutline = enableOutline || !!outlineComp
+                  const outlineColorProp = (enableOutline
+                    ? lc?.props?.outlineColor
+                    : outlineComp?.props?.color ?? outlineComp?.props?._color) as { r?: number; g?: number; b?: number } | undefined
+                  const { r: or = 0, g: og = 0, b: ob = 0 } = outlineColorProp ?? {}
+                  const outlineWidth = enableOutline
+                    ? Number(lc?.props?.outlineWidth ?? lc?.props?._outlineWidth ?? 1)
+                    : Number(outlineComp?.props?.width ?? outlineComp?.props?._width ?? 1)
                   return (
                     <text
                       x={rectX + w / 2} y={rectY + h / 2}
@@ -3306,6 +3322,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       fill={`rgb(${cr},${cg},${cb})`}
                       textAnchor="middle" dominantBaseline="middle"
                       fontFamily={fontFamilyName}
+                      stroke={hasOutline ? `rgb(${or},${og},${ob})` : undefined}
+                      strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) / view.zoom : undefined}
+                      paintOrder={hasOutline ? 'stroke' : undefined}
                       style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
                       onDoubleClick={e => {
                         e.stopPropagation()
