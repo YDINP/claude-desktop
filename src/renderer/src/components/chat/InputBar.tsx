@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { SlashCommandRegistry, type CommandCategory } from '../../domains/commands/SlashCommandRegistry'
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList
@@ -145,11 +146,21 @@ const SLASH_COMMANDS: SlashCommand[] = [
   { cmd: 'debug',     label: '/debug',     description: '디버깅',            prompt: '다음 문제를 디버깅해줘:\n' },
 ]
 
-function parseSlash(text: string): string | null {
-  // Only trigger if text starts with '/' (no leading spaces)
+interface SlashParsed {
+  cmd: string
+  args: string | null
+  query: string
+}
+
+function parseSlash(text: string): SlashParsed | null {
   if (!text.startsWith('/')) return null
   const space = text.indexOf(' ')
-  return space === -1 ? text.slice(1) : null // only while no space yet
+  if (space === -1) {
+    return { cmd: text.slice(1), args: null, query: text.slice(1) }
+  }
+  const cmd = text.slice(1, space)
+  const args = text.slice(space + 1).trim() || null
+  return { cmd, args, query: cmd }
 }
 
 function parseSnippetTrigger(text: string, cursorPos: number): { query: string; triggerStart: number } | null {
@@ -547,17 +558,44 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     : templates
 
   useEffect(() => {
+    // 기존 프롬프트 템플릿 로드
     window.api.templateList().then((templates) => {
-      setCustomTemplates(
-        templates.map((t) => ({
-          cmd: t.name.toLowerCase().replace(/\s+/g, '-'),
-          label: `/${t.name}`,
-          description: t.prompt.slice(0, 40) + (t.prompt.length > 40 ? '…' : ''),
-          prompt: t.prompt,
-          isCustom: true,
+      const tplCmds = templates.map((t) => ({
+        cmd: t.name.toLowerCase().replace(/\s+/g, '-'),
+        label: `/${t.name}`,
+        description: t.prompt.slice(0, 40) + (t.prompt.length > 40 ? '…' : ''),
+        prompt: t.prompt,
+        isCustom: true,
+      }))
+      setCustomTemplates(tplCmds)
+
+      // SlashCommandRegistry에 커스텀 커맨드 등록
+      SlashCommandRegistry.setCustoms(
+        tplCmds.map(c => ({
+          cmd: c.cmd,
+          label: c.label,
+          description: c.description,
+          category: 'custom' as const,
+          prompt: c.prompt,
         }))
       )
     })
+
+    // .claude/commands 및 .agents/workflows 워크플로우 스캔
+    const projectPath = (window as any).__projectPath || ''
+    if (projectPath) {
+      window.api.commandScan(projectPath).then((results) => {
+        const wfCmds = results.map((r) => ({
+          cmd: r.cmd,
+          label: r.label,
+          description: r.description,
+          category: 'workflow' as const,
+          workflowPath: r.filePath,
+          icon: '📄',
+        }))
+        SlashCommandRegistry.setWorkflows(wfCmds)
+      }).catch(() => {})
+    }
   }, [])
 
   const historyRef = useRef<string[]>(
@@ -566,11 +604,13 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const historyIdxRef = useRef<number>(-1)
   const savedInputRef = useRef<string>('')
 
-  const slashQuery = parseSlash(text)
-  const isSlashOpen = slashQuery !== null
+  const slashParsed = parseSlash(text)
+  const slashQuery = slashParsed?.query ?? null
+  const isSlashOpen = slashParsed !== null && slashParsed.args === null
   const allCommands = [...SLASH_COMMANDS, ...customTemplates]
-  const filteredCmds = isSlashOpen
-    ? allCommands.filter(c => c.cmd.startsWith(slashQuery.toLowerCase()))
+  const registryCmds = SlashCommandRegistry.getAllCompat()
+  const filteredCmds = isSlashOpen && slashQuery !== null
+    ? registryCmds.filter(c => c.cmd.startsWith(slashQuery.toLowerCase()))
     : []
 
   const mentionQuery = useMemo(
@@ -639,7 +679,29 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     adjustHeight()
   }, [text])
 
-  const selectSlashCommand = (cmd: SlashCommand) => {
+  const selectSlashCommand = (cmd: SlashCommand & { workflowPath?: string; category?: string }) => {
+    // 워크플로우 커맨드인 경우: .md 파일을 로드하여 extraSystemPrompt로 주입
+    if (cmd.workflowPath) {
+      window.api.commandLoadWorkflow(cmd.workflowPath).then(({ content, error }) => {
+        if (error || !content) {
+          setText(`[${cmd.label}: 워크플로우 로드 실패]`)
+          return
+        }
+        // $ARGUMENTS 치환 — 인자는 나중에 사용자가 입력
+        const processed = content.replace(/\$ARGUMENTS/g, '')
+        // extraSystemPrompt로 주입하여 전송
+        window.dispatchEvent(new CustomEvent('workflow-inject', {
+          detail: { systemPrompt: processed, label: cmd.label }
+        }))
+        setText(``)
+      }).catch(() => {
+        setText(`[${cmd.label}: 워크플로우 로드 실패]`)
+      })
+      setSlashSelected(0)
+      return
+    }
+
+    // 기존 방식: 프롬프트 텍스트 삽입
     setText(cmd.prompt)
     setSlashSelected(0)
     setTimeout(() => {
@@ -1142,13 +1204,19 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
                 borderBottom: i < filteredCmds.length - 1 ? '1px solid var(--border)' : 'none',
               }}
             >
-              <span style={{ fontSize: 12, color: c.isCustom ? 'var(--warning, #e5a50a)' : 'var(--accent)', fontFamily: 'var(--font-mono)', fontWeight: 600, minWidth: 90 }}>
+              <span style={{ fontSize: 11, marginRight: 2, flexShrink: 0 }}>
+                {c.category === 'workflow' ? '📄' : c.category === 'custom' || c.isCustom ? '⚙' : '⚡'}
+              </span>
+              <span style={{ fontSize: 12, color: c.category === 'workflow' ? '#a78bfa' : c.isCustom || c.category === 'custom' ? 'var(--warning, #e5a50a)' : 'var(--accent)', fontFamily: 'var(--font-mono)', fontWeight: 600, minWidth: 90 }}>
                 {c.label}
               </span>
               <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                 {c.description}
               </span>
-              {c.isCustom && (
+              {c.category === 'workflow' && (
+                <span style={{ fontSize: 9, color: '#a78bfa', marginLeft: 'auto', opacity: 0.7 }}>workflow</span>
+              )}
+              {(c.isCustom || c.category === 'custom') && !c.category?.includes('workflow') && (
                 <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 'auto' }}>저장됨</span>
               )}
             </div>
@@ -1667,7 +1735,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           }
         }}
         placeholder={disabled ? 'Open a folder to start...' : multilineMode ? 'Message Claude... (Enter: 줄바꿈, Ctrl+Enter: 전송, Shift+Enter: 일반 모드)' : 'Message Claude... (/ commands, @file, Enter to send, Shift+Enter: 멀티라인 모드)'}
-        disabled={disabled || isStreaming}
+        disabled={disabled}
         rows={1}
         style={{
           width: '100%',

@@ -39,6 +39,7 @@ export function DiffPanel() {
   const [diffStats, setDiffStats] = useState<{ added: number; removed: number } | null>(null)
   const [langOverride, setLangOverride] = useState('')
   const [diffCopied, setDiffCopied] = useState(false)
+  const identical = leftContent !== null && rightContent !== null && leftContent === rightContent
 
   const copyDiffSummary = useCallback(() => {
     const lname = leftPath.split(/[/\\]/).pop() ?? leftPath
@@ -97,7 +98,6 @@ export function DiffPanel() {
   }
 
   const lang = langOverride || getLangFromPath(rightPath || leftPath)
-  const identical = leftContent !== null && rightContent !== null && leftContent === rightContent
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

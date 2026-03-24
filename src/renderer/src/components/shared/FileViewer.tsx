@@ -216,7 +216,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
         <span style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
           {path}
         </span>
-        {content !== null && !isImage && !isEditing && (
+        {content !== null && !isImage && !isEditing && !isMarkdown && (
           <button
             onClick={() => editorRef.current?.getAction('editor.action.gotoLine')?.run()}
             title="라인으로 이동 (Ctrl+G)"
@@ -564,7 +564,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
           {content === null && !error && !isImage && (
             <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>Loading...</div>
           )}
-          {content !== null && !error && isMarkdown && !content.startsWith('[File too large') && (
+          {content !== null && !error && isMarkdown && !isEditing && !content.startsWith('[File too large') && (
             <div style={{ fontSize, lineHeight: 1.7, color: 'var(--text-primary)', maxWidth: 720 }}>
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
