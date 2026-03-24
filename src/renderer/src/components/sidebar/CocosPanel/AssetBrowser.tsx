@@ -38,8 +38,10 @@ const FolderFileItem = React.memo(function FolderFileItem({
   onMouseEnter, onMouseLeave, onMouseMove,
 }: FolderFileItemProps) {
   const fileName = file.relPath.split(/[\\/]/).pop() ?? file.relPath
+  const rootRef = React.useRef<HTMLDivElement>(null)
   return (
     <div
+      ref={rootRef}
       draggable={true}
       onDragStart={onDragStart}
       onDoubleClick={onDoubleClick}
@@ -50,8 +52,8 @@ const FolderFileItem = React.memo(function FolderFileItem({
         padding: `2px 4px 2px ${(depth + 1) * 12 + 22}px`,
         cursor: 'pointer', fontSize: 10, borderRadius: 3,
       }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={e => { if (rootRef.current) rootRef.current.style.background = 'rgba(88,166,255,0.08)'; onMouseEnter(e) }}
+      onMouseLeave={e => { if (rootRef.current) rootRef.current.style.background = ''; onMouseLeave() }}
       onMouseMove={onMouseMove}
     >
       {isScript && (
@@ -376,7 +378,13 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
   // R1382: 폴더 트리 데이터 — 반드시 early return 전에 호출 (Rules of Hooks)
   const folderTree = useMemo(() => {
     if (!assets) return null
-    const entries = Object.values(assets)
+    // relPath 기준 중복 제거 (압축 UUID 등으로 같은 파일이 여러 UUID로 등록될 수 있음)
+    const seen = new Set<string>()
+    const entries = Object.values(assets).filter(e => {
+      if (seen.has(e.relPath)) return false
+      seen.add(e.relPath)
+      return true
+    })
     const lowerQ = search.toLowerCase()
     const filtered = lowerQ ? entries.filter(e => e.relPath.toLowerCase().includes(lowerQ)) : entries
     return buildFolderTree(filtered)
@@ -435,8 +443,8 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
                 e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: file.uuid, path: file.path, relPath: file.relPath, type: file.type }))
                 e.dataTransfer.effectAllowed = 'copy'
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)'; handleThumbEnter(file, e) }}
-              onMouseLeave={() => { handleThumbLeave() }}
+              onMouseEnter={e => handleThumbEnter(file, e)}
+              onMouseLeave={() => handleThumbLeave()}
               onMouseMove={handleThumbMove}
             />
           ))}
