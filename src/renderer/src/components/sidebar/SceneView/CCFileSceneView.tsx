@@ -3687,17 +3687,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                         ))}
                       </text>
                       {enableDashLine && lines.map((line, i) => {
+                        // shadow 수정과 동일: SVG transform scale(zoom) 적용 중이므로 game pixel 그대로 사용
                         const dashY = lines.length === 1
-                          ? textY + fs * 0.2 / view.zoom
-                          : startY + i * lineH + fs * 0.2 / view.zoom
+                          ? textY + fs * 0.2
+                          : startY + i * lineH + fs * 0.2
                         return (
                           <line
                             key={`dash-${i}`}
                             x1={rectX} y1={dashY}
                             x2={rectX + Math.max(w, 1)} y2={dashY}
                             stroke={`rgb(${cr},${cg},${cb})`}
-                            strokeWidth={Math.max(fs * 0.06 / view.zoom, 0.5)}
-                            strokeDasharray={`${Math.max(fs * 0.3 / view.zoom, 2)},${Math.max(fs * 0.15 / view.zoom, 1)}`}
+                            strokeWidth={Math.max(fs * 0.06, 0.5 / view.zoom)}
+                            strokeDasharray={`${Math.max(fs * 0.3, 2 / view.zoom)},${Math.max(fs * 0.15, 1 / view.zoom)}`}
                             clipPath={needsClip ? `url(#${clipId})` : undefined}
                             style={{ pointerEvents: 'none' }}
                           />
