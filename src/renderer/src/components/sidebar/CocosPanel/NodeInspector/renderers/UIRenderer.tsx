@@ -390,7 +390,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     <input type="range" min={0} max={255} step={1} value={uiOpacity}
                       onChange={e => {
                         const v = parseInt(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: v, _opacity: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: v, _opacity: v, _N$opacity: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1 }}
@@ -401,7 +401,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                   <div style={{ display: 'flex', gap: 3, paddingLeft: 62 }}>
                     {([0, 64, 128, 192, 255] as const).map(v => (
                       <span key={v} title={`opacity = ${v} (${Math.round(v/255*100)}%)`}
-                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: v, _opacity: v } } : c); applyAndSave({ components: updated }) }}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, opacity: v, _opacity: v, _N$opacity: v } } : c); applyAndSave({ components: updated }) }}
                         style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${uiOpacity === v ? '#58a6ff' : 'var(--border)'}`, borderRadius: 2, color: uiOpacity === v ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
                       >{Math.round(v/255*100)}%</span>
                     ))}
@@ -501,7 +501,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                       <input type="range" min={0} max={1} step={0.01} value={alphaThreshold}
                         onChange={e => {
                           const v = parseFloat(e.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _alphaThreshold: v, alphaThreshold: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _alphaThreshold: v, alphaThreshold: v, _N$alphaThreshold: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ flex: 1 }}

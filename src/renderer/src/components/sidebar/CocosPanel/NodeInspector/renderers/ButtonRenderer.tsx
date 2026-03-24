@@ -84,7 +84,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     <input type="text" defaultValue={String(p.string ?? '')}
                       style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                       onBlur={ev => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: ev.target.value, _string: ev.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, string: ev.target.value, _string: ev.target.value, _N$string: ev.target.value } } : c)
                         applyAndSave({ components: updated })
                       }} />
                   </div>
@@ -93,7 +93,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     <input type="text" defaultValue={String(p.placeholder ?? '')}
                       style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                       onBlur={ev => {
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholder: ev.target.value, _placeholder: ev.target.value } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, placeholder: ev.target.value, _placeholder: ev.target.value, _N$placeholder: ev.target.value } } : c)
                         applyAndSave({ components: updated })
                       }} />
                   </div>
@@ -104,7 +104,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const v = Number(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxLength: v, _maxLength: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, maxLength: v, _maxLength: v, _N$maxLength: v } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -114,7 +114,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onBlur={ev => {
                           const v = Number(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontSize: v, _fontSize: v, _N$fontSize: v } } : c)
                           applyAndSave({ components: updated })
                         }} />
                     </div>
@@ -136,7 +136,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         style={{ width: '100%', background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
                         onChange={ev => {
                           const v = parseInt(ev.target.value)
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputFlag: v, _inputFlag: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputFlag: v, _inputFlag: v, _N$inputFlag: v } } : c)
                           applyAndSave({ components: updated })
                         }}>
                         {INPUT_FLAG.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
@@ -241,7 +241,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     <select value={transition}
                       onChange={e => {
                         const v = parseInt(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, transition: v, _transition: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, transition: v, _transition: v, _N$transition: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
@@ -256,7 +256,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}></span>
                     {([['None',0],['Color',1],['Sprite',2],['Scale',3]] as [string,number][]).map(([label,v]) => (
-                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, transition: v, _transition: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, transition: v, _transition: v, _N$transition: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: `1px solid ${transition === v ? '#fb923c' : 'var(--border)'}`, color: transition === v ? '#fb923c' : 'var(--text-muted)', background: 'var(--bg-primary)' }}
                       >{label}</span>
                     ))}
@@ -466,7 +466,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>inputFlag</span>
                     {([['Any', 0], ['Passwd', 3], ['Email', 1], ['Phone', 4], ['Num', 5]] as const).map(([l, v]) => (
                       <span key={v} title={l}
-                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputFlag: v, _inputFlag: v } } : c); applyAndSave({ components: updated }) }}
+                        onClick={() => { const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, inputFlag: v, _inputFlag: v, _N$inputFlag: v } } : c); applyAndSave({ components: updated }) }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${inputFlag === v ? '#f59e0b' : 'var(--border)'}`, borderRadius: 2, color: inputFlag === v ? '#f59e0b' : 'var(--text-muted)', userSelect: 'none' }}
                       >{l}</span>
                     ))}

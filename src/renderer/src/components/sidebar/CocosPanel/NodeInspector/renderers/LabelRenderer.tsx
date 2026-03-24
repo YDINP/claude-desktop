@@ -45,8 +45,8 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
   const lcHex = `#${lcR.toString(16).padStart(2,'0')}${lcG.toString(16).padStart(2,'0')}${lcB.toString(16).padStart(2,'0')}`
   // R1720: overflow + align
   const overflow = Number(p.overflow ?? p._overflow ?? p._N$overflow ?? 0)
-  const hAlign = Number(p.horizontalAlign ?? p._N$horizontalAlign ?? 0)
-  const vAlign = Number(p.verticalAlign ?? p._N$verticalAlign ?? 1)
+  const hAlign = Number(p.horizontalAlign ?? p._horizontalAlign ?? p._N$horizontalAlign ?? 0)
+  const vAlign = Number(p.verticalAlign ?? p._verticalAlign ?? p._N$verticalAlign ?? 1)
   // R1723: lineHeight
   const lineHeight = Number(p.lineHeight ?? p._lineHeight ?? p._N$lineHeight ?? 0)
   return (
@@ -413,7 +413,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                         key={`ulh-${Number(p.underlineHeight ?? p._underlineHeight ?? 2)}`}
                         onBlur={e => {
                           const v = parseInt(e.target.value) || 2
-                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, underlineHeight: v, _underlineHeight: v } } : c)
+                          const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, underlineHeight: v, _underlineHeight: v, _N$underlineHeight: v } } : c)
                           applyAndSave({ components: updated })
                         }}
                         style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: '#93c5fd', borderRadius: 3, padding: '1px 4px' }}
@@ -423,7 +423,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       {[1, 2, 3, 4, 6].map(v => (
                         <span key={v} title={`underlineHeight = ${v}`}
                           onClick={() => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, underlineHeight: v, _underlineHeight: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, underlineHeight: v, _underlineHeight: v, _N$underlineHeight: v } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: `1px solid ${Number(p.underlineHeight ?? p._underlineHeight ?? 2) === v ? '#93c5fd' : 'var(--border)'}`, borderRadius: 2, color: Number(p.underlineHeight ?? p._underlineHeight ?? 2) === v ? '#93c5fd' : 'var(--text-muted)', userSelect: 'none' }}
@@ -500,7 +500,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>dashLine</span>
                         <span title={enableDashLine ? 'dashLine 비활성' : 'dashLine 활성'}
-                          onClick={() => { const nv = !enableDashLine; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableDashLine: nv, _enableDashLine: nv } } : c); applyAndSave({ components: u }) }}
+                          onClick={() => { const nv = !enableDashLine; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableDashLine: nv, _enableDashLine: nv, _N$enableDashLine: nv } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableDashLine ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: enableDashLine ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
                         >{enableDashLine ? 'ON' : 'OFF'}</span>
                       </div>
@@ -517,20 +517,20 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>gradient</span>
                         <span title={enableGradient ? 'gradient 비활성' : 'gradient 활성'}
-                          onClick={() => { const nv = !enableGradient; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableGradient: nv, _enableGradient: nv } } : c); applyAndSave({ components: u }) }}
+                          onClick={() => { const nv = !enableGradient; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableGradient: nv, _enableGradient: nv, _N$enableGradient: nv } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableGradient ? '#34d399' : 'var(--border)'}`, borderRadius: 2, color: enableGradient ? '#34d399' : 'var(--text-muted)', userSelect: 'none' }}
                         >{enableGradient ? 'ON' : 'OFF'}</span>
                         {enableGradient && (<>
                           <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>top</span>
                           <input type="color" defaultValue={ctHex}
                             style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
-                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, colorTop: col, _colorTop: col } } : c); applyAndSave({ components: u }) }}
+                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, colorTop: col, _colorTop: col, _N$colorTop: col } } : c); applyAndSave({ components: u }) }}
                             title="colorTop"
                           />
                           <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>bot</span>
                           <input type="color" defaultValue={cbHex}
                             style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
-                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, colorBottom: col, _colorBottom: col } } : c); applyAndSave({ components: u }) }}
+                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, colorBottom: col, _colorBottom: col, _N$colorBottom: col } } : c); applyAndSave({ components: u }) }}
                             title="colorBottom"
                           />
                         </>)}
@@ -552,19 +552,19 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                           <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>shadow</span>
                           <span title={enableShadow ? 'shadow 비활성' : 'shadow 활성'}
-                            onClick={() => { const nv = !enableShadow; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableShadow: nv, _enableShadow: nv } } : c); applyAndSave({ components: u }) }}
+                            onClick={() => { const nv = !enableShadow; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableShadow: nv, _enableShadow: nv, _N$enableShadow: nv } } : c); applyAndSave({ components: u }) }}
                             style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableShadow ? '#818cf8' : 'var(--border)'}`, borderRadius: 2, color: enableShadow ? '#818cf8' : 'var(--text-muted)', userSelect: 'none' }}
                           >{enableShadow ? 'ON' : 'OFF'}</span>
                           {enableShadow && (<>
                             <input type="number" defaultValue={shadowBlur} min={0} max={20} step={1}
                               style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
-                              onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowBlur: v, _shadowBlur: v } } : c); applyAndSave({ components: u }) }}
+                              onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowBlur: v, _shadowBlur: v, _N$shadowBlur: v } } : c); applyAndSave({ components: u }) }}
                               title="shadowBlur"
                             />
                             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>blur</span>
                             <input type="color" defaultValue={scHex}
                               style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
-                              onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowColor: col, _shadowColor: col } } : c); applyAndSave({ components: u }) }}
+                              onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowColor: col, _shadowColor: col, _N$shadowColor: col } } : c); applyAndSave({ components: u }) }}
                               title="shadowColor"
                             />
                           </>)}
@@ -574,13 +574,13 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>offset x</span>
                             <input type="number" defaultValue={sox} step={1}
                               style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
-                              onBlur={ev => { const x = parseFloat(ev.target.value) || 0; const so = { x, y: soy }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowOffset: so, _shadowOffset: so } } : c); applyAndSave({ components: u }) }}
+                              onBlur={ev => { const x = parseFloat(ev.target.value) || 0; const so = { x, y: soy }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowOffset: so, _shadowOffset: so, _N$shadowOffset: so } } : c); applyAndSave({ components: u }) }}
                               title="shadowOffset.x"
                             />
                             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>y</span>
                             <input type="number" defaultValue={soy} step={1}
                               style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
-                              onBlur={ev => { const y = parseFloat(ev.target.value) || 0; const so = { x: sox, y }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowOffset: so, _shadowOffset: so } } : c); applyAndSave({ components: u }) }}
+                              onBlur={ev => { const y = parseFloat(ev.target.value) || 0; const so = { x: sox, y }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, shadowOffset: so, _shadowOffset: so, _N$shadowOffset: so } } : c); applyAndSave({ components: u }) }}
                               title="shadowOffset.y"
                             />
                           </div>
@@ -598,19 +598,19 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>outline</span>
                         <span title={enableOutline ? 'outline 비활성' : 'outline 활성'}
-                          onClick={() => { const nv = !enableOutline; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableOutline: nv, _enableOutline: nv } } : c); applyAndSave({ components: u }) }}
+                          onClick={() => { const nv = !enableOutline; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableOutline: nv, _enableOutline: nv, _N$enableOutline: nv } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${enableOutline ? '#f59e0b' : 'var(--border)'}`, borderRadius: 2, color: enableOutline ? '#f59e0b' : 'var(--text-muted)', userSelect: 'none' }}
                         >{enableOutline ? 'ON' : 'OFF'}</span>
                         {enableOutline && (<>
                           <input type="number" defaultValue={outlineWidth} min={1} max={20} step={1}
                             style={{ width: 36, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}
-                            onBlur={ev => { const v = parseInt(ev.target.value) || 2; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, outlineWidth: v, _outlineWidth: v } } : c); applyAndSave({ components: u }) }}
+                            onBlur={ev => { const v = parseInt(ev.target.value) || 2; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, outlineWidth: v, _outlineWidth: v, _N$outlineWidth: v } } : c); applyAndSave({ components: u }) }}
                             title="outlineWidth"
                           />
                           <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>px</span>
                           <input type="color" defaultValue={ocHex}
                             style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
-                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, outlineColor: col, _outlineColor: col } } : c); applyAndSave({ components: u }) }}
+                            onChange={ev => { const c2 = parseInt(ev.target.value.slice(1), 16); const col = { r: (c2 >> 16) & 255, g: (c2 >> 8) & 255, b: c2 & 255, a: 255 }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, outlineColor: col, _outlineColor: col, _N$outlineColor: col } } : c); applyAndSave({ components: u }) }}
                             title="outlineColor"
                           />
                         </>)}
