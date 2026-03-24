@@ -25,6 +25,8 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
   const [rotDeltaStep, setRotDeltaStep] = useState<number>(90) /* R2727 */
   const [absScaleX, setAbsScaleX] = useState<number>(1)
   const [absScaleY, setAbsScaleY] = useState<number>(1)
+  const [scaleMulFactor, setScaleMulFactor] = useState<number>(2.0) /* R2728 */
+  const [scaleLinkedPreset, setScaleLinkedPreset] = useState<boolean>(true) /* R2728 */
   const [batchRot, setBatchRot] = useState<string>('')
   const [batchScaleX, setBatchScaleX] = useState<string>('')
   const [batchScaleY, setBatchScaleY] = useState<string>('')
@@ -556,6 +558,52 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
           </div>
         )
       })()}
+
+      {/* R2728: scale 프리셋 버튼 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyScalePreset = async (v: number) => {
+          await patchNodes(n => {
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: v, y: scaleLinkedPreset ? v : sc.y } }
+          }, `scale×${v}프리셋 — R2728`)
+        }
+        const applyScaleMul = async () => {
+          const factor = scaleMulFactor || 1.0
+          await patchNodes(n => {
+            const sc = n.scale as { x: number; y: number; z?: number }
+            return { ...n, scale: { ...sc, x: (sc.x || 1.0) * factor, y: (sc.y || 1.0) * factor } }
+          }, `scale×${factor}배 — R2728`)
+        }
+        const bsP: React.CSSProperties = {
+          fontSize: 9, padding: '1px 5px', cursor: 'pointer',
+          border: '1px solid var(--border)', borderRadius: 2,
+          color: 'var(--text-muted)', background: 'var(--bg-hover)', userSelect: 'none',
+        }
+        const niS = mkNiS(40)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 5 }}>
+            <div style={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>scale프리셋 (R2728)</span>
+              {([0.5, 1.0, 1.5, 2.0] as const).map(v => (
+                <span key={v} onClick={() => applyScalePreset(v)} title={`scale.x=${v}${scaleLinkedPreset ? ` scale.y=${v}` : ' (y유지)'}`} style={bsP}>{v}×</span>
+              ))}
+              <label style={{ fontSize: 8, color: '#94a3b8', cursor: 'pointer', userSelect: 'none' }}>
+                <input type="checkbox" checked={scaleLinkedPreset} onChange={e => setScaleLinkedPreset(e.target.checked)} style={{ marginRight: 2 }} />XY연동
+              </label>
+            </div>
+            <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>×배수</span>
+              <input type="number" value={scaleMulFactor} min={0.01} step={0.1}
+                onChange={e => setScaleMulFactor(parseFloat(e.target.value) || 1.0)}
+                style={niS} title="scale 곱 배수" />
+              <span onClick={applyScaleMul}
+                title={`선택 노드 scale.x * scale.y * ${scaleMulFactor} (R2728)`}
+                style={bsP}>×{scaleMulFactor}</span>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* R1706: 일괄 회전 편집 */}
       {sceneFile.root && (() => {
         const applyBatchRot = async () => {
