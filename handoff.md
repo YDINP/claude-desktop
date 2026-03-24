@@ -5,7 +5,39 @@
 
 ## 현재 이슈
 
-없음 (QA 2621 Pass / 0 Warning / 0 Critical)
+없음 (QA 2616 Pass / 0 Warning / 0 Critical)
+
+---
+
+## 최근 주요 작업 (2026-03-24 전수검사 2·3차)
+
+### 전수검사 2·3차 — 인스펙터 렌더러 종합 수정
+
+**커밋:** `fa6f59de`, `e1ba89ff`, `3d62333b`
+
+#### Critical
+- **LabelRenderer**: `showRichPreview` useState 미선언 → cc.RichText 렌더링 시 런타임 crash 수정
+
+#### High (save key 정확도)
+- **SpriteRenderer**: `type`/`sizeMode` 초기값 읽기에 `_N$type`/`_N$sizeMode` fallback 추가
+- **SpriteRenderer**: `visibleWithMouse` 저장 시 `_visibleWithMouse` 누락 수정
+- **LabelRenderer**: 구형 inline LabelOutline `_N$width`, LabelShadow `_N$blur`, LabelOutline/Shadow `color` → `_N$color` 추가
+- **EffectsRenderer**: cc.Camera 9개 prop `_N$*` 추가 (fov/orthoHeight/near/far/clearDepth/ortho/cullingMask); Light 6개 prop `_N$*` 추가; MotionStreak `_N$timeToLive` 추가
+- **UIRenderer**: UITransform `priority`/`anchorPoint`, cc.Mask `type` `_N$*` 추가; Widget 프리셋(Stretch/Center/None) `_*`/`_N$*` 완전 누락 수정 → CC 2.x에서 프리셋 미적용 버그 해소
+- **AnimationRenderer**: dragonBones `blendMode` → `_N$blendMode` 추가
+- **GenericPropertyEditor**: COMP_SKIP에 10개 컴포넌트 추가 (Camera/Widget/ProgressBar/UIOpacity/UITransform/Mask/DirectionalLight/PointLight/SpotLight/MotionStreak) → 전용 렌더러 중복 표시 해소
+
+#### Medium
+- **LabelRenderer**: `labelColorRaw` `_color`/`_N$color` fallback, `isStrikethrough` `_isStrikethrough` key, `fontColor` as-cast 우선순위, `useEffect` sceneFile deps, `handleTouchEvent` `_N$handleTouchEvent` (2곳)
+- **EffectsRenderer**: MotionStreak `color` 읽기 `_color` fallback + as-cast 수정; Light `intensity` 읽기 `_N$intensity` fallback
+- **SpriteRenderer**: alpha input `key` prop 추가 (uncontrolled stale 방지)
+- **ButtonRenderer/AnimationRenderer/PhysicsRenderer**: `parseFloat`/`parseInt` + `??` → `||` NaN 폴백 수정
+
+#### QA Warning (7건 해소)
+- R1790/R1892/R2280/R2309/R2341/R2365/R2412/R2426
+
+#### 검증된 false positive
+- `_N$enabled` — CC 2.x 실제 씬 파일에서 `_enabled`만 사용, 추가 불필요
 
 ---
 
@@ -73,8 +105,9 @@
 
 ## QA 상태
 
-- **현재**: 2621 Pass, 0 Warning, 0 Critical
+- **현재**: 2616 Pass, 0 Warning, 0 Critical
 - Warning 기존 12건 → 모두 해결 (씬뷰 오버레이/통계 구현)
+- 전수검사 2·3차 이후 추가 Warning 7건 발견·해소
 
 ---
 
