@@ -3586,13 +3586,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const shadowOffsetProp = (enableShadow
                     ? lc?.props?.shadowOffset
                     : shadowComp?.props?.offset ?? shadowComp?.props?._offset) as { x?: number; y?: number } | undefined
-                  const shOffX = Number(shadowOffsetProp?.x ?? 2) / view.zoom
-                  const shOffY = -Number(shadowOffsetProp?.y ?? -2) / view.zoom
+                  // SVG transform="scale(zoom)"이 적용되므로 shadow 값은 게임 픽셀 그대로 사용
+                  // fontSize={fs}와 동일하게 zoom 보정 없이 → zoom 시 텍스트와 함께 비례 스케일
+                  // (/ view.zoom 제거: 기존 코드에서 shadow가 zoom에 따라 동적으로 변하는 버그 수정)
+                  const shOffX = Number(shadowOffsetProp?.x ?? 2)
+                  const shOffY = -Number(shadowOffsetProp?.y ?? -2)
 
                   const shadowBlurVal = enableShadow
                     ? Number(lc?.props?.shadowBlur ?? lc?.props?._shadowBlur ?? 2)
                     : Number(shadowComp?.props?.blur ?? shadowComp?.props?._blur ?? 2)
-                  const shBlur = shadowBlurVal / view.zoom
+                  const shBlur = shadowBlurVal
 
                   // Gradient: CC3.x enableGradient
                   const enableGradient = !!(lc?.props?.enableGradient ?? lc?.props?._enableGradient ?? false)
