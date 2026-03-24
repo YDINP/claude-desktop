@@ -6,16 +6,16 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
             const p = comp.props
             if (comp.type === 'cc.PageView') {
               const direction = Number(p.direction ?? p._direction ?? p._N$direction ?? 0)
-              const scrollThreshold = Number(p.scrollThreshold ?? p._N$scrollThreshold ?? 0.5)
-              const autoThreshold = Number(p.autoPageTurningThreshold ?? p._N$autoPageTurningThreshold ?? 0.3)
+              const scrollThreshold = Number(p.scrollThreshold ?? p._scrollThreshold ?? p._N$scrollThreshold ?? 0.5)
+              const autoThreshold = Number(p.autoPageTurningThreshold ?? p._autoPageTurningThreshold ?? p._N$autoPageTurningThreshold ?? 0.3)
               // R1847: slideDuration
-              const slideDuration = Number(p.slideDuration ?? p._N$slideDuration ?? 0.3)
+              const slideDuration = Number(p.slideDuration ?? p._slideDuration ?? p._N$slideDuration ?? 0.3)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* R2435: enabled (BatchInspector R2200) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>
@@ -147,6 +147,12 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
               const spacingY = Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      style={{ margin: 0 }}
+                    />enabled
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 60, whiteSpace: 'nowrap', flexShrink: 0 }}>direction</span>
                     {[['H', 0], ['V', 1]].map(([label, v]) => (
@@ -203,7 +209,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   {/* R2438: enabled (BatchInspector R2193) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>
@@ -406,7 +412,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                           }
                           saveScene(patchContent(sceneFile.root))
                         }}
-                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
                       />
                       <span style={{ fontSize: 8, color: 'var(--text-muted)', flexShrink: 0 }}>H</span>
                       <input type="number" defaultValue={Math.round(contentNode.size.y)}
@@ -420,7 +426,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                           }
                           saveScene(patchContent(sceneFile.root))
                         }}
-                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
+                        style={{ width: 50, fontSize: 9, padding: '1px 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
                       />
                     </div>
                   )}
@@ -437,7 +443,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   {/* R2430: enabled (BatchInspector R2198) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>

@@ -19,7 +19,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   {/* R2433: enabled (BatchInspector R2197) */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer' }}>
                     <input type="checkbox" checked={!!(p.enabled ?? p._enabled ?? true)}
-                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                      onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enabled: e.target.checked, _enabled: e.target.checked, _N$enabled: e.target.checked } } : c); applyAndSave({ components: u }) }}
                       style={{ margin: 0 }}
                     />enabled
                   </label>
@@ -96,7 +96,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                         applyAndSave({ components: updated })
                       }}
                       style={{ fontSize: 8, cursor: 'pointer', padding: '0 3px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
                       onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                     >=</span>
                     {/* R1796: padding 퀵 프리셋 */}
