@@ -418,7 +418,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [, setSpriteCacheVer] = useState(0)
   // Font 캐시: UUID → { dataUrl, familyName }
   const fontCacheRef = useRef<Map<string, { dataUrl: string; familyName: string }>>(new Map())
-  const [, setFontCacheVer] = useState(0)
+  const [fontCacheVer, setFontCacheVer] = useState(0)
 
   // 캔버스 크기 + 배경색 추정
   const { designW, designH, bgColor } = useMemo(() => {
@@ -454,19 +454,38 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // 씬 트리 → flat 목록 (world position 누적)
   const flatNodes = useMemo(() => {
     const result: FlatNode[] = []
-    function walk(node: CCSceneNode, worldX: number, worldY: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number) {
-      const x = worldX + (typeof node.position === 'object' ? (node.position as { x: number }).x : 0)
-      const y = worldY + (typeof node.position === 'object' ? (node.position as { y: number }).y : 0)
-      result.push({ node, worldX: x, worldY: y, depth, parentUuid, siblingIdx, siblingTotal })
+    // Simple 2D matrix transform: parent rotation/scale applied to local offset
+    const applyParentTransform = (
+      parentRotDeg: number, parentSx: number, parentSy: number,
+      parentWorldX: number, parentWorldY: number,
+      localX: number, localY: number
+    ): [number, number] => {
+      const r = -parentRotDeg * Math.PI / 180
+      const cos = Math.cos(r), sin = Math.sin(r)
+      const wx = parentWorldX + (cos * parentSx * localX - sin * parentSy * localY)
+      const wy = parentWorldY + (sin * parentSx * localX + cos * parentSy * localY)
+      return [wx, wy]
+    }
+    function walk(node: CCSceneNode, parentWorldX: number, parentWorldY: number, parentRotDeg: number, parentSx: number, parentSy: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number) {
+      const localX = typeof node.position === 'object' ? (node.position as { x: number }).x : 0
+      const localY = typeof node.position === 'object' ? (node.position as { y: number }).y : 0
+      const [worldX, worldY] = applyParentTransform(parentRotDeg, parentSx, parentSy, parentWorldX, parentWorldY, localX, localY)
+      const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number })?.z ?? 0
+      const cumRotZ = parentRotDeg + rotZ
+      const sx = (node.scale as { x?: number })?.x ?? 1
+      const sy = (node.scale as { y?: number })?.y ?? 1
+      const cumSx = parentSx * sx
+      const cumSy = parentSy * sy
+      result.push({ node, worldX, worldY, depth, parentUuid, siblingIdx, siblingTotal })
       // R2726: 씬 트리에서 접힌 노드는 자식을 SceneView에서도 숨김
       if (collapsedUuids?.has(node.uuid)) return
       for (let i = 0; i < node.children.length; i++) {
-        walk(node.children[i], x, y, depth + 1, node.uuid, i, node.children.length)
+        walk(node.children[i], worldX, worldY, cumRotZ, cumSx, cumSy, depth + 1, node.uuid, i, node.children.length)
       }
     }
     // Scene 루트 자체는 건너뜀 (이름 없는 컨테이너)
     for (let i = 0; i < sceneFile.root.children.length; i++) {
-      walk(sceneFile.root.children[i], 0, 0, 0, null, i, sceneFile.root.children.length)
+      walk(sceneFile.root.children[i], 0, 0, 0, 1, 1, 0, null, i, sceneFile.root.children.length)
     }
     return result
   }, [sceneFile, collapsedUuids])
@@ -2174,6 +2193,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' }}>
       <svg
         ref={svgRef}
+        data-font-ver={fontCacheVer}
         style={{ width: '100%', height: '100%', background: '#1a1a2e', cursor: isPanning ? 'grabbing' : dragOverride ? 'grabbing' : rotateOverride ? 'crosshair' : measureMode ? 'crosshair' : 'default', display: 'block' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -2520,7 +2540,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const depthDim = depthFilterMax !== null && depth > depthFilterMax && !isSelected ? 0.08 : 1
             // R2551: 컴포넌트 타입 필터 — 해당 타입 없는 노드 dim
             const compDim = compFilterType && !isSelected ? (node.components.some(c => c.type === compFilterType) ? 1 : 0.1) : 1
-            const nodeOpacity = (node.active ? (node.opacity ?? 255) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
+            // Check cc.UIOpacity component (CC3.x)
+            const uiOpacityComp = node.components?.find(c => c.type === 'cc.UIOpacity')
+            const uiOpacityVal = uiOpacityComp ? Number(uiOpacityComp.props?.opacity ?? uiOpacityComp.props?._opacity ?? 255) : undefined
+            const nodeOpacity = (node.active !== false ? (uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
@@ -2530,7 +2553,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const rotZ = rotateOverride?.uuid === node.uuid
               ? rotateOverride.angle
               : (typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0)
-            const rotTransform = rotZ !== 0 ? `rotate(${-rotZ}, ${svgPos.x}, ${svgPos.y})` : undefined
+            const sx = (node.scale as { x?: number; y?: number } | null)?.x ?? 1
+            const sy = (node.scale as { x?: number; y?: number } | null)?.y ?? 1
+            const rotTransform = (sx !== 1 || sy !== 1 || rotZ !== 0)
+              ? (sx !== 1 || sy !== 1)
+                ? `translate(${svgPos.x},${svgPos.y}) rotate(${-rotZ}) scale(${sx},${sy}) translate(${-svgPos.x},${-svgPos.y})`
+                : `translate(${svgPos.x},${svgPos.y}) rotate(${-rotZ}) translate(${-svgPos.x},${-svgPos.y})`
+              : undefined
 
             const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
             const hasSprite = node.components.some(c => c.type === 'cc.Sprite' || c.type === 'Sprite' || c.type === 'cc.Sprite2D')
@@ -3247,7 +3276,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   if (!imgUrl) return null
                   const iw = Math.abs(w) || 1
                   const ih = Math.abs(h) || 1
-                  return (
+                  const { r: tr = 255, g: tg = 255, b: tb = 255 } = (node.color as { r?: number; g?: number; b?: number } | null) ?? {}
+                  const hasTint = tr !== 255 || tg !== 255 || tb !== 255
+                  return hasTint ? (
+                    <>
+                      <image
+                        href={imgUrl}
+                        x={rectX} y={rectY}
+                        width={iw} height={ih}
+                        preserveAspectRatio="xMidYMid meet"
+                        style={{ pointerEvents: 'none' }}
+                      />
+                      <rect
+                        x={rectX} y={rectY} width={iw} height={ih}
+                        fill={`rgb(${tr},${tg},${tb})`}
+                        opacity={0.45}
+                        style={{ pointerEvents: 'none', mixBlendMode: 'multiply' as const }}
+                      />
+                    </>
+                  ) : (
                     <image
                       href={imgUrl}
                       x={rectX} y={rectY}
@@ -3315,12 +3362,35 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const outlineWidth = enableOutline
                     ? Number(lc?.props?.outlineWidth ?? lc?.props?._outlineWidth ?? 1)
                     : Number(outlineComp?.props?.width ?? outlineComp?.props?._width ?? 1)
+                  // Horizontal alignment: 0=Left, 1=Center, 2=Right
+                  const hAlign = Number(lc?.props?.horizontalAlign ?? lc?.props?._horizontalAlign ?? lc?.props?.['_N$horizontalAlign'] ?? 1)
+                  // Vertical alignment: 0=Top, 1=Center/Middle, 2=Bottom
+                  const vAlign = Number(lc?.props?.verticalAlign ?? lc?.props?._verticalAlign ?? lc?.props?.['_N$verticalAlign'] ?? 1)
+
+                  const textAnchorVal = hAlign === 0 ? 'start' : hAlign === 2 ? 'end' : 'middle'
+                  const textX = hAlign === 0 ? rectX : hAlign === 2 ? rectX + w : rectX + w / 2
+                  const dominantBaselineVal = vAlign === 0 ? 'hanging' : vAlign === 2 ? 'auto' : 'middle'
+                  const textY = vAlign === 0 ? rectY : vAlign === 2 ? rectY + h : rectY + h / 2
+
+                  const lines = str.split('\n')
+                  const lineHeightProp = Number(lc?.props?.lineHeight ?? lc?.props?._lineHeight ?? 0)
+                  const lineH = lineHeightProp > 0 ? lineHeightProp : fs * 1.2
+
+                  const totalHeight = lines.length * lineH
+                  const startY = vAlign === 0
+                    ? textY
+                    : vAlign === 2
+                      ? textY - totalHeight + lineH
+                      : textY - (totalHeight - lineH) / 2
+
                   return (
                     <text
-                      x={rectX + w / 2} y={rectY + h / 2}
+                      x={textX}
+                      y={lines.length === 1 ? textY : startY}
                       fontSize={fs}
                       fill={`rgb(${cr},${cg},${cb})`}
-                      textAnchor="middle" dominantBaseline="middle"
+                      textAnchor={textAnchorVal}
+                      dominantBaseline={lines.length === 1 ? dominantBaselineVal : 'auto'}
                       fontFamily={fontFamilyName}
                       stroke={hasOutline ? `rgb(${or},${og},${ob})` : undefined}
                       strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) / view.zoom : undefined}
@@ -3332,7 +3402,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                         setTimeout(() => editLabelRef.current?.focus(), 30)
                       }}
                     >
-                      {str}
+                      {lines.length === 1 ? str : lines.map((line, i) => (
+                        <tspan key={i} x={textX} dy={i === 0 ? 0 : lineH}>
+                          {line}
+                        </tspan>
+                      ))}
                     </text>
                   )
                 })()}
