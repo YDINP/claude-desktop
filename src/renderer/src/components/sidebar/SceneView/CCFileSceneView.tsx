@@ -3171,6 +3171,64 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   if (flags & 2) indicators.push(<line key="R" x1={rectX + w} y1={rectY + h/2} x2={rectX + w + sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
                   if (flags & 4) indicators.push(<line key="T" x1={rectX + w/2} y1={rectY} x2={rectX + w/2} y2={rectY - sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
                   if (flags & 8) indicators.push(<line key="B" x1={rectX + w/2} y1={rectY + h} x2={rectX + w/2} y2={rectY + h + sz*2} stroke={color} strokeWidth={1.5/view.zoom} style={{ pointerEvents: 'none' }} />)
+                  // Widget offset value labels
+                  const OFFSET_KEYS: Record<string, string[]> = {
+                    L: ['left', '_left', '_N$left'],
+                    R: ['right', '_right', '_N$right'],
+                    T: ['top', '_top', '_N$top'],
+                    B: ['bottom', '_bottom', '_N$bottom'],
+                  }
+                  const getOffset = (keys: string[]) => {
+                    for (const k of keys) {
+                      const v = widgetComp.props[k]
+                      if (v !== undefined && v !== null) return Number(v)
+                    }
+                    return null
+                  }
+                  if (flags & 1) {
+                    const val = getOffset(OFFSET_KEYS.L)
+                    if (val !== null && view.zoom > 0.4) {
+                      indicators.push(
+                        <text key="Lv" x={rectX - sz * 2 - 2/view.zoom} y={rectY + h/2}
+                          fontSize={7/view.zoom} fill={color} textAnchor="end" dominantBaseline="middle"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }} fontFamily="monospace"
+                        >{Math.round(val)}</text>
+                      )
+                    }
+                  }
+                  if (flags & 2) {
+                    const val = getOffset(OFFSET_KEYS.R)
+                    if (val !== null && view.zoom > 0.4) {
+                      indicators.push(
+                        <text key="Rv" x={rectX + w + sz * 2 + 2/view.zoom} y={rectY + h/2}
+                          fontSize={7/view.zoom} fill={color} textAnchor="start" dominantBaseline="middle"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }} fontFamily="monospace"
+                        >{Math.round(val)}</text>
+                      )
+                    }
+                  }
+                  if (flags & 4) {
+                    const val = getOffset(OFFSET_KEYS.T)
+                    if (val !== null && view.zoom > 0.4) {
+                      indicators.push(
+                        <text key="Tv" x={rectX + w/2} y={rectY - sz * 2 - 2/view.zoom}
+                          fontSize={7/view.zoom} fill={color} textAnchor="middle" dominantBaseline="auto"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }} fontFamily="monospace"
+                        >{Math.round(val)}</text>
+                      )
+                    }
+                  }
+                  if (flags & 8) {
+                    const val = getOffset(OFFSET_KEYS.B)
+                    if (val !== null && view.zoom > 0.4) {
+                      indicators.push(
+                        <text key="Bv" x={rectX + w/2} y={rectY + h + sz * 2 + 8/view.zoom}
+                          fontSize={7/view.zoom} fill={color} textAnchor="middle" dominantBaseline="hanging"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }} fontFamily="monospace"
+                        >{Math.round(val)}</text>
+                      )
+                    }
+                  }
                   if (flags & 16) indicators.push(<line key="HC" x1={rectX + w/2} y1={rectY + h/2} x2={rectX + w/2 - sz*2} y2={rectY + h/2} stroke={color} strokeWidth={1/view.zoom} strokeDasharray={`${2/view.zoom},${2/view.zoom}`} style={{ pointerEvents: 'none' }} />)
                   if (flags & 32) indicators.push(<line key="VC" x1={rectX + w/2} y1={rectY + h/2} x2={rectX + w/2} y2={rectY + h/2 - sz*2} stroke={color} strokeWidth={1/view.zoom} strokeDasharray={`${2/view.zoom},${2/view.zoom}`} style={{ pointerEvents: 'none' }} />)
                   if (indicators.length === 0) return null
@@ -3278,30 +3336,65 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const ih = Math.abs(h) || 1
                   const { r: tr = 255, g: tg = 255, b: tb = 255 } = (node.color as { r?: number; g?: number; b?: number } | null) ?? {}
                   const hasTint = tr !== 255 || tg !== 255 || tb !== 255
-                  return hasTint ? (
+                  // Sprite type badge (only for non-simple types)
+                  const spriteType = Number(sc?.props?.type ?? sc?.props?._type ?? 0)
+                  // 0=Simple, 1=Sliced, 2=Tiled, 3=Filled
+                  const SPRITE_TYPE_LABELS: Record<number, string> = { 1: '9', 2: '⊞', 3: '◔' }
+                  const spriteTypeLabel = SPRITE_TYPE_LABELS[spriteType]
+                  return (
                     <>
-                      <image
-                        href={imgUrl}
-                        x={rectX} y={rectY}
-                        width={iw} height={ih}
-                        preserveAspectRatio="xMidYMid meet"
-                        style={{ pointerEvents: 'none' }}
-                      />
-                      <rect
-                        x={rectX} y={rectY} width={iw} height={ih}
-                        fill={`rgb(${tr},${tg},${tb})`}
-                        opacity={0.45}
-                        style={{ pointerEvents: 'none', mixBlendMode: 'multiply' as const }}
-                      />
+                      {hasTint ? (
+                        <>
+                          <image
+                            href={imgUrl}
+                            x={rectX} y={rectY}
+                            width={iw} height={ih}
+                            preserveAspectRatio="xMidYMid meet"
+                            style={{ pointerEvents: 'none' }}
+                          />
+                          <rect
+                            x={rectX} y={rectY} width={iw} height={ih}
+                            fill={`rgb(${tr},${tg},${tb})`}
+                            opacity={0.45}
+                            style={{ pointerEvents: 'none', mixBlendMode: 'multiply' as const }}
+                          />
+                        </>
+                      ) : (
+                        <image
+                          href={imgUrl}
+                          x={rectX} y={rectY}
+                          width={iw} height={ih}
+                          preserveAspectRatio="xMidYMid meet"
+                          style={{ pointerEvents: 'none' }}
+                        />
+                      )}
+                      {spriteTypeLabel && view.zoom > 0.3 && (
+                        <text
+                          x={rectX + 2 / view.zoom}
+                          y={rectY + 10 / view.zoom}
+                          fontSize={9 / view.zoom}
+                          fill="rgba(250,204,21,0.85)"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }}
+                          fontFamily="monospace"
+                        >{spriteTypeLabel}</text>
+                      )}
+                      {spriteType === 3 && (() => {
+                        const fillRange = Number(sc?.props?.fillRange ?? sc?.props?._fillRange ?? 1)
+                        const cx2 = rectX + iw / 2, cy2 = rectY + ih / 2
+                        const r2 = Math.min(iw, ih) / 2 * 0.8
+                        const angle = fillRange * 2 * Math.PI
+                        const x2end = cx2 + r2 * Math.sin(angle)
+                        const y2end = cy2 - r2 * Math.cos(angle)
+                        const largeArc = fillRange > 0.5 ? 1 : 0
+                        return (
+                          <path
+                            d={`M ${cx2} ${cy2 - r2} A ${r2} ${r2} 0 ${largeArc} 1 ${x2end} ${y2end}`}
+                            fill="none" stroke="rgba(250,204,21,0.6)" strokeWidth={1.5 / view.zoom}
+                            style={{ pointerEvents: 'none' }}
+                          />
+                        )
+                      })()}
                     </>
-                  ) : (
-                    <image
-                      href={imgUrl}
-                      x={rectX} y={rectY}
-                      width={iw} height={ih}
-                      preserveAspectRatio="xMidYMid meet"
-                      style={{ pointerEvents: 'none' }}
-                    />
                   )
                 })()}
                 {/* Label 텍스트 렌더링 + R1491 더블클릭 인라인 편집 */}
@@ -3362,6 +3455,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const outlineWidth = enableOutline
                     ? Number(lc?.props?.outlineWidth ?? lc?.props?._outlineWidth ?? 1)
                     : Number(outlineComp?.props?.width ?? outlineComp?.props?._width ?? 1)
+                  // Shadow: CC3.x enableShadow or cc.LabelShadow component
+                  const enableShadow = !!(lc?.props?.enableShadow ?? lc?.props?._enableShadow ?? false)
+                  const shadowComp = node.components.find(c => c.type === 'cc.LabelShadow')
+                  const hasShadow = enableShadow || !!shadowComp
+
+                  const shadowColorProp = (enableShadow
+                    ? lc?.props?.shadowColor
+                    : shadowComp?.props?.color ?? shadowComp?.props?._color) as { r?: number; g?: number; b?: number; a?: number } | undefined
+                  const { r: shr = 0, g: shg = 0, b: shb = 0, a: sha = 200 } = shadowColorProp ?? {}
+
+                  const shadowOffsetProp = (enableShadow
+                    ? lc?.props?.shadowOffset
+                    : shadowComp?.props?.offset ?? shadowComp?.props?._offset) as { x?: number; y?: number } | undefined
+                  const shOffX = Number(shadowOffsetProp?.x ?? 2) / view.zoom
+                  const shOffY = Number(shadowOffsetProp?.y ?? -2) / view.zoom
+
+                  const shadowBlurVal = enableShadow
+                    ? Number(lc?.props?.shadowBlur ?? lc?.props?._shadowBlur ?? 2)
+                    : Number(shadowComp?.props?.blur ?? shadowComp?.props?._blur ?? 2)
+                  const shBlur = shadowBlurVal / view.zoom
+
+                  // Overflow: 0=None, 1=Clamp, 2=Shrink, 3=ResizeH
+                  const overflowMode = Number(lc?.props?.overflow ?? lc?.props?._overflow ?? lc?.props?.['_N$overflow'] ?? 0)
+                  const needsClip = overflowMode >= 1
+                  const clipId = needsClip ? `lbl-clip-${node.uuid.replace(/[^a-z0-9]/gi, '')}` : undefined
+
                   // Horizontal alignment: 0=Left, 1=Center, 2=Right
                   const hAlign = Number(lc?.props?.horizontalAlign ?? lc?.props?._horizontalAlign ?? lc?.props?.['_N$horizontalAlign'] ?? 1)
                   // Vertical alignment: 0=Top, 1=Center/Middle, 2=Bottom
@@ -3384,30 +3503,39 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                       : textY - (totalHeight - lineH) / 2
 
                   return (
-                    <text
-                      x={textX}
-                      y={lines.length === 1 ? textY : startY}
-                      fontSize={fs}
-                      fill={`rgb(${cr},${cg},${cb})`}
-                      textAnchor={textAnchorVal}
-                      dominantBaseline={lines.length === 1 ? dominantBaselineVal : 'auto'}
-                      fontFamily={fontFamilyName}
-                      stroke={hasOutline ? `rgb(${or},${og},${ob})` : undefined}
-                      strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) / view.zoom : undefined}
-                      paintOrder={hasOutline ? 'stroke' : undefined}
-                      style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
-                      onDoubleClick={e => {
-                        e.stopPropagation()
-                        setEditingLabelUuid(node.uuid)
-                        setTimeout(() => editLabelRef.current?.focus(), 30)
-                      }}
-                    >
-                      {lines.length === 1 ? str : lines.map((line, i) => (
-                        <tspan key={i} x={textX} dy={i === 0 ? 0 : lineH}>
-                          {line}
-                        </tspan>
-                      ))}
-                    </text>
+                    <>
+                      {needsClip && (
+                        <clipPath id={clipId}>
+                          <rect x={rectX} y={rectY} width={Math.max(w, 0)} height={Math.max(h, 0)} />
+                        </clipPath>
+                      )}
+                      <text
+                        x={textX}
+                        y={lines.length === 1 ? textY : startY}
+                        fontSize={fs}
+                        fill={`rgb(${cr},${cg},${cb})`}
+                        textAnchor={textAnchorVal}
+                        dominantBaseline={lines.length === 1 ? dominantBaselineVal : 'auto'}
+                        fontFamily={fontFamilyName}
+                        stroke={hasOutline ? `rgb(${or},${og},${ob})` : undefined}
+                        strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) / view.zoom : undefined}
+                        paintOrder={hasOutline ? 'stroke' : undefined}
+                        filter={hasShadow ? `drop-shadow(${shOffX}px ${shOffY}px ${shBlur}px rgba(${shr},${shg},${shb},${sha / 255}))` : undefined}
+                        clipPath={needsClip ? `url(#${clipId})` : undefined}
+                        style={{ pointerEvents: isSelected ? 'auto' : 'none', userSelect: 'none', cursor: 'text' }}
+                        onDoubleClick={e => {
+                          e.stopPropagation()
+                          setEditingLabelUuid(node.uuid)
+                          setTimeout(() => editLabelRef.current?.focus(), 30)
+                        }}
+                      >
+                        {lines.length === 1 ? str : lines.map((line, i) => (
+                          <tspan key={i} x={textX} dy={i === 0 ? 0 : lineH}>
+                            {line}
+                          </tspan>
+                        ))}
+                      </text>
+                    </>
                   )
                 })()}
                 {/* R1543: 잠금 아이콘 (locked nodes) */}
