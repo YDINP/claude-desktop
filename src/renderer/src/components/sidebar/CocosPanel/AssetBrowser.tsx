@@ -107,6 +107,11 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
     window.dispatchEvent(new CustomEvent('cc:open-file', { detail: entry.path }))
   }, [])
 
+  // 더블클릭 → 파일 열기 (cc:open-file 이벤트 → 앱이 확장자별로 라우팅)
+  const handleDoubleClickAsset = useCallback((entry: AssetEntry) => {
+    window.dispatchEvent(new CustomEvent('cc:open-file', { detail: entry.path }))
+  }, [])
+
   // R1398: .prefab 파일을 현재 씬에 인스턴스화
   const handleInstantiatePrefab = useCallback(async (entry: AssetEntry) => {
     if (!sceneFile?.root || !sceneFile._raw) return
@@ -312,6 +317,42 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
   const renderFolderNode = (node: FolderNode, depth: number): React.ReactNode => {
     const hasContent = node.children.length > 0 || node.files.length > 0
     if (!hasContent) return null
+
+    // root node는 헤더 없이 children + files 바로 렌더링
+    if (!node.path) {
+      return (
+        <React.Fragment key="root">
+          {node.children.map(child => renderFolderNode(child, depth))}
+          {node.files.map(file => {
+            const fileName = file.relPath.split(/[\\/]/).pop() ?? file.relPath
+            return (
+              <div
+                key={file.uuid}
+                draggable={true}
+                onDragStart={e => {
+                  e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: file.uuid, path: file.path, relPath: file.relPath, type: file.type }))
+                  e.dataTransfer.effectAllowed = 'copy'
+                }}
+                onDoubleClick={e => { e.stopPropagation(); handleDoubleClickAsset(file) }}
+                onContextMenu={e => { e.preventDefault(); handleItemClick(file, e) }}
+                title={`${file.relPath}\n더블클릭: 파일 열기 / 우클릭: 액션 메뉴`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: `2px 4px 2px ${(depth + 1) * 12 + 22}px`,
+                  cursor: 'pointer', fontSize: 10, borderRadius: 3,
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(88,166,255,0.08)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '' }}
+              >
+                <span style={{ flexShrink: 0 }}>{getAssetFileIcon(fileName)}</span>
+                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fileName}</span>
+              </div>
+            )
+          })}
+        </React.Fragment>
+      )
+    }
+
     const isOpen = treeExpanded.has(node.path)
     return (
       <div key={node.path || 'root'} style={{ marginLeft: depth * 12 }}>
@@ -342,9 +383,9 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
                     e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: file.uuid, path: file.path, relPath: file.relPath, type: file.type }))
                     e.dataTransfer.effectAllowed = 'copy'
                   }}
-                  onClick={e => handleItemClick(file, e)}
+                  onDoubleClick={e => { e.stopPropagation(); handleDoubleClickAsset(file) }}
                   onContextMenu={e => { e.preventDefault(); handleItemClick(file, e) }}
-                  title={`${file.relPath}\n클릭: 액션 메뉴 / 드래그하여 인스펙터에 적용`}
+                  title={`${file.relPath}\n더블클릭: 파일 열기 / 우클릭: 액션 메뉴`}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     padding: '2px 4px 2px 22px', marginLeft: (depth + 1) * 12,
@@ -486,9 +527,9 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
                   e.dataTransfer.setData('application/cc-asset', JSON.stringify({ uuid: item.uuid, path: item.path, relPath: item.relPath, type: item.type }))
                   e.dataTransfer.effectAllowed = 'copy'
                 }}
-                onClick={e => handleItemClick(item, e)}
+                onDoubleClick={e => { e.stopPropagation(); handleDoubleClickAsset(item) }}
                 onContextMenu={e => { e.preventDefault(); handleItemClick(item, e) }}
-                title={`${item.relPath}\n클릭: 액션 메뉴 / 드래그하여 인스펙터에 적용`}
+                title={`${item.relPath}\n더블클릭: 파일 열기 / 우클릭: 액션 메뉴`}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4, padding: '3px 6px 3px 22px',
                   cursor: 'grab', fontSize: 10, borderRadius: 3,
