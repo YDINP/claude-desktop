@@ -611,17 +611,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       .filter((u): u is string => !!u && !fontCacheRef.current.has(u))
     const uniqueUuids = [...new Set(uuids)]
     if (!uniqueUuids.length) return
+    let cancelled = false
     uniqueUuids.forEach(uuid => {
       fontCacheRef.current.set(uuid, { dataUrl: '', familyName: '' }) // pending sentinel
       window.api.ccFileResolveFont?.(uuid, assetsDir).then((result: { dataUrl: string; familyName: string } | null) => {
+        if (cancelled) return
         if (result) {
           fontCacheRef.current.set(uuid, result)
         } else {
           fontCacheRef.current.delete(uuid)
         }
         setFontCacheVer(v => v + 1)
-      }).catch(() => { fontCacheRef.current.delete(uuid) })
+      }).catch(() => { if (!cancelled) fontCacheRef.current.delete(uuid) })
     })
+    return () => { cancelled = true }
   }, [sceneFile, flatNodes])
 
   // CC 좌표 → SVG 좌표 변환

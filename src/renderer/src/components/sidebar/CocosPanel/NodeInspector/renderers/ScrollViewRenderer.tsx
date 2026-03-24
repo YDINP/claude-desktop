@@ -1,8 +1,19 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import type { RendererPropsWithSave } from './types'
+import type { CCSceneNode } from '@shared/ipc-schema'
+
+function findContentNode(n: CCSceneNode): CCSceneNode | null {
+  for (const ch of n.children) {
+    if (ch.name.toLowerCase() === 'content') return ch
+    const found = findContentNode(ch)
+    if (found) return found
+  }
+  return null
+}
 
 /** cc.PageView, cc.PageViewIndicator, cc.ScrollView, cc.Scrollbar Quick Edit renderer */
 export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x, saveScene }: RendererPropsWithSave): React.ReactElement | null {
+  const contentNode = useMemo(() => comp.type === 'cc.ScrollView' ? findContentNode(draft) : null, [comp.type, draft])
             const p = comp.props
             if (comp.type === 'cc.PageView') {
               const direction = Number(p.direction ?? p._direction ?? p._N$direction ?? 0)
@@ -194,16 +205,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
               const inertia = !!(p.inertia ?? p._inertia ?? p._N$inertia ?? true)
               const elastic = !!(p.elastic ?? p._elastic ?? p._N$elastic ?? true)
               const brake = Number(p.brake ?? p._brake ?? p._N$brake ?? 0.75)
-              // R1740: content 자식 노드 찾기 (이름 'content', 대소문자 무시)
-              function findContentNode(n: CCSceneNode): CCSceneNode | null {
-                for (const ch of n.children) {
-                  if (ch.name.toLowerCase() === 'content') return ch
-                  const found = findContentNode(ch)
-                  if (found) return found
-                }
-                return null
-              }
-              const contentNode = findContentNode(draft)
+              // R1740: content 자식 노드 찾기 (useMemo로 컴포넌트 상단에서 계산됨)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* R2438: enabled (BatchInspector R2193) */}
