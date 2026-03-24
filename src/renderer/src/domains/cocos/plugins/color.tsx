@@ -16,6 +16,8 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
 
   const [opGradFrom, setOpGradFrom] = useState<number>(255)
   const [opGradTo, setOpGradTo] = useState<number>(0)
+  const [opacGradFrom, setOpacGradFrom] = useState<number>(255) /* R2739 */
+  const [opacGradTo, setOpacGradTo] = useState<number>(0) /* R2739 */
   const [colorGradFrom, setColorGradFrom] = useState<string>('#ffffff')
   const [colorGradTo, setColorGradTo] = useState<string>('#ff0000')
   const [colorBlendTarget, setColorBlendTarget] = useState<string>('#ff0000')
@@ -413,6 +415,31 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >블렌드</span>
+          </div>
+        )
+      })()}
+
+      {/* R2739: opacity 그라데이션 */}
+      {uuids.length >= 2 && (() => {
+        const applyOpacGrad = () => patchOrdered((n, idx, total) => {
+          const t = total > 1 ? idx / (total - 1) : 0.5
+          const opacity = Math.round(opacGradFrom + (opacGradTo - opacGradFrom) * t)
+          const clamped = Math.max(0, Math.min(255, opacity))
+          return { ...n, opacity: clamped }
+        }, `opacity 그라데이션 ${opacGradFrom}→${opacGradTo} (${uuids.length}개) (R2739)`)
+        const niS = mkNiS(36)
+        const btnS = mkBtnS('#c084fc')
+        return (
+          <div style={{ marginBottom: 4, display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>opacity그라데이션 (R2739)</span>
+            <input type="number" value={opacGradFrom} min={0} max={255}
+              onChange={e => setOpacGradFrom(Math.max(0, Math.min(255, Number(e.target.value))))}
+              style={niS} title="시작 opacity (0-255)" />
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
+            <input type="number" value={opacGradTo} min={0} max={255}
+              onChange={e => setOpacGradTo(Math.max(0, Math.min(255, Number(e.target.value))))}
+              style={niS} title="끝 opacity (0-255)" />
+            <span onClick={applyOpacGrad} style={btnS} title="opacity 선형 보간 적용">적용</span>
           </div>
         )
       })()}

@@ -136,6 +136,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2734: 사용자 영구 가이드라인
   const [userGuides, setUserGuides] = useState<Array<{ type: 'V' | 'H'; pos: number }>>([])
   const [showUserGuides, setShowUserGuides] = useState(false)
+  // R2740: 가이드라인 드래그
+  const guideDragRef = useRef<{ idx: number; type: 'V' | 'H'; startMouse: number; startPos: number } | null>(null)
   // R1605: 편집 잠금 (View-only lock)
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
@@ -685,6 +687,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [view, measureMode])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // R2740: 가이드라인 드래그
+    if (guideDragRef.current) {
+      const gd = guideDragRef.current
+      const delta = gd.type === 'V'
+        ? (e.clientX - gd.startMouse) / viewRef.current.zoom
+        : (e.clientY - gd.startMouse) / viewRef.current.zoom
+      const newPos = gd.startPos + delta
+      setUserGuides(gs => gs.map((g, i) => i === gd.idx ? { ...g, pos: newPos } : g))
+      return
+    }
     // R1598: 마우스 위치 씬 좌표 업데이트
     {
       const svg = svgRef.current
@@ -902,6 +914,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [isPanning, cx, cy, snapSize, flatNodes])
 
   const handleMouseUp = useCallback((e?: React.MouseEvent) => {
+    // R2740: 가이드라인 드래그 완료
+    if (guideDragRef.current) { guideDragRef.current = null; return }
     // R2465: 측정 도구 — 드래그 완료 시 start ref 해제 (측정 선은 유지)
     if (measureStartRef.current) {
       measureStartRef.current = null
@@ -2532,12 +2546,32 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {/* R2734: 사용자 영구 가이드라인 */}
           {showUserGuides && userGuides.map((g, i) =>
             g.type === 'V'
-              ? <line key={`ug-v-${i}`} x1={g.pos} y1={0} x2={g.pos} y2={effectiveH}
-                  stroke="rgba(251,146,60,0.7)" strokeWidth={1 / view.zoom}
-                  strokeDasharray={`${6/view.zoom},${3/view.zoom}`} pointerEvents="none" />
-              : <line key={`ug-h-${i}`} x1={0} y1={g.pos} x2={effectiveW} y2={g.pos}
-                  stroke="rgba(251,146,60,0.7)" strokeWidth={1 / view.zoom}
-                  strokeDasharray={`${6/view.zoom},${3/view.zoom}`} pointerEvents="none" />
+              ? <g key={`ug-v-${i}`}>
+                  <line x1={g.pos} y1={0} x2={g.pos} y2={effectiveH}
+                    stroke="rgba(251,146,60,0.7)" strokeWidth={1 / view.zoom}
+                    strokeDasharray={`${6/view.zoom},${3/view.zoom}`} pointerEvents="none" />
+                  <line x1={g.pos} y1={0} x2={g.pos} y2={effectiveH}
+                    stroke="rgba(251,146,60,0.7)" strokeWidth={Math.max(6, 1/view.zoom)}
+                    strokeOpacity={0} pointerEvents="stroke"
+                    style={{ cursor: 'ew-resize' }}
+                    onMouseDown={e => {
+                      e.stopPropagation()
+                      guideDragRef.current = { idx: i, type: 'V', startMouse: e.clientX, startPos: g.pos }
+                    }} />
+                </g>
+              : <g key={`ug-h-${i}`}>
+                  <line x1={0} y1={g.pos} x2={effectiveW} y2={g.pos}
+                    stroke="rgba(251,146,60,0.7)" strokeWidth={1 / view.zoom}
+                    strokeDasharray={`${6/view.zoom},${3/view.zoom}`} pointerEvents="none" />
+                  <line x1={0} y1={g.pos} x2={effectiveW} y2={g.pos}
+                    stroke="rgba(251,146,60,0.7)" strokeWidth={Math.max(6, 1/view.zoom)}
+                    strokeOpacity={0} pointerEvents="stroke"
+                    style={{ cursor: 'ns-resize' }}
+                    onMouseDown={e => {
+                      e.stopPropagation()
+                      guideDragRef.current = { idx: i, type: 'H', startMouse: e.clientY, startPos: g.pos }
+                    }} />
+                </g>
           )}
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
           {flatNodes.map(({ node, worldX, worldY, depth }) => {

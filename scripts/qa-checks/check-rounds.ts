@@ -2651,6 +2651,8 @@ export const ROUND_CHECKS: RoundCheck[] = [
   { round: 'R2733-even-gap', file: 'src/renderer/src/domains/cocos/plugins/misc.tsx', keywords: ['R2733', 'applyEvenGap', 'Auto H'], operator: 'and', failLevel: 'warning', passMsg: 'R2733 균등간격 구현 완료', failMsg: 'R2733 균등간격 미구현', failFile: 'misc.tsx' },
   { round: 'R2695-pos-gradient', file: 'src/renderer/src/domains/cocos/plugins/misc.tsx', keywords: ['R2695', 'applyPosGrad', 'posGradFrom'], operator: 'and', failLevel: 'warning', passMsg: 'R2695 위치 선형 그라데이션 구현 완료', failMsg: 'R2695 위치 선형 그라데이션 미구현', failFile: 'misc.tsx' },
   { round: 'R2734-user-guides', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['R2734', 'userGuides', 'addUserGuide'], operator: 'and', failLevel: 'warning', passMsg: 'R2734 사용자 가이드라인 구현 완료', failMsg: 'R2734 사용자 가이드라인 미구현', failFile: 'CCFileSceneView.tsx' },
+  { round: 'R2736-layer-batch', file: 'src/renderer/src/domains/cocos/plugins/transform.tsx', keywords: ['R2736', 'layerInput', 'LAYER_PRESETS'], operator: 'and', failLevel: 'warning', passMsg: 'R2736 BatchInspector Layer 일괄 설정 구현 완료', failMsg: 'R2736 Layer 일괄 설정 미구현', failFile: 'transform.tsx' },
+  { round: 'R2737-label-text-batch', file: 'src/renderer/src/domains/cocos/plugins/name.tsx', keywords: ['R2737', 'labelText', 'applyLabelText'], operator: 'and', failLevel: 'warning', passMsg: 'R2737 Label 텍스트 일괄 수정 구현 완료', failMsg: 'R2737 Label 텍스트 일괄 수정 미구현', failFile: 'name.tsx' },
 ]
 
 export const MULTI_FILE_CHECKS: MultiFileCheck[] = [
