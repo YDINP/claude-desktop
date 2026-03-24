@@ -22,6 +22,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
   const [randomRange, setRandomRange] = useState<number>(50)
   const [randomRotRange, setRandomRotRange] = useState<number>(30)
   const [absRotValue, setAbsRotValue] = useState<number>(45)
+  const [rotDeltaStep, setRotDeltaStep] = useState<number>(90) /* R2727 */
   const [absScaleX, setAbsScaleX] = useState<number>(1)
   const [absScaleY, setAbsScaleY] = useState<number>(1)
   const [batchRot, setBatchRot] = useState<string>('')
@@ -459,6 +460,51 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
             >지정</span>
+          </div>
+        )
+      })()}
+
+      {/* R2727: 회전 프리셋 버튼 */}
+      {uuids.length >= 1 && sceneFile.root && (() => {
+        const applyPreset = async (v: number) => {
+          await patchNodes(n => ({
+            ...n,
+            rotation: typeof n.rotation === 'number' ? v : { x: 0, y: 0, z: v },
+          }), `rotation = ${v}° (R2727)`)
+        }
+        const applyDelta = async (sign: 1 | -1) => {
+          await patchNodes(n => {
+            const cur = typeof n.rotation === 'number' ? n.rotation : (n.rotation as { x: number; y: number; z: number })?.z ?? 0
+            const next = cur + sign * rotDeltaStep
+            return { ...n, rotation: typeof n.rotation === 'number' ? next : { x: 0, y: 0, z: next } }
+          }, `rotation Δ${sign > 0 ? '+' : ''}${sign * rotDeltaStep}° (R2727)`)
+        }
+        const presets = [0, 45, 90, 180, 270]
+        const bsPreset: React.CSSProperties = {
+          fontSize: 9, padding: '1px 5px', cursor: 'pointer',
+          border: '1px solid var(--border)', borderRadius: 2,
+          color: 'var(--text-muted)', background: 'var(--bg-hover)', userSelect: 'none',
+        }
+        const niS = mkNiS(36)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 5 }}>
+            <div style={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>rot프리셋 (R2727)</span>
+              {presets.map(v => (
+                <span key={v} onClick={() => applyPreset(v)} title={`rotation = ${v}°`} style={bsPreset}>{v}°</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>Δ</span>
+              <input type="number" value={rotDeltaStep} min={1} max={360} step={1}
+                onChange={e => setRotDeltaStep(parseFloat(e.target.value) || 1)}
+                style={niS} title="회전 delta 값 (도)" />
+              <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>°</span>
+              <span onClick={() => applyDelta(1)} title={`rotation +${rotDeltaStep}°`}
+                style={bsPreset}>Δ+{rotDeltaStep}°</span>
+              <span onClick={() => applyDelta(-1)} title={`rotation -${rotDeltaStep}°`}
+                style={bsPreset}>Δ-{rotDeltaStep}°</span>
+            </div>
           </div>
         )
       })()}
