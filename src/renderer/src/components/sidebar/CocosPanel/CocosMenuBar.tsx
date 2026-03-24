@@ -21,7 +21,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
     showBatchMenu, setShowBatchMenu,
     showDepsAnalysis, setShowDepsAnalysis,
     depsLoading, depsEntries, handleAnalyzeDeps,
-    handleBatchFontSize, handleBatchRemoveInactive, handleBatchNormalizeName,
+    handleBatchRemoveInactive, handleBatchNormalizeName,
     batchToast,
     setOptimizationSuggestions, optimizationSuggestions,
     openProject, selectedScene, handleSceneChange,
@@ -332,9 +332,6 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
           {openMenu === 'tools' && (
             <div style={dropStyle}>
               <div style={sectionLabel}>일괄 처리</div>
-              <button style={dropItemStyle()} onMouseEnter={e => (e.currentTarget.style.background='rgba(88,166,255,0.1)')} onMouseLeave={e => (e.currentTarget.style.background='')} onClick={handleBatchFontSize}>
-                모든 Label 폰트 크기 통일
-              </button>
               <button style={dropItemStyle('#f87171')} onMouseEnter={e => (e.currentTarget.style.background='rgba(248,81,73,0.1)')} onMouseLeave={e => (e.currentTarget.style.background='')} onClick={handleBatchRemoveInactive}>
                 모든 비활성 노드 삭제
               </button>

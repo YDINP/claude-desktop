@@ -103,9 +103,6 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     return { x: Math.round(wx * 100) / 100, y: Math.round(wy * 100) / 100 }
   }, [sceneFile.root, node.uuid, draft.position])
   const [showSceneDepsTree, setShowSceneDepsTree] = useState(false)
-  // R1508: Quick Edit CLI 상태 (Rules of Hooks: IIFE 밖 선언 필수)
-  const [cliVal, setCliVal] = useState('')
-  const [cliMsg, setCliMsg] = useState<string | null>(null)
   const SECTION_ACCENT: Record<string, string> = {
     transform: '#58a6ff',
     anchor:    '#a78bfa',
@@ -689,7 +686,7 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     lockScale, setLockScale, lockSize, setLockSize,
     anchorCompensate, setAnchorCompensate, sceneDepsTree, setSceneDepsTree,
     worldPos, showSceneDepsTree, setShowSceneDepsTree,
-    cliVal, setCliVal, cliMsg, setCliMsg, secHeader,
+    secHeader,
     // Handlers
     handleAddChild, handleDelete, handleDuplicate,
     propSearch, setPropSearch, showPropSearch, setShowPropSearch, dupeCount, setDupeCount,
