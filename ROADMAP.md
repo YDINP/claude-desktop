@@ -926,3 +926,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2727 | BatchInspector 회전 프리셋 버튼 (0°/45°/90°/180°/270° + Δ증감) | ✅ |
 | R2728 | BatchInspector 스케일 프리셋 버튼 (×0.5/1/1.5/2 + XY연동 배수) | ✅ |
 | R2729 | BatchInspector 편집 히스토리 플러그인 (localStorage, 자동/수동 기록, 클릭 재선택) | ✅ |
+| R2730 | LayoutRenderer 전수감사 — _N$enabled 추가, #aaa 하드코딩 수정 | ✅ |
+| R2731 | ParticleRenderer 전수감사 — read chain 8건 보완, _N$enabled, CC2.x color 섹션 조건분기 | ✅ |
+| R2732 | ScrollViewRenderer 전수감사 — _N$enabled 3곳, read chain 3건, CSS fallback 수정, PageViewIndicator enabled 추가 | ✅ |
