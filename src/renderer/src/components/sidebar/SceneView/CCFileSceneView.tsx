@@ -601,8 +601,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     )
     const uuids = labelComps
       .map(c => (c.props.font as { __uuid__?: string } | undefined)?.__uuid__
+             ?? (c.props._font as { __uuid__?: string } | undefined)?.__uuid__
              ?? (c.props._N$file as { __uuid__?: string } | undefined)?.__uuid__
-             ?? (c.props.file as { __uuid__?: string } | undefined)?.__uuid__)
+             ?? (c.props.file as { __uuid__?: string } | undefined)?.__uuid__
+             ?? (c.props._file as { __uuid__?: string } | undefined)?.__uuid__)
       .filter((u): u is string => !!u && !fontCacheRef.current.has(u))
     const uniqueUuids = [...new Set(uuids)]
     if (!uniqueUuids.length) return
@@ -3467,11 +3469,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     )
                   }
                   const fontUuid = (lc?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
+                             ?? (lc?.props?._font as { __uuid__?: string } | undefined)?.__uuid__
                              ?? (lc?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
                              ?? (lc?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
+                             ?? (lc?.props?._file as { __uuid__?: string } | undefined)?.__uuid__
                   const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
-                  // isSystemFontUsed=true면 fontFamily(시스템) 우선, false면 TTF 우선
-                  const isSystemFont = !!(lc?.props?.isSystemFontUsed ?? lc?.props?.['_N$isSystemFontUsed'] ?? true)
+                  // fontUuid가 있으면 커스텀 폰트 모드 (isSystemFontUsed 기본값 false)
+                  const isSystemFont = !!(lc?.props?.isSystemFontUsed ?? lc?.props?.['_N$isSystemFontUsed'] ?? !fontUuid)
                   const fontFamilyName = (!isSystemFont && fontEntry?.familyName)
                     || (lc?.props?.fontFamily as string | undefined)
                     || (lc?.props?._fontFamily as string | undefined)

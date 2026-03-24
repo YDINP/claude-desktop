@@ -355,6 +355,8 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:isLargeScene', scenePath),
   ccFileResolveTexture: (uuid: string, assetsDir: string): Promise<string | null> =>
     ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
+  ccFileResolveFont: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; familyName: string } | null> =>
+    ipcRenderer.invoke('cc:file:resolveFont', uuid, assetsDir),
   ccFileExtractUUIDs: (raw: unknown[]): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:extractUUIDs', raw),
   // R1438: 씬 로컬 HTTP 공유
@@ -615,6 +617,7 @@ declare global {
       onCCFileChanged: (cb: (event: { type: string; path: string; timestamp: number }) => void) => () => void
       ccFileBuildUUIDMap: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
       ccFileResolveTexture: (uuid: string, assetsDir: string) => Promise<string | null>
+      ccFileResolveFont: (uuid: string, assetsDir: string) => Promise<{ dataUrl: string; familyName: string } | null>
       ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
       // R1438
       ccFileServeScene: (sceneJson: string) => Promise<{ success: boolean; url?: string; error?: string }>
