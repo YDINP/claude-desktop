@@ -38,22 +38,25 @@ export function CCFileNodeInspector({
     sameCompPopup, setSameCompPopup, rotation,
     applyAndSave, compTypeCountMap, handleUndo, handleRedo,
   } = ctx
+  const handleUndoRef = React.useRef(handleUndo)
+  const handleRedoRef = React.useRef(handleRedo)
+  React.useEffect(() => { handleUndoRef.current = handleUndo }, [handleUndo])
+  React.useEffect(() => { handleRedoRef.current = handleRedo }, [handleRedo])
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      // Only intercept when not in an input/textarea
       const target = e.target as HTMLElement
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault()
-        handleUndo()
+        handleUndoRef.current()
       } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
         e.preventDefault()
-        handleRedo()
+        handleRedoRef.current()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleUndo, handleRedo])
+  }, [])
   const is3x = sceneFile.projectInfo?.version === '3x'
   const [assetDragOver, setAssetDragOver] = React.useState(false)
   const similarNodes = React.useMemo(() => {
@@ -71,6 +74,31 @@ export function CCFileNodeInspector({
     similar.sort((a, b) => b.overlap - a.overlap)
     return similar.slice(0, 5)
   }, [sceneFile?.root, draft.components, node.uuid])
+  const skipTypes = ['cc.UITransform', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
+  const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
+  const visibleComps = React.useMemo(
+    () => draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
+      if (skipTypes.includes(c.type)) return false
+      if (isCustomScript(c.type)) return true
+      return Object.values(c.props).some(v => {
+        if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return true
+        if (v && typeof v === 'object') {
+          if ('__uuid__' in (v as object)) return true
+          const keys = Object.keys(v as object).filter(k => typeof (v as Record<string, unknown>)[k] === 'number')
+          if (keys.length >= 2 && keys.length <= 3) return true
+        }
+        return false
+      })
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [draft.components]
+  )
+  const typeMatchedComps = React.useMemo(
+    () => propSearch
+      ? visibleComps.filter(({ comp: c }) => c.type.toLowerCase().includes(propSearch.toLowerCase()))
+      : null,
+    [visibleComps, propSearch]
+  )
   return (
     <div
       onDragOver={e => {
@@ -195,9 +223,6 @@ export function CCFileNodeInspector({
       </div>
       {/* R1536: PropSearch 키 하이라이트 헬퍼 */}
       {!collapsed['comps'] && (() => {
-        const skipTypes = ['cc.UITransform', 'cc.PrefabInfo', 'cc.CompPrefabInfo', 'cc.SceneGlobals', 'cc.AmbientInfo', 'cc.ShadowsInfo', 'cc.FogInfo', 'cc.OctreeInfo', 'cc.SkyboxInfo']
-        // R1473: 커스텀 스크립트 컴포넌트 (cc. 접두사 없는 타입) 항상 표시
-        const isCustomScript = (type: string) => !type.startsWith('cc.') && !type.startsWith('cc-') && type !== ''
         // UUID를 스크립트 이름으로 변환
         // IS_UUID regex 제거: CC 2.x Base62 UUID(a2VdBXYC 등 비-hex 포함)는 hex regex로 매칭 불가
         // → dot 없는 타입은 scriptNames 맵에서 직접 조회, 없으면 그대로 표시
@@ -205,23 +230,6 @@ export function CCFileNodeInspector({
           if (type.includes('.')) return type
           return sceneFile.scriptNames?.[type] ?? type
         }
-        const visibleComps = draft.components.map((c, origIdx) => ({ comp: c, origIdx })).filter(({ comp: c }) => {
-          if (skipTypes.includes(c.type)) return false
-          if (isCustomScript(c.type)) return true // 커스텀 스크립트는 props 여부 무관 표시
-          return Object.values(c.props).some(v => {
-            if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return true
-            if (v && typeof v === 'object') {
-              if ('__uuid__' in (v as object)) return true
-              const keys = Object.keys(v as object).filter(k => typeof (v as Record<string, unknown>)[k] === 'number')
-              if (keys.length >= 2 && keys.length <= 3) return true
-            }
-            return false
-          })
-        })
-        // propSearch로 컴포넌트 타입 매칭: 해당 타입은 전체 표시 (자동 펼침)
-        const typeMatchedComps = propSearch
-          ? visibleComps.filter(({ comp: c }) => c.type.toLowerCase().includes(propSearch.toLowerCase()))
-          : null
         const showComps = typeMatchedComps ?? visibleComps
         return (
         <>

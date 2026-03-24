@@ -36,6 +36,10 @@ function shallowEqualPropValue(a: unknown, b: unknown): boolean {
   if (a === null || b === null) return false
   if (typeof a !== typeof b) return false
   if (typeof a !== 'object') return false
+  // 키 수 다르면 즉시 false (JSON.stringify 비용 절감)
+  const aKeys = Object.keys(a as object)
+  const bKeys = Object.keys(b as object)
+  if (aKeys.length !== bKeys.length) return false
   // 객체/배열: JSON.stringify 폴백 (드문 경우)
   return JSON.stringify(a) === JSON.stringify(b)
 }
@@ -61,6 +65,19 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
               ...baseFiltered.filter(([k]) => favProps.has(`${comp.type}:${k}`)),
               ...baseFiltered.filter(([k]) => !favProps.has(`${comp.type}:${k}`)),
             ]
+            // R1536: propSearch 매칭 시 키 이름 하이라이트 — map 밖에서 한 번만 정의
+            const buildPropKeyLabel = (key: string, isChanged: boolean): React.ReactNode => {
+              const baseLabel = (() => {
+                if (!propSearch) return key
+                const lk = key.toLowerCase(), lq = propSearch.toLowerCase()
+                const i = lk.indexOf(lq)
+                if (i < 0) return key
+                return <>{key.slice(0, i)}<mark style={{ background: 'rgba(250,204,21,0.25)', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{key.slice(i, i + propSearch.length)}</mark>{key.slice(i + propSearch.length)}</>
+              })()
+              return isChanged
+                ? <><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: '#fbbf24', marginRight: 3, flexShrink: 0, verticalAlign: 'middle' }} title="변경됨" />{baseLabel}</>
+                : baseLabel
+            }
             return (
               <>
                 {showFilter && (
@@ -83,19 +100,6 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
             const origComp = origSnapRef.current?.components[origIdx]
             const origVal = origComp?.props[k]
             const isPropChanged = origComp !== undefined && !shallowEqualPropValue(v, origVal)
-            // R1536: propSearch 매칭 시 키 이름 하이라이트
-            const propKeyLabel = (key: string): React.ReactNode => {
-              const baseLabel = (() => {
-                if (!propSearch) return key
-                const lk = key.toLowerCase(), lq = propSearch.toLowerCase()
-                const i = lk.indexOf(lq)
-                if (i < 0) return key
-                return <>{key.slice(0, i)}<mark style={{ background: 'rgba(250,204,21,0.25)', color: 'inherit', borderRadius: 2, padding: '0 1px' }}>{key.slice(i, i + propSearch.length)}</mark>{key.slice(i + propSearch.length)}</>
-              })()
-              return isPropChanged
-                ? <><span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: '#fbbf24', marginRight: 3, flexShrink: 0, verticalAlign: 'middle' }} title="변경됨" />{baseLabel}</>
-                : baseLabel
-            }
             const favBtn = (
               <span
                 key="fav"
@@ -111,6 +115,8 @@ export function GenericPropertyEditor({ comp, draft, applyAndSave, origIdx, ci, 
                 }}
               >{isFavProp ? '★' : '☆'}</span>
             )
+            // R1536: per-key wrapper — JSX uses {propKeyLabel(k)}{favBtn}
+            const propKeyLabel = (key: string) => buildPropKeyLabel(key, isPropChanged)
             if (v && typeof v === 'object' && '__uuid__' in (v as object)) {
               const uuid = (v as { __uuid__: string }).__uuid__
               return (
