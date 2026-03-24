@@ -138,7 +138,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                       <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', width: 50, flexShrink: 0 }}>
                         <input type="checkbox" checked={isActive}
                           onChange={e => {
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [flag]: e.target.checked } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [flag]: e.target.checked, [`_${flag}`]: e.target.checked, [`_N$${flag}`]: e.target.checked } } : c)
                             applyAndSave({ components: updated })
                           }}
                         />{label}
@@ -147,7 +147,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                         <input type="number" defaultValue={Number(p[offsetKey] ?? 0)} step={1}
                           onBlur={ev => {
                             const v = parseFloat(ev.target.value) || 0
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [offsetKey]: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, [offsetKey]: v, [`_${offsetKey}`]: v, [`_N$${offsetKey}`]: v } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -423,13 +423,13 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     <input type="number" defaultValue={priority} step={1}
                       onBlur={e => {
                         const v = parseInt(e.target.value) || 0
-                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, priority: v, _priority: v } } : c)
+                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, priority: v, _priority: v, _N$priority: v } } : c)
                         applyAndSave({ components: u })
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                     {[-1, 0, 1, 2, 5, 10].map(v => (
-                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, priority: v, _priority: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, priority: v, _priority: v, _N$priority: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: `1px solid ${priority === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: priority === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
@@ -441,7 +441,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     <input type="number" defaultValue={apx} min={0} max={1} step={0.1}
                       onBlur={e => {
                         const x = parseFloat(e.target.value) || 0; const ap = { x, y: apy }
-                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap } } : c)
+                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap, _N$anchorPoint: ap } } : c)
                         applyAndSave({ components: u })
                       }}
                       style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -450,14 +450,14 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     <input type="number" defaultValue={apy} min={0} max={1} step={0.1}
                       onBlur={e => {
                         const y = parseFloat(e.target.value) || 0; const ap = { x: apx, y }
-                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap } } : c)
+                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap, _N$anchorPoint: ap } } : c)
                         applyAndSave({ components: u })
                       }}
                       style={{ width: 40, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                     {[['TL',[0,1]],['TC',[0.5,1]],['TR',[1,1]],['CL',[0,0.5]],['CC',[0.5,0.5]],['CR',[1,0.5]],['BL',[0,0]],['BC',[0.5,0]],['BR',[1,0]]].map(([l,v]) => (
                       <span key={l as string} title={`anchor=(${(v as number[])[0]},${(v as number[])[1]})`}
-                        onClick={() => { const ap = { x: (v as number[])[0], y: (v as number[])[1] }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap } } : c); applyAndSave({ components: u }) }}
+                        onClick={() => { const ap = { x: (v as number[])[0], y: (v as number[])[1] }; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, anchorPoint: ap, _anchorPoint: ap, _N$anchorPoint: ap } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 7, padding: '1px 2px', cursor: 'pointer', border: `1px solid ${Math.abs(apx-(v as number[])[0])<0.01&&Math.abs(apy-(v as number[])[1])<0.01 ? '#38bdf8' : 'var(--border)'}`, borderRadius: 2, color: Math.abs(apx-(v as number[])[0])<0.01&&Math.abs(apy-(v as number[])[1])<0.01 ? '#38bdf8' : 'var(--text-muted)', userSelect: 'none' }}
                       >{l}</span>
                     ))}
@@ -485,7 +485,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                     <select value={maskType}
                       onChange={e => {
                         const v = parseInt(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _type: v, type: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, _type: v, type: v, _N$type: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 3px' }}

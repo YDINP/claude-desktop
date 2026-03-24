@@ -102,7 +102,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <label style={{ fontSize: 10, width: 30, flexShrink: 0 }}>mask</label>
                     <input type="number" defaultValue={Number(p.mask ?? p._mask ?? p._N$mask ?? -1)} step={1}
                       style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
                     />
                   </div>
                   {/* R2401: tag */}
@@ -110,10 +110,10 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>tag</label>
                     <input type="number" defaultValue={Number(p.tag ?? p._tag ?? 0)} min={0} step={1}
                       style={{ width: 44, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v, _N$tag: v } } : c); applyAndSave({ components: u }) }}
                     />
                     {[0,1,2,3,4].map(v => (
-                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v, _N$tag: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
@@ -210,7 +210,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <label style={{ fontSize: 10, width: 30, flexShrink: 0 }}>mask</label>
                     <input type="number" defaultValue={Number(p.mask ?? p._mask ?? p._N$mask ?? -1)} step={1}
                       style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
                     />
                   </div>
                   {/* R2401: tag */}
@@ -218,10 +218,10 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>tag</label>
                     <input type="number" defaultValue={Number(p.tag ?? p._tag ?? 0)} min={0} step={1}
                       style={{ width: 44, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v, _N$tag: v } } : c); applyAndSave({ components: u }) }}
                     />
                     {[0,1,2,3,4].map(v => (
-                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v, _N$tag: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
@@ -319,7 +319,7 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <label style={{ fontSize: 10, width: 30, flexShrink: 0 }}>mask</label>
                     <input type="number" defaultValue={Number(p.mask ?? p._mask ?? p._N$mask ?? -1)} step={1}
                       style={{ width: 60, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onBlur={ev => { const v = parseInt(ev.target.value) ?? -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || -1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, mask: v, _mask: v, _N$mask: v } } : c); applyAndSave({ components: u }) }}
                     />
                   </div>
                   {/* R2401: tag */}
@@ -327,10 +327,10 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <label style={{ fontSize: 10, width: 50, flexShrink: 0 }}>tag</label>
                     <input type="number" defaultValue={Number(p.tag ?? p._tag ?? 0)} min={0} step={1}
                       style={{ width: 44, background: '#1e1e1e', color: '#ccc', border: '1px solid #444', borderRadius: 3, padding: '2px 4px' }}
-                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={ev => { const v = parseInt(ev.target.value) || 0; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v, _N$tag: v } } : c); applyAndSave({ components: u }) }}
                     />
                     {[0,1,2,3,4].map(v => (
-                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, tag: v, _tag: v, _N$tag: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}

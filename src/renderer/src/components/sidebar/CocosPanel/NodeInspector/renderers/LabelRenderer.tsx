@@ -26,7 +26,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
         setFontAssets(fonts)
       })
     return () => { cancelled = true }
-  }, [fontDropdownOpen])
+  }, [fontDropdownOpen, sceneFile])
 
   useEffect(() => {
     if (!fontDropdownOpen) return
@@ -40,7 +40,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
   }, [fontDropdownOpen])
 
   // R1714: 텍스트 색상
-  const labelColorRaw = p.color as { r?: number; g?: number; b?: number } | undefined
+  const labelColorRaw = (p.color ?? p._color ?? p._N$color) as { r?: number; g?: number; b?: number } | undefined
   const lcR = labelColorRaw?.r ?? 255, lcG = labelColorRaw?.g ?? 255, lcB = labelColorRaw?.b ?? 255
   const lcHex = `#${lcR.toString(16).padStart(2,'0')}${lcG.toString(16).padStart(2,'0')}${lcB.toString(16).padStart(2,'0')}`
   // R1720: overflow + align
@@ -441,7 +441,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                           title={isStrike ? '취소선 해제' : '취소선 활성'}
                           onClick={() => {
                             const nv = !isStrike
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isStrikethrough: nv, isStrike: nv, _isStrike: nv, _N$isStrike: nv } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isStrikethrough: nv, _isStrikethrough: nv, isStrike: nv, _isStrike: nv, _N$isStrike: nv } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ fontSize: 10, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: `1px solid ${isStrike ? '#f472b6' : 'var(--border)'}`, color: isStrike ? '#f472b6' : 'var(--text-muted)', background: isStrike ? 'rgba(244,114,182,0.1)' : 'transparent', textDecoration: 'line-through', userSelect: 'none' }}
@@ -635,6 +635,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
 
 /** cc.LabelOutline, cc.LabelShadow, cc.RichText, cc.Label Quick Edit renderer */
 export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+            const [showRichPreview, setShowRichPreview] = React.useState(false)
             const p = comp.props
             if (comp.type === 'cc.LabelOutline' || comp.type === 'cc.LabelShadow') {
               const toHex = (c: { r?: number; g?: number; b?: number } | undefined) => {
@@ -845,7 +846,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   </div>
                   {/* R2353: fontColor */}
                   {(() => {
-                    const fc = p.fontColor ?? p._fontColor ?? p._N$fontColor as { r?: number; g?: number; b?: number } | undefined
+                    const fc = (p.fontColor ?? p._fontColor ?? p._N$fontColor) as { r?: number; g?: number; b?: number } | undefined
                     const fcR = (fc as Record<string,number> | undefined)?.r ?? 0
                     const fcG = (fc as Record<string,number> | undefined)?.g ?? 0
                     const fcB = (fc as Record<string,number> | undefined)?.b ?? 0
@@ -1031,7 +1032,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                     />
                   </div>
                   {(() => {
-                    const fcRaw = p.fontColor ?? p._fontColor ?? p._N$fontColor as { r?: number; g?: number; b?: number } | undefined
+                    const fcRaw = (p.fontColor ?? p._fontColor ?? p._N$fontColor) as { r?: number; g?: number; b?: number } | undefined
                     const toHex = (c: typeof fcRaw) => `#${[(c?.r ?? 255),(c?.g ?? 255),(c?.b ?? 255)].map(v => v.toString(16).padStart(2,'0')).join('')}`
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

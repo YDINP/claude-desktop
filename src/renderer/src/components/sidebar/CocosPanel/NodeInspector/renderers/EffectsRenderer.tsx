@@ -220,7 +220,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <input type="number" defaultValue={fov} min={1} max={179} step={5} key={`cfov-${fov}`}
                       onBlur={e => {
                         const v = Math.min(179, Math.max(1, parseFloat(e.target.value) || 60))
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fov: v, _fov: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fov: v, _fov: v, _N$fov: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 52, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -237,13 +237,13 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                           key={`oh-${Number(p.orthoHeight ?? 540)}`}
                           onBlur={e => {
                             const v = Math.max(1, parseFloat(e.target.value) || 540)
-                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v } } : c)
+                            const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v, _N$orthoHeight: v } } : c)
                             applyAndSave({ components: updated })
                           }}
                           style={{ width: 54, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: '#93c5fd', borderRadius: 3, padding: '1px 4px' }}
                         />
                         {[360, 540, 720, 1080].map(v => (
-                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v } } : c); applyAndSave({ components: u }) }}
+                          <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, orthoHeight: v, _orthoHeight: v, _N$orthoHeight: v } } : c); applyAndSave({ components: u }) }}
                             style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>{v}</span>
                         ))}
                       </div>
@@ -252,14 +252,14 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                         <input type="number" step={0.1}
                           defaultValue={Number(p.near ?? p._near ?? 1)}
                           key={`cn-${Number(p.near ?? 1)}`}
-                          onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, near: v, _near: v } } : c); applyAndSave({ components: u }) }}
+                          onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, near: v, _near: v, _N$near: v } } : c); applyAndSave({ components: u }) }}
                           style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                           title="near"
                         />
                         <input type="number" step={10}
                           defaultValue={Number(p.far ?? p._far ?? 4096)}
                           key={`cf-${Number(p.far ?? 4096)}`}
-                          onBlur={e => { const v = parseFloat(e.target.value) || 4096; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, far: v, _far: v } } : c); applyAndSave({ components: u }) }}
+                          onBlur={e => { const v = parseFloat(e.target.value) || 4096; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, far: v, _far: v, _N$far: v } } : c); applyAndSave({ components: u }) }}
                           style={{ width: 56, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                           title="far"
                         />
@@ -283,13 +283,13 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <input type="number" defaultValue={Number(p.clearDepth ?? p._clearDepth ?? 1)} min={0} max={1} step={0.5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 1
-                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c)
+                        const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v, _N$clearDepth: v } } : c)
                         applyAndSave({ components: u })
                       }}
                       style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                     {[0, 0.5, 1].map(v => (
-                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, clearDepth: v, _clearDepth: v, _N$clearDepth: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
                       >{v}</span>
                     ))}
@@ -300,7 +300,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     {([['ort✓', true], ['ort✗', false]] as const).map(([l, v]) => {
                       const cur = !!(p.ortho ?? p._ortho ?? false)
                       return (
-                        <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, ortho: v, _ortho: v } } : c); applyAndSave({ components: u }) }}
+                        <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, ortho: v, _ortho: v, _N$ortho: v } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${cur === v ? '#60a5fa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#60a5fa' : 'var(--text-muted)', userSelect: 'none' }}
                         >{l}</span>
                       )
@@ -310,7 +310,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>cullingMask</span>
                     {([['All', -1], ['None', 0], ['Dflt', 1]] as [string, number][]).map(([l, v]) => (
-                      <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cullingMask: v, _cullingMask: v } } : c); applyAndSave({ components: u }) }}
+                      <span key={l} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, cullingMask: v, _cullingMask: v, _N$cullingMask: v } } : c); applyAndSave({ components: u }) }}
                         style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}
                       >{l}</span>
                     ))}
@@ -334,7 +334,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                 </div>
               )
             }
-            // R1579: cc.SkeletalAnimation — CC3.x Quick Edit
+            // R1579: cc.DirectionalLight/PointLight Quick Edit
             if (comp.type === 'cc.DirectionalLight' || comp.type === 'cc.PointLight') {
               const intensity = Number(p.intensity ?? 1)
               const lightColor = p.color as { r?: number; g?: number; b?: number } | undefined
@@ -355,7 +355,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <input type="range" min={0} max={5} step={0.1} value={intensity}
                       onChange={e => {
                         const v = parseFloat(e.target.value)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, intensity: v, _intensity: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, intensity: v, _intensity: v, _N$intensity: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ flex: 1 }}
@@ -370,7 +370,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                         const r = parseInt(hex.slice(1, 3), 16)
                         const g = parseInt(hex.slice(3, 5), 16)
                         const b = parseInt(hex.slice(5, 7), 16)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 }, _N$color: { r, g, b, a: 255 } } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 28, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer' }}
@@ -380,7 +380,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                 </div>
               )
             }
-            // R1573: cc.UIOpacity — CC3.x opacity Quick Edit
+            // R1573: cc.SpotLight Quick Edit
             if (comp.type === 'cc.SpotLight') {
               const intensity = Number(p.intensity ?? 1800)
               const range = Number(p.range ?? 1)
@@ -403,7 +403,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <input type="number" defaultValue={intensity} key={`si-${intensity}`} min={0} step={100}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, intensity: v, _intensity: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, intensity: v, _intensity: v, _N$intensity: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 64, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -414,7 +414,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <input type="number" defaultValue={range} key={`sr-${range}`} min={0} step={0.5}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 1
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, range: v, _range: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, range: v, _range: v, _N$range: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 64, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -425,7 +425,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     <input type="number" defaultValue={spotAngle} key={`sa-${spotAngle}`} min={0} max={180} step={5}
                       onBlur={e => {
                         const v = Math.max(0, Math.min(180, parseFloat(e.target.value) || 30))
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spotAngle: v, _spotAngle: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spotAngle: v, _spotAngle: v, _N$spotAngle: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 64, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
@@ -438,7 +438,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                       onChange={e => {
                         const hex = e.target.value
                         const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 } } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, color: { r, g, b, a: 255 }, _color: { r, g, b, a: 255 }, _N$color: { r, g, b, a: 255 } } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ width: 28, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer' }}

@@ -33,13 +33,13 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>sample</span>
                     <input type="number" defaultValue={Number(p.sample ?? p._sample ?? 60)} min={1} step={1}
-                      onBlur={e => { const v = parseInt(e.target.value) || 60; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sample: v, _sample: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={e => { const v = parseInt(e.target.value) || 60; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, sample: v, _sample: v, _N$sample: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       title="sample rate"
                     />
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 4, flexShrink: 0 }}>speed</span>
                     <input type="number" defaultValue={Number(p.speed ?? p._speed ?? 1)} min={0} step={0.1}
-                      onBlur={e => { const v = parseFloat(e.target.value) ?? 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speed: v, _speed: v } } : c); applyAndSave({ components: u }) }}
+                      onBlur={e => { const v = parseFloat(e.target.value) || 1; const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, speed: v, _speed: v, _N$speed: v } } : c); applyAndSave({ components: u }) }}
                       style={{ width: 48, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                       title="playback speed"
                     />
@@ -50,7 +50,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                     {([['Dflt', 0], ['Norm', 1], ['Loop', 2], ['Ping', 3], ['Clamp', 4]] as const).map(([l, v]) => {
                       const cur = Number(p.wrapMode ?? p._wrapMode ?? 0)
                       return (
-                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, wrapMode: v, _wrapMode: v } } : c); applyAndSave({ components: u }) }}
+                        <span key={v} onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, wrapMode: v, _wrapMode: v, _N$wrapMode: v } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#fb923c' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#fb923c' : 'var(--text-muted)', userSelect: 'none' }}
                         >{l}</span>
                       )
@@ -92,7 +92,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                 </div>
               )
             }
-            // R1562: cc.Slider — progress + direction Quick Edit
+            // R1562: cc.SkeletalAnimation — CC3.x Quick Edit
             if (comp.type === 'cc.SkeletalAnimation') {
               const speedRatio = Number(p.speedRatio ?? 1)
               const playOnLoad = !!(p.playOnLoad ?? false)
@@ -147,7 +147,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--text-muted)', cursor: 'pointer' }}>
                       <input type="checkbox" checked={!!(p.loop ?? p._loop ?? false)}
-                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked } } : c); applyAndSave({ components: u }) }}
+                        onChange={e => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, loop: e.target.checked, _loop: e.target.checked, _N$loop: e.target.checked } } : c); applyAndSave({ components: u }) }}
                         style={{ margin: 0, accentColor: '#a78bfa' }}
                       />loop
                     </label>
@@ -156,7 +156,7 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
                       const cur = Number(p.defaultCachingMode ?? p._defaultCachingMode ?? 0)
                       return (
                         <span key={v} title={['Realtime', 'Shared', 'Private'][v]}
-                          onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, defaultCachingMode: v, _defaultCachingMode: v } } : c); applyAndSave({ components: u }) }}
+                          onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, defaultCachingMode: v, _defaultCachingMode: v, _N$defaultCachingMode: v } } : c); applyAndSave({ components: u }) }}
                           style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${cur === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: cur === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
                         >{l}</span>
                       )

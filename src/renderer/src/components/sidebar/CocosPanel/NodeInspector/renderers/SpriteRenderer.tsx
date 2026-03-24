@@ -127,8 +127,8 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
               // R1696: spriteFrame uuid 추출
               const sfRaw = p._spriteFrame ?? p.spriteFrame
               const sfUuid = (sfRaw as Record<string,unknown> | null)?.__uuid__ as string | undefined
-              const spriteTypeVal = Number(p.type ?? p._type ?? 0)
-              const sizeModeVal = Number(p.sizeMode ?? p._sizeMode ?? 1)
+              const spriteTypeVal = Number(p.type ?? p._type ?? p._N$type ?? 0)
+              const sizeModeVal = Number(p.sizeMode ?? p._sizeMode ?? p._N$sizeMode ?? 1)
               return (
                 <div key={ci} style={{ marginBottom: 6 }}>
                   <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{comp.type}</div>
@@ -612,7 +612,7 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     <input type="checkbox" checked={visibleWithMouse}
                       onChange={e => {
                         const v = e.target.checked
-                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, visibleWithMouse: v, _N$visibleWithMouse: v } } : c)
+                        const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, visibleWithMouse: v, _visibleWithMouse: v, _N$visibleWithMouse: v } } : c)
                         applyAndSave({ components: updated })
                       }}
                       style={{ margin: 0, accentColor: '#58a6ff' }}
