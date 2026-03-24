@@ -5,7 +5,7 @@ import type { RendererPropsWithSave } from './types'
 export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x, saveScene }: RendererPropsWithSave): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.PageView') {
-              const direction = Number(p.direction ?? p._N$direction ?? 0)
+              const direction = Number(p.direction ?? p._direction ?? p._N$direction ?? 0)
               const scrollThreshold = Number(p.scrollThreshold ?? p._N$scrollThreshold ?? 0.5)
               const autoThreshold = Number(p.autoPageTurningThreshold ?? p._N$autoPageTurningThreshold ?? 0.3)
               // R1847: slideDuration
@@ -80,7 +80,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                     {([['NONE', 0], ['SCROLL', 1], ['FADE', 2]] as const).map(([l, v]) => (
                       <span key={v} title={`effectType=${l}(${v})`}
                         onClick={() => { const u = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, effectType: v, _effectType: v, _N$effectType: v } } : c); applyAndSave({ components: u }) }}
-                        style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${Number(p.effectType ?? p._N$effectType ?? 0) === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: Number(p.effectType ?? p._N$effectType ?? 0) === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
+                        style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: `1px solid ${Number(p.effectType ?? p._effectType ?? p._N$effectType ?? 0) === v ? '#a78bfa' : 'var(--border)'}`, borderRadius: 2, color: Number(p.effectType ?? p._effectType ?? p._N$effectType ?? 0) === v ? '#a78bfa' : 'var(--text-muted)', userSelect: 'none' }}
                       >{l}</span>
                     ))}
                     <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, cursor: 'pointer', marginLeft: 8 }}>
@@ -91,7 +91,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   </div>
                   {/* R1901: autoPageTurningInterval (0=비활성) */}
                   {(() => {
-                    const interval = Number(p.autoPageTurningInterval ?? p._N$autoPageTurningInterval ?? 0)
+                    const interval = Number(p.autoPageTurningInterval ?? p._autoPageTurningInterval ?? p._N$autoPageTurningInterval ?? 0)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 72, whiteSpace: 'nowrap', flexShrink: 0 }}>autoPT sec</span>
@@ -142,9 +142,9 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
             }
             // R2349: cc.PageViewIndicator — direction/spacingX/spacingY Quick Edit
             if (comp.type === 'cc.PageViewIndicator') {
-              const direction = Number(p.direction ?? p._N$direction ?? 0)
-              const spacingX = Number(p.spacingX ?? p._N$spacingX ?? 0)
-              const spacingY = Number(p.spacingY ?? p._N$spacingY ?? 0)
+              const direction = Number(p.direction ?? p._direction ?? p._N$direction ?? 0)
+              const spacingX = Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)
+              const spacingY = Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -183,11 +183,11 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
             }
             // R2340: cc.SpotLight — intensity/range/spotAngle Quick Edit
             if (comp.type === 'cc.ScrollView') {
-              const horizontal = !!(p.horizontal ?? p._N$horizontal ?? false)
-              const vertical = !!(p.vertical ?? p._N$vertical ?? true)
-              const inertia = !!(p.inertia ?? p._N$inertia ?? true)
-              const elastic = !!(p.elastic ?? p._N$elastic ?? true)
-              const brake = Number(p.brake ?? p._N$brake ?? 0.75)
+              const horizontal = !!(p.horizontal ?? p._horizontal ?? p._N$horizontal ?? false)
+              const vertical = !!(p.vertical ?? p._vertical ?? p._N$vertical ?? true)
+              const inertia = !!(p.inertia ?? p._inertia ?? p._N$inertia ?? true)
+              const elastic = !!(p.elastic ?? p._elastic ?? p._N$elastic ?? true)
+              const brake = Number(p.brake ?? p._brake ?? p._N$brake ?? 0.75)
               // R1740: content 자식 노드 찾기 (이름 'content', 대소문자 무시)
               function findContentNode(n: CCSceneNode): CCSceneNode | null {
                 for (const ch of n.children) {
@@ -252,7 +252,7 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
                   </div>
                   {/* R1831: elasticDuration 편집 */}
                   {(() => {
-                    const ed = Number(p.elasticDuration ?? p._N$elasticDuration ?? 0.2)
+                    const ed = Number(p.elasticDuration ?? p._elasticDuration ?? p._N$elasticDuration ?? 0.2)
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>elasticDur</span>

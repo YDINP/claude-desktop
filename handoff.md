@@ -92,8 +92,14 @@
 | 파일 | 비고 |
 |------|------|
 | `CocosPanel/NodeInspector/renderers/LabelRenderer.tsx` | LabelQuickEdit 분리 |
+| `CocosPanel/NodeInspector/renderers/EffectsRenderer.tsx` | Camera/Light _N$* save keys, MotionStreak _N$timeToLive |
+| `CocosPanel/NodeInspector/renderers/UIRenderer.tsx` | Widget 프리셋 _*/_N$* 수정, UITransform/Mask _N$* 추가 |
+| `CocosPanel/NodeInspector/renderers/AnimationRenderer.tsx` | dragonBones _N$blendMode 추가 |
+| `CocosPanel/NodeInspector/renderers/PhysicsRenderer.tsx` | parseInt NaN 폴백 수정 |
+| `CocosPanel/NodeInspector/renderers/ButtonRenderer.tsx` | cc.Toggle ev 패턴, parseFloat/parseInt NaN 폴백 |
+| `CocosPanel/NodeInspector/renderers/SpriteRenderer.tsx` | type/sizeMode fallback, alpha key 추가, _visibleWithMouse 수정 |
 | `CocosPanel/NodeInspector/NodeInspectorView.tsx` | Ctrl+Z/Y, visibleComps useMemo |
-| `CocosPanel/NodeInspector/GenericPropertyEditor.tsx` | COMP_SKIP 확장, 최적화 |
+| `CocosPanel/NodeInspector/GenericPropertyEditor.tsx` | COMP_SKIP 16개 컴포넌트 커버 (Camera/Widget/ProgressBar/UIOpacity/UITransform/Mask/DirectionalLight/PointLight/SpotLight/MotionStreak) |
 | `CocosPanel/NodeInspector/useNodeInspector.tsx` | flushSave ref 안정화 |
 | `SceneView/CCFileSceneView.tsx` | 씬뷰 오버레이 다수 |
 | `main/cc/cc-asset-resolver.ts` | CC 3.x UUID 압축/해제 |
@@ -115,4 +121,6 @@
 
 - CC 3.x UUID 압축 알고리즘: `prefix(5) + Base64(nibble5 + bytes[3..15]) = 23chars`
 - npm audit 잔여 10개 low: electron-builder 체인 (런타임 무관)
-- 다음 후보: R2727+ 신기능, BatchInspector 강화
+- `_N$enabled` false positive 확인됨 — CC 2.x에서 `_enabled`만 사용, 추가 불필요
+- 미감사 렌더러: LayoutRenderer, ParticleRenderer, ScrollViewRenderer (현재 감사 중)
+- 다음 후보: R2727+ 신기능, BatchInspector 강화 (유지)

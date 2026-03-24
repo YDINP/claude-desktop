@@ -5,15 +5,15 @@ import type { RendererProps } from './types'
 export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Layout') {
-              const layoutType = Number(p.type ?? 0)
-              const resizeMode = Number(p.resizeMode ?? 0)
-              const spacingX = Number(p.spacingX ?? 0)
-              const spacingY = Number(p.spacingY ?? 0)
-              const pLeft = Number(p.paddingLeft ?? 0)
-              const pRight = Number(p.paddingRight ?? 0)
-              const pTop = Number(p.paddingTop ?? 0)
-              const pBottom = Number(p.paddingBottom ?? 0)
-              const autoWrap = !!(p.autoWrap ?? false)
+              const layoutType = Number(p.type ?? p._type ?? p._N$type ?? 0)
+              const resizeMode = Number(p.resizeMode ?? p._resizeMode ?? p._N$resizeMode ?? 0)
+              const spacingX = Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)
+              const spacingY = Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)
+              const pLeft = Number(p.paddingLeft ?? p._paddingLeft ?? p._N$paddingLeft ?? 0)
+              const pRight = Number(p.paddingRight ?? p._paddingRight ?? p._N$paddingRight ?? 0)
+              const pTop = Number(p.paddingTop ?? p._paddingTop ?? p._N$paddingTop ?? 0)
+              const pBottom = Number(p.paddingBottom ?? p._paddingBottom ?? p._N$paddingBottom ?? 0)
+              const autoWrap = !!(p.autoWrap ?? p._autoWrap ?? p._N$autoWrap ?? false)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* R2433: enabled (BatchInspector R2197) */}
@@ -109,8 +109,8 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   </div>
                   {/* R1820: direction 버튼 (Horizontal/Vertical/Grid 공통) */}
                   {layoutType !== 0 && (() => {
-                    const hDir = Number(p.horizontalDirection ?? p._N$horizontalDirection ?? 0)
-                    const vDir = Number(p.verticalDirection ?? p._N$verticalDirection ?? 1)
+                    const hDir = Number(p.horizontalDirection ?? p._horizontalDirection ?? p._N$horizontalDirection ?? 0)
+                    const vDir = Number(p.verticalDirection ?? p._verticalDirection ?? p._N$verticalDirection ?? 1)
                     return (
                       <div style={{ display: 'flex', gap: 6 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -136,7 +136,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                   })()}
                   {/* R2355: childAlignment 퀵 편집 */}
                   {(() => {
-                    const childAlign = Number(p.childAlignment ?? p._childAlignment ?? 0)
+                    const childAlign = Number(p.childAlignment ?? p._childAlignment ?? p._N$childAlignment ?? 0)
                     const alignNames: Record<number, string> = { 0: 'None', 1: 'LT', 2: 'CT', 3: 'RT', 4: 'LC', 5: 'C', 6: 'RC', 7: 'LB', 8: 'CB', 9: 'RB' }
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
