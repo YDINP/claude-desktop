@@ -133,6 +133,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [showCrossGuide, setShowCrossGuide] = useState(false)
   // R2511: 선택 노드 엣지-캔버스 거리 가이드선
   const [showEdgeGuides, setShowEdgeGuides] = useState(false)
+  // R2734: 사용자 영구 가이드라인
+  const [userGuides, setUserGuides] = useState<Array<{ type: 'V' | 'H'; pos: number }>>([])
+  const [showUserGuides, setShowUserGuides] = useState(false)
   // R1605: 편집 잠금 (View-only lock)
   const [viewLock, setViewLock] = useState(false)
   // R1610: 비활성 노드 완전 숨기기
@@ -992,6 +995,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     setSelectionBox(null)
   }, [anchorOverride, rotateOverride, dragOverride, resizeOverride, selectionBox, flatNodes, ccToSvg, onAnchorMove, onRotate, onMove, onResize, onSelect])
 
+  // R2734: 가이드라인 추가
+  const addUserGuide = (type: 'V' | 'H') => {
+    const pos = type === 'V' ? effectiveW / 2 : effectiveH / 2
+    setUserGuides(g => [...g, { type, pos }])
+    setShowUserGuides(true)
+  }
+  const clearUserGuides = () => setUserGuides([])
+
   // Fit to view
   const handleFit = useCallback(() => {
     const svg = svgRef.current
@@ -1536,6 +1547,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 <button onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')} title={`그리드: ${gridStyle === 'none' ? '없음' : gridStyle === 'line' ? '선' : '점'}`} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: gridStyle !== 'none' ? 'rgba(88,166,255,0.12)' : 'none', color: gridStyle !== 'none' ? '#58a6ff' : 'var(--text-muted)' }}>{gridStyle === 'dot' ? '· 점' : '⊹ 선'}</button>
                 <button onClick={() => setShowCrossGuide(g => !g)} title="중심선 가이드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrossGuide ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showCrossGuide ? 'rgba(251,146,60,0.1)' : 'none', color: showCrossGuide ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>⊕ 중심선</button>
                 <button onClick={() => setShowEdgeGuides(g => !g)} title="엣지 가이드선" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEdgeGuides ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showEdgeGuides ? 'rgba(129,140,248,0.1)' : 'none', color: showEdgeGuides ? 'rgba(129,140,248,0.9)' : 'var(--text-muted)' }}>⊢ 엣지</button>
+                <button onClick={() => addUserGuide('V')} title="수직 가이드라인 추가 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', opacity: showUserGuides ? 1 : 0.5 }}>┃V</button>
+                <button onClick={() => addUserGuide('H')} title="수평 가이드라인 추가 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', opacity: showUserGuides ? 1 : 0.5 }}>━H</button>
+                <button onClick={() => setShowUserGuides(g => !g)} title="가이드라인 표시/숨김 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUserGuides ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showUserGuides ? 'rgba(251,146,60,0.2)' : 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>🔸</button>
+                <button onClick={clearUserGuides} title="가이드라인 전체 삭제 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>✕G</button>
                 <button onClick={() => setShowRuler(r => !r)} title="눈금자" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showRuler ? 'rgba(88,166,255,0.12)' : 'none', color: showRuler ? '#58a6ff' : 'var(--text-muted)' }}>尺 눈금자</button>
                 <button onClick={() => setShowCrosshair(v => !v)} title="마우스 크로스헤어" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrosshair ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showCrosshair ? 'rgba(148,163,184,0.12)' : 'none', color: showCrosshair ? '#94a3b8' : 'var(--text-muted)' }}>✛ 크로스</button>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -2509,6 +2524,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   : <line key={`ag-h-${i}`} x1={0} y1={g.pos} x2={designW} y2={g.pos} stroke="#ff4488" strokeWidth={1 / view.zoom} opacity={0.7} strokeDasharray={`${4/view.zoom} ${3/view.zoom}`} />
               )}
             </g>
+          )}
+          {/* R2734: 사용자 영구 가이드라인 */}
+          {showUserGuides && userGuides.map((g, i) =>
+            g.type === 'V'
+              ? <line key={`ug-v-${i}`} x1={g.pos} y1={0} x2={g.pos} y2={effectiveH}
+                  stroke="rgba(251,146,60,0.7)" strokeWidth={1 / view.zoom}
+                  strokeDasharray={`${6/view.zoom},${3/view.zoom}`} pointerEvents="none" />
+              : <line key={`ug-h-${i}`} x1={0} y1={g.pos} x2={effectiveW} y2={g.pos}
+                  stroke="rgba(251,146,60,0.7)" strokeWidth={1 / view.zoom}
+                  strokeDasharray={`${6/view.zoom},${3/view.zoom}`} pointerEvents="none" />
           )}
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
           {flatNodes.map(({ node, worldX, worldY, depth }) => {
