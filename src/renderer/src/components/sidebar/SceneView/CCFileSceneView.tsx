@@ -2256,9 +2256,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             <style>{
               [...fontCacheRef.current.entries()]
                 .filter(([, v]) => v.dataUrl)
-                .map(([, { dataUrl, familyName }]) =>
-                  `@font-face { font-family: '${familyName}'; src: url('${dataUrl}'); }`
-                ).join('\n')
+                .map(([, { dataUrl, familyName }]) => {
+                  const safeName = familyName.replace(/['"\\]/g, '_')
+                  return `@font-face { font-family: '${safeName}'; src: url('${dataUrl}'); }`
+                }).join('\n')
             }</style>
           )}
           {/* 캔버스 외부 빗금 패턴 */}
@@ -3150,9 +3151,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const isSystemFont = (labelComp?.props?.isSystemFontUsed as boolean | undefined) ?? true
                   const sysFontFamily = labelComp?.props?.fontFamily as string | undefined
                   const fontUuid = (labelComp?.props?.font as { __uuid__?: string } | undefined)?.__uuid__
+                               ?? (labelComp?.props?._font as { __uuid__?: string } | undefined)?.__uuid__
                                ?? (labelComp?.props?._N$file as { __uuid__?: string } | undefined)?.__uuid__
                                ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
-                               ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
+                               ?? (labelComp?.props?._file as { __uuid__?: string } | undefined)?.__uuid__
                   const cachedFont = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
                   const fontFamilyName = (!isSystemFont && cachedFont?.familyName)
                     || (isSystemFont && sysFontFamily)
@@ -3505,7 +3507,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     || (lc?.props?.fontFamily as string | undefined)
                     || (lc?.props?._fontFamily as string | undefined)
                     || (lc?.props?.['_N$fontFamily'] as string | undefined)
-                    || (!isSystemFont ? fontEntry?.familyName : undefined)
                     || 'sans-serif'
                   // Outline: CC3.x enableOutline 또는 cc.LabelOutline 컴포넌트
                   const enableOutline = !!(lc?.props?.enableOutline ?? lc?.props?._enableOutline ?? false)

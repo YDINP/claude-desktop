@@ -14,9 +14,9 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
               const lifespan = Number(p.life ?? p._life ?? p._N$life ?? 1)
               const lifespanVar = Number(p.lifeVar ?? p._lifeVar ?? p._N$lifeVar ?? 0)
               // R1845: gravity
-              const grav = p.gravity ?? p._gravity ?? p._N$gravity as { x?: number; y?: number } | undefined
-              const gravX = Number((grav as Record<string,number>|undefined)?.x ?? 0)
-              const gravY = Number((grav as Record<string,number>|undefined)?.y ?? 0)
+              const grav = (p.gravity ?? p._gravity ?? p._N$gravity) as { x?: number; y?: number } | undefined
+              const gravX = Number(grav?.x ?? 0)
+              const gravY = Number(grav?.y ?? 0)
               return (
                 <div style={{ padding: '2px 0 4px 2px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* R2436: enabled (BatchInspector R2194) */}
