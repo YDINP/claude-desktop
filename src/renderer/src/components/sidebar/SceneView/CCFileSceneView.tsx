@@ -3515,6 +3515,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {/* Label 텍스트 렌더링 + R1491 더블클릭 인라인 편집 */}
                 {hasLabel && (() => {
                   const lc = node.components.find(c => c.type === 'cc.Label' || c.type === 'Label' || c.type === 'cc.RichText')
+                  // enabled=false 시 라벨 숨기기
+                  if (!(lc?.props?.enabled ?? lc?.props?._enabled ?? true)) return null
                   const str = (lc?.props?.string as string | undefined) ?? (lc?.props?._string as string | undefined) ?? ''
                   if (!str && editingLabelUuid !== node.uuid) return null
                   const fs = Math.min(Math.max((lc?.props?.fontSize as number | undefined) ?? 20, 8), 200)
@@ -3584,16 +3586,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const shadowOffsetProp = (enableShadow
                     ? lc?.props?.shadowOffset
                     : shadowComp?.props?.offset ?? shadowComp?.props?._offset) as { x?: number; y?: number } | undefined
-                  const shOffX = Number(shadowOffsetProp?.x ?? 2) / view.zoom
-                  const shOffY = -Number(shadowOffsetProp?.y ?? -2) / view.zoom
+                  // SVG transform="scale(zoom)"이 적용되므로 shadow 값은 게임 픽셀 그대로 사용
+                  // fontSize={fs}와 동일하게 zoom 보정 없이 → zoom 시 텍스트와 함께 비례 스케일
+                  // (/ view.zoom 제거: 기존 코드에서 shadow가 zoom에 따라 동적으로 변하는 버그 수정)
+                  const shOffX = Number(shadowOffsetProp?.x ?? 2)
+                  const shOffY = -Number(shadowOffsetProp?.y ?? -2)
 
                   const shadowBlurVal = enableShadow
                     ? Number(lc?.props?.shadowBlur ?? lc?.props?._shadowBlur ?? 2)
                     : Number(shadowComp?.props?.blur ?? shadowComp?.props?._blur ?? 2)
-                  const shBlur = shadowBlurVal / view.zoom
+                  const shBlur = shadowBlurVal
 
                   // Gradient: CC3.x enableGradient
                   const enableGradient = !!(lc?.props?.enableGradient ?? lc?.props?._enableGradient ?? false)
+                  // DashLine: CC3.x enableDashLine
+                  const enableDashLine = !!(lc?.props?.enableDashLine ?? lc?.props?._enableDashLine ?? lc?.props?.['_N$enableDashLine'] ?? false)
                   const colorTopProp = lc?.props?.colorTop as { r?: number; g?: number; b?: number } | undefined
                   const colorBotProp = lc?.props?.colorBottom as { r?: number; g?: number; b?: number } | undefined
                   const { r: gtr = cr, g: gtg = cg, b: gtb = cb } = colorTopProp ?? {}
@@ -3679,6 +3686,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           </tspan>
                         ))}
                       </text>
+                      {enableDashLine && lines.map((line, i) => {
+                        const dashY = lines.length === 1
+                          ? textY + fs * 0.2 / view.zoom
+                          : startY + i * lineH + fs * 0.2 / view.zoom
+                        return (
+                          <line
+                            key={`dash-${i}`}
+                            x1={rectX} y1={dashY}
+                            x2={rectX + Math.max(w, 1)} y2={dashY}
+                            stroke={`rgb(${cr},${cg},${cb})`}
+                            strokeWidth={Math.max(fs * 0.06 / view.zoom, 0.5)}
+                            strokeDasharray={`${Math.max(fs * 0.3 / view.zoom, 2)},${Math.max(fs * 0.15 / view.zoom, 1)}`}
+                            clipPath={needsClip ? `url(#${clipId})` : undefined}
+                            style={{ pointerEvents: 'none' }}
+                          />
+                        )
+                      })}
                     </>
                   )
                 })()}

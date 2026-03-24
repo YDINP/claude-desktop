@@ -232,7 +232,14 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                             const fontRef = { __uuid__: data.uuid }
                             applyAndSave({
                               components: draft.components.map((c, i) =>
-                                i === origIdx ? { ...c, props: { ...c.props, font: fontRef, _N$file: fontRef } } : c
+                                i === origIdx ? {
+                                  ...c, props: {
+                                    ...c.props,
+                                    font: fontRef, _font: fontRef, _N$font: fontRef,
+                                    file: fontRef, _file: fontRef, _N$file: fontRef,
+                                    isSystemFontUsed: false, _isSystemFontUsed: false, _N$isSystemFontUsed: false,
+                                  }
+                                } : c
                               )
                             })
                           }

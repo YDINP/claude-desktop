@@ -94,6 +94,23 @@ const win = new BrowserWindow({
     }
   })
 
+  // 복사/붙여넣기 context-menu: 텍스트 편집 영역 우클릭 시 기본 메뉴 제공
+  win.webContents.on('context-menu', (_e, params) => {
+    const { editFlags, selectionText, isEditable } = params
+    if (!isEditable && !selectionText) return
+
+    const items: Electron.MenuItemConstructorOptions[] = []
+    if (editFlags.canUndo) items.push({ role: 'undo' })
+    if (editFlags.canRedo) items.push({ role: 'redo' })
+    if (items.length) items.push({ type: 'separator' })
+    if (editFlags.canCut) items.push({ role: 'cut' })
+    if (editFlags.canCopy || selectionText) items.push({ role: 'copy' })
+    if (editFlags.canPaste) items.push({ role: 'paste' })
+    if (editFlags.canSelectAll) items.push({ type: 'separator' }, { role: 'selectAll' })
+
+    if (items.length) Menu.buildFromTemplate(items).popup({ window: win })
+  })
+
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url)
     return { action: 'deny' }
