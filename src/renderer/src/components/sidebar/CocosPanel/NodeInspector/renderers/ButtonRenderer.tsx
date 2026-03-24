@@ -241,7 +241,7 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                       <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>duration</span>
                       <input type="number" defaultValue={duration} min={0} step={0.05}
                         onBlur={e => {
-                          const v = parseFloat(e.target.value) ?? 0.1
+                          const v = parseFloat(e.target.value) || 0.1
                           const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, duration: v, _duration: v, _N$duration: v } } : c)
                           applyAndSave({ components: updated })
                         }}

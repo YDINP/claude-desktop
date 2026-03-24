@@ -922,3 +922,7 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2726 | SceneView collapsedUuids 연동 — 씬 트리에서 접힌 노드 자식을 SceneView에서도 숨김 (flatNodes useMemo + collapsedUuids prop) | ✅ |
 | /ultrawork 리팩토링 | AssetBrowser.tsx 880→639줄(assetUtils/AssetThumbnailPopup/TreeSearch 분리), SceneTree.tsx 530→360줄(GroupPanel 분리), useNodeInspector.tsx 816→683줄(useNodeClipboards/useNodePresets 분리) — commit 888662e6 | ✅ |
 | electron 업그레이드 | 33→35.7.5 (ASAR Integrity Bypass 취약점 수정) | ✅ |
+
+| R2727 | BatchInspector 회전 프리셋 버튼 (0°/45°/90°/180°/270° + Δ증감) | ✅ |
+| R2728 | BatchInspector 스케일 프리셋 버튼 (×0.5/1/1.5/2 + XY연동 배수) | ✅ |
+| R2729 | BatchInspector 편집 히스토리 플러그인 (localStorage, 자동/수동 기록, 클릭 재선택) | ✅ |

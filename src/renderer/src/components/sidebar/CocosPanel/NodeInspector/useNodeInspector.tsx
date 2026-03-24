@@ -319,70 +319,74 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   // useNodePresets에서 setPropHistory를 참조하기 위한 임시 ref — applyAndSave에서 사용
   const setPropHistoryRef = useRef<React.Dispatch<React.SetStateAction<PropHistoryEntry[]>> | null>(null)
 
-  // 노드 값 패치 후 씬 저장 (draft는 즉시 반영, saveScene은 50ms debounce)
+  // 노드 값 패치 후 씬 저장 (setDraft functional updater로 stale closure 방지)
   const applyAndSave = useCallback((patch: Partial<CCSceneNode>) => {
     if (!sceneFile.root) return
-    const updated = { ...draft, ...patch }
-    setDraft(updated)
 
-    // R699: changeHistory 이력 추가
-    const patchKeysForHistory = Object.keys(patch)
-    if (patchKeysForHistory.length > 0) {
-      const historyEntry = {
-        timestamp: Date.now(),
-        prop: patchKeysForHistory[0],
-        oldVal: (draft as Record<string, unknown>)[patchKeysForHistory[0]],
-        newVal: (patch as Record<string, unknown>)[patchKeysForHistory[0]],
+    setDraft(prev => {
+      const updated = { ...prev, ...patch }
+
+      // R699: changeHistory 이력 추가
+      const patchKeysForHistory = Object.keys(patch)
+      if (patchKeysForHistory.length > 0) {
+        const historyEntry = {
+          timestamp: Date.now(),
+          prop: patchKeysForHistory[0],
+          oldVal: (prev as Record<string, unknown>)[patchKeysForHistory[0]],
+          newVal: (patch as Record<string, unknown>)[patchKeysForHistory[0]],
+        }
+        setChangeHistory(h => [historyEntry, ...h].slice(0, 20))
       }
-      setChangeHistory(prev => [historyEntry, ...prev].slice(0, 20))
-    }
 
-    // Round 643: dirty + undo 스택
-    setIsDirty(true)
-    const patchKeys = Object.keys(patch)
-    if (patchKeys.length > 0) {
-      const prevPatch: Partial<CCSceneNode> = {}
-      for (const k of patchKeys) {
-        ;(prevPatch as Record<string, unknown>)[k] = (draft as Record<string, unknown>)[k]
+      // Round 643: dirty + undo 스택
+      setIsDirty(true)
+      const patchKeys = Object.keys(patch)
+      if (patchKeys.length > 0) {
+        const prevPatch: Partial<CCSceneNode> = {}
+        for (const k of patchKeys) {
+          ;(prevPatch as Record<string, unknown>)[k] = (prev as Record<string, unknown>)[k]
+        }
+        setUndoStack(s => [prevPatch, ...s].slice(0, 10))
+        setRedoStack([])
       }
-      setUndoStack(prev => [prevPatch, ...prev].slice(0, 10))
-      setRedoStack([])
-    }
 
-    // Round 611: 히스토리 기록
-    if (patchKeys.length > 0) {
-      const propKey = patchKeys[0]
-      const oldValue = (draft as Record<string, unknown>)[propKey]
-      const newValue = (patch as Record<string, unknown>)[propKey]
-      const entry: PropHistoryEntry = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        propKey,
-        nodeName: draft.name ?? draft.uuid,
-        oldValue,
-        newValue,
-        ts: Date.now(),
+      // Round 611: 히스토리 기록
+      if (patchKeys.length > 0) {
+        const propKey = patchKeys[0]
+        const oldValue = (prev as Record<string, unknown>)[propKey]
+        const newValue = (patch as Record<string, unknown>)[propKey]
+        const entry: PropHistoryEntry = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          propKey,
+          nodeName: prev.name ?? prev.uuid,
+          oldValue,
+          newValue,
+          ts: Date.now(),
+        }
+        if (setPropHistoryRef.current) {
+          setPropHistoryRef.current(ph => {
+            const next = [entry, ...ph].slice(0, 15)
+            localStorage.setItem(PROP_HISTORY_KEY, JSON.stringify(next))
+            return next
+          })
+        }
       }
-      if (setPropHistoryRef.current) {
-        setPropHistoryRef.current(prev => {
-          const next = [entry, ...prev].slice(0, 15)
-          localStorage.setItem(PROP_HISTORY_KEY, JSON.stringify(next))
-          return next
-        })
+
+      // sceneFile.root에서 uuid 찾아 교체
+      function replaceNode(n: CCSceneNode): CCSceneNode {
+        if (n.uuid === updated.uuid) return updated
+        return { ...n, children: n.children.map(replaceNode) }
       }
-    }
+      const newRoot = replaceNode(sceneFile.root!)
 
-    // sceneFile.root에서 uuid 찾아 교체
-    function replaceNode(n: CCSceneNode): CCSceneNode {
-      if (n.uuid === updated.uuid) return updated
-      return { ...n, children: n.children.map(replaceNode) }
-    }
-    const newRoot = replaceNode(sceneFile.root)
+      // debounce: 50ms 이내 연속 호출 시 마지막 것만 저장
+      pendingSaveRef.current = { updated, root: newRoot }
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      saveTimerRef.current = setTimeout(() => { flushSave() }, 50)
 
-    // debounce: 50ms 이내 연속 호출 시 마지막 것만 저장
-    pendingSaveRef.current = { updated, root: newRoot }
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
-    saveTimerRef.current = setTimeout(() => { flushSave() }, 50)
-  }, [draft, sceneFile, flushSave])
+      return updated
+    })
+  }, [sceneFile, flushSave])
 
   // Round 643: Undo/Redo
   const handleUndo = useCallback(() => {

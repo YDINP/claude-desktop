@@ -3477,7 +3477,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     || (lc?.props?._fontFamily as string | undefined)
                     || (lc?.props?.['_N$fontFamily'] as string | undefined)
                     || (!isSystemFont ? fontEntry?.familyName : undefined)
-                    || undefined
+                    || 'sans-serif'
                   // Outline: CC3.x enableOutline 또는 cc.LabelOutline 컴포넌트
                   const enableOutline = !!(lc?.props?.enableOutline ?? lc?.props?._enableOutline ?? false)
                   const outlineComp = node.components.find(c => c.type === 'cc.LabelOutline')
@@ -3503,7 +3503,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     ? lc?.props?.shadowOffset
                     : shadowComp?.props?.offset ?? shadowComp?.props?._offset) as { x?: number; y?: number } | undefined
                   const shOffX = Number(shadowOffsetProp?.x ?? 2) / view.zoom
-                  const shOffY = Number(shadowOffsetProp?.y ?? -2) / view.zoom
+                  const shOffY = -Number(shadowOffsetProp?.y ?? -2) / view.zoom
 
                   const shadowBlurVal = enableShadow
                     ? Number(lc?.props?.shadowBlur ?? lc?.props?._shadowBlur ?? 2)
@@ -3557,13 +3557,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   return (
                     <>
                       {needsClip && (
-                        <clipPath id={clipId}>
-                          <rect x={rectX} y={rectY} width={Math.max(w, 0)} height={Math.max(h, 0)} />
-                        </clipPath>
+                        <defs>
+                          <clipPath id={clipId}>
+                            <rect x={rectX} y={rectY} width={Math.max(w, 0)} height={Math.max(h, 0)} />
+                          </clipPath>
+                        </defs>
                       )}
                       {enableGradient && gradientId && (
                         <defs>
-                          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                          <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1={rectX} y1={rectY} x2={rectX} y2={rectY + Math.max(h, 1)}>
                             <stop offset="0%" stopColor={`rgb(${gtr},${gtg},${gtb})`} />
                             <stop offset="100%" stopColor={`rgb(${gbr},${gbg},${gbb})`} />
                           </linearGradient>

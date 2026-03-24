@@ -10,6 +10,7 @@ import { ComponentPlugin } from './component'
 import { MiscPlugin } from './misc'
 import { PresetPlugin } from './preset'
 import { FilterPlugin } from './filter'
+import { HistoryPlugin } from './history'
 
 /** 등록된 모든 배치 플러그인 */
 export const BATCH_PLUGINS: BatchPlugin[] = [
@@ -68,6 +69,13 @@ export const BATCH_PLUGINS: BatchPlugin[] = [
     title: '프리셋',
     minNodes: 1,
     Component: PresetPlugin,
+  },
+  {
+    id: 'history-group',
+    group: 'misc',
+    title: '편집 이력',
+    minNodes: 0,
+    Component: HistoryPlugin,
   },
 ]
 

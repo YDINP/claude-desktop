@@ -5,7 +5,39 @@
 
 ## 현재 이슈
 
-없음 (QA 2621 Pass / 0 Warning / 0 Critical)
+없음 (QA 2616 Pass / 0 Warning / 0 Critical)
+
+---
+
+## 최근 주요 작업 (2026-03-24 전수검사 2·3차)
+
+### 전수검사 2·3차 — 인스펙터 렌더러 종합 수정
+
+**커밋:** `fa6f59de`, `e1ba89ff`, `3d62333b`
+
+#### Critical
+- **LabelRenderer**: `showRichPreview` useState 미선언 → cc.RichText 렌더링 시 런타임 crash 수정
+
+#### High (save key 정확도)
+- **SpriteRenderer**: `type`/`sizeMode` 초기값 읽기에 `_N$type`/`_N$sizeMode` fallback 추가
+- **SpriteRenderer**: `visibleWithMouse` 저장 시 `_visibleWithMouse` 누락 수정
+- **LabelRenderer**: 구형 inline LabelOutline `_N$width`, LabelShadow `_N$blur`, LabelOutline/Shadow `color` → `_N$color` 추가
+- **EffectsRenderer**: cc.Camera 9개 prop `_N$*` 추가 (fov/orthoHeight/near/far/clearDepth/ortho/cullingMask); Light 6개 prop `_N$*` 추가; MotionStreak `_N$timeToLive` 추가
+- **UIRenderer**: UITransform `priority`/`anchorPoint`, cc.Mask `type` `_N$*` 추가; Widget 프리셋(Stretch/Center/None) `_*`/`_N$*` 완전 누락 수정 → CC 2.x에서 프리셋 미적용 버그 해소
+- **AnimationRenderer**: dragonBones `blendMode` → `_N$blendMode` 추가
+- **GenericPropertyEditor**: COMP_SKIP에 10개 컴포넌트 추가 (Camera/Widget/ProgressBar/UIOpacity/UITransform/Mask/DirectionalLight/PointLight/SpotLight/MotionStreak) → 전용 렌더러 중복 표시 해소
+
+#### Medium
+- **LabelRenderer**: `labelColorRaw` `_color`/`_N$color` fallback, `isStrikethrough` `_isStrikethrough` key, `fontColor` as-cast 우선순위, `useEffect` sceneFile deps, `handleTouchEvent` `_N$handleTouchEvent` (2곳)
+- **EffectsRenderer**: MotionStreak `color` 읽기 `_color` fallback + as-cast 수정; Light `intensity` 읽기 `_N$intensity` fallback
+- **SpriteRenderer**: alpha input `key` prop 추가 (uncontrolled stale 방지)
+- **ButtonRenderer/AnimationRenderer/PhysicsRenderer**: `parseFloat`/`parseInt` + `??` → `||` NaN 폴백 수정
+
+#### QA Warning (7건 해소)
+- R1790/R1892/R2280/R2309/R2341/R2365/R2412/R2426
+
+#### 검증된 false positive
+- `_N$enabled` — CC 2.x 실제 씬 파일에서 `_enabled`만 사용, 추가 불필요
 
 ---
 
@@ -60,8 +92,14 @@
 | 파일 | 비고 |
 |------|------|
 | `CocosPanel/NodeInspector/renderers/LabelRenderer.tsx` | LabelQuickEdit 분리 |
+| `CocosPanel/NodeInspector/renderers/EffectsRenderer.tsx` | Camera/Light _N$* save keys, MotionStreak _N$timeToLive |
+| `CocosPanel/NodeInspector/renderers/UIRenderer.tsx` | Widget 프리셋 _*/_N$* 수정, UITransform/Mask _N$* 추가 |
+| `CocosPanel/NodeInspector/renderers/AnimationRenderer.tsx` | dragonBones _N$blendMode 추가 |
+| `CocosPanel/NodeInspector/renderers/PhysicsRenderer.tsx` | parseInt NaN 폴백 수정 |
+| `CocosPanel/NodeInspector/renderers/ButtonRenderer.tsx` | cc.Toggle ev 패턴, parseFloat/parseInt NaN 폴백 |
+| `CocosPanel/NodeInspector/renderers/SpriteRenderer.tsx` | type/sizeMode fallback, alpha key 추가, _visibleWithMouse 수정 |
 | `CocosPanel/NodeInspector/NodeInspectorView.tsx` | Ctrl+Z/Y, visibleComps useMemo |
-| `CocosPanel/NodeInspector/GenericPropertyEditor.tsx` | COMP_SKIP 확장, 최적화 |
+| `CocosPanel/NodeInspector/GenericPropertyEditor.tsx` | COMP_SKIP 16개 컴포넌트 커버 (Camera/Widget/ProgressBar/UIOpacity/UITransform/Mask/DirectionalLight/PointLight/SpotLight/MotionStreak) |
 | `CocosPanel/NodeInspector/useNodeInspector.tsx` | flushSave ref 안정화 |
 | `SceneView/CCFileSceneView.tsx` | 씬뷰 오버레이 다수 |
 | `main/cc/cc-asset-resolver.ts` | CC 3.x UUID 압축/해제 |
@@ -73,8 +111,9 @@
 
 ## QA 상태
 
-- **현재**: 2621 Pass, 0 Warning, 0 Critical
+- **현재**: 2616 Pass, 0 Warning, 0 Critical
 - Warning 기존 12건 → 모두 해결 (씬뷰 오버레이/통계 구현)
+- 전수검사 2·3차 이후 추가 Warning 7건 발견·해소
 
 ---
 
@@ -82,4 +121,6 @@
 
 - CC 3.x UUID 압축 알고리즘: `prefix(5) + Base64(nibble5 + bytes[3..15]) = 23chars`
 - npm audit 잔여 10개 low: electron-builder 체인 (런타임 무관)
-- 다음 후보: R2727+ 신기능, BatchInspector 강화
+- `_N$enabled` false positive 확인됨 — CC 2.x에서 `_enabled`만 사용, 추가 불필요
+- 미감사 렌더러: LayoutRenderer, ParticleRenderer, ScrollViewRenderer (현재 감사 중)
+- 다음 후보: R2727+ 신기능, BatchInspector 강화 (유지)
