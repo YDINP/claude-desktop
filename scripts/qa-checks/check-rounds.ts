@@ -2655,6 +2655,9 @@ export const ROUND_CHECKS: RoundCheck[] = [
   { round: 'R2737-label-text-batch', file: 'src/renderer/src/domains/cocos/plugins/name.tsx', keywords: ['R2737', 'labelText', 'applyLabelText'], operator: 'and', failLevel: 'warning', passMsg: 'R2737 Label 텍스트 일괄 수정 구현 완료', failMsg: 'R2737 Label 텍스트 일괄 수정 미구현', failFile: 'name.tsx' },
   { round: 'R2739-opacity-gradient', file: 'src/renderer/src/domains/cocos/plugins/color.tsx', keywords: ['R2739', 'opacGradFrom', 'applyOpacGrad'], operator: 'and', failLevel: 'warning', passMsg: 'R2739 opacity 그라데이션 구현 완료', failMsg: 'R2739 opacity 그라데이션 미구현', failFile: 'color.tsx' },
   { round: 'R2740-guide-drag', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['R2740', 'guideDragRef', 'addUserGuide'], operator: 'and', failLevel: 'warning', passMsg: 'R2740 가이드라인 드래그 이동 구현 완료', failMsg: 'R2740 가이드라인 드래그 이동 미구현', failFile: 'CCFileSceneView.tsx' },
+  { round: 'R2741-qa-checks', file: 'scripts/qa-checks/check-rounds.ts', keywords: ['R2739-opacity-gradient', 'R2740-guide-drag'], operator: 'and', failLevel: 'warning', passMsg: 'R2741 QA 체크 추가 완료 (R2739/R2740)', failMsg: 'R2741 QA 체크 미추가', failFile: 'check-rounds.ts' },
+  { round: 'R2742-guide-snap', file: 'src/renderer/src/components/sidebar/SceneView/CCFileSceneView.tsx', keywords: ['R2742', 'SNAP_THRESH', 'userGuides'], operator: 'and', failLevel: 'warning', passMsg: 'R2742 가이드라인 snap 구현 완료', failMsg: 'R2742 가이드라인 snap 미구현', failFile: 'CCFileSceneView.tsx' },
+  { round: 'R2743-brightness', file: 'src/renderer/src/domains/cocos/plugins/color.tsx', keywords: ['R2743', 'brightDelta', 'applyBrightness'], operator: 'and', failLevel: 'warning', passMsg: 'R2743 색상 밝기 조절 구현 완료', failMsg: 'R2743 색상 밝기 조절 미구현', failFile: 'color.tsx' },
 ]
 
 export const MULTI_FILE_CHECKS: MultiFileCheck[] = [
