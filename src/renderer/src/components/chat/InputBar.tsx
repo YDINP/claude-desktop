@@ -596,7 +596,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           description: r.description,
           category: 'workflow' as const,
           workflowPath: r.filePath,
-          icon: '📄',
+          // 글로벌 Claude Code 스킬 🔧 / 프로젝트 커맨드 📌 / 워크플로우 📄
+          icon: r.source === 'global-commands' ? '🔧' : r.source === 'commands' ? '📌' : '📄',
         }))
         SlashCommandRegistry.setWorkflows(wfCmds)
       }).catch(() => {})
