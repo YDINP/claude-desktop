@@ -120,7 +120,17 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
       // prefab 파일 읽기 + 파싱 (readFile → JSON parse → 루트 노드 추출)
       const prefabContent = await window.api.readFile(entry.path)
       if (!prefabContent) { setInstantiating(null); return }
-      const prefabRaw = JSON.parse(prefabContent) as Record<string, unknown>[]
+      if (prefabContent.length > 5 * 1024 * 1024) {
+        console.warn('[AssetBrowser] prefab too large:', entry.path)
+        setInstantiating(null); return
+      }
+      let prefabRaw: Record<string, unknown>[]
+      try {
+        prefabRaw = JSON.parse(prefabContent) as Record<string, unknown>[]
+      } catch (e) {
+        console.warn('[AssetBrowser] prefab parse error:', entry.path, e)
+        setInstantiating(null); return
+      }
       if (!Array.isArray(prefabRaw)) {
         console.warn('Invalid prefab format: expected array')
         return

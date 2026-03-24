@@ -4,7 +4,7 @@ import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
 
 export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }: BatchPluginProps) {
-  const uuids = nodes.map(n => n.uuid)
+  const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   const { patchNodes, patchComponents } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
@@ -107,7 +107,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
             indices.forEach((idx, i) => { result[idx] = selected[i] })
             return { ...n, children: result }
           }
-          await saveScene({ ...sceneFile, root: walkNameSort(sceneFile.root!) } as unknown as CCSceneNode)
+          await saveScene(walkNameSort(sceneFile.root!))
           setBatchMsg(`✓ 이름 ${dir === 'asc' ? 'A→Z' : 'Z→A'} Z-order 정렬`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -515,7 +515,6 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
       {uuids.length >= 1 && (() => {
         const applyLabelText = async () => {
           if (!labelText && labelMode === 'set') return
-          const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
           await patchComponents(
             c => c.type === 'cc.Label',
             c => {
@@ -525,7 +524,6 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
             },
             `Label텍스트 ${labelMode}="${labelText}" (${uuids.length}개)`,
           )
-          void inS
         }
         const inS: React.CSSProperties = { fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', minWidth: 80 }
         return (

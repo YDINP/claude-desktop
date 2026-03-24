@@ -92,7 +92,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
                 if (n.uuid === uuidB) return { ...n, position: posA, children }
                 return { ...n, children }
               }
-              await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+              await saveScene(patch(sceneFile.root))
               setBatchMsg('✓ 위치 교환 (R2531)')
               setTimeout(() => setBatchMsg(null), 2000)
             }}
@@ -485,7 +485,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             if (n.uuid === b.uuid) return { ...n, position: { ...a.pos }, children: ch }
             return { ...n, children: ch }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
@@ -544,7 +544,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             if (!p) return { ...n, children: ch }
             return { ...n, position: { ...n.position, ...p }, children: ch }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
           setBatchMsg(`✓ 위치 ${axis.toUpperCase()} 미러 (${selNodes.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -623,7 +623,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             const pos = n.position as { x: number; y: number; z?: number }
             return { ...n, position: { ...pos, x: Math.round(p.x), y: Math.round(p.y) }, children: ch }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
           setBatchMsg(`✓ 격자 배치 ${cols}열 (${count}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -671,7 +671,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             indices.forEach((idx, i) => { result[idx] = selected[i] })
             return { ...n, children: result }
           }
-          await saveScene({ ...sceneFile, root: walkSort(sceneFile.root!) } as unknown as CCSceneNode)
+          await saveScene(walkSort(sceneFile.root!))
           setBatchMsg(`✓ ${axis.toUpperCase()}축 위치 순 Z-order 정렬 — R2582`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -697,7 +697,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             const result = dir === 'front' ? [...others, ...selCh] : [...selCh, ...others]
             return { ...n, children: result }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
           setBatchMsg(`✓ ${dir === 'front' ? '최전면' : '최후면'} 이동 (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
@@ -735,7 +735,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             const cloned = selChildren.map(c => deepClone(c, cloneOffsetX, cloneOffsetY, true))
             return { ...n, children: [...ch, ...cloned] }
           }
-          await saveScene({ ...sceneFile, root: patch(sceneFile.root) })
+          await saveScene(patch(sceneFile.root))
           setBatchMsg(`✓ 복제 +${cloneOffsetX},${cloneOffsetY} (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }

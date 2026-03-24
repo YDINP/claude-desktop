@@ -10190,7 +10190,7 @@ export function ComponentPlugin({ nodes, sceneFile, saveScene, onMultiSelectChan
             }
             const newRoot = patch(sceneFile.root)
             if (count === 0) { setBatchMsg('⚠ 매칭 없음'); setTimeout(() => setBatchMsg(null), 2000); return }
-            await saveScene({ ...sceneFile, root: newRoot })
+            await saveScene(newRoot)
             setBatchMsg(`✓ 조건부 ${condActiveValue} ${count}개`)
             setTimeout(() => setBatchMsg(null), 2000)
           }}

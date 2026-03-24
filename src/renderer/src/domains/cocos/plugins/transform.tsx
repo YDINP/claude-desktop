@@ -4,7 +4,7 @@ import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
 
 export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onMultiSelectChange, lockedUuids, onSetLockedUuids }: BatchPluginProps) {
-  const uuids = nodes.map(n => n.uuid)
+  const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
   const uuidSet = useMemo(() => new Set(uuids), [uuids])
   const [batchMsg, setBatchMsg] = useState<string | null>(null)
   const { patchNodes, patchOrdered } = useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMsg })
@@ -98,7 +98,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         return { ...n, children: moved }
       }
     }
-    await saveScene({ ...sceneFile, root: patch(sceneFile.root) } as unknown as CCSceneNode)
+    await saveScene(patch(sceneFile.root))
     setBatchMsg(`Z-Order ${dir}`)
     setTimeout(() => setBatchMsg(null), 2000)
   }, [sceneFile, uuidSet, saveScene])
