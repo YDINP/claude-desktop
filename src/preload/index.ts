@@ -108,35 +108,6 @@ contextBridge.exposeInMainWorld('api', {
   getProjectSystemPrompt: (projectPath: string) => ipcRenderer.invoke('project:getSystemPrompt', projectPath),
   setProjectSystemPrompt: (projectPath: string, prompt: string) => ipcRenderer.invoke('project:setSystemPrompt', { projectPath, prompt }),
 
-  // Git
-  gitStatus: (cwd: string) => ipcRenderer.invoke('git:status', { cwd }),
-  gitFileDiff: (cwd: string, filePath: string, staged: boolean) =>
-    ipcRenderer.invoke('git:fileDiff', { cwd, filePath, staged }),
-  gitDiff: (repoPath: string, filePath: string) => ipcRenderer.invoke('git:diff', { repoPath, filePath }),
-  gitStatusFull: (repoPath: string) => ipcRenderer.invoke('git:statusFull', { repoPath }),
-  gitStage: (repoPath: string, filePath: string) => ipcRenderer.invoke('git:stage', { repoPath, filePath }),
-  gitUnstage: (repoPath: string, filePath: string) => ipcRenderer.invoke('git:unstage', { repoPath, filePath }),
-  gitCommit: (repoPath: string, message: string) => ipcRenderer.invoke('git:commit', { repoPath, message }),
-  gitLog: (repoPath: string, limit?: number) => ipcRenderer.invoke('git:log', { repoPath, limit }),
-  gitGenerateCommitMessage: (repoPath: string) => ipcRenderer.invoke('git:generateCommitMessage', { repoPath }),
-  gitBranches: (cwd: string) => ipcRenderer.invoke('git:branches', { cwd }),
-  gitCheckout: (cwd: string, branch: string) => ipcRenderer.invoke('git:checkout', { cwd, branch }),
-  gitCreateBranch: (cwd: string, name: string) => ipcRenderer.invoke('git:createBranch', { cwd, name }),
-  gitDeleteBranch: (cwd: string, name: string, force?: boolean) => ipcRenderer.invoke('git:deleteBranch', { cwd, name, force }),
-  gitStashList: (cwd: string) => ipcRenderer.invoke('git:stashList', { cwd }),
-  gitStashPush: (cwd: string, message?: string) => ipcRenderer.invoke('git:stashPush', { cwd, message }),
-  gitStashPop: (cwd: string, ref?: string) => ipcRenderer.invoke('git:stashPop', { cwd, ref }),
-  gitStashDrop: (cwd: string, ref: string) => ipcRenderer.invoke('git:stashDrop', { cwd, ref }),
-  gitShow: (cwd: string, hash: string) => ipcRenderer.invoke('git:show', { cwd, hash }),
-  gitRestoreFile: (cwd: string, filePath: string) => ipcRenderer.invoke('git:restoreFile', { cwd, filePath }),
-  gitBlame: (cwd: string, filePath: string) => ipcRenderer.invoke('git:blame', { cwd, filePath }),
-  gitFetch: (cwd: string) => ipcRenderer.invoke('git:fetch', { cwd }),
-  gitUndoLastCommit: (cwd: string) => ipcRenderer.invoke('git:undoLastCommit', { cwd }),
-  gitCleanUntracked: (cwd: string) => ipcRenderer.invoke('git:cleanUntracked', { cwd }),
-  gitListTags: (cwd: string) => ipcRenderer.invoke('git:listTags', { cwd }),
-  gitCreateTag: (cwd: string, name: string, message?: string) => ipcRenderer.invoke('git:createTag', { cwd, name, message }),
-  gitDeleteTag: (cwd: string, name: string) => ipcRenderer.invoke('git:deleteTag', { cwd, name }),
-
   // Sessions
   sessionSave: (session: unknown) => ipcRenderer.invoke('session:save', session),
   sessionList: () => ipcRenderer.invoke('session:list'),
@@ -438,32 +409,6 @@ declare global {
       setOpenWorkspaces: (workspaces: Array<{ path: string; openTabs: string[]; activeTab: string }>, activePath: string | null) => void
       getProjectSystemPrompt: (projectPath: string) => Promise<string>
       setProjectSystemPrompt: (projectPath: string, prompt: string) => Promise<boolean>
-      gitStatus: (cwd: string) => Promise<{ branch: string | null; changed: number } | null>
-      gitFileDiff: (cwd: string, filePath: string, staged: boolean) => Promise<{ diff: string }>
-      gitDiff: (repoPath: string, filePath: string) => Promise<{ diff: string }>
-      gitStatusFull: (repoPath: string) => Promise<{ files: Array<{ path: string; status: string; staged: boolean; unstaged: boolean }>; branch: string; lastCommit: string; error?: string }>
-      gitStage: (repoPath: string, filePath: string) => Promise<{ ok?: boolean; error?: string }>
-      gitUnstage: (repoPath: string, filePath: string) => Promise<{ ok?: boolean; error?: string }>
-      gitCommit: (repoPath: string, message: string) => Promise<{ ok?: boolean; error?: string }>
-      gitLog: (repoPath: string, limit?: number) => Promise<{ commits: Array<{ hash?: string; short?: string; subject?: string; author?: string; date?: string }>; error?: string }>
-      gitShow: (cwd: string, hash: string) => Promise<string>
-      gitRestoreFile: (cwd: string, filePath: string) => Promise<{ success: boolean; error?: string }>
-      gitGenerateCommitMessage: (repoPath: string) => Promise<{ message: string }>
-      gitBranches: (cwd: string) => Promise<{ branches: Array<{ name: string; upstream: string; isCurrent: boolean; isRemote: boolean }> }>
-      gitCheckout: (cwd: string, branch: string) => Promise<{ success: boolean; error?: string }>
-      gitCreateBranch: (cwd: string, name: string) => Promise<{ success: boolean; error?: string }>
-      gitDeleteBranch: (cwd: string, name: string, force?: boolean) => Promise<{ success: boolean; error?: string }>
-      gitStashList: (cwd: string) => Promise<{ entries: Array<{ ref: string; message: string; date: string }> }>
-      gitStashPush: (cwd: string, message?: string) => Promise<{ success: boolean; error?: string }>
-      gitStashPop: (cwd: string, ref?: string) => Promise<{ success: boolean; error?: string }>
-      gitStashDrop: (cwd: string, ref: string) => Promise<{ success: boolean; error?: string }>
-      gitBlame: (cwd: string, filePath: string) => Promise<Array<{ hash: string; author: string; date: string; lineNo: number }>>
-      gitFetch: (cwd: string) => Promise<{ success: boolean; output?: string; error?: string }>
-      gitUndoLastCommit: (cwd: string) => Promise<{ success: boolean; output?: string; error?: string }>
-      gitCleanUntracked: (cwd: string) => Promise<{ success: boolean; output?: string; error?: string }>
-      gitListTags: (cwd: string) => Promise<string[]>
-      gitCreateTag: (cwd: string, name: string, message?: string) => Promise<{ success: boolean; error?: string }>
-      gitDeleteTag: (cwd: string, name: string) => Promise<{ success: boolean; error?: string }>
       sessionSave: (session: unknown) => Promise<boolean>
       sessionList: () => Promise<unknown[]>
       sessionLoad: (id: string) => Promise<unknown>

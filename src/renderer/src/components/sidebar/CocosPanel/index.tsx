@@ -28,6 +28,16 @@ function CCFileProjectUI(props: CCFileProjectUIProps) {
     handleSceneChange,
   } = ctx
 
+  // cc:load-scene: 에셋패널 더블클릭 등에서 씬/프리펩 열기 라우팅
+  React.useEffect(() => {
+    const handler = (e: Event) => {
+      const path = (e as CustomEvent<string>).detail
+      if (path) { loadScene(path) }
+    }
+    window.addEventListener('cc:load-scene', handler)
+    return () => window.removeEventListener('cc:load-scene', handler)
+  }, [loadScene])
+
   return (
     <div
       style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}

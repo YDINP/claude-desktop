@@ -32,6 +32,21 @@ import type { ChatMessage } from '../../domains/chat/domain'
 
 type CCLayoutMode = 'tab' | 'split' | 'detach'
 
+const PANEL_TAB_INFO: Partial<Record<SidebarTab, { icon: string; title: string }>> = {
+  bookmarks: { icon: '★', title: '북마크' },
+  stats: { icon: '📊', title: '통계' },
+  snippets: { icon: '📎', title: '스니펫' },
+  tasks: { icon: '📋', title: '태스크' },
+  calendar: { icon: '📅', title: '캘린더' },
+  clipboard: { icon: '🗂️', title: '클립보드' },
+  diff: { icon: '🔀', title: '파일 비교' },
+  outline: { icon: '📑', title: '아웃라인' },
+  plugins: { icon: '🧩', title: '플러그인' },
+  connections: { icon: '🔌', title: 'MCP 연결' },
+  agent: { icon: '🤖', title: '에이전트' },
+  remote: { icon: '🖥️', title: '원격' },
+}
+
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 export interface AppLayoutProps {
@@ -91,6 +106,8 @@ export interface AppLayoutProps {
   activeSidebarIconTab: SidebarTab | null
   setActiveSidebarIconTab: React.Dispatch<React.SetStateAction<SidebarTab | null>>
   sidebarSwitchTabRef: React.MutableRefObject<((tab: SidebarTab) => void) | null>
+  mainPanelTab: SidebarTab | null
+  setMainPanelTab: React.Dispatch<React.SetStateAction<SidebarTab | null>>
 
   // Handlers
   handleToggleHQ: () => void
@@ -117,6 +134,7 @@ export function AppLayout({
   paletteOpen, setPaletteOpen, shortcutsOpen, setShortcutsOpen, settingsOpen, setSettingsOpen,
   pendingInsert, setPendingInsert,
   activeSidebarIconTab, setActiveSidebarIconTab, sidebarSwitchTabRef,
+  mainPanelTab, setMainPanelTab,
   handleToggleHQ, openFile, switchToChat, closeFileTab,
   handleExportMarkdown, handleEditResend, handleFork, handleCompressContext, handleReplyToMessage,
 }: AppLayoutProps) {
@@ -169,17 +187,20 @@ export function AppLayout({
           <button
             key={t.id}
             onClick={() => {
-              if (sidebarCollapsed) setSidebarCollapsed(false)
-              sidebarSwitchTabRef.current?.(t.id)
-              setActiveSidebarIconTab(t.id)
+              if (mainPanelTab === t.id) {
+                setMainPanelTab(null)
+              } else {
+                setMainPanelTab(t.id)
+                setActiveSidebarIconTab(t.id)
+              }
             }}
             title={t.title}
             style={{
               flexShrink: 0, width: 32, height: 28,
-              background: activeSidebarIconTab === t.id ? 'var(--bg-primary)' : 'transparent',
-              color: activeSidebarIconTab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && chat.messages.some((m: any) => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
+              background: mainPanelTab === t.id ? 'var(--bg-primary)' : 'transparent',
+              color: mainPanelTab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && chat.messages.some((m: any) => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
               borderTop: 'none', borderLeft: 'none', borderRight: 'none',
-              borderBottom: activeSidebarIconTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
+              borderBottom: mainPanelTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
               fontSize: 14, cursor: 'pointer', transition: 'all 0.1s',
             }}
           >{t.label}</button>
@@ -366,6 +387,23 @@ export function AppLayout({
                   CC Editor (detached)
                 </span>
               )}
+              {/* Panel tabs from icon bar */}
+              {mainPanelTab && (
+                <button
+                  onClick={() => setMainPanelTab(null)}
+                  style={{
+                    padding: '0 14px', height: 30, fontSize: 12, cursor: 'pointer',
+                    background: 'var(--bg-primary)',
+                    color: 'var(--text-primary)',
+                    borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+                    borderBottom: '2px solid var(--accent)',
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}
+                >
+                  {PANEL_TAB_INFO[mainPanelTab]?.icon} {PANEL_TAB_INFO[mainPanelTab]?.title}
+                  <span style={{ marginLeft: 4, fontSize: 10, opacity: 0.6 }}>✕</span>
+                </button>
+              )}
               <div style={{ marginLeft: 'auto', display: 'flex', gap: 2, paddingRight: 8 }}>
                 <button
                   title="Tab mode"
@@ -406,8 +444,41 @@ export function AppLayout({
 
           {/* Content */}
           <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+            {/* Panel tab content */}
+            {mainPanelTab && activeTab === 'chat' && (
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', zIndex: 1 }}>
+                <Sidebar
+                  activeSessionId={chat.sessionId}
+                  changedFiles={changedFiles}
+                  onClearChangedFiles={() => setChangedFiles([])}
+                  onRemoveChangedFile={(path) => setChangedFiles(prev => prev.filter(f => f.path !== path))}
+                  messages={chat.messages}
+                  onScrollToMessage={messageId => { setScrollToMessageId(messageId); switchToChat() }}
+                  onSessionSelect={async sid => {
+                    const saved = await window.api.sessionLoad(sid) as any
+                    if (saved?.messages?.length) { chat.hydrate(saved.messages, sid) }
+                    else { chat.clearMessages(); chat.setSessionId(sid) }
+                    setSessionTitle(saved?.title); setSessionCreatedAt(saved?.createdAt)
+                    switchToChat()
+                  }}
+                  onNewChat={() => { chat.clearMessages(); setSessionTitle(undefined); setSessionCreatedAt(undefined); window.api.claudeClose(); switchToChat(true) }}
+                  onFileClick={openFile}
+                  activeFilePath={activeTab !== 'chat' ? activeTab : undefined}
+                  onOpenInSplit={(path) => setSplitFilePath(path)}
+                  switchTabRef={sidebarSwitchTabRef}
+                  onTabChange={(t) => { const textTabs: SidebarTab[] = ['files','search','sessions','changes']; if (textTabs.includes(t)) setActiveSidebarIconTab(null); else setActiveSidebarIconTab(t) }}
+                  onInsertSnippet={(content) => { setPendingInsert(content); switchToChat() }}
+                  wsKey={activeWsId}
+                  ccPort={wsCCPort}
+                  onCCPortChange={setWsCCPort}
+                  onCCConnectedChange={setWsCCConnected}
+                  forceTab={mainPanelTab}
+                />
+              </div>
+            )}
+
             {/* Chat tab content — CC layout mode applies here */}
-            <div style={{ position: 'absolute', inset: 0, display: activeTab === 'chat' ? 'flex' : 'none', flexDirection: ccLayout === 'split' ? 'row' : 'column' }}>
+            <div style={{ position: 'absolute', inset: 0, display: mainPanelTab && activeTab === 'chat' ? 'none' : activeTab === 'chat' ? 'flex' : 'none', flexDirection: ccLayout === 'split' ? 'row' : 'column' }}>
               {/* Claude panel — always visible in split, conditional in tab */}
               <div style={{
                 flex: ccLayout === 'split' ? `0 0 ${ccSplitRatio * 100}%` : 1,

@@ -1,11 +1,51 @@
 # Handoff — claude-desktop
-> 마지막 업데이트: 2026-03-24
+> 마지막 업데이트: 2026-03-25
 
 ---
 
 ## 현재 이슈
 
-없음 (QA 2616 Pass / 0 Warning / 0 Critical)
+없음 (QA 2632 Pass / 0 Warning / 0 Critical)
+
+---
+
+## 최근 주요 작업 (2026-03-25)
+
+### UI 리팩토링 — 사이드바 아이콘화 + 패널 메인탭 + Git 제거
+
+**커밋:** `2ef0ff89`
+
+#### 사이드바 아이콘 탭
+- Row 1 텍스트 탭(FILES/SEARCH/HISTORY/CHANGES/NOTES/GLOBALSEARCH) → 📁🔍📖✏️🌐📓 아이콘 전용으로 변경
+- 탭 활성 시 상단에 현재 탭 타이틀 텍스트 헤더 표시 (`PANEL_TITLES` 상수, 18개 탭 커버)
+- `Sidebar.tsx`에 `forceTab?: Tab` prop 추가 (외부에서 강제 지정 가능)
+
+#### 패널 메인탭 시스템
+- 상단 아이콘 바 버튼(★📊📎📋📅🗂️🔀📑🧩🔌🤖🖥️) 클릭 → 사이드바 대신 메인 영역 탭으로 표시
+- `Claude | CC Editor` 헤더 우측에 패널 탭 추가 (아이콘+타이틀+✕ 닫기)
+- 같은 버튼 재클릭으로 닫기 (토글)
+- `mainPanelTab` state → `App.tsx`에서 관리, `AppLayout.tsx`에 props 전달
+- `PANEL_TAB_INFO` 상수: 12개 아이콘 패널 메타 정보
+
+#### Git 기능 완전 제거
+- `preload/index.ts`: 28개 git 메서드 제거
+- `fs-handlers.ts`: `git:*` IPC 핸들러 전부 제거 (약 330줄 삭제)
+- `StatusBar.tsx`: 브랜치/변경파일 수 표시 제거
+- `ChangedFilesPanel.tsx`: `gitDiff`/`gitRestoreFile` 호출 제거
+- `Sidebar.tsx`: `git` 탭 완전 삭제, `GitPanel` import 제거
+
+#### 버그 수정 (같은 날)
+- 에셋패널 더블클릭: `.fire/.scene/.prefab` → `cc:load-scene` 이벤트로 씬뷰에서 오픈
+- CocosPanel: `cc:load-scene` 이벤트 리스너 추가 → `loadScene()` 호출
+- 인스펙터 마우스휠/드래그 값 변경 시 초소수 오차: `toPrecision(7)` 적용 (float32 유효 자릿수)
+- 씬뷰 우클릭 hit test 좌표계 불일치: `fn.worldX/Y` → `cx+worldX, cy-worldY` SVG 좌표 변환
+- 씬뷰 `fn.depth` ReferenceError 수정 (`depth`로 교체)
+- 씬뷰 overlay 요소 zoom 동적 변화: `Math.max(N, M/zoom)` → `M/zoom` 단일 제거 (20곳)
+- cc.LabelOutline strokeWidth zoom 고정 → `/ view.zoom` 제거 (텍스트 비례 스케일)
+- shadow offset/blur: CSS drop-shadow는 화면 픽셀 기준, game pixel 그대로 사용 원복
+- 인스펙터 상단 '저장됨' 중복 문구 제거
+- 에셋패널 트리뷰 중복(Math.max key) + hover 파란배경 유지 버그
+- 에셋패널 .meta 파일 노출 필터링, 더블클릭 시 .meta → 원본 경로 열기
 
 ---
 
