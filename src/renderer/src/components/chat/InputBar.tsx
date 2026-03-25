@@ -686,9 +686,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   }, [text])
 
   const selectSlashCommand = (cmd: SlashCommand & { workflowPath?: string; category?: string }) => {
-    // 워크플로우 커맨드인 경우: .md 파일을 로드하여 입력박스에 삽입
+    // 워크플로우 커맨드인 경우: 시스템 프롬프트로 주입 + 입력창 초기화
     if (cmd.workflowPath) {
-      setText('') // 즉시 입력 초기화 — async 로딩 동안 /commandName 잔류 방지
+      setText('') // 즉시 입력 초기화
       textareaRef.current?.focus()
       window.api.commandLoadWorkflow(cmd.workflowPath).then(({ content, error }) => {
         if (error || !content) {
@@ -696,13 +696,14 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           setTimeout(() => textareaRef.current?.focus(), 0)
           return
         }
-        // $ARGUMENTS 치환 후 입력박스에 삽입 (사용자가 내용 확인/편집 후 전송 가능)
         const processed = content.replace(/\$ARGUMENTS/g, '')
-        setText(processed)
+        window.dispatchEvent(new CustomEvent('workflow-inject', {
+          detail: { systemPrompt: processed, label: cmd.label }
+        }))
+        setText('')
         setTimeout(() => {
-          adjustHeight()
           const ta = textareaRef.current
-          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = processed.length }
+          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = 0 }
         }, 0)
       }).catch(() => {
         setText(`[${cmd.label}: 워크플로우 로드 실패]`)
