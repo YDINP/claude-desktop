@@ -19,7 +19,6 @@ interface FileNodeProps {
   onToggleDir: (path: string, children: DirEntry[]) => void
   childrenMap: Map<string, DirEntry[]>
   focusedPath: string | null
-  gitStatus?: Record<string, string>
   hideHidden?: boolean
 }
 
@@ -36,7 +35,7 @@ function formatDate(ts: number): string {
   })
 }
 
-const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFilePath, onContextMenu, favorites, onToggleFavorite, expandedDirs, onToggleDir, childrenMap, focusedPath, gitStatus, hideHidden }: FileNodeProps) {
+const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFilePath, onContextMenu, favorites, onToggleFavorite, expandedDirs, onToggleDir, childrenMap, focusedPath, hideHidden }: FileNodeProps) {
   const expanded = expandedDirs.has(entry.path)
   const rawChildren = childrenMap.get(entry.path) ?? []
   const children = hideHidden ? rawChildren.filter(c => !c.name.startsWith('.')) : rawChildren
@@ -248,17 +247,6 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
           {entry.name}
         </span>
-        {!entry.isDir && (() => {
-          const s = gitStatus?.[entry.path] ?? gitStatus?.[entry.name]
-          if (!s) return null
-          const letter = s === '??' ? '?' : s[0]
-          const color = letter === 'M' ? '#ff9800' : letter === 'A' ? '#4caf50' : letter === '?' ? '#888' : '#f44336'
-          return (
-            <span style={{ fontSize: 10, fontWeight: 700, marginLeft: 4, flexShrink: 0, color }}>
-              {letter}
-            </span>
-          )
-        })()}
         {!entry.isDir && (isFav || hovered) && (
           <span
             onClick={(e) => { e.stopPropagation(); onToggleFavorite(entry.path) }}
@@ -276,7 +264,7 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
         )}
       </div>
       {expanded && children.map((c) => (
-        <FileNode key={c.path} entry={c} depth={depth + 1} onFileClick={onFileClick} activeFilePath={activeFilePath} onContextMenu={onContextMenu} favorites={favorites} onToggleFavorite={onToggleFavorite} expandedDirs={expandedDirs} onToggleDir={onToggleDir} childrenMap={childrenMap} focusedPath={focusedPath} gitStatus={gitStatus} hideHidden={hideHidden} />
+        <FileNode key={c.path} entry={c} depth={depth + 1} onFileClick={onFileClick} activeFilePath={activeFilePath} onContextMenu={onContextMenu} favorites={favorites} onToggleFavorite={onToggleFavorite} expandedDirs={expandedDirs} onToggleDir={onToggleDir} childrenMap={childrenMap} focusedPath={focusedPath} hideHidden={hideHidden} />
       ))}
     </div>
   )
@@ -288,12 +276,11 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
     prev.expandedDirs === next.expandedDirs &&
     prev.childrenMap === next.childrenMap &&
     prev.focusedPath === next.focusedPath &&
-    prev.gitStatus === next.gitStatus &&
     prev.hideHidden === next.hideHidden
 })
 
 
-export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit, gitStatus: gitStatusProp }: { rootPath: string; onFileClick: (path: string) => void; activeFilePath?: string; onOpenInSplit?: (path: string) => void; gitStatus?: Record<string, string> }) {
+export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit }: { rootPath: string; onFileClick: (path: string) => void; activeFilePath?: string; onOpenInSplit?: (path: string) => void }) {
   const [entries, setEntries] = useState<DirEntry[]>([])
   const [refreshKey, setRefreshKey] = useState(0)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
@@ -319,27 +306,6 @@ export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit,
   const [focusedPath, setFocusedPath] = useState<string | null>(null)
 
   const [hideHidden, setHideHidden] = useState(true)
-
-  // Git status (self-fetched if no prop provided)
-  const [gitStatusInternal, setGitStatusInternal] = useState<Record<string, string>>({})
-  const gitStatus = gitStatusProp ?? gitStatusInternal
-
-  useEffect(() => {
-    if (gitStatusProp) return
-    const fetchGitStatus = () => {
-      window.api.gitStatusFull(rootPath).then(result => {
-        if (result.error) return
-        const map: Record<string, string> = {}
-        for (const f of result.files) {
-          map[f.path] = f.status
-        }
-        setGitStatusInternal(map)
-      }).catch(() => {})
-    }
-    fetchGitStatus()
-    const interval = setInterval(fetchGitStatus, 5000)
-    return () => clearInterval(interval)
-  }, [rootPath, gitStatusProp])
 
   const refresh = useCallback(() => {
     window.api.readDir(rootPath).then(items => setEntries(items as DirEntry[]))
@@ -738,7 +704,7 @@ export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit,
           )
         ) : (
           entries.filter(e => !hideHidden || !e.name.startsWith('.')).map((e) => (
-            <FileNode key={e.path} entry={e} depth={0} onFileClick={handleFileClick} activeFilePath={activeFilePath} onContextMenu={handleContextMenu} favorites={favorites} onToggleFavorite={handleToggleFavorite} expandedDirs={expandedDirs} onToggleDir={handleToggleDir} childrenMap={childrenMap} focusedPath={focusedPath} gitStatus={gitStatus} hideHidden={hideHidden} />
+            <FileNode key={e.path} entry={e} depth={0} onFileClick={handleFileClick} activeFilePath={activeFilePath} onContextMenu={handleContextMenu} favorites={favorites} onToggleFavorite={handleToggleFavorite} expandedDirs={expandedDirs} onToggleDir={handleToggleDir} childrenMap={childrenMap} focusedPath={focusedPath} hideHidden={hideHidden} />
           ))
         )}
       </div>
