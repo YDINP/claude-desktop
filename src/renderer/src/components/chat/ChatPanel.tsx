@@ -1043,15 +1043,14 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       .replace(/\{\{day\}\}/g, ['일','월','화','수','목','금','토'][now.getDay()])
   }
 
-  // ── Workflow inject state ──
-  const [workflowPrompt, setWorkflowPrompt] = React.useState<string | null>(null)
+  // ── Workflow inject ref (state → ref로 변경: state 사용 시 리렌더 발생 → textarea 리셋 → 스페이스바 불작동)
+  const workflowPromptRef = React.useRef<string | null>(null)
 
   React.useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail
-      console.log('[slash-debug] workflow-inject received, setting workflowPrompt')
       if (detail?.systemPrompt) {
-        setWorkflowPrompt(detail.systemPrompt)
+        workflowPromptRef.current = detail.systemPrompt  // ref 업데이트 → 리렌더 없음
       }
     }
     window.addEventListener('workflow-inject', handler)
@@ -1081,7 +1080,9 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       window.api.openaiSend?.({ model: openaiModel, messages: history })
     } else {
       const resolvedSystemPrompt = customSystemPrompt ? resolveVars(customSystemPrompt) : ''
-      const parts = [resolvedSystemPrompt, workflowPrompt, projectSummary, ccCtx.contextString, ccFileCtx.contextString, ctxFiles.contextString].filter(Boolean)
+      const wfPrompt = workflowPromptRef.current
+      workflowPromptRef.current = null  // 전송 후 초기화
+      const parts = [resolvedSystemPrompt, wfPrompt, projectSummary, ccCtx.contextString, ccFileCtx.contextString, ctxFiles.contextString].filter(Boolean)
       const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
       window.api.claudeSend({
         text,
@@ -1089,9 +1090,8 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         model,
         ...(extraSystemPrompt ? { extraSystemPrompt } : {}),
       })
-      if (workflowPrompt) setWorkflowPrompt(null)
     }
-  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, ccFileCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle, workflowPrompt])
+  }, [project.currentPath, project.selectedModel, chat.addUserMessage, chat.messages, ccCtx.contextString, ccFileCtx.contextString, projectSummary, customSystemPrompt, ctxFiles.contextString, autoSetTitle])
 
   const handleSendWithVarCheck = useCallback((text: string) => {
     const vars = extractVars(text)
