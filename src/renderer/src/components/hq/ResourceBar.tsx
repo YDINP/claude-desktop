@@ -24,17 +24,8 @@ export function ResourceBar({
   activeAgentCount = 0,
   cwd,
 }: ResourceBarProps) {
-  const [gitInfo, setGitInfo] = useState<{ branch: string | null; changed: number } | null>(null)
   const [memMB, setMemMB] = useState<number | null>(null)
   const [online, setOnline] = useState(navigator.onLine)
-
-  useEffect(() => {
-    if (!cwd) { setGitInfo(null); return }
-    const fetch = () => window.api?.gitStatus(cwd).then(setGitInfo).catch(() => {})
-    fetch()
-    const id = setInterval(fetch, 5000)
-    return () => clearInterval(id)
-  }, [cwd])
 
   useEffect(() => {
     window.api.getMemoryUsage?.().then(({ rss }) => setMemMB(Math.round(rss / 1024 / 1024)))
@@ -117,13 +108,6 @@ export function ResourceBar({
       )}
 
       <div style={{ flex: 1 }} />
-
-      {/* Git */}
-      {gitInfo?.branch && (
-        <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>
-          ⎇ {gitInfo.branch}{gitInfo.changed ? ` +${gitInfo.changed}` : ''}
-        </span>
-      )}
 
       {/* Memory */}
       {memMB && (

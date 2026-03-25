@@ -27,8 +27,6 @@ interface ChangedFilesPanelProps {
   files: ChangedFile[]
   onFileClick: (path: string) => void
   onClear: () => void
-  onRemoveFile?: (path: string) => void
-  rootPath?: string
 }
 
 export function ChangedFilesPanel({ files, onFileClick, onClear }: ChangedFilesPanelProps) {

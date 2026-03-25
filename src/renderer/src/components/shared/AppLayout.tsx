@@ -242,7 +242,7 @@ export function AppLayout({
           transition: isSidebarDragging ? 'none' : 'width 0.15s ease',
         }}>
           <div style={{ width: sidebarWidth, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-            {(
+            {!mainPanelTab && (
               <Sidebar
                 activeSessionId={chat.sessionId}
                 changedFiles={changedFiles}
@@ -283,7 +283,7 @@ export function AppLayout({
                 onOpenInSplit={(path) => setSplitFilePath(path)}
                 switchTabRef={sidebarSwitchTabRef}
                 onTabChange={(t) => {
-                  const textTabs: SidebarTab[] = ['files', 'search', 'sessions', 'changes', 'git']
+                  const textTabs: SidebarTab[] = ['files', 'search', 'sessions', 'changes']
                   if (textTabs.includes(t)) setActiveSidebarIconTab(null)
                   else setActiveSidebarIconTab(t)
                 }}
