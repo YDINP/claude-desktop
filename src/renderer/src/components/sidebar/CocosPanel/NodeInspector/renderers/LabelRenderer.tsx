@@ -154,7 +154,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                     {([0, fs, Math.round(fs * 1.2), Math.round(fs * 1.5), Math.round(fs * 2)] as const).map((v, i) => {
                       const labels = ['0', '×1', '×1.2', '×1.5', '×2']
                       return (
-                        <span key={i} title={`lineHeight = ${v}`}
+                        <span key={`lh-${i}`} title={`lineHeight = ${v}`}
                           onClick={() => {
                             const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, lineHeight: v, _lineHeight: v, _N$lineHeight: v } } : c)
                             applyAndSave({ components: updated })
@@ -631,7 +631,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0, marginTop: 2 }}>미리보기</span>
                         <div style={{ flex: 1, background: 'rgba(88,166,255,0.06)', border: '1px solid rgba(88,166,255,0.2)', borderRadius: 3, padding: '3px 5px', fontSize: 9, color: 'var(--text-primary)', lineHeight: 1.5, whiteSpace: 'pre', overflowX: 'auto', maxHeight: 60, overflowY: 'auto' }}>
-                          {lines.map((line, i) => <div key={i}>{line || <span style={{ color: 'var(--text-muted)' }}>↵</span>}</div>)}
+                          {lines.map((line, i) => <div key={`line-${i}`}>{line || <span style={{ color: 'var(--text-muted)' }}>↵</span>}</div>)}
                         </div>
                       </div>
                     )
@@ -835,7 +835,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                           const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, horizontalAlign: v, _horizontalAlign: v, _N$horizontalAlign: v } } : c)
                           applyAndSave({ components: updated })
                         }}>
-                        {HALIGN.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                        {HALIGN.map((l, i) => <option key={`ha-${i}`} value={i}>{i} {l}</option>)}
                       </select>
                     </div>
                   </div>
@@ -848,7 +848,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, overflow: v, _overflow: v, _N$overflow: v } } : c)
                         applyAndSave({ components: updated })
                       }}>
-                      {OVERFLOW.map((l, i) => <option key={i} value={i}>{i} {l}</option>)}
+                      {OVERFLOW.map((l, i) => <option key={`of-${i}`} value={i}>{i} {l}</option>)}
                     </select>
                   </div>
                   {/* R2353: fontColor */}
