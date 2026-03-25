@@ -3579,8 +3579,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     : outlineComp?.props?.color ?? outlineComp?.props?._color) as { r?: number; g?: number; b?: number } | undefined
                   const { r: or = 0, g: og = 0, b: ob = 0 } = outlineColorProp ?? {}
                   const outlineWidth = enableOutline
-                    ? Number(lc?.props?.outlineWidth ?? lc?.props?._outlineWidth ?? 1)
-                    : Number(outlineComp?.props?.width ?? outlineComp?.props?._width ?? 1)
+                    ? Number(lc?.props?.outlineWidth ?? lc?.props?._outlineWidth ?? lc?.props?.['_N$outlineWidth'] ?? 1)
+                    : Number(outlineComp?.props?.width ?? outlineComp?.props?._width ?? outlineComp?.props?.['_N$width'] ?? 1)
                   // Shadow: CC3.x enableShadow or cc.LabelShadow component
                   const enableShadow = !!(lc?.props?.enableShadow ?? lc?.props?._enableShadow ?? false)
                   const shadowComp = node.components.find(c => c.type === 'cc.LabelShadow')
@@ -3594,15 +3594,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const shadowOffsetProp = (enableShadow
                     ? lc?.props?.shadowOffset
                     : shadowComp?.props?.offset ?? shadowComp?.props?._offset) as { x?: number; y?: number } | undefined
-                  // shadow는 아웃라인(strokeWidth/zoom)과 동일하게 화면 고정 크기로 처리
-                  // scale(zoom) 그룹 안에서 /zoom 보정 → 줌과 무관하게 일정한 화면 픽셀 크기 유지
-                  const shOffX = Number(shadowOffsetProp?.x ?? 2) / view.zoom
-                  const shOffY = -Number(shadowOffsetProp?.y ?? -2) / view.zoom
+                  // CSS drop-shadow 필터는 화면 픽셀 기준으로 동작 → game pixel 그대로 사용
+                  // (scale(zoom)과 무관하게 화면에서 고정 픽셀로 렌더링됨)
+                  const shOffX = Number(shadowOffsetProp?.x ?? 2)
+                  const shOffY = -Number(shadowOffsetProp?.y ?? -2)
 
                   const shadowBlurVal = enableShadow
                     ? Number(lc?.props?.shadowBlur ?? lc?.props?._shadowBlur ?? 2)
                     : Number(shadowComp?.props?.blur ?? shadowComp?.props?._blur ?? 2)
-                  const shBlur = shadowBlurVal / view.zoom
+                  const shBlur = shadowBlurVal
 
                   // Gradient: CC3.x enableGradient
                   const enableGradient = !!(lc?.props?.enableGradient ?? lc?.props?._enableGradient ?? false)
@@ -3676,7 +3676,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                         dominantBaseline={lines.length === 1 ? dominantBaselineVal : 'auto'}
                         fontFamily={fontFamilyName}
                         stroke={hasOutline ? `rgb(${or},${og},${ob})` : undefined}
-                        strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) / view.zoom : undefined}
+                        strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) : undefined}
                         paintOrder={hasOutline ? 'stroke' : undefined}
                         filter={hasShadow ? `drop-shadow(${shOffX}px ${shOffY}px ${shBlur}px rgba(${shr},${shg},${shb},${sha / 255}))` : undefined}
                         clipPath={needsClip ? `url(#${clipId})` : undefined}
