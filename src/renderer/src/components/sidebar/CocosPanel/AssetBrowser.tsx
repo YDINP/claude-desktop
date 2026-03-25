@@ -191,7 +191,9 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
 
   // 더블클릭 → 파일 열기 (cc:open-file 이벤트 → 앱이 확장자별로 라우팅)
   const handleDoubleClickAsset = useCallback((entry: AssetEntry) => {
-    window.dispatchEvent(new CustomEvent('cc:open-file', { detail: entry.path }))
+    // .meta 파일이 path에 포함된 경우 .meta 제거 후 원본 파일 열기
+    const filePath = entry.path.endsWith('.meta') ? entry.path.slice(0, -5) : entry.path
+    window.dispatchEvent(new CustomEvent('cc:open-file', { detail: filePath }))
   }, [])
 
   // R1398: .prefab 파일을 현재 씬에 인스턴스화
@@ -304,9 +306,22 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
     return () => { cancelled = true }
   }, [assetsDir])
 
+  // 공통 dedup: relPath 중복 제거 + .meta 항목 필터링 (Rules of Hooks — grouped 전에 선언)
+  const dedupedEntries = useMemo(() => {
+    if (!assets) return []
+    const seen = new Set<string>()
+    return Object.values(assets).filter(e => {
+      // .meta 파일이 path에 직접 포함된 경우 제외 (디렉토리 meta 등 누출 케이스)
+      if (e.relPath.endsWith('.meta') || e.path.endsWith('.meta')) return false
+      if (seen.has(e.relPath)) return false
+      seen.add(e.relPath)
+      return true
+    })
+  }, [assets])
+
   const grouped = useMemo(() => {
     if (!assets) return []
-    const entries = Object.values(assets)
+    const entries = dedupedEntries
     const lowerQ = search.toLowerCase()
     const filtered = lowerQ
       ? entries.filter(e => e.relPath.toLowerCase().includes(lowerQ))
@@ -378,17 +393,10 @@ export function CCFileAssetBrowser({ assetsDir, sceneFile, saveScene, onSelectNo
   // R1382: 폴더 트리 데이터 — 반드시 early return 전에 호출 (Rules of Hooks)
   const folderTree = useMemo(() => {
     if (!assets) return null
-    // relPath 기준 중복 제거 (압축 UUID 등으로 같은 파일이 여러 UUID로 등록될 수 있음)
-    const seen = new Set<string>()
-    const entries = Object.values(assets).filter(e => {
-      if (seen.has(e.relPath)) return false
-      seen.add(e.relPath)
-      return true
-    })
     const lowerQ = search.toLowerCase()
-    const filtered = lowerQ ? entries.filter(e => e.relPath.toLowerCase().includes(lowerQ)) : entries
+    const filtered = lowerQ ? dedupedEntries.filter(e => e.relPath.toLowerCase().includes(lowerQ)) : dedupedEntries
     return buildFolderTree(filtered)
-  }, [assets, search])
+  }, [assets, search, dedupedEntries])
 
   const toggleTreeFolder = useCallback((path: string) => {
     setTreeExpanded(prev => {
