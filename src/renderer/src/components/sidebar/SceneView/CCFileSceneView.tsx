@@ -418,8 +418,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     window.addEventListener('keyup', onKeyUp)
     return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp) }
   }, [])
-  // Sprite 텍스처 캐시: UUID → local:// URL (null = 해상 불가)
-  const spriteCacheRef = useRef<Map<string, string>>(new Map())
+  // Sprite 텍스처 캐시: UUID → { dataUrl, w, h } (null = 해상 불가)
+  const spriteCacheRef = useRef<Map<string, { dataUrl: string; w: number; h: number }>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
   // Font 캐시: UUID → { dataUrl, familyName }
   const fontCacheRef = useRef<Map<string, { dataUrl: string; familyName: string }>>(new Map())
@@ -584,17 +584,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     console.debug(`[SceneView] sprite comps=${spriteComps.length} new UUIDs=${uuids.length}`, uuids[0])
     if (!uuids.length) return
     uuids.forEach(uuid => {
-      spriteCacheRef.current.set(uuid, '') // pending sentinel
+      spriteCacheRef.current.set(uuid, { dataUrl: '', w: 0, h: 0 }) // pending sentinel
       window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url => {
-        console.debug(`[SceneView] resolveTexture ${uuid.slice(0,8)}… →`, url ? url.slice(0, 40) : null)
         if (url) {
-          spriteCacheRef.current.set(uuid, url)
+          // 이미지 원본 크기 측정 (9-slice용)
+          const img = new Image()
+          img.onload = () => {
+            spriteCacheRef.current.set(uuid, { dataUrl: url, w: img.naturalWidth, h: img.naturalHeight })
+            setSpriteCacheVer(v => v + 1)
+          }
+          img.onerror = () => {
+            spriteCacheRef.current.set(uuid, { dataUrl: url, w: 0, h: 0 })
+            setSpriteCacheVer(v => v + 1)
+          }
+          img.src = url
         } else {
-          spriteCacheRef.current.delete(uuid) // null 반환 시 sentinel 제거
+          spriteCacheRef.current.delete(uuid)
+          setSpriteCacheVer(v => v + 1)
         }
-        setSpriteCacheVer(v => v + 1)
-      }).catch((e) => {
-        console.debug('[SceneView] resolveTexture error', uuid.slice(0,8), e)
+      }).catch(() => {
         spriteCacheRef.current.delete(uuid)
       })
     })
@@ -3450,8 +3458,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {hasSprite && (() => {
                   const sc = node.components.find(c => c.type === 'cc.Sprite' || c.type === 'Sprite' || c.type === 'cc.Sprite2D')
                   const sfUuid = (sc?.props?.spriteFrame as { __uuid__?: string } | undefined)?.__uuid__
-                  const imgUrl = sfUuid ? spriteCacheRef.current.get(sfUuid) : undefined
+                  const spriteEntry = sfUuid ? spriteCacheRef.current.get(sfUuid) : undefined
+                  const imgUrl = spriteEntry?.dataUrl
                   if (!imgUrl) return null
+                  const texW = spriteEntry?.w || 0
+                  const texH = spriteEntry?.h || 0
                   const iw = Math.abs(w) || 1
                   const ih = Math.abs(h) || 1
                   const { r: tr = 255, g: tg = 255, b: tb = 255 } = (node.color as { r?: number; g?: number; b?: number } | null) ?? {}
@@ -3464,6 +3475,65 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const spriteTypeLabel = SPRITE_TYPE_LABELS[spriteType]
                   // 0=Custom, 1=Trimmed, 2=Raw
                   const sizeMode = Number(sc?.props?.sizeMode ?? sc?.props?._sizeMode ?? 1)
+                  // Sliced (type=1) 9-slice 렌더링
+                  if (spriteType === 1 && texW > 0 && texH > 0) {
+                    const ci = sc?.props?.capInsets ?? sc?.props?._capInsets ?? sc?.props?.['_N$capInsets']
+                    const raw = ci as Record<string, number> | undefined
+                    // CC2.x: _capInsets = {x:left, y:top, width:right, height:bottom}
+                    // CC3.x: insetLeft, insetRight, insetTop, insetBottom 또는 동일 형식
+                    const capL = Math.max(0, Number(raw?.x ?? raw?.left ?? raw?.insetLeft ?? sc?.props?.insetLeft ?? 0))
+                    const capT = Math.max(0, Number(raw?.y ?? raw?.top ?? raw?.insetTop ?? sc?.props?.insetTop ?? 0))
+                    const capR = Math.max(0, Number(raw?.width ?? raw?.right ?? raw?.insetRight ?? sc?.props?.insetRight ?? 0))
+                    const capB = Math.max(0, Number(raw?.height ?? raw?.bottom ?? raw?.insetBottom ?? sc?.props?.insetBottom ?? 0))
+
+                    if (capL + capR > 0 || capT + capB > 0) {
+                      const srcCW = Math.max(1, texW - capL - capR)
+                      const srcCH = Math.max(1, texH - capT - capB)
+                      const dstCW = Math.max(0, iw - capL - capR)
+                      const dstCH = Math.max(0, ih - capT - capB)
+                      const filterStyle = isGrayscale ? 'grayscale(1)' : undefined
+
+                      // 9개 조각: [srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH]
+                      const pieces: [number,number,number,number, number,number,number,number][] = [
+                        [0, 0, capL, capT,  0, 0, capL, capT],                                                         // TL
+                        [capL, 0, srcCW, capT,  capL, 0, dstCW, capT],                                                  // TM
+                        [texW-capR, 0, capR, capT,  iw-capR, 0, capR, capT],                                            // TR
+                        [0, capT, capL, srcCH,  0, capT, capL, dstCH],                                                  // ML
+                        [capL, capT, srcCW, srcCH,  capL, capT, dstCW, dstCH],                                          // MM
+                        [texW-capR, capT, capR, srcCH,  iw-capR, capT, capR, dstCH],                                    // MR
+                        [0, texH-capB, capL, capB,  0, ih-capB, capL, capB],                                            // BL
+                        [capL, texH-capB, srcCW, capB,  capL, ih-capB, dstCW, capB],                                    // BM
+                        [texW-capR, texH-capB, capR, capB,  iw-capR, ih-capB, capR, capB],                              // BR
+                      ]
+
+                      return (
+                        <>
+                          {pieces.map(([sx, sy, sw, sh, dx, dy, dw, dh], pi) => {
+                            if (dw <= 0 || dh <= 0 || sw <= 0 || sh <= 0) return null
+                            return (
+                              <svg key={pi}
+                                x={rectX + dx} y={rectY + dy}
+                                width={dw} height={dh}
+                                viewBox={`${sx} ${sy} ${sw} ${sh}`}
+                                preserveAspectRatio="none" overflow="hidden"
+                                style={{ pointerEvents: 'none' }}
+                              >
+                                <image href={imgUrl} x={0} y={0} width={texW} height={texH}
+                                  preserveAspectRatio="none"
+                                  style={{ filter: filterStyle }}
+                                />
+                              </svg>
+                            )
+                          })}
+                          {hasTint && (
+                            <rect x={rectX} y={rectY} width={iw} height={ih}
+                              fill={`rgb(${tr},${tg},${tb})`} opacity={0.45}
+                              style={{ pointerEvents: 'none', mixBlendMode: 'multiply' as const }} />
+                          )}
+                        </>
+                      )
+                    }
+                  }
                   return (
                     <>
                       {hasTint ? (
