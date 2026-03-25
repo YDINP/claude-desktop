@@ -195,12 +195,10 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   useEffect(() => { onTextChangeRef.current = onTextChange }, [onTextChange])
   const [text, _setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
   const setText = useCallback((val: string | ((prev: string) => string)) => {
-    _setText(prev => {
-      const next = typeof val === 'function' ? val(prev) : val
-      onTextChangeRef.current?.(next)
-      return next
-    })
+    _setText(prev => typeof val === 'function' ? val(prev) : val)
   }, [])
+  // onTextChange 동기화 — updater 내부에서 호출하면 "render 중 다른 컴포넌트 업데이트" 경고 발생
+  React.useEffect(() => { onTextChangeRef.current?.(text) }, [text])
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
   const [customTemplates, setCustomTemplates] = useState<SlashCommand[]>([])
@@ -1222,7 +1220,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           <div style={{ overflowY: 'auto', flex: 1 }}>
           {filteredCmds.map((c, i) => (
             <div
-              key={c.cmd}
+              key={`${c.category ?? 'builtin'}-${c.cmd}`}
               onMouseDown={e => e.preventDefault()}
               onClick={() => selectSlashCommand(c)}
               onMouseEnter={() => setSlashSelected(i)}
