@@ -2262,11 +2262,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           const svgX = (e.clientX - rect.left - view.offsetX) / view.zoom
           const svgY = (e.clientY - rect.top - view.offsetY) / view.zoom
           // hit test all nodes for overlapping pick menu
+          // fn.worldX/Y는 CC 좌표 → SVG 좌표로 변환: sp.x = cx + worldX, sp.y = cy - worldY
           const hits = flatNodes.filter(fn => {
             if (!fn.node.size) return false
-            const nx = fn.worldX - (fn.node.anchor?.x ?? 0.5) * fn.node.size.x
-            const ny = fn.worldY - (1 - (fn.node.anchor?.y ?? 0.5)) * fn.node.size.y
-            return svgX >= nx && svgX <= nx + fn.node.size.x && svgY >= ny && svgY <= ny + fn.node.size.y
+            const w = fn.node.size.x, h = fn.node.size.y
+            const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+            const spx = cx + fn.worldX, spy = cy - fn.worldY
+            const nx = spx - ax * w, ny = spy - (1 - ay) * h
+            return svgX >= nx && svgX <= nx + w && svgY >= ny && svgY <= ny + h
           }).map(fn => ({ uuid: fn.node.uuid, name: fn.node.name }))
           if (hits.length > 1) {
             setNodePickMenu({ x: e.clientX, y: e.clientY, nodes: hits })
