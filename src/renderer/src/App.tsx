@@ -82,6 +82,7 @@ function AppContent() {
     (localStorage.getItem('cc-layout-mode') as CCLayoutMode) ?? 'tab'
   )
   const [ccTab, setCCTab] = useState<'claude' | 'editor'>('claude')
+  const [mainPanelTab, setMainPanelTab] = useState<SidebarTab | null>(null)
   const [ccSplitRatio, setCCSplitRatio] = useState(0.5)
   const ccSplitRatioRef = useRef(0.5)
 
@@ -429,6 +430,8 @@ function AppContent() {
       setPendingInsert={setPendingInsert}
       activeSidebarIconTab={activeSidebarIconTab}
       setActiveSidebarIconTab={setActiveSidebarIconTab}
+      mainPanelTab={mainPanelTab}
+      setMainPanelTab={setMainPanelTab}
       sidebarSwitchTabRef={sidebarSwitchTabRef}
       handleToggleHQ={handleToggleHQ}
       openFile={openFile}

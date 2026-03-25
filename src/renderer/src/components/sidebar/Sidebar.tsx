@@ -4,7 +4,6 @@ import { FileTree } from './FileTree'
 import { SessionList } from './SessionList'
 import { ChangedFilesPanel } from './ChangedFilesPanel'
 import { SearchPanel } from './SearchPanel'
-import { GitPanel } from './GitPanel'
 import { BookmarksPanel } from './BookmarksPanel'
 import { StatsPanel } from './StatsPanel'
 import { SnippetPanel } from './SnippetPanel'
@@ -43,15 +42,39 @@ interface SidebarProps {
   ccPort?: number
   onCCPortChange?: (port: number) => void
   onCCConnectedChange?: (connected: boolean) => void
+  forceTab?: Tab
 }
 
 export type { Tab as SidebarTab }
 
-type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'git' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'globalsearch' | 'notes'
+type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'globalsearch' | 'notes'
 
-export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange }: SidebarProps) {
+const PANEL_TITLES: Record<Tab, string> = {
+  files: 'Files',
+  search: 'Search',
+  sessions: 'History',
+  changes: 'Changes',
+  globalsearch: 'Global Search',
+  notes: 'Notes',
+  bookmarks: 'Bookmarks',
+  stats: 'Stats',
+  snippets: 'Snippets',
+  tasks: 'Tasks',
+  calendar: 'Calendar',
+  clipboard: 'Clipboard',
+  diff: 'Diff',
+  outline: 'Outline',
+  plugins: 'Plugins',
+  connections: 'Connections',
+  agent: 'Agent',
+  remote: 'Remote',
+}
+
+export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange, forceTab }: SidebarProps) {
   const [tab, setTab] = useState<Tab>('files')
   const switchTab = (t: Tab) => { setTab(t); onTabChange?.(t) }
+  // forceTab이 있으면 해당 탭 강제 표시
+  const activeTab = forceTab ?? tab
 
   useEffect(() => {
     if (switchTabRef) switchTabRef.current = switchTab
@@ -80,34 +103,28 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Tab bar — 2 rows: text tabs + icon tabs */}
       <div style={{ flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
-        {/* Row 1: text tabs — 균등 분배 */}
+        {/* Row 1: icon tabs — 균등 분배 */}
         <div style={{ display: 'flex' }}>
           {([
-            { id: 'files', label: 'Files' },
-            { id: 'search', label: 'Search' },
-            { id: 'sessions', label: 'History' },
-            { id: 'changes', label: changedFiles.length > 0 ? `Changes (${changedFiles.length})` : 'Changes' },
-            { id: 'git', label: '⎇ Git' },
-          { id: 'globalsearch', label: '🔍 전체' },
-          { id: 'notes', label: '📝 노트' },
-          ] as { id: Tab; label: string }[]).map((t) => (
+            { id: 'files', label: '📁', title: 'Files' },
+            { id: 'search', label: '🔍', title: 'Search' },
+            { id: 'sessions', label: '📖', title: 'History' },
+            { id: 'changes', label: '✏️', title: changedFiles.length > 0 ? `Changes (${changedFiles.length})` : 'Changes' },
+            { id: 'globalsearch', label: '🌐', title: 'Global Search' },
+            { id: 'notes', label: '📓', title: 'Notes' },
+          ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
               onClick={() => switchTab(t.id)}
-              title={t.id}
+              title={t.title}
               style={{
                 flex: 1,
                 padding: '5px 2px',
-                background: tab === t.id ? 'var(--bg-primary)' : 'transparent',
-                color: tab === t.id ? 'var(--text-primary)' : t.id === 'changes' && changedFiles.length > 0 ? 'var(--warning)' : 'var(--text-muted)',
-                borderBottom: tab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
-                fontSize: 10,
-                textTransform: 'uppercase',
-                letterSpacing: '0.3px',
+                background: activeTab === t.id ? 'var(--bg-primary)' : 'transparent',
+                color: activeTab === t.id ? 'var(--text-primary)' : t.id === 'changes' && changedFiles.length > 0 ? 'var(--warning)' : 'var(--text-muted)',
+                borderBottom: activeTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
+                fontSize: 16,
                 transition: 'all 0.1s',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
                 minWidth: 0,
               }}
             >
@@ -115,6 +132,21 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             </button>
           ))}
         </div>
+      </div>
+
+      {/* 현재 탭 타이틀 */}
+      <div style={{
+        padding: '4px 10px',
+        borderBottom: '1px solid var(--border)',
+        fontSize: 11,
+        fontWeight: 600,
+        color: 'var(--text-muted)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px',
+        background: 'var(--bg-secondary)',
+        flexShrink: 0,
+      }}>
+        {PANEL_TITLES[activeTab]}
       </div>
 
       {/* New chat button */}
@@ -135,8 +167,8 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
       </button>
 
       {/* Content */}
-      <div key={tab} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.15s ease' }}>
-        {tab === 'files' && currentPath && (
+      <div key={activeTab} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.15s ease' }}>
+        {activeTab === 'files' && currentPath && (
           <>
             {/* File search */}
             <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
@@ -180,23 +212,23 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             </div>
           </>
         )}
-        {tab === 'files' && !currentPath && (
+        {activeTab === 'files' && !currentPath && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
             No folder open
           </div>
         )}
-        {tab === 'search' && currentPath && (
+        {activeTab === 'search' && currentPath && (
           <SearchPanel rootPath={currentPath} onFileClick={(path) => onFileClick(path)} />
         )}
-        {tab === 'search' && !currentPath && (
+        {activeTab === 'search' && !currentPath && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
             No folder open
           </div>
         )}
-        {tab === 'sessions' && (
+        {activeTab === 'sessions' && (
           <SessionList onSelect={onSessionSelect} activeSessionId={activeSessionId} />
         )}
-        {tab === 'changes' && (
+        {activeTab === 'changes' && (
           <ChangedFilesPanel
             files={changedFiles}
             onFileClick={onFileClick}
@@ -205,36 +237,28 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             rootPath={currentPath ?? undefined}
           />
         )}
-        {tab === 'git' && currentPath && (
-          <GitPanel rootPath={currentPath} />
-        )}
-        {tab === 'git' && !currentPath && (
-          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
-            No folder open
-          </div>
-        )}
-        {tab === 'bookmarks' && (
+        {activeTab === 'bookmarks' && (
           <BookmarksPanel messages={messages} onScrollToMessage={onScrollToMessage} />
         )}
-        {tab === 'stats' && (
+        {activeTab === 'stats' && (
           <StatsPanel />
         )}
-        {tab === 'snippets' && (
+        {activeTab === 'snippets' && (
           <SnippetPanel onInsert={onInsertSnippet ?? (() => {})} />
         )}
-        {tab === 'tasks' && (
+        {activeTab === 'tasks' && (
           <TasksPanel />
         )}
-        {tab === 'calendar' && (
+        {activeTab === 'calendar' && (
           <CalendarPanel onSelectSession={onSessionSelect} />
         )}
-        {tab === 'clipboard' && (
+        {activeTab === 'clipboard' && (
           <ClipboardPanel />
         )}
-        {tab === 'diff' && (
+        {activeTab === 'diff' && (
           <DiffPanel />
         )}
-        {tab === 'outline' && (
+        {activeTab === 'outline' && (
           <OutlinePanel
             messages={messages}
             onScrollToMsg={onScrollToMessage ? (idx) => {
@@ -243,23 +267,23 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             } : undefined}
           />
         )}
-        {tab === 'plugins' && (
+        {activeTab === 'plugins' && (
           <PluginsPanel />
         )}
-        {tab === 'connections' && (
+        {activeTab === 'connections' && (
           <ConnectionPanel />
         )}
-        {tab === 'agent' && (
+        {activeTab === 'agent' && (
           <AgentPanel />
         )}
-        {tab === 'remote' && (
+        {activeTab === 'remote' && (
           <RemotePanel />
         )}
 
-        {tab === 'notes' && (
+        {activeTab === 'notes' && (
           <NotesPanel />
         )}
-        {tab === 'globalsearch' && (
+        {activeTab === 'globalsearch' && (
           <GlobalSearchPanel
             onSelectSession={(sessionId) => {
               switchTab('sessions')

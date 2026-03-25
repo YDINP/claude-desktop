@@ -42,7 +42,6 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
     const outCost = ((outputTokens ?? 0) / 1_000_000) * pricing.output
     return inCost + outCost
   }, [model, inputTokens, outputTokens])
-  const [gitInfo, setGitInfo] = useState<{ branch: string | null; changed: number } | null>(null)
   const [memMB, setMemMB] = useState<number | null>(null)
   const [cpuUsage, setCpuUsage] = useState<number | null>(null)
   const [online, setOnline] = useState(navigator.onLine)
@@ -72,14 +71,6 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
     const id = setInterval(update, 1000)
     return () => clearInterval(id)
   }, [sessionCreatedAt])
-
-  useEffect(() => {
-    if (!cwd) { setGitInfo(null); return }
-    const fetch = () => window.api?.gitStatus(cwd).then(setGitInfo).catch(() => {})
-    fetch()
-    const id = setInterval(fetch, 5000)
-    return () => clearInterval(id)
-  }, [cwd])
 
   useEffect(() => {
     const handleOnline = () => setOnline(true)
@@ -136,15 +127,6 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
     }}>
       <span>{modelLabel}</span>
       {cwd && <span style={{ opacity: 0.8 }}>{cwd.split(/[\\/]/).slice(-2).join('/')}</span>}
-      {gitInfo?.branch && (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ opacity: 0.6 }}>⎇</span>
-          <span>{gitInfo.branch}</span>
-          {gitInfo.changed > 0 && (
-            <span style={{ color: 'var(--warning)', fontSize: 10 }}>+{gitInfo.changed}</span>
-          )}
-        </span>
-      )}
       {contextUsage !== undefined && contextUsage > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
           <div style={{
