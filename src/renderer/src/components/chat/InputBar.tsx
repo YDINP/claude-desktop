@@ -195,11 +195,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   useEffect(() => { onTextChangeRef.current = onTextChange }, [onTextChange])
   const [text, _setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
   const setText = useCallback((val: string | ((prev: string) => string)) => {
-    _setText(prev => {
-      const next = typeof val === 'function' ? val(prev) : val
-      onTextChangeRef.current?.(next)
-      return next
-    })
+    _setText(prev => typeof val === 'function' ? val(prev) : val)
   }, [])
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
@@ -1665,6 +1661,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           const val = e.target.value
           const pos = e.target.selectionStart ?? 0
           setText(val)
+          onTextChangeRef.current?.(val)
           setSlashSelected(0)
           setMentionSelected(0)
           if (historyIdxRef.current >= 0) {
