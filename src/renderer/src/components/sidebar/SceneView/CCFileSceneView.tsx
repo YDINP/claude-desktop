@@ -491,16 +491,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         walk(node.children[i], worldX, worldY, cumRotZ, cumSx, cumSy, depth + 1, node.uuid, i, node.children.length)
       }
     }
-    // .prefab: root 자체가 실제 콘텐츠 노드 → root부터 walk
-    // .fire/.scene: root는 cc.Scene 컨테이너 → children부터 walk
-    const isPrefab = sceneFile.scenePath?.endsWith('.prefab')
-    if (isPrefab) {
-      walk(sceneFile.root, 0, 0, 0, 1, 1, 0, null, 0, 1)
-    } else {
-      for (let i = 0; i < sceneFile.root.children.length; i++) {
-        walk(sceneFile.root.children[i], 0, 0, 0, 1, 1, 0, null, i, sceneFile.root.children.length)
-      }
-    }
+    // root부터 walk — 씬/프리펩 모두 root 포함
+    // 씬 root(cc.Scene)는 size=0 이므로 렌더링에서 null 반환되어 무해
+    // 프리펩 root는 실제 콘텐츠 노드이므로 반드시 포함해야 함
+    walk(sceneFile.root, 0, 0, 0, 1, 1, 0, null, 0, 1)
     return result
   }, [sceneFile, collapsedUuids])
 
