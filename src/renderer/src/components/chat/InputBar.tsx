@@ -160,9 +160,9 @@ function parseSlash(text: string): SlashParsed | null {
     return { cmd: text.slice(1), args: null, query: text.slice(1) }
   }
   const cmd = text.slice(1, space)
-  // 공백 입력 시 드롭다운 닫기: '' || null → '' (null이면 isSlashOpen 유지됨)
   const rawArgs = text.slice(space + 1)
-  const args = rawArgs.trim().length > 0 ? rawArgs.trim() : ''
+  // rawArgs가 실제 내용 있을 때만 args 설정 → 공백만이면 null 유지 (드롭다운 열린 채로 args 입력 가능)
+  const args = rawArgs.trim().length > 0 ? rawArgs.trim() : null
   return { cmd, args, query: cmd }
 }
 
@@ -688,6 +688,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const selectSlashCommand = (cmd: SlashCommand & { workflowPath?: string; category?: string }) => {
     // 워크플로우 커맨드인 경우: .md 파일을 로드하여 extraSystemPrompt로 주입
     if (cmd.workflowPath) {
+      setText('') // 즉시 입력 초기화 — async 로딩 동안 /commandName 잔류 방지
       window.api.commandLoadWorkflow(cmd.workflowPath).then(({ content, error }) => {
         if (error || !content) {
           setText(`[${cmd.label}: 워크플로우 로드 실패]`)
@@ -1198,10 +1199,14 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           overflow: 'hidden',
           boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
           zIndex: 100,
+          maxHeight: 320,
+          display: 'flex',
+          flexDirection: 'column',
         }}>
-          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none' }}>
+          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none', flexShrink: 0 }}>
             ↑↓ 탐색 · Enter/Tab 선택 · Esc 닫기
           </div>
+          <div style={{ overflowY: 'auto', flex: 1 }}>
           {filteredCmds.map((c, i) => (
             <div
               key={c.cmd}
@@ -1234,6 +1239,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
               )}
             </div>
           ))}
+          </div>
         </div>
       )}
 
