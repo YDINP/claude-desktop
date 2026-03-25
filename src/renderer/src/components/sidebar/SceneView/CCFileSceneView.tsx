@@ -2661,7 +2661,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
             // R1623: 와이어프레임 모드시 fill 투명
             // R1641: depth 색조 — hue 순환 (30° 간격)
-            const depthHue = depthColorMode ? (fn.depth * 47) % 360 : 0
+            const depthHue = depthColorMode ? (depth * 47) % 360 : 0
             const fillColor = wireframeMode ? 'none'
               : depthColorMode ? `hsla(${depthHue},70%,60%,0.15)`
               : isSearchMatch ? 'rgba(255,68,255,0.12)'

@@ -195,12 +195,10 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   useEffect(() => { onTextChangeRef.current = onTextChange }, [onTextChange])
   const [text, _setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
   const setText = useCallback((val: string | ((prev: string) => string)) => {
-    _setText(prev => {
-      const next = typeof val === 'function' ? val(prev) : val
-      onTextChangeRef.current?.(next)
-      return next
-    })
+    _setText(prev => typeof val === 'function' ? val(prev) : val)
   }, [])
+  // onTextChange 동기화 — updater 내부에서 호출하면 "render 중 다른 컴포넌트 업데이트" 경고 발생
+  React.useEffect(() => { onTextChangeRef.current?.(text) }, [text])
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
   const [customTemplates, setCustomTemplates] = useState<SlashCommand[]>([])
@@ -686,9 +684,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   }, [text])
 
   const selectSlashCommand = (cmd: SlashCommand & { workflowPath?: string; category?: string }) => {
-    // 워크플로우 커맨드인 경우: .md 파일을 로드하여 입력박스에 삽입
+    // 워크플로우 커맨드인 경우: 시스템 프롬프트로 주입 + 입력창 초기화
     if (cmd.workflowPath) {
-      setText('') // 즉시 입력 초기화 — async 로딩 동안 /commandName 잔류 방지
+      setText('') // 즉시 입력 초기화
       textareaRef.current?.focus()
       window.api.commandLoadWorkflow(cmd.workflowPath).then(({ content, error }) => {
         if (error || !content) {
@@ -696,13 +694,14 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           setTimeout(() => textareaRef.current?.focus(), 0)
           return
         }
-        // $ARGUMENTS 치환 후 입력박스에 삽입 (사용자가 내용 확인/편집 후 전송 가능)
         const processed = content.replace(/\$ARGUMENTS/g, '')
-        setText(processed)
+        window.dispatchEvent(new CustomEvent('workflow-inject', {
+          detail: { systemPrompt: processed, label: cmd.label }
+        }))
+        setText('')
         setTimeout(() => {
-          adjustHeight()
           const ta = textareaRef.current
-          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = processed.length }
+          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = 0 }
         }, 0)
       }).catch(() => {
         setText(`[${cmd.label}: 워크플로우 로드 실패]`)
@@ -1221,7 +1220,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           <div style={{ overflowY: 'auto', flex: 1 }}>
           {filteredCmds.map((c, i) => (
             <div
-              key={c.cmd}
+              key={`${c.category ?? 'builtin'}-${c.cmd}`}
               onMouseDown={e => e.preventDefault()}
               onClick={() => selectSlashCommand(c)}
               onMouseEnter={() => setSlashSelected(i)}
