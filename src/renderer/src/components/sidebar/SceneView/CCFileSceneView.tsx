@@ -2262,11 +2262,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           const svgX = (e.clientX - rect.left - view.offsetX) / view.zoom
           const svgY = (e.clientY - rect.top - view.offsetY) / view.zoom
           // hit test all nodes for overlapping pick menu
+          // fn.worldX/Y는 CC 좌표 → SVG 좌표로 변환: sp.x = cx + worldX, sp.y = cy - worldY
           const hits = flatNodes.filter(fn => {
             if (!fn.node.size) return false
-            const nx = fn.worldX - (fn.node.anchor?.x ?? 0.5) * fn.node.size.x
-            const ny = fn.worldY - (1 - (fn.node.anchor?.y ?? 0.5)) * fn.node.size.y
-            return svgX >= nx && svgX <= nx + fn.node.size.x && svgY >= ny && svgY <= ny + fn.node.size.y
+            const w = fn.node.size.x, h = fn.node.size.y
+            const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+            const spx = cx + fn.worldX, spy = cy - fn.worldY
+            const nx = spx - ax * w, ny = spy - (1 - ay) * h
+            return svgX >= nx && svgX <= nx + w && svgY >= ny && svgY <= ny + h
           }).map(fn => ({ uuid: fn.node.uuid, name: fn.node.name }))
           if (hits.length > 1) {
             setNodePickMenu({ x: e.clientX, y: e.clientY, nodes: hits })
@@ -2768,7 +2771,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {showSizeLabels && view.zoom > 0.3 && (() => {
                   const sw = Math.round(node.size?.x ?? 0), sh = Math.round(node.size?.y ?? 0)
                   if (sw === 0 && sh === 0) return null
-                  const fs = Math.max(6, 9 / view.zoom)
+                  const fs = 9 / view.zoom
                   return (
                     <text
                       x={svgPos.x} y={rectY + h + fs * 1.2}
@@ -2783,7 +2786,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const rot = node.rotation
                   const deg = typeof rot === 'number' ? rot : (rot as { z?: number })?.z ?? 0
                   if (Math.abs(deg) < 0.5) return null
-                  const fs = Math.max(6, 9 / view.zoom)
+                  const fs = 9 / view.zoom
                   return (
                     <text
                       x={rectX + fs * 0.3} y={rectY + h - fs * 0.5}
@@ -2795,7 +2798,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })()}
                 {/* R2585: 노드 이름 레이블 오버레이 */}
                 {showNameLabels && view.zoom > 0.3 && (() => {
-                  const fs = Math.max(6, 9 / view.zoom)
+                  const fs = 9 / view.zoom
                   const maxChars = Math.max(4, Math.floor(w / (fs * 0.6)))
                   const label = node.name.length > maxChars ? node.name.slice(0, maxChars - 1) + '…' : node.name
                   return (
@@ -2813,7 +2816,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const ay = node.anchor?.y ?? 0.5
                   const apX = rectX + w * ax
                   const apY = rectY + h * (1 - ay)
-                  const cs = Math.max(3, 5 / view.zoom)
+                  const cs = 5 / view.zoom
                   const sw = Math.max(0.5, 1 / view.zoom)
                   return (
                     <g style={{ pointerEvents: 'none' }}>
@@ -2827,7 +2830,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {showColorSwatch && view.zoom > 0.25 && (() => {
                   const c = node.color ?? { r: 255, g: 255, b: 255, a: 255 }
                   if (c.r === 255 && c.g === 255 && c.b === 255) return null
-                  const ss = Math.max(4, 8 / view.zoom)
+                  const ss = 8 / view.zoom
                   return (
                     <rect
                       x={rectX + w - ss - 1 / view.zoom} y={rectY + 1 / view.zoom}
@@ -2842,7 +2845,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {/* R2591: 자식 수 배지 오버레이 */}
                 {showChildCountBadge && view.zoom > 0.3 && node.children.length > 0 && (() => {
                   const cnt = node.children.length
-                  const fs = Math.max(5, 8 / view.zoom)
+                  const fs = 8 / view.zoom
                   const pad = fs * 0.4
                   const bw = (cnt >= 10 ? fs * 1.6 : fs * 1.2) + pad * 2
                   const bh = fs + pad * 2
@@ -2857,7 +2860,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })()}
                 {/* R2592: 깊이 레이블 오버레이 (D:N) */}
                 {showDepthLabel && view.zoom > 0.3 && (() => {
-                  const fs = Math.max(5, 8 / view.zoom)
+                  const fs = 8 / view.zoom
                   return (
                     <text
                       x={rectX + 1 / view.zoom} y={rectY + fs * 1.1}
@@ -2873,7 +2876,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const fx = (sc?.x ?? 1) < 0, fy = (sc?.y ?? 1) < 0
                   if (!fx && !fy) return null
                   const label = fx && fy ? '↔↕' : fx ? '↔' : '↕'
-                  const fs = Math.max(7, 10 / view.zoom)
+                  const fs = 10 / view.zoom
                   return (
                     <text
                       x={rectX + w / 2} y={rectY + h / 2 + fs * 0.35}
@@ -2900,7 +2903,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })()}
                 {/* R2615: W×H 크기 표시 */}
                 {showSizeOverlay && w > 0 && h > 0 && view.zoom > 0.3 && (() => {
-                  const fs = Math.max(5, 7 / view.zoom)
+                  const fs = 7 / view.zoom
                   return (
                     <text
                       x={rectX + w / 2} y={rectY + h + fs * 1.2}
@@ -2916,7 +2919,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const mainComp = node.components.find(c => !ccIgnore.has(c.type))
                   if (!mainComp) return null
                   const short = mainComp.type.includes('.') ? mainComp.type.split('.').pop()!.slice(0, 4) : mainComp.type.slice(0, 4)
-                  const fs = Math.max(5, 7 / view.zoom)
+                  const fs = 7 / view.zoom
                   return (
                     <text
                       x={rectX + w - 1/view.zoom} y={rectY + h - 1/view.zoom}
@@ -2928,7 +2931,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })()}
                 {/* R2603: tag 배지 */}
                 {showTagBadge && (node.tag ?? 0) !== 0 && view.zoom > 0.3 && (() => {
-                  const fs = Math.max(5, 7 / view.zoom)
+                  const fs = 7 / view.zoom
                   return (
                     <text
                       x={rectX + 1/view.zoom} y={rectY + h - 1/view.zoom}
@@ -2942,7 +2945,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {showOpacityLabels && view.zoom > 0.3 && (() => {
                   const pct = Math.round(((node.opacity ?? 255) / 255) * 100)
                   if (pct === 100) return null
-                  const fs = Math.max(6, 9 / view.zoom)
+                  const fs = 9 / view.zoom
                   return (
                     <text
                       x={rectX + w - fs * 0.3} y={rectY + fs * 1.2}
@@ -2959,7 +2962,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   if (Math.abs(sx - 1) < 0.01 && Math.abs(sy - 1) < 0.01) return null
                   const fmtN = (v: number) => (Math.abs(v - Math.round(v)) < 0.01 ? Math.round(v).toString() : v.toFixed(2))
                   const label = sx === sy ? `×${fmtN(sx)}` : `×${fmtN(sx)},${fmtN(sy)}`
-                  const fs = Math.max(5, 7 / view.zoom)
+                  const fs = 7 / view.zoom
                   return (
                     <text
                       x={rectX + 1/view.zoom} y={rectY + fs * 1.2}
@@ -2977,7 +2980,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   }
                   const layerName = LAYER_NAMES[node.layer] ?? `L${node.layer}`
                   if (node.layer === 1048576) return null  // default CC3.x layer — skip
-                  const fs = Math.max(5, 7 / view.zoom)
+                  const fs = 7 / view.zoom
                   return (
                     <text
                       x={rectX + w / 2} y={rectY + fs * 1.2}
@@ -2991,7 +2994,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {showSelOrder && (() => {
                   const selIdx = uuids.indexOf(node.uuid)
                   if (selIdx < 0) return null
-                  const fs = Math.max(7, 9 / view.zoom)
+                  const fs = 9 / view.zoom
                   const pad = 2 / view.zoom
                   return (
                     <text
@@ -3008,7 +3011,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const ay = node.anchor?.y ?? 0.5
                   const apx = rectX + w * ax
                   const apy = rectY + h * (1 - ay)
-                  const r = Math.max(2, 4 / view.zoom)
+                  const r = 4 / view.zoom
                   const sw = 1 / view.zoom
                   return (
                     <g style={{ pointerEvents: 'none' }}>
@@ -3146,7 +3149,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 {showNonDefaultAnchor && w > 0 && h > 0 && (() => {
                   const ax = node.anchor?.x ?? 0.5, ay = node.anchor?.y ?? 0.5
                   if (Math.abs(ax - 0.5) < 0.001 && Math.abs(ay - 0.5) < 0.001) return null
-                  const fs = Math.max(6, 8 / view.zoom)
+                  const fs = 8 / view.zoom
                   const label = `(${ax.toFixed(1)},${ay.toFixed(1)})`
                   return (
                     <text x={rectX + w * ax} y={rectY + h * (1 - ay)}
@@ -3192,7 +3195,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const interactiveTypes = new Set(['cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.EditBox', 'cc.PageView'])
                   const hasInteractive = node.components.some(c => interactiveTypes.has(c.type)) || (node.eventHandlers && node.eventHandlers.length > 0)
                   if (!hasInteractive) return null
-                  const fs = Math.max(6, 8 / view.zoom)
+                  const fs = 8 / view.zoom
                   return (
                     <text
                       x={rectX + w - 1/view.zoom} y={rectY + 1/view.zoom}
@@ -3359,7 +3362,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const ignore = new Set(['cc.UITransform','cc.UIOpacity','cc.BlockInputEvents'])
                   const shown = node.components.filter(c => !ignore.has(c.type)).slice(0, 3)
                   if (shown.length === 0) return null
-                  const fs = Math.max(7, 10 / view.zoom)
+                  const fs = 10 / view.zoom
                   const badges = shown.map(c => BADGE_ICONS[c.type] ?? c.type.split('.').pop()?.slice(0, 3) ?? '?').join(' ')
                   return (
                     <text
@@ -3579,8 +3582,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     : outlineComp?.props?.color ?? outlineComp?.props?._color) as { r?: number; g?: number; b?: number } | undefined
                   const { r: or = 0, g: og = 0, b: ob = 0 } = outlineColorProp ?? {}
                   const outlineWidth = enableOutline
-                    ? Number(lc?.props?.outlineWidth ?? lc?.props?._outlineWidth ?? 1)
-                    : Number(outlineComp?.props?.width ?? outlineComp?.props?._width ?? 1)
+                    ? Number(lc?.props?.outlineWidth ?? lc?.props?._outlineWidth ?? lc?.props?.['_N$outlineWidth'] ?? 1)
+                    : Number(outlineComp?.props?.width ?? outlineComp?.props?._width ?? outlineComp?.props?.['_N$width'] ?? 1)
                   // Shadow: CC3.x enableShadow or cc.LabelShadow component
                   const enableShadow = !!(lc?.props?.enableShadow ?? lc?.props?._enableShadow ?? false)
                   const shadowComp = node.components.find(c => c.type === 'cc.LabelShadow')
@@ -3594,9 +3597,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const shadowOffsetProp = (enableShadow
                     ? lc?.props?.shadowOffset
                     : shadowComp?.props?.offset ?? shadowComp?.props?._offset) as { x?: number; y?: number } | undefined
-                  // SVG transform="scale(zoom)"이 적용되므로 shadow 값은 게임 픽셀 그대로 사용
-                  // fontSize={fs}와 동일하게 zoom 보정 없이 → zoom 시 텍스트와 함께 비례 스케일
-                  // (/ view.zoom 제거: 기존 코드에서 shadow가 zoom에 따라 동적으로 변하는 버그 수정)
+                  // CSS drop-shadow 필터는 화면 픽셀 기준으로 동작 → game pixel 그대로 사용
+                  // (scale(zoom)과 무관하게 화면에서 고정 픽셀로 렌더링됨)
                   const shOffX = Number(shadowOffsetProp?.x ?? 2)
                   const shOffY = -Number(shadowOffsetProp?.y ?? -2)
 
@@ -3677,7 +3679,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                         dominantBaseline={lines.length === 1 ? dominantBaselineVal : 'auto'}
                         fontFamily={fontFamilyName}
                         stroke={hasOutline ? `rgb(${or},${og},${ob})` : undefined}
-                        strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) / view.zoom : undefined}
+                        strokeWidth={hasOutline ? Math.max(outlineWidth, 0.5) : undefined}
                         paintOrder={hasOutline ? 'stroke' : undefined}
                         filter={hasShadow ? `drop-shadow(${shOffX}px ${shOffY}px ${shBlur}px rgba(${shr},${shg},${shb},${sha / 255}))` : undefined}
                         clipPath={needsClip ? `url(#${clipId})` : undefined}
@@ -3895,7 +3897,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {showZeroSizeWarn && flatNodes.map(fn => {
             if ((fn.node.size?.x ?? 0) !== 0 && (fn.node.size?.y ?? 0) !== 0) return null
             const sp = ccToSvg(fn.worldX, fn.worldY)
-            const fs = Math.max(8, 11 / view.zoom)
+            const fs = 11 / view.zoom
             return (
               <g key={`zw-${fn.node.uuid}`} style={{ pointerEvents: 'none' }}>
                 <text x={sp.x} y={sp.y + fs * 0.4} textAnchor="middle" fontSize={fs}
@@ -3911,13 +3913,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const h = fn.node.size?.y ?? 0
             const ax = fn.node.anchor?.x ?? 0.5
             const ay = fn.node.anchor?.y ?? 0.5
-            const iconSize = Math.max(8, 9 / view.zoom)
+            // 화면 고정 크기 14px: UI 오버레이이므로 zoom에 따라 변하지 않아야 함
+            const iconSize = 14 / view.zoom
             // 노드 우상단 모서리 기준
-            const iconX = sp.x + w * (1 - ax) - iconSize * 0.1 / view.zoom
-            const iconY = sp.y - h * (1 - ay) + iconSize * 1.1 / view.zoom
+            const iconX = sp.x + w * (1 - ax) - iconSize * 0.1
+            const iconY = sp.y - h * (1 - ay) + iconSize * 1.1
             return (
               <text key={`lk-${fn.node.uuid}`}
-                x={iconX} y={iconY} fontSize={iconSize / view.zoom}
+                x={iconX} y={iconY} fontSize={iconSize}
                 textAnchor="end" fill="rgba(251,191,36,0.9)"
                 style={{ pointerEvents: 'none', userSelect: 'none' }}
               >🔒</text>
@@ -4101,7 +4104,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const svgR = ccToSvg(maxX, minY).x, svgB = ccToSvg(maxX, minY).y
             const bw = svgR - svgL, bh = svgB - svgT
             const sw = 1.5 / view.zoom
-            const fs = Math.max(6, 9 / view.zoom)
+            const fs = 9 / view.zoom
             const wCC = Math.round(maxX - minX), hCC = Math.round(maxY - minY)
             return (
               <>
@@ -4125,7 +4128,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const safeX = svgLeft + safeMarginX, safeY = svgTop + safeMarginY
             const safeW = cw * 0.9, safeH = ch * 0.9
             const sw = 1 / view.zoom
-            const fs = Math.max(5, 8 / view.zoom)
+            const fs = 8 / view.zoom
             return (
               <>
                 {/* 90% 안전 영역 */}
@@ -4167,7 +4170,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const ry = cy - rh / 2
             const sw = 1.5 / view.zoom
             const dash = 6 / view.zoom
-            const fs = Math.max(5, 8 / view.zoom)
+            const fs = 8 / view.zoom
             return (
               <g>
                 <rect x={rx} y={ry} width={rw} height={rh}
@@ -4204,7 +4207,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const svgR = ccToSvg(maxX, minY).x, svgB = ccToSvg(maxX, minY).y
             const bw = svgR - svgL, bh = svgB - svgT
             const sw = 1.5 / view.zoom
-            const fs = Math.max(6, 9 / view.zoom)
+            const fs = 9 / view.zoom
             const wCC = Math.round(maxX - minX), hCC = Math.round(maxY - minY)
             return (
               <>
@@ -4247,7 +4250,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           {/* R2617: 원점(0,0) 십자선 */}
           {showOriginCross && (() => {
             const arm = Math.max(20, Math.min(effectiveW, effectiveH) * 0.1) / view.zoom
-            const fs = Math.max(6, 9 / view.zoom)
+            const fs = 9 / view.zoom
             return (
               <>
                 <line x1={cx - arm} y1={cy} x2={cx + arm} y2={cy}
@@ -4296,7 +4299,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
               maxX = Math.max(maxX, rx + w); maxY = Math.max(maxY, ry + h)
             })
             const bw = maxX - minX, bh = maxY - minY
-            const pad = 6 / view.zoom, fs = Math.max(6, 9 / view.zoom)
+            const pad = 6 / view.zoom, fs = 9 / view.zoom
             return (
               <>
                 <rect x={minX - pad} y={minY - pad} width={bw + pad*2} height={bh + pad*2}
