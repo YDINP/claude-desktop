@@ -468,16 +468,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     }
   }, [focusTrigger])
 
-  // 슬래시 메뉴가 닫힌 직후 textarea 포커스 복구 (커맨드 선택/Esc/공백 등 모든 닫힘 케이스)
-  // useLayoutEffect: DOM 커밋 직후, 페인트 전에 실행 — 다음 키 이벤트 전에 포커스 확정
-  const prevIsSlashOpenRef = React.useRef(false)
-  React.useLayoutEffect(() => {
-    if (prevIsSlashOpenRef.current && !isSlashOpen) {
-      textareaRef.current?.focus()
-    }
-    prevIsSlashOpenRef.current = isSlashOpen
-  }, [isSlashOpen])
-
   useEffect(() => {
     if (!pendingInsert) return
     const ta = textareaRef.current
@@ -623,6 +613,18 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const slashParsed = parseSlash(text)
   const slashQuery = slashParsed?.query ?? null
   const isSlashOpen = slashParsed !== null && slashParsed.args === null
+
+  // 슬래시 메뉴가 닫힌 직후 textarea 포커스 복구 (커맨드 선택/Esc/공백 등 모든 닫힘 케이스)
+  // useLayoutEffect: DOM 커밋 직후, 페인트 전에 실행 — 다음 키 이벤트 전에 포커스 확정
+  // (isSlashOpen 선언 이후에 위치해야 TDZ 에러 방지)
+  const prevIsSlashOpenRef = React.useRef(false)
+  React.useLayoutEffect(() => {
+    if (prevIsSlashOpenRef.current && !isSlashOpen) {
+      textareaRef.current?.focus()
+    }
+    prevIsSlashOpenRef.current = isSlashOpen
+  }, [isSlashOpen])
+
   const allCommands = [...SLASH_COMMANDS, ...customTemplates]
   const registryCmds = SlashCommandRegistry.getAllCompat()
   const filteredCmds = isSlashOpen && slashQuery !== null
