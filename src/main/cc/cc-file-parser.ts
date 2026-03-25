@@ -138,7 +138,7 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
   const tag = typeof e._tag === 'number' ? e._tag : undefined
 
   return {
-    uuid: (e._id as string | undefined) ?? `_idx${idx}`,
+    uuid: ((e._id as string | undefined) || undefined) ?? `_idx${idx}`,
     name: (e._name as string | undefined) ?? '',
     active: (e._active as boolean | undefined) ?? true,
     position: trs.position,
@@ -762,7 +762,7 @@ function parseNode3x(
     .filter((n): n is CCSceneNode => n !== null)
 
   return {
-    uuid: (e._id as string | undefined) ?? `_idx${idx}`,
+    uuid: ((e._id as string | undefined) || undefined) ?? `_idx${idx}`,
     name: (e._name as string | undefined) ?? '',
     active: (e._active as boolean | undefined) ?? true,
     position,
