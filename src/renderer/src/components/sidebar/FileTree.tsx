@@ -325,20 +325,9 @@ export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit,
   const gitStatus = gitStatusProp ?? gitStatusInternal
 
   useEffect(() => {
+    // git API 제거됨 (be49465c) — gitStatusFull 호출 비활성화
     if (gitStatusProp) return
-    const fetchGitStatus = () => {
-      window.api.gitStatusFull(rootPath).then(result => {
-        if (result.error) return
-        const map: Record<string, string> = {}
-        for (const f of result.files) {
-          map[f.path] = f.status
-        }
-        setGitStatusInternal(map)
-      }).catch(() => {})
-    }
-    fetchGitStatus()
-    const interval = setInterval(fetchGitStatus, 5000)
-    return () => clearInterval(interval)
+    // window.api.gitStatusFull is no longer available
   }, [rootPath, gitStatusProp])
 
   const refresh = useCallback(() => {
