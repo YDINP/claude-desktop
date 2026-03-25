@@ -91,7 +91,7 @@ export function ScrubLabel({ label, value, onChange, step = 1, inputRef, color, 
       startRef.current.moved = true
       const dx = me.clientX - startRef.current.x
       const raw = startRef.current.v + dx * sensitivity * step
-      onChange(Math.round(raw / step) * step)
+      onChange(Number((Math.round(raw / step) * step).toPrecision(7)))
     }
     const onUp = (ue: MouseEvent) => {
       const wasDrag = startRef.current?.moved ?? false

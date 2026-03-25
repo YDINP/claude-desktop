@@ -521,7 +521,8 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
             if (isNaN(current)) return
             const delta = e.deltaY < 0 ? step : -step
             const multiplier = e.shiftKey ? 10 : 1
-            onChange(current + delta * multiplier)
+            // float32 저장값의 float64 변환 오차 제거 (0.8 → 0.800000011... 류) — toPrecision(7) = float32 유효자릿수
+            onChange(Number((current + delta * multiplier).toPrecision(7)))
           }}
           style={{
             flex: 1, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)',
