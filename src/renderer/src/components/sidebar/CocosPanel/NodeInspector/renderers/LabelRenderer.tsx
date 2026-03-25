@@ -366,7 +366,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       )
                     })()}
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 8, flexShrink: 0 }}>spcX</span>
-                    <input type="number" key={Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)} defaultValue={Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)} step={1}
+                    <input type="number" key={`sx-${Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)}`} defaultValue={Number(p.spacingX ?? p._spacingX ?? p._N$spacingX ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingX: v, _spacingX: v, _N$spacingX: v } } : c)
@@ -376,7 +376,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                     />
                     {/* R2364: spacingY */}
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', marginLeft: 4, flexShrink: 0 }}>Y</span>
-                    <input type="number" key={Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)} defaultValue={Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)} step={1}
+                    <input type="number" key={`sy-${Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)}`} defaultValue={Number(p.spacingY ?? p._spacingY ?? p._N$spacingY ?? 0)} step={1}
                       onBlur={e => {
                         const v = parseFloat(e.target.value) || 0
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, spacingY: v, _spacingY: v, _N$spacingY: v } } : c)
