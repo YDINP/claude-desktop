@@ -794,6 +794,12 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const handleKeyDown = (e: React.KeyboardEvent) => {
     updateCursor()
 
+    // 텍스트 편집 표준 단축키는 브라우저 기본 동작에 위임 (차단 방지)
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
+      const k = e.key.toLowerCase()
+      if (k === 'a' || k === 'c' || k === 'v' || k === 'x' || k === 'z' || k === 'y') return
+    }
+
     // Smart input: wrap selected text with quotes or parens
     if (smartInput && !e.ctrlKey && !e.metaKey && !e.altKey) {
       const ta = textareaRef.current

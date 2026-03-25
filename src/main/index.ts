@@ -156,6 +156,23 @@ app.whenReady().then(() => {
     }
   })
 
+  // Edit 메뉴 등록 — Ctrl+C/V/A/X/Z 네이티브 단축키 보장 (없으면 일부 환경에서 동작 안 함)
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'pasteAndMatchStyle' },
+        { role: 'selectAll' },
+      ],
+    },
+  ]))
+
   const win = createWindow()
   registerAllHandlers(win)
 
