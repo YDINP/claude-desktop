@@ -1668,6 +1668,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         ref={textareaRef}
         value={text}
         onChange={(e) => {
+          if (e.target.value === ' ' || (e.target.value.length === 1 && e.nativeEvent.data === ' ')) {
+            console.log('[slash-debug] onChange FIRED with space | val:', JSON.stringify(e.target.value))
+          }
           cursorPosRef.current = e.target.selectionStart ?? 0
           const val = e.target.value
           const pos = e.target.selectionStart ?? 0

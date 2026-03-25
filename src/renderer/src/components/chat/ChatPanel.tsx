@@ -1049,6 +1049,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   React.useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail
+      console.log('[slash-debug] workflow-inject received, setting workflowPrompt')
       if (detail?.systemPrompt) {
         setWorkflowPrompt(detail.systemPrompt)
       }
