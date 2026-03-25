@@ -305,7 +305,7 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
     const result = await saveSceneRef.current(root)
     setSaving(false)
     if (result.success) {
-      setMsg({ ok: true, text: '저장됨' })
+      setMsg(null)
       setIsDirty(false)
       setSavedToast(true)
       setTimeout(() => setSavedToast(false), 1500)
