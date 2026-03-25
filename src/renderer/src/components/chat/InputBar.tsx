@@ -468,6 +468,16 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     }
   }, [focusTrigger])
 
+  // 슬래시 메뉴가 닫힌 직후 textarea 포커스 복구 (커맨드 선택/Esc/공백 등 모든 닫힘 케이스)
+  // useLayoutEffect: DOM 커밋 직후, 페인트 전에 실행 — 다음 키 이벤트 전에 포커스 확정
+  const prevIsSlashOpenRef = React.useRef(false)
+  React.useLayoutEffect(() => {
+    if (prevIsSlashOpenRef.current && !isSlashOpen) {
+      textareaRef.current?.focus()
+    }
+    prevIsSlashOpenRef.current = isSlashOpen
+  }, [isSlashOpen])
+
   useEffect(() => {
     if (!pendingInsert) return
     const ta = textareaRef.current
@@ -700,11 +710,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         window.dispatchEvent(new CustomEvent('workflow-inject', {
           detail: { systemPrompt: processed, label: cmd.label }
         }))
-        setText('')
-        setTimeout(() => {
-          const ta = textareaRef.current
-          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = 0 }
-        }, 0)
+        // setText('') 중복 제거 — 이미 동기 setText('')로 초기화됨
+        // setTimeout cursor reset 제거 — 유저가 타이핑한 내용을 덮어씀
       }).catch(() => {
         setText(`[${cmd.label}: 워크플로우 로드 실패]`)
         setTimeout(() => textareaRef.current?.focus(), 0)
