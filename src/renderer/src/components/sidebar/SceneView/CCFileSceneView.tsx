@@ -1445,10 +1445,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative' }}>
-      {/* 툴바 — overflow-x:auto: 우측 패널 활성 시 SceneView 폭이 좁아져도 버튼 접근 가능 */}
+      {/* 툴바 */}
       <div style={{
         display: 'flex', gap: 4, padding: '3px 8px', borderBottom: '1px solid var(--border)',
-        flexShrink: 0, alignItems: 'center', fontSize: 11, overflowX: 'auto',
+        flexShrink: 0, alignItems: 'center', fontSize: 11,
       }}>
         {/* R1548: 해상도 표시 클릭 → preset picker */}
         <span style={{ color: resOverride ? '#fbbf24' : 'var(--text-muted)', flex: 1, position: 'relative' }}>
