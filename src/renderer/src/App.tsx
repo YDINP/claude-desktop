@@ -246,7 +246,13 @@ function AppContent() {
   useEffect(() => {
     const handler = (e: Event) => {
       const path = (e as CustomEvent<string>).detail
-      if (path) openFile(path)
+      if (!path) return
+      if (/\.(fire|scene|prefab)$/i.test(path)) {
+        // 씬/프리펩 → CocosPanel에서 열기
+        window.dispatchEvent(new CustomEvent('cc:load-scene', { detail: path }))
+      } else {
+        openFile(path)
+      }
     }
     window.addEventListener('cc:open-file', handler)
     return () => window.removeEventListener('cc:open-file', handler)
