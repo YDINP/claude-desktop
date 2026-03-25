@@ -428,10 +428,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // 캔버스 크기 + 배경색 추정
   const { designW, designH, bgColor } = useMemo(() => {
     const root = sceneFile.root
-    const canvasNode = root.children.find(n =>
+    const isPrefab = sceneFile.scenePath?.endsWith('.prefab')
+    // prefab: root 자체가 콘텐츠 노드 — root.size 사용
+    // scene: Canvas 컴포넌트 가진 노드 또는 첫 자식 노드 사용
+    const canvasNode = isPrefab ? null : root.children.find(n =>
       n.name === 'Canvas' || n.components.some(c => c.type === 'cc.Canvas')
     )
-    const n = canvasNode ?? root.children[0]
+    const n = isPrefab ? root : (canvasNode ?? root.children[0])
     // Camera clearColor 또는 Canvas backgroundColor 탐색
     let bgColor = '#1a1a2e'
     const allNodes = [root, ...(root.children ?? [])]
@@ -488,9 +491,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         walk(node.children[i], worldX, worldY, cumRotZ, cumSx, cumSy, depth + 1, node.uuid, i, node.children.length)
       }
     }
-    // Scene 루트 자체는 건너뜀 (이름 없는 컨테이너)
-    for (let i = 0; i < sceneFile.root.children.length; i++) {
-      walk(sceneFile.root.children[i], 0, 0, 0, 1, 1, 0, null, i, sceneFile.root.children.length)
+    // .prefab: root 자체가 실제 콘텐츠 노드 → root부터 walk
+    // .fire/.scene: root는 cc.Scene 컨테이너 → children부터 walk
+    const isPrefab = sceneFile.scenePath?.endsWith('.prefab')
+    if (isPrefab) {
+      walk(sceneFile.root, 0, 0, 0, 1, 1, 0, null, 0, 1)
+    } else {
+      for (let i = 0; i < sceneFile.root.children.length; i++) {
+        walk(sceneFile.root.children[i], 0, 0, 0, 1, 1, 0, null, i, sceneFile.root.children.length)
+      }
     }
     return result
   }, [sceneFile, collapsedUuids])
