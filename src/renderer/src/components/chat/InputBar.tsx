@@ -161,8 +161,8 @@ function parseSlash(text: string): SlashParsed | null {
   }
   const cmd = text.slice(1, space)
   const rawArgs = text.slice(space + 1)
-  // rawArgs가 실제 내용 있을 때만 args 설정 → 공백만이면 null 유지 (드롭다운 열린 채로 args 입력 가능)
-  const args = rawArgs.trim().length > 0 ? rawArgs.trim() : null
+  // 공백 입력 시 드롭다운 닫기 → args='' (null이면 isSlashOpen 유지되어 Enter가 명령 선택으로 낚아채짐)
+  const args = rawArgs.trim().length > 0 ? rawArgs.trim() : ''
   return { cmd, args, query: cmd }
 }
 
@@ -718,6 +718,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     // 기존 방식: 프롬프트 텍스트 삽입
     setText(cmd.prompt)
     setSlashSelected(0)
+    // 즉시 포커스 복구 (클릭으로 명령 선택 시 textarea 포커스 소실 방지)
+    textareaRef.current?.focus()
     setTimeout(() => {
       adjustHeight()
       const ta = textareaRef.current
@@ -908,6 +910,12 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
 
     // Slash command navigation takes priority
     if (isSlashOpen && filteredCmds.length > 0) {
+      if (e.key === ' ') {
+        // Space: 드롭다운 닫고 공백 추가 (default 허용) + 포커스 유지 보장
+        // parseSlash가 args=''로 isSlashOpen=false 처리 → 다음 렌더에서 닫힘
+        requestAnimationFrame(() => textareaRef.current?.focus())
+        return  // default behavior로 공백 추가
+      }
       if (e.key === 'ArrowDown') {
         e.preventDefault()
         setSlashSelected(i => (i + 1) % filteredCmds.length)
