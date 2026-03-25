@@ -195,10 +195,12 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   useEffect(() => { onTextChangeRef.current = onTextChange }, [onTextChange])
   const [text, _setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
   const setText = useCallback((val: string | ((prev: string) => string)) => {
-    _setText(prev => typeof val === 'function' ? val(prev) : val)
+    _setText(prev => {
+      const next = typeof val === 'function' ? val(prev) : val
+      onTextChangeRef.current?.(next)
+      return next
+    })
   }, [])
-  // onTextChange 동기화 — updater 내부에서 호출하면 "render 중 다른 컴포넌트 업데이트" 경고 발생
-  React.useEffect(() => { onTextChangeRef.current?.(text) }, [text])
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
   const [customTemplates, setCustomTemplates] = useState<SlashCommand[]>([])
@@ -791,6 +793,12 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     updateCursor()
+
+    // 텍스트 편집 표준 단축키는 브라우저 기본 동작에 위임 (차단 방지)
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
+      const k = e.key.toLowerCase()
+      if (k === 'a' || k === 'c' || k === 'v' || k === 'x' || k === 'z' || k === 'y') return
+    }
 
     // Smart input: wrap selected text with quotes or parens
     if (smartInput && !e.ctrlKey && !e.metaKey && !e.altKey) {
