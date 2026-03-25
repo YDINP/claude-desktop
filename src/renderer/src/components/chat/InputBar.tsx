@@ -686,26 +686,23 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   }, [text])
 
   const selectSlashCommand = (cmd: SlashCommand & { workflowPath?: string; category?: string }) => {
-    // 워크플로우 커맨드인 경우: .md 파일을 로드하여 extraSystemPrompt로 주입
+    // 워크플로우 커맨드인 경우: .md 파일을 로드하여 입력박스에 삽입
     if (cmd.workflowPath) {
       setText('') // 즉시 입력 초기화 — async 로딩 동안 /commandName 잔류 방지
+      textareaRef.current?.focus()
       window.api.commandLoadWorkflow(cmd.workflowPath).then(({ content, error }) => {
         if (error || !content) {
           setText(`[${cmd.label}: 워크플로우 로드 실패]`)
           setTimeout(() => textareaRef.current?.focus(), 0)
           return
         }
-        // $ARGUMENTS 치환 — 인자는 나중에 사용자가 입력
+        // $ARGUMENTS 치환 후 입력박스에 삽입 (사용자가 내용 확인/편집 후 전송 가능)
         const processed = content.replace(/\$ARGUMENTS/g, '')
-        // extraSystemPrompt로 주입하여 전송
-        window.dispatchEvent(new CustomEvent('workflow-inject', {
-          detail: { systemPrompt: processed, label: cmd.label }
-        }))
-        setText(``)
-        // 워크플로우 주입 후 즉시 포커스 복구 — Space/입력 불가 버그 방지
+        setText(processed)
         setTimeout(() => {
+          adjustHeight()
           const ta = textareaRef.current
-          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = 0 }
+          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = processed.length }
         }, 0)
       }).catch(() => {
         setText(`[${cmd.label}: 워크플로우 로드 실패]`)
@@ -911,10 +908,17 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     // Slash command navigation takes priority
     if (isSlashOpen && filteredCmds.length > 0) {
       if (e.key === ' ') {
-        // Space: 드롭다운 닫고 공백 추가 (default 허용) + 포커스 유지 보장
-        // parseSlash가 args=''로 isSlashOpen=false 처리 → 다음 렌더에서 닫힘
-        requestAnimationFrame(() => textareaRef.current?.focus())
-        return  // default behavior로 공백 추가
+        // Space: 브라우저 default에 의존하지 않고 직접 커서 위치에 공백 삽입
+        e.preventDefault()
+        const ta = textareaRef.current
+        const start = ta?.selectionStart ?? text.length
+        const end = ta?.selectionEnd ?? text.length
+        const newText = text.slice(0, start) + ' ' + text.slice(end)
+        setText(newText)
+        requestAnimationFrame(() => {
+          if (ta) { ta.focus(); ta.selectionStart = ta.selectionEnd = start + 1 }
+        })
+        return
       }
       if (e.key === 'ArrowDown') {
         e.preventDefault()
@@ -1218,6 +1222,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           {filteredCmds.map((c, i) => (
             <div
               key={c.cmd}
+              onMouseDown={e => e.preventDefault()}
               onClick={() => selectSlashCommand(c)}
               onMouseEnter={() => setSlashSelected(i)}
               style={{
