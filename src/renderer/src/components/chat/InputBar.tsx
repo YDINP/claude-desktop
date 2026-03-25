@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { SlashCommandRegistry, type CommandCategory } from '../../domains/commands/SlashCommandRegistry'
 
 interface SpeechRecognitionEvent extends Event {
@@ -696,8 +697,13 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const selectSlashCommand = (cmd: SlashCommand & { workflowPath?: string; category?: string }) => {
     // 워크플로우 커맨드인 경우: 시스템 프롬프트로 주입 + 입력창 초기화
     if (cmd.workflowPath) {
-      setText('') // 즉시 입력 초기화
-      textareaRef.current?.focus()
+      // flushSync: state 커밋을 동기 보장 → React inputValueTracking 초기화 후 포커스
+      flushSync(() => {
+        setText('')
+        setSlashSelected(0)
+      })
+      const ta = textareaRef.current
+      if (ta) { ta.focus() }
       window.api.commandLoadWorkflow(cmd.workflowPath).then(({ content, error }) => {
         if (error || !content) {
           setText(`[${cmd.label}: 워크플로우 로드 실패]`)
@@ -708,13 +714,11 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         window.dispatchEvent(new CustomEvent('workflow-inject', {
           detail: { systemPrompt: processed, label: cmd.label }
         }))
-        // setText('') 중복 제거 — 이미 동기 setText('')로 초기화됨
-        // setTimeout cursor reset 제거 — 유저가 타이핑한 내용을 덮어씀
+        setTimeout(() => textareaRef.current?.focus(), 0)
       }).catch(() => {
         setText(`[${cmd.label}: 워크플로우 로드 실패]`)
         setTimeout(() => textareaRef.current?.focus(), 0)
       })
-      setSlashSelected(0)
       return
     }
 
