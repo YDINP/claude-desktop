@@ -626,7 +626,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         setFontCacheVer(v => v + 1)
       }).catch(() => { if (!cancelled) fontCacheRef.current.delete(uuid) })
     })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      // 클린업 시 미완료 sentinel 제거 → 다음 effect 재실행 시 UUID 재로딩 보장
+      // (sentinel이 남으면 "이미 있음"으로 오판해 폰트 영구 미로딩 버그 방지)
+      uniqueUuids.forEach(uuid => {
+        const entry = fontCacheRef.current.get(uuid)
+        if (entry && !entry.dataUrl) fontCacheRef.current.delete(uuid)
+      })
+    }
   }, [sceneFile, flatNodes])
 
   // CC 좌표 → SVG 좌표 변환
