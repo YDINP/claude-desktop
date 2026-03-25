@@ -620,7 +620,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const prevIsSlashOpenRef = React.useRef(false)
   React.useLayoutEffect(() => {
     if (prevIsSlashOpenRef.current && !isSlashOpen) {
+      console.log('[slash-debug] useLayoutEffect: isSlashOpen closed → focusing textarea, activeElement:', document.activeElement?.tagName)
       textareaRef.current?.focus()
+      console.log('[slash-debug] after focus, activeElement:', document.activeElement?.tagName, '=== textarea?', document.activeElement === textareaRef.current)
     }
     prevIsSlashOpenRef.current = isSlashOpen
   }, [isSlashOpen])
@@ -919,6 +921,11 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         setText(newText)
         return
       }
+    }
+
+    // [DEBUG] space key trace
+    if (e.key === ' ') {
+      console.log('[slash-debug] SPACE pressed | isSlashOpen:', isSlashOpen, '| filteredCmds:', filteredCmds.length, '| focused:', document.activeElement === textareaRef.current, '| text:', JSON.stringify(text.slice(0, 30)))
     }
 
     // Slash command navigation takes priority
