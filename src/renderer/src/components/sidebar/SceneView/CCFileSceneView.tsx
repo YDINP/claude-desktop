@@ -418,8 +418,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     window.addEventListener('keyup', onKeyUp)
     return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp) }
   }, [])
-  // Sprite 텍스처 캐시: UUID → { dataUrl, w, h } (null = 해상 불가)
-  const spriteCacheRef = useRef<Map<string, { dataUrl: string; w: number; h: number }>>(new Map())
+  // Sprite 텍스처 캐시: UUID → { dataUrl, w, h, bL, bR, bT, bB } (meta border=9-slice inset 포함)
+  const spriteCacheRef = useRef<Map<string, { dataUrl: string; w: number; h: number; bL: number; bR: number; bT: number; bB: number }>>(new Map())
   const [, setSpriteCacheVer] = useState(0)
   // Font 캐시: UUID → { dataUrl, familyName }
   const fontCacheRef = useRef<Map<string, { dataUrl: string; familyName: string }>>(new Map())
@@ -584,20 +584,23 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     console.debug(`[SceneView] sprite comps=${spriteComps.length} new UUIDs=${uuids.length}`, uuids[0])
     if (!uuids.length) return
     uuids.forEach(uuid => {
-      spriteCacheRef.current.set(uuid, { dataUrl: '', w: 0, h: 0 }) // pending sentinel
-      window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url => {
-        if (url) {
-          // 이미지 원본 크기 측정 (9-slice용)
+      spriteCacheRef.current.set(uuid, { dataUrl: '', w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0 }) // pending
+      // ccFileResolveSprite: dataUrl + meta border값(9-slice inset) 함께 반환
+      window.api.ccFileResolveSprite?.(uuid, assetsDir).then(result => {
+        if (result) {
           const img = new Image()
           img.onload = () => {
-            spriteCacheRef.current.set(uuid, { dataUrl: url, w: img.naturalWidth, h: img.naturalHeight })
+            spriteCacheRef.current.set(uuid, {
+              dataUrl: result.dataUrl, w: img.naturalWidth, h: img.naturalHeight,
+              bL: result.borderLeft, bR: result.borderRight, bT: result.borderTop, bB: result.borderBottom,
+            })
             setSpriteCacheVer(v => v + 1)
           }
           img.onerror = () => {
-            spriteCacheRef.current.set(uuid, { dataUrl: url, w: 0, h: 0 })
+            spriteCacheRef.current.set(uuid, { dataUrl: result.dataUrl, w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0 })
             setSpriteCacheVer(v => v + 1)
           }
-          img.src = url
+          img.src = result.dataUrl
         } else {
           spriteCacheRef.current.delete(uuid)
           setSpriteCacheVer(v => v + 1)
@@ -3477,14 +3480,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const sizeMode = Number(sc?.props?.sizeMode ?? sc?.props?._sizeMode ?? 1)
                   // Sliced (type=1) 9-slice 렌더링
                   if (spriteType === 1 && texW > 0 && texH > 0) {
-                    const ci = sc?.props?.capInsets ?? sc?.props?._capInsets ?? sc?.props?.['_N$capInsets']
-                    const raw = ci as Record<string, number> | undefined
-                    // CC2.x: _capInsets = {x:left, y:top, width:right, height:bottom}
-                    // CC3.x: insetLeft, insetRight, insetTop, insetBottom 또는 동일 형식
-                    const capL = Math.max(0, Number(raw?.x ?? raw?.left ?? raw?.insetLeft ?? sc?.props?.insetLeft ?? 0))
-                    const capT = Math.max(0, Number(raw?.y ?? raw?.top ?? raw?.insetTop ?? sc?.props?.insetTop ?? 0))
-                    const capR = Math.max(0, Number(raw?.width ?? raw?.right ?? raw?.insetRight ?? sc?.props?.insetRight ?? 0))
-                    const capB = Math.max(0, Number(raw?.height ?? raw?.bottom ?? raw?.insetBottom ?? sc?.props?.insetBottom ?? 0))
+                    // border값: spriteFrame .meta 파일에서 읽은 값 (캐시에 저장됨)
+                    // cc.Sprite 컴포넌트 props에는 없고 spriteFrame meta의 borderTop/Bottom/Left/Right에 있음
+                    const capL = spriteEntry?.bL ?? 0
+                    const capT = spriteEntry?.bT ?? 0
+                    const capR = spriteEntry?.bR ?? 0
+                    const capB = spriteEntry?.bB ?? 0
 
                     if (capL + capR > 0 || capT + capB > 0) {
                       const srcCW = Math.max(1, texW - capL - capR)

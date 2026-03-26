@@ -212,6 +212,44 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     }
   })
 
+  /** UUID → 스프라이트 dataURL + spriteFrame meta border값 반환 (9-slice용) */
+  ipcMain.handle('cc:file:resolveSprite', async (_e, uuid: string, assetsDir: string) => {
+    const map = getCachedUUIDMap(assetsDir)
+    const asset = map.get(uuid)
+    if (!asset) return null
+    if (asset.type !== 'texture' && asset.type !== 'sprite-atlas') return null
+    try {
+      let imgPath = asset.path
+      if (imgPath.endsWith('.plist')) {
+        const pngPath = imgPath.slice(0, -5) + 'png'
+        try { await readFile(pngPath); imgPath = pngPath } catch { /* ignore */ }
+      }
+      const data = await readFile(imgPath)
+      const ext = imgPath.split('.').pop()?.toLowerCase() ?? 'png'
+      const mime: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif' }
+      const dataUrl = `data:${mime[ext] ?? 'image/png'};base64,${data.toString('base64')}`
+      // spriteFrame meta에서 border(9-slice inset)값 읽기
+      let borderTop = 0, borderBottom = 0, borderLeft = 0, borderRight = 0
+      try {
+        const metaRaw = await readFile(imgPath + '.meta', 'utf-8')
+        const meta = JSON.parse(metaRaw) as { subMetas?: Record<string, { uuid?: string; borderTop?: number; borderBottom?: number; borderLeft?: number; borderRight?: number }> }
+        const subMetas = meta.subMetas ?? {}
+        for (const sub of Object.values(subMetas)) {
+          if (sub.uuid === uuid) {
+            borderTop = sub.borderTop ?? 0
+            borderBottom = sub.borderBottom ?? 0
+            borderLeft = sub.borderLeft ?? 0
+            borderRight = sub.borderRight ?? 0
+            break
+          }
+        }
+      } catch { /* meta 없으면 border 0 유지 */ }
+      return { dataUrl, borderTop, borderBottom, borderLeft, borderRight }
+    } catch {
+      return null
+    }
+  })
+
   /** 씬 raw 배열에서 참조 UUID 목록 추출 */
   ipcMain.handle('cc:file:extractUUIDs', async (_e, raw: unknown[]) => {
     return extractReferencedUUIDs(raw)

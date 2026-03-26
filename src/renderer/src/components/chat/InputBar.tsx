@@ -198,6 +198,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const setText = useCallback((val: string | ((prev: string) => string)) => {
     _setText(prev => typeof val === 'function' ? val(prev) : val)
   }, [])
+  // textarea 강제 리마운트용 key (inputValueTracking 초기화)
+  const [taKey, setTaKey] = useState(0)
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
   const [customTemplates, setCustomTemplates] = useState<SlashCommand[]>([])
@@ -697,13 +699,13 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const selectSlashCommand = (cmd: SlashCommand & { workflowPath?: string; category?: string }) => {
     // 워크플로우 커맨드인 경우: 시스템 프롬프트로 주입 + 입력창 초기화
     if (cmd.workflowPath) {
-      // flushSync: state 커밋을 동기 보장 → React inputValueTracking 초기화 후 포커스
+      // flushSync + taKey: textarea 강제 리마운트로 React inputValueTracking 완전 초기화
       flushSync(() => {
         setText('')
         setSlashSelected(0)
+        setTaKey(k => k + 1)
       })
-      const ta = textareaRef.current
-      if (ta) { ta.focus() }
+      textareaRef.current?.focus()
       window.api.commandLoadWorkflow(cmd.workflowPath).then(({ content, error }) => {
         if (error || !content) {
           setText(`[${cmd.label}: 워크플로우 로드 실패]`)
@@ -1658,6 +1660,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         </div>
       )}
       <textarea
+        key={taKey}
         ref={textareaRef}
         value={text}
         onChange={(e) => {
