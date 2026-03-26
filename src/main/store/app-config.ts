@@ -1,4 +1,5 @@
 import Store from 'electron-store'
+import { FeatureFlags, DEFAULT_FEATURES } from '../../shared/feature-types'
 
 interface WorkspaceEntry {
   path: string
@@ -28,20 +29,13 @@ export interface SystemPromptProfile {
   content: string
 }
 
-export interface Task {
-  id: string
-  text: string
-  done: boolean
-  createdAt: number
-  priority?: 'low' | 'medium' | 'high'
-}
-
 export interface NotificationSettings {
   responseComplete: boolean
   backgroundOnly: boolean
   longSession: boolean
   contextWarning: boolean
 }
+
 
 interface ConfigSchema {
   windowBounds: { width: number; height: number; x?: number; y?: number }
@@ -66,8 +60,8 @@ interface ConfigSchema {
   snippets: Snippet[]
   terminalTheme: string
   systemPromptProfiles: SystemPromptProfile[]
-  tasks: Task[]
   notificationSettings: NotificationSettings
+  featureFlags: FeatureFlags
 }
 
 const defaults: ConfigSchema = {
@@ -93,8 +87,8 @@ const defaults: ConfigSchema = {
   snippets: [],
   terminalTheme: 'dark',
   systemPromptProfiles: [],
-  tasks: [],
   notificationSettings: { responseComplete: true, backgroundOnly: true, longSession: false, contextWarning: true },
+  featureFlags: DEFAULT_FEATURES,
 }
 
 export class AppConfig {
@@ -325,19 +319,20 @@ export class AppConfig {
     this.store.set('systemPromptProfiles', profiles)
   }
 
-  getTasks(): Task[] {
-    return this.store.get('tasks') ?? []
-  }
-
-  saveTasks(tasks: Task[]): void {
-    this.store.set('tasks', tasks)
-  }
-
   getNotificationSettings(): NotificationSettings {
     return (this.store.get('notificationSettings') as NotificationSettings | undefined) ?? { responseComplete: true, backgroundOnly: true, longSession: false, contextWarning: true }
   }
 
   setNotificationSettings(s: NotificationSettings): void {
     this.store.set('notificationSettings', s)
+  }
+
+  getFeatures(): FeatureFlags {
+    return { ...DEFAULT_FEATURES, ...(this.store.get('featureFlags') as Partial<FeatureFlags> | undefined) }
+  }
+
+  setFeature(key: keyof FeatureFlags, enabled: boolean): void {
+    const current = this.getFeatures()
+    this.store.set('featureFlags', { ...current, [key]: enabled })
   }
 }

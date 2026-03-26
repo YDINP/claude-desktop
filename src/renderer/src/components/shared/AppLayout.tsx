@@ -3,6 +3,7 @@
  * AppContent는 훅/상태 선언만 담고, 렌더링은 여기서 담당.
  */
 import type React from 'react'
+import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 import { AgentBay } from '../hq/AgentBay'
 import { ResourceBar } from '../hq/ResourceBar'
 import { OpsFeed } from '../hq/OpsFeed'
@@ -36,15 +37,10 @@ const PANEL_TAB_INFO: Partial<Record<SidebarTab, { icon: string; title: string }
   bookmarks: { icon: '★', title: '북마크' },
   stats: { icon: '📊', title: '통계' },
   snippets: { icon: '📎', title: '스니펫' },
-  tasks: { icon: '📋', title: '태스크' },
-  calendar: { icon: '📅', title: '캘린더' },
-  clipboard: { icon: '🗂️', title: '클립보드' },
-  diff: { icon: '🔀', title: '파일 비교' },
   outline: { icon: '📑', title: '아웃라인' },
   plugins: { icon: '🧩', title: '플러그인' },
   connections: { icon: '🔌', title: 'MCP 연결' },
   agent: { icon: '🤖', title: '에이전트' },
-  remote: { icon: '🖥️', title: '원격' },
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -138,6 +134,8 @@ export function AppLayout({
   handleToggleHQ, openFile, switchToChat, closeFileTab,
   handleExportMarkdown, handleEditResend, handleFork, handleCompressContext, handleReplyToMessage,
 }: AppLayoutProps) {
+  const { features } = useFeatureFlags()
+
   // ── Destructure domain hooks for convenient local-name access ─────────────
   const {
     workspaces, activeWsId, workspaceNames, updateWorkspaceNames,
@@ -171,19 +169,14 @@ export function AppLayout({
       {/* Icon bar — sidebar panel shortcuts + HQ */}
       <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', flexShrink: 0, height: 28, overflowX: 'auto', scrollbarWidth: 'none' }}>
         {([
-          { id: 'bookmarks' as SidebarTab, label: '★', title: '북마크' },
-          { id: 'stats' as SidebarTab, label: '📊', title: '통계' },
-          { id: 'snippets' as SidebarTab, label: '📎', title: '스니펫' },
-          { id: 'tasks' as SidebarTab, label: '📋', title: '태스크' },
-          { id: 'calendar' as SidebarTab, label: '📅', title: '캘린더' },
-          { id: 'clipboard' as SidebarTab, label: '🗂️', title: '클립보드' },
-          { id: 'diff' as SidebarTab, label: '🔀', title: '파일 비교' },
-          { id: 'outline' as SidebarTab, label: '📑', title: '아웃라인' },
-          { id: 'plugins' as SidebarTab, label: '🧩', title: '플러그인' },
-          { id: 'connections' as SidebarTab, label: '🔌', title: 'MCP 연결' },
-          { id: 'agent' as SidebarTab, label: '🤖', title: '에이전트' },
-          { id: 'remote' as SidebarTab, label: '🖥️', title: '원격' },
-        ]).map(t => (
+          { id: 'bookmarks' as SidebarTab, label: '★', title: '북마크', featureKey: null },
+          { id: 'stats' as SidebarTab, label: '📊', title: '통계', featureKey: 'stats' as const },
+          { id: 'snippets' as SidebarTab, label: '📎', title: '스니펫', featureKey: null },
+          { id: 'outline' as SidebarTab, label: '📑', title: '아웃라인', featureKey: 'outline' as const },
+          { id: 'plugins' as SidebarTab, label: '🧩', title: '플러그인', featureKey: 'plugins' as const },
+          { id: 'connections' as SidebarTab, label: '🔌', title: 'MCP 연결', featureKey: 'connections' as const },
+          { id: 'agent' as SidebarTab, label: '🤖', title: '에이전트', featureKey: null },
+        ]).filter(t => t.featureKey === null || features[t.featureKey]).map(t => (
           <button
             key={t.id}
             onClick={() => {
@@ -208,14 +201,16 @@ export function AppLayout({
         <div style={{ flex: 1 }} />
         <button
           onClick={handleToggleHQ}
-          title={hqMode ? '기본 모드로 전환 (Ctrl+Shift+H)' : 'HQ Mode (Ctrl+Shift+H)'}
+          title={!features.hqMode ? 'HQ Mode (비활성화됨)' : hqMode ? '기본 모드로 전환 (Ctrl+Shift+H)' : 'HQ Mode (Ctrl+Shift+H)'}
+          disabled={!features.hqMode}
           style={{
             flexShrink: 0, padding: '0 10px', height: 28,
-            background: hqMode ? 'rgba(0,152,255,0.15)' : 'transparent',
-            color: hqMode ? '#0098ff' : 'var(--text-muted)',
+            background: hqMode && features.hqMode ? 'rgba(0,152,255,0.15)' : 'transparent',
+            color: !features.hqMode ? 'var(--text-disabled, #444)' : hqMode ? '#0098ff' : 'var(--text-muted)',
             borderTop: 'none', borderLeft: 'none', borderRight: 'none',
-            borderBottom: hqMode ? '2px solid #0098ff' : '2px solid transparent',
-            fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px',
+            borderBottom: hqMode && features.hqMode ? '2px solid #0098ff' : '2px solid transparent',
+            fontSize: 11, cursor: features.hqMode ? 'pointer' : 'not-allowed', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px',
+            opacity: features.hqMode ? 1 : 0.4,
           }}
         >⬡ HQ</button>
       </div>
@@ -487,7 +482,7 @@ export function AppLayout({
                 flexDirection: 'column',
                 minWidth: ccLayout === 'split' ? 300 : undefined,
               }}>
-                {hqMode ? (
+                {hqMode && features.hqMode ? (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#080810' }}>
                     <ResourceBar
                       contextUsage={Math.min(chat.sessionInputTokens / 200000, 1)}
@@ -539,7 +534,7 @@ export function AppLayout({
                         onMouseLeave={e => { if (!isAgentBayDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                       />
                       <div style={{ flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
-                        <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
+                        <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={features.sessionFork ? handleFork : undefined} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={features.contextCompress ? handleCompressContext : undefined} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
                       </div>
                     </div>
                     <OpsFeed
@@ -549,7 +544,7 @@ export function AppLayout({
                     />
                   </div>
                 ) : (
-                  <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={handleFork} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={handleCompressContext} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
+                  <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={features.sessionFork ? handleFork : undefined} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={features.contextCompress ? handleCompressContext : undefined} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
                 )}
               </div>
 
@@ -586,21 +581,23 @@ export function AppLayout({
               <SceneViewPanel key={activeWsId} connected={wsCCConnected} wsKey={activeWsId} port={wsCCPort} />
             </div>
             {/* Web preview tab */}
+            {features.webPreview && (
             <div style={{ position: 'absolute', inset: 0, display: activeTab === 'preview' ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden' }}>
               <WebPreviewPanel key={activeWsId} defaultUrl={wsWebPreviewUrl} onUrlChange={setWsWebPreviewUrl} />
             </div>
+            )}
             {openTabs.filter(t => t !== 'chat' && t !== 'scene' && t !== 'preview').map(path => (
               <div key={path} style={{ position: 'absolute', inset: 0, display: activeTab === path ? 'flex' : 'none', overflow: 'hidden' }}>
                 <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, position: 'relative' }}>
                   <FileViewer
                     path={path}
                     cwd={project.currentPath ?? undefined}
-                    onSplitView={splitFilePath ? undefined : (p) => setSplitFilePath(p)}
+                    onSplitView={features.splitView && !splitFilePath ? (p) => setSplitFilePath(p) : undefined}
                     onAskAI={(prompt) => { setActiveTab('chat'); setPendingInsert(prompt) }}
                     onDirtyChange={(dirty) => setTabDirty(path, dirty)}
                   />
                 </div>
-                {splitFilePath && activeTab === path && (
+                {features.splitView && splitFilePath && activeTab === path && (
                   <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, position: 'relative', borderLeft: '1px solid var(--border)' }}>
                     <FileViewer
                       path={splitFilePath}
@@ -616,7 +613,7 @@ export function AppLayout({
           </div>
 
           {/* Terminal toggle */}
-          {!focusMode && (
+          {features.terminal && !focusMode && (
           <div
             onClick={() => setTerminalOpen(o => !o)}
             style={{
@@ -632,7 +629,7 @@ export function AppLayout({
           </div>
           )}
 
-          {terminalOpen && !focusMode && (
+          {features.terminal && terminalOpen && !focusMode && (
             <>
               <div
                 onMouseDown={handleSplitterMouseDown}

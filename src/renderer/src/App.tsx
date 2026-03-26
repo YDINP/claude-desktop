@@ -14,6 +14,7 @@ import { aguiDispatch } from './utils/agui-store'
 import { toast } from './utils/toast'
 
 // Extracted hooks & components
+import { useFeatureFlags, FeatureFlagsProvider } from './hooks/useFeatureFlags'
 import { useWorkspaceManager } from './hooks/useWorkspaceManager'
 import { useSessionManager } from './hooks/useSessionManager'
 import { useSettingsSync } from './hooks/useSettingsSync'
@@ -67,6 +68,8 @@ function AppContent() {
     selectedModel: project.selectedModel,
   })
   const { sessionTitle, setSessionTitle, sessionCreatedAt, setSessionCreatedAt, suggestions, setSuggestions } = session
+
+  const { features } = useFeatureFlags()
 
   const settings = useSettingsSync()
   const { handleToggleHQ: _toggleHQ, setActiveAgents, soundEnabledRef, setFocusMode } = settings
@@ -337,6 +340,7 @@ function AppContent() {
   // ── Auto-resume last session on startup ──
   const autoResumedRef = useRef(false)
   useEffect(() => {
+    if (!features.autoResume) return
     if (autoResumedRef.current || workspaces.length === 0 || !activeWsId) return
     if (chat.messages.length > 0 || chat.sessionId) return
     autoResumedRef.current = true
@@ -448,10 +452,18 @@ function AppContent() {
 
 export default function App() {
   const isCCEditorWindow = window.location.hash === '#cc-editor'
-  if (isCCEditorWindow) return <CCEditorWindow />
+  if (isCCEditorWindow) {
+    return (
+      <FeatureFlagsProvider>
+        <CCEditorWindow />
+      </FeatureFlagsProvider>
+    )
+  }
   return (
-    <ProjectProvider>
-      <AppContent />
-    </ProjectProvider>
+    <FeatureFlagsProvider>
+      <ProjectProvider>
+        <AppContent />
+      </ProjectProvider>
+    </FeatureFlagsProvider>
   )
 }

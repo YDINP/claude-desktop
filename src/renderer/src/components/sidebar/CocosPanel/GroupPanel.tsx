@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
+import { useFeatureFlags } from '../../../hooks/useFeatureFlags'
 
 const NODE_COLOR_PALETTE: { color: string; label: string }[] = [
   { color: '#f87171', label: '빨강' },
@@ -24,6 +25,10 @@ export function GroupPanel({
   onRenameGroup: (uuid: string, name: string) => Promise<void>
   onToggleGroupActive: (uuid: string) => Promise<void>
 }) {
+  const { features } = useFeatureFlags()
+
+  if (!features['cc.groupPanel']) return null
+
   // 자식이 있는 노드를 재귀적으로 수집 (루트 제외)
   const groups = useMemo(() => {
     const result: CCSceneNode[] = []

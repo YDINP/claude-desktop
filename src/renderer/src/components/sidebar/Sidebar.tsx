@@ -7,21 +7,15 @@ import { SearchPanel } from './SearchPanel'
 import { BookmarksPanel } from './BookmarksPanel'
 import { StatsPanel } from './StatsPanel'
 import { SnippetPanel } from './SnippetPanel'
-import { TasksPanel } from './TasksPanel'
-import { CalendarPanel } from './CalendarPanel'
-import { ClipboardPanel } from './ClipboardPanel'
-import { NotesPanel } from './NotesPanel'
-import { DiffPanel } from './DiffPanel'
 import { OutlinePanel } from './OutlinePanel'
 import { PluginsPanel } from './PluginsPanel'
 import { ConnectionPanel } from './ConnectionPanel'
 import { AgentPanel } from './AgentPanel'
-import { RemotePanel } from './RemotePanel'
-
 import { GlobalSearchPanel } from './GlobalSearchPanel'
 import type { ChangedFile } from './ChangedFilesPanel'
 import type { ChatMessage } from '../../stores/chat-store'
 import { useProject } from '../../stores/project-store'
+import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 
 interface SidebarProps {
   onSessionSelect: (sessionId: string) => void
@@ -47,7 +41,7 @@ interface SidebarProps {
 
 export type { Tab as SidebarTab }
 
-type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'bookmarks' | 'stats' | 'snippets' | 'tasks' | 'calendar' | 'clipboard' | 'diff' | 'outline' | 'plugins' | 'connections' | 'agent' | 'remote' | 'globalsearch' | 'notes'
+type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'bookmarks' | 'stats' | 'snippets' | 'outline' | 'plugins' | 'connections' | 'agent' | 'globalsearch'
 
 const PANEL_TITLES: Record<Tab, string> = {
   files: 'Files',
@@ -55,19 +49,13 @@ const PANEL_TITLES: Record<Tab, string> = {
   sessions: 'History',
   changes: 'Changes',
   globalsearch: 'Global Search',
-  notes: 'Notes',
   bookmarks: 'Bookmarks',
   stats: 'Stats',
   snippets: 'Snippets',
-  tasks: 'Tasks',
-  calendar: 'Calendar',
-  clipboard: 'Clipboard',
-  diff: 'Diff',
   outline: 'Outline',
   plugins: 'Plugins',
   connections: 'Connections',
   agent: 'Agent',
-  remote: 'Remote',
 }
 
 export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange, forceTab }: SidebarProps) {
@@ -81,6 +69,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
     return () => { if (switchTabRef) switchTabRef.current = null }
   }, [switchTabRef])
   const { currentPath } = useProject()
+  const { features } = useFeatureFlags()
   const [fileSearch, setFileSearch] = useState('')
   const [fileSearchResults, setFileSearchResults] = useState<{ name: string; path: string; relPath: string }[]>([])
 
@@ -111,7 +100,6 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             { id: 'sessions', label: '📖', title: 'History' },
             { id: 'changes', label: '✏️', title: changedFiles.length > 0 ? `Changes (${changedFiles.length})` : 'Changes' },
             { id: 'globalsearch', label: '🌐', title: 'Global Search' },
-            { id: 'notes', label: '📓', title: 'Notes' },
           ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
@@ -240,25 +228,16 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
         {activeTab === 'bookmarks' && (
           <BookmarksPanel messages={messages} onScrollToMessage={onScrollToMessage} />
         )}
-        {activeTab === 'stats' && (
+        {activeTab === 'stats' && features.stats && (
           <StatsPanel />
+        )}
+        {activeTab === 'stats' && !features.stats && (
+          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>통계 기능이 비활성화되었습니다.</div>
         )}
         {activeTab === 'snippets' && (
           <SnippetPanel onInsert={onInsertSnippet ?? (() => {})} />
         )}
-        {activeTab === 'tasks' && (
-          <TasksPanel />
-        )}
-        {activeTab === 'calendar' && (
-          <CalendarPanel onSelectSession={onSessionSelect} />
-        )}
-        {activeTab === 'clipboard' && (
-          <ClipboardPanel />
-        )}
-        {activeTab === 'diff' && (
-          <DiffPanel />
-        )}
-        {activeTab === 'outline' && (
+        {activeTab === 'outline' && features.outline && (
           <OutlinePanel
             messages={messages}
             onScrollToMsg={onScrollToMessage ? (idx) => {
@@ -267,21 +246,23 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             } : undefined}
           />
         )}
-        {activeTab === 'plugins' && (
+        {activeTab === 'outline' && !features.outline && (
+          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>아웃라인 기능이 비활성화되었습니다.</div>
+        )}
+        {activeTab === 'plugins' && features.plugins && (
           <PluginsPanel />
         )}
-        {activeTab === 'connections' && (
+        {activeTab === 'plugins' && !features.plugins && (
+          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>플러그인 기능이 비활성화되었습니다.</div>
+        )}
+        {activeTab === 'connections' && features.connections && (
           <ConnectionPanel />
+        )}
+        {activeTab === 'connections' && !features.connections && (
+          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>MCP 연결 기능이 비활성화되었습니다.</div>
         )}
         {activeTab === 'agent' && (
           <AgentPanel />
-        )}
-        {activeTab === 'remote' && (
-          <RemotePanel />
-        )}
-
-        {activeTab === 'notes' && (
-          <NotesPanel />
         )}
         {activeTab === 'globalsearch' && (
           <GlobalSearchPanel

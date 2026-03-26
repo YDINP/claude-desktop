@@ -219,10 +219,6 @@ app.whenReady().then(() => {
   ipcMain.handle('app:saveSystemPromptProfile', (_, profile) => AppConfig.getInstance().saveSystemPromptProfile(profile))
   ipcMain.handle('app:deleteSystemPromptProfile', (_, id: string) => AppConfig.getInstance().deleteSystemPromptProfile(id))
 
-  // Tasks IPC
-  ipcMain.handle('app:getTasks', () => AppConfig.getInstance().getTasks())
-  ipcMain.handle('app:saveTasks', (_, tasks) => AppConfig.getInstance().saveTasks(tasks))
-
   // Notification settings IPC
   ipcMain.handle('app:getNotificationSettings', () => AppConfig.getInstance().getNotificationSettings())
   ipcMain.handle('app:setNotificationSettings', (_, s) => AppConfig.getInstance().setNotificationSettings(s))

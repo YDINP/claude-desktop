@@ -6,6 +6,7 @@ import { CCFileNodeInspector } from './NodeInspector'
 import { HierarchyPanel } from './HierarchyPanel'
 import { CCFileAssetBrowser } from './AssetBrowser'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
+import { useFeatureFlags } from '../../../hooks/useFeatureFlags'
 
 class InspectorErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -35,6 +36,7 @@ interface SceneTabProps {
 }
 
 export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabProps) {
+  const { features } = useFeatureFlags()
   const {
     sceneFile, saveScene,
     hDividerDragRef, dividerDragRef,
@@ -208,7 +210,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
           </div>
 
           {/* ── 에셋 브라우저 패널 (SceneView 우측) ── */}
-          {showAssetPanel && projectInfo?.assetsDir && (
+          {features['cc.assetBrowser'] && showAssetPanel && projectInfo?.assetsDir && (
             <>
               <div
                 style={{ width: 4, cursor: 'ew-resize', background: 'var(--border)', flexShrink: 0, opacity: 0.4, transition: 'opacity 0.15s' }}
@@ -239,7 +241,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
 
           {/* ── 우: Inspector 패널 (전체 세로 높이) ── */}
           {/* R1516: 다중 선택 배치 편집 패널 */}
-          {multiSelectedUuids.length > 1 && sceneFile?.root && (
+          {features['cc.batchInspector'] && multiSelectedUuids.length > 1 && sceneFile?.root && (
             <div style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
               <div style={{ width: '100%' }}>
               <InspectorErrorBoundary>

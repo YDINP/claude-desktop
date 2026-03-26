@@ -199,6 +199,10 @@ contextBridge.exposeInMainWorld('api', {
   settingsGet: () => ipcRenderer.invoke('settings:get'),
   settingsSet: (patch: Record<string, unknown>) => ipcRenderer.invoke('settings:set', patch),
 
+  // Feature flags
+  featuresGet: (): Promise<Record<string, boolean>> => ipcRenderer.invoke('features:get'),
+  featuresSet: (key: string, enabled: boolean): Promise<void> => ipcRenderer.invoke('features:set', key, enabled),
+
   // Memory
   getMemoryUsage: (): Promise<{ rss: number; heapUsed: number; heapTotal: number }> =>
     ipcRenderer.invoke('app:memoryUsage'),
@@ -216,10 +220,6 @@ contextBridge.exposeInMainWorld('api', {
   getSystemPromptProfiles: () => ipcRenderer.invoke('app:getSystemPromptProfiles'),
   saveSystemPromptProfile: (profile: { id: string; name: string; content: string }) => ipcRenderer.invoke('app:saveSystemPromptProfile', profile),
   deleteSystemPromptProfile: (id: string) => ipcRenderer.invoke('app:deleteSystemPromptProfile', id),
-
-  // Tasks
-  getTasks: () => ipcRenderer.invoke('app:getTasks'),
-  saveTasks: (tasks: Array<{ id: string; text: string; done: boolean; createdAt: number; priority?: string }>) => ipcRenderer.invoke('app:saveTasks', tasks),
 
   // Notification settings
   getNotificationSettings: () => ipcRenderer.invoke('app:getNotificationSettings'),

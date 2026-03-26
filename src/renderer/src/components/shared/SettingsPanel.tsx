@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { playCompletionSound } from '../../utils/sound'
 import { applyCustomCSS } from '../../utils/css'
+import { useFeatureFlags } from '../../hooks/useFeatureFlags'
+import type { FeatureFlags } from '../../hooks/useFeatureFlags'
+import { FEATURE_GROUP_MAP } from '../../../../shared/feature-types'
+import type { FeatureGroup } from '../../../../shared/feature-types'
 
 function trapFocus(container: HTMLElement, e: React.KeyboardEvent) {
   if (e.key !== 'Tab') return
@@ -92,7 +96,7 @@ const SHORTCUTS = [
   { key: 'F12', desc: 'DevTools 토글' },
 ]
 
-type SettingsTab = 'general' | 'appearance' | 'ai' | 'shortcuts' | 'advanced'
+type SettingsTab = 'general' | 'appearance' | 'ai' | 'shortcuts' | 'advanced' | 'features'
 
 const TABS: { id: SettingsTab; label: string }[] = [
   { id: 'general',    label: '일반' },
@@ -100,11 +104,20 @@ const TABS: { id: SettingsTab; label: string }[] = [
   { id: 'ai',         label: 'AI' },
   { id: 'shortcuts',  label: '단축키' },
   { id: 'advanced',   label: '고급' },
+  { id: 'features',   label: '기능 관리' },
 ]
 
 export function SettingsPanel({ open, onClose, currentProject }: { open: boolean; onClose: () => void; currentProject?: string }) {
   const modalRef = useRef<HTMLDivElement>(null)
   const [settingsTab, setSettingsTab] = useState<SettingsTab>('general')
+  const { features, setFeature, rawFeatures } = useFeatureFlags()
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('settings-collapsed-groups') ?? '{}')
+    } catch {
+      return {}
+    }
+  })
   const [chatFontSize, setChatFontSize] = useState<number>(() =>
     Number(localStorage.getItem('chat-font-size') || '14')
   )
@@ -898,6 +911,120 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                 <div>Anthropic Claude API 기반 데스크톱 클라이언트</div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Tab: 기능 관리 */}
+        {settingsTab === 'features' && (
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
+              그룹을 OFF하면 하위 기능이 모두 비활성화됩니다. 변경 사항은 즉시 반영됩니다.
+            </div>
+            {([
+              {
+                group: 'layout' as FeatureGroup,
+                groupLabel: '레이아웃',
+                items: [
+                  { key: 'hqMode' as keyof FeatureFlags, label: 'HQ 모드', desc: 'AgentBay, ResourceBar, OpsFeed 전체 영역' },
+                  { key: 'terminal' as keyof FeatureFlags, label: '터미널 패널', desc: '하단 터미널 패널' },
+                  { key: 'webPreview' as keyof FeatureFlags, label: '웹 프리뷰 탭', desc: '빌드 결과 웹 미리보기 탭' },
+                  { key: 'splitView' as keyof FeatureFlags, label: '파일 분할 뷰', desc: '파일 뷰어 좌우 분할 기능' },
+                ],
+              },
+              {
+                group: 'chat' as FeatureGroup,
+                groupLabel: '채팅',
+                items: [
+                  { key: 'sessionFork' as keyof FeatureFlags, label: '세션 포크', desc: '메시지 분기 복사 버튼' },
+                  { key: 'sessionExport' as keyof FeatureFlags, label: '내보내기', desc: 'MD / HTML / PDF 내보내기 버튼' },
+                  { key: 'contextCompress' as keyof FeatureFlags, label: '컨텍스트 압축', desc: '긴 대화 압축 버튼' },
+                  { key: 'autoResume' as keyof FeatureFlags, label: '자동 세션 재개', desc: '앱 시작 시 마지막 세션 자동 재개' },
+                  { key: 'voiceInput' as keyof FeatureFlags, label: '음성 입력', desc: '마이크로 음성 인식 입력' },
+                ],
+              },
+              {
+                group: 'sidebar' as FeatureGroup,
+                groupLabel: '사이드바 패널',
+                items: [
+                  { key: 'plugins' as keyof FeatureFlags, label: '플러그인', desc: '플러그인 패널 -- 설치된 플러그인 확인 및 관리' },
+                  { key: 'connections' as keyof FeatureFlags, label: 'MCP 연결', desc: 'MCP 서버 연결 목록 및 ping 확인' },
+                  { key: 'outline' as keyof FeatureFlags, label: '아웃라인', desc: '대화 메시지를 목차 형식으로 탐색' },
+                  { key: 'stats' as keyof FeatureFlags, label: '통계', desc: '세션별 토큰 사용량 및 활동 통계' },
+                  { key: 'sceneview' as keyof FeatureFlags, label: '씬 뷰어', desc: 'Cocos Creator 씬 구조 시각화 패널' },
+                  { key: 'git' as keyof FeatureFlags, label: 'Git', desc: 'Git 변경 사항 추적 및 커밋 관리' },
+                ],
+              },
+              {
+                group: 'cc' as FeatureGroup,
+                groupLabel: 'CCEditor',
+                items: [
+                  { key: 'cc.assetBrowser' as keyof FeatureFlags, label: '에셋 브라우저', desc: '에셋 탐색 및 관리 패널' },
+                  { key: 'cc.buildTab' as keyof FeatureFlags, label: '빌드 탭', desc: '프로젝트 빌드 메뉴' },
+                  { key: 'cc.groupPanel' as keyof FeatureFlags, label: '그룹 패널', desc: '노드 그룹 관리 탭' },
+                  { key: 'cc.backupManager' as keyof FeatureFlags, label: '백업 관리', desc: '씬 백업 및 복원 관리' },
+                  { key: 'cc.batchInspector' as keyof FeatureFlags, label: '일괄 편집', desc: '다중 선택 노드 배치 편집' },
+                  { key: 'cc.sceneValidation' as keyof FeatureFlags, label: '씬 통계/검사', desc: '씬 검사 및 통계 분석' },
+                ],
+              },
+            ]).map(({ group, groupLabel, items }) => {
+              const groupKey = `group.${group}` as keyof FeatureFlags
+              const groupOn = rawFeatures[groupKey]
+              const collapsed = collapsedGroups[group] ?? false
+              return (
+                <div key={group} style={sectionStyle}>
+                  {/* 그룹 헤더: 라벨 클릭 접기/펼치기, 토글은 그룹 ON/OFF */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: collapsed ? 0 : 12 }}>
+                    <div
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', userSelect: 'none' }}
+                      onClick={() => {
+                        const next = { ...collapsedGroups, [group]: !collapsed }
+                        setCollapsedGroups(next)
+                        localStorage.setItem('settings-collapsed-groups', JSON.stringify(next))
+                      }}
+                    >
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)', transition: 'transform 0.15s', display: 'inline-block', transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>&#9660;</span>
+                      <span style={{ ...sectionTitleStyle, marginBottom: 0 }}>{groupLabel}</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>({items.length})</span>
+                    </div>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0, gap: 6 }}>
+                      <span style={{ fontSize: 10, color: groupOn ? 'var(--accent)' : 'var(--text-muted)' }}>{groupOn ? 'ON' : 'OFF'}</span>
+                      <input
+                        type="checkbox"
+                        checked={groupOn}
+                        onChange={e => setFeature(groupKey, e.target.checked)}
+                        style={{ accentColor: 'var(--accent)', width: 16, height: 16, cursor: 'pointer' }}
+                      />
+                    </label>
+                  </div>
+                  {/* 자식 항목 (접힌 상태면 숨김) */}
+                  {!collapsed && items.map(({ key, label, desc }) => (
+                    <div
+                      key={key}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '8px 0 8px 20px', borderBottom: '1px solid var(--border)',
+                        opacity: groupOn ? 1 : 0.5,
+                        transition: 'opacity 0.15s',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 2 }}>{label}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{desc}</div>
+                      </div>
+                      <label style={{ display: 'flex', alignItems: 'center', cursor: groupOn ? 'pointer' : 'not-allowed', flexShrink: 0, marginLeft: 12 }}>
+                        <input
+                          type="checkbox"
+                          checked={rawFeatures[key]}
+                          disabled={!groupOn}
+                          onChange={e => setFeature(key, e.target.checked)}
+                          style={{ accentColor: 'var(--accent)', width: 16, height: 16, cursor: groupOn ? 'pointer' : 'not-allowed' }}
+                        />
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
           </div>
         )}
 

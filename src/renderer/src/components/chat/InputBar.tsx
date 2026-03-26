@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { SlashCommandRegistry, type CommandCategory } from '../../domains/commands/SlashCommandRegistry'
+import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList
@@ -192,6 +193,7 @@ function parseVarTrigger(text: string, cursorPos: number): { triggerStart: numbe
 }
 
 export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pausedTask, isStreaming, disabled, focusTrigger, pendingInsert, onPendingInsertConsumed, onOpenPromptChain, onTextChange, projectPath }: InputBarProps) {
+  const { features } = useFeatureFlags()
   const onTextChangeRef = useRef(onTextChange)
   useEffect(() => { onTextChangeRef.current = onTextChange }, [onTextChange])
   const [text, _setText] = useState<string>(() => localStorage.getItem(DRAFT_KEY) ?? '')
@@ -1837,7 +1839,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       )}
       </div>
 
-      {hasSpeech && (
+      {hasSpeech && features.voiceInput && (
         <button
           onClick={handleVoiceInput}
           disabled={disabled}
