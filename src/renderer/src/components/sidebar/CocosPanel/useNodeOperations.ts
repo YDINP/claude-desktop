@@ -70,9 +70,20 @@ export function useNodeOperations({
   }, [patchNodes])
 
   // R1506: 앵커 포인트 드래그 편집 (SceneView ◇ 핸들)
+  // 앵커 이동 시 시각적 위치 유지: position도 (Δanchor * size) 만큼 보정
   const handleAnchorMove = useCallback(async (uuid: string, ax: number, ay: number) => {
     const clamped = { x: Math.max(0, Math.min(1, Math.round(ax * 100) / 100)), y: Math.max(0, Math.min(1, Math.round(ay * 100) / 100)) }
-    await patchNodes(n => n.uuid === uuid ? { ...n, anchor: clamped } : n, 'anchor')
+    await patchNodes(n => {
+      if (n.uuid !== uuid) return n
+      const axOld = (n.anchor as { x: number; y: number } | undefined)?.x ?? 0.5
+      const ayOld = (n.anchor as { x: number; y: number } | undefined)?.y ?? 0.5
+      const w = (n.size as { x: number; y: number } | undefined)?.x ?? 0
+      const h = (n.size as { x: number; y: number } | undefined)?.y ?? 0
+      const pos = n.position as { x: number; y: number; z?: number }
+      const newX = (pos?.x ?? 0) + (clamped.x - axOld) * w
+      const newY = (pos?.y ?? 0) + (clamped.y - ayOld) * h
+      return { ...n, anchor: clamped, position: { ...pos, x: newX, y: newY } }
+    }, 'anchor')
   }, [patchNodes])
 
   const handleMultiMove = useCallback(async (moves: Array<{ uuid: string; x: number; y: number }>) => {

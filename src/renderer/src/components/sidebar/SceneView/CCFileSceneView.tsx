@@ -232,6 +232,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const clipboardNodeRef = useRef<string | null>(null)
   const selBoxRef = useRef<{ startSvgX: number; startSvgY: number } | null>(null)
   const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+  // R2740: 같은 위치 클릭 반복 → 겹친 노드 순차 선택
+  const lastClickCycleRef = useRef<{ svgX: number; svgY: number; uuidList: string[]; idx: number } | null>(null)
   // R2544: 핀 마커 목록 패널 토글
   const [showPinPanel, setShowPinPanel] = useState(false)
   // R2521: 세계 좌표 표시 토글
@@ -2883,7 +2885,40 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     })
                   } else {
                     setMultiSelected(new Set())
-                    onSelect(node.uuid)
+                    // R2740: 같은 위치 반복 클릭 → 겹친 노드 순차 선택
+                    const svg = svgRef.current
+                    if (svg) {
+                      const rect = svg.getBoundingClientRect()
+                      const v = viewRef.current
+                      const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
+                      const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
+                      const cxH = effectiveWRef.current / 2, cyH = effectiveHRef.current / 2
+                      const hits = flatNodesRef.current
+                        .filter(fn => {
+                          if (!fn.node.size || !fn.effectiveActive) return false
+                          const w = fn.node.size.x, h = fn.node.size.y
+                          const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+                          const spx = cxH + fn.worldX, spy = cyH - fn.worldY
+                          return svgX >= spx - ax * w && svgX <= spx + (1 - ax) * w
+                            && svgY >= spy - (1 - ay) * h && svgY <= spy + ay * h
+                        })
+                        .map(fn => fn.node.uuid)
+                      const last = lastClickCycleRef.current
+                      const TOLE = 6
+                      const isSame = last && Math.abs(last.svgX - svgX) < TOLE && Math.abs(last.svgY - svgY) < TOLE
+                        && last.uuidList.join(',') === hits.join(',') && hits.length > 1
+                      if (isSame && last) {
+                        const nextIdx = (last.idx + 1) % hits.length
+                        lastClickCycleRef.current = { ...last, idx: nextIdx }
+                        onSelect(hits[nextIdx])
+                      } else {
+                        const idx = hits.length > 0 ? hits.length - 1 : 0
+                        lastClickCycleRef.current = { svgX, svgY, uuidList: hits, idx }
+                        onSelect(node.uuid)
+                      }
+                    } else {
+                      onSelect(node.uuid)
+                    }
                   }
                 }}
                 onMouseEnter={e => { setHoverUuid(node.uuid); setHoverClientPos({ x: e.clientX, y: e.clientY }); hoverClientPosRef.current = { x: e.clientX, y: e.clientY } }}
