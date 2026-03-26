@@ -554,8 +554,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2324: 선택 노드 자동 팬 — 트리에서 선택 시 뷰포트 밖이면 중심 이동
   const flatNodesRef = useRef(flatNodes)
   flatNodesRef.current = flatNodes
-  const ccToSvgRef = useRef(ccToSvg)
-  ccToSvgRef.current = ccToSvg
+  const ccToSvgRef = useRef<(ccX: number, ccY: number) => { x: number; y: number }>((x, y) => ({ x, y }))
   const effectiveWRef = useRef(effectiveW)
   effectiveWRef.current = effectiveW
   const effectiveHRef = useRef(effectiveH)
@@ -682,6 +681,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     x: cx + ccX,
     y: cy - ccY,
   }), [cx, cy])
+  ccToSvgRef.current = ccToSvg
 
   // 휠 줌 — native listener로 passive: false 강제 (React onWheel은 passive라 preventDefault 불가)
   useEffect(() => {
