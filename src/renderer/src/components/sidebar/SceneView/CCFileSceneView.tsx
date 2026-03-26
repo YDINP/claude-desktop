@@ -221,6 +221,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const resCustomWRef = useRef<HTMLInputElement | null>(null)
   const resCustomHRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
+  // W/E 도구 모드: W=이동, E=회전 (CC Editor 단축키)
+  const [transformTool, setTransformTool] = useState<'move' | 'rotate'>('move')
+  const transformToolRef = useRef<'move' | 'rotate'>('move')
+  transformToolRef.current = transformTool
   const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set())
   const multiSelectedRef = useRef(multiSelected)
   multiSelectedRef.current = multiSelected
@@ -401,13 +405,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return
+      const el = e.target as HTMLElement
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
       if (e.code === 'Space' && !isSpaceDownRef.current) {
-        const el = e.target as HTMLElement
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
         e.preventDefault()
         isSpaceDownRef.current = true
         if (svgRef.current) svgRef.current.style.cursor = 'grab'
       }
+      // W: 이동 도구 / E: 회전 도구 (CC Editor 단축키)
+      if (e.key === 'w' || e.key === 'W') { setTransformTool('move') }
+      if (e.key === 'e' || e.key === 'E') { setTransformTool('rotate') }
     }
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
@@ -541,6 +548,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2324: 선택 노드 자동 팬 — 트리에서 선택 시 뷰포트 밖이면 중심 이동
   const flatNodesRef = useRef(flatNodes)
   flatNodesRef.current = flatNodes
+  const ccToSvgRef = useRef(ccToSvg)
+  ccToSvgRef.current = ccToSvg
   const effectiveWRef = useRef(effectiveW)
   effectiveWRef.current = effectiveW
   const effectiveHRef = useRef(effectiveH)
@@ -1503,6 +1512,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         display: 'flex', gap: 4, padding: '3px 8px', borderBottom: '1px solid var(--border)',
         flexShrink: 0, alignItems: 'center', fontSize: 11,
       }}>
+        {/* W/E 도구 토글 버튼 */}
+        {(['move', 'rotate'] as const).map(tool => (
+          <button key={tool} onClick={() => setTransformTool(tool)}
+            title={tool === 'move' ? 'W: 이동 도구' : 'E: 회전 도구'}
+            style={{
+              padding: '1px 6px', fontSize: 10, borderRadius: 3, cursor: 'pointer', flexShrink: 0,
+              background: transformTool === tool ? 'rgba(88,166,255,0.2)' : 'transparent',
+              color: transformTool === tool ? '#58a6ff' : 'var(--text-muted)',
+              border: `1px solid ${transformTool === tool ? '#58a6ff' : 'var(--border)'}`,
+            }}
+          >{tool === 'move' ? '↔ W' : '↻ E'}</button>
+        ))}
         {/* R1548: 해상도 표시 클릭 → preset picker */}
         <span style={{ color: resOverride ? '#fbbf24' : 'var(--text-muted)', flex: 1, position: 'relative' }}>
           <span
@@ -2788,6 +2809,21 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     return
                   }
                   if (viewLock || lockedUuids.has(node.uuid)) return  // R1605 / R1543: 잠금
+                  // E 도구: 회전 모드
+                  if (transformToolRef.current === 'rotate') {
+                    e.stopPropagation()
+                    const svg = svgRef.current
+                    if (!svg) return
+                    const svgRect = svg.getBoundingClientRect()
+                    const v = viewRef.current
+                    const svgMouseX = (e.clientX - svgRect.left - v.offsetX) / v.zoom
+                    const svgMouseY = (e.clientY - svgRect.top - v.offsetY) / v.zoom
+                    const sp = ccToSvgRef.current(worldX, worldY)
+                    const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number })?.z ?? 0
+                    const startAngle = Math.atan2(svgMouseY - sp.y, svgMouseX - sp.x) * 180 / Math.PI
+                    rotateRef.current = { uuid: node.uuid, centerX: sp.x, centerY: sp.y, startAngle, startRotation: rotZ }
+                    return
+                  }
                   const pos = node.position as CCVec3
                   // R2472: 다중 선택 노드 동시 드래그
                   const multiSel = multiSelectedRef.current
@@ -2814,7 +2850,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   // R1683: ghost 저장 (원래 world 위치)
                   setDragGhost({ uuid: node.uuid, worldX, worldY, w: node.size?.x ?? 0, h: node.size?.y ?? 0, anchorX: node.anchor?.x ?? 0.5, anchorY: node.anchor?.y ?? 0.5 })
                 }}
-                style={{ cursor: lockedUuids.has(node.uuid) ? 'not-allowed' : isDragged ? 'grabbing' : 'grab' }}
+                style={{ cursor: lockedUuids.has(node.uuid) ? 'not-allowed' : isDragged ? 'grabbing' : transformTool === 'rotate' ? 'crosshair' : 'grab' }}
               >
                 <title>{node.name}{node.components.length > 0 ? '\n' + node.components.map(c => c.type.split('.').pop()).join(', ') : ''}</title>
                 <rect
