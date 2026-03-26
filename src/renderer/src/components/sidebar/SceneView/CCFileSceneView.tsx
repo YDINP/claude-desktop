@@ -2773,8 +2773,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     }} />
                 </g>
           )}
-          {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
+          {/* 노드 렌더링 (비활성 노드는 숨김) */}
           {flatNodes.map(({ node, worldX, worldY, depth, effectiveActive }) => {
+            if (!effectiveActive) return null
             const isDragged = dragOverride?.uuid === node.uuid
             const isResized = resizeOverride?.uuid === node.uuid
             // R2472: 다중 선택 동시 드래그 오프셋
@@ -2810,7 +2811,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             // Check cc.UIOpacity component (CC3.x)
             const uiOpacityComp = node.components?.find(c => c.type === 'cc.UIOpacity')
             const uiOpacityVal = uiOpacityComp ? Number(uiOpacityComp.props?.opacity ?? uiOpacityComp.props?._opacity ?? 255) : undefined
-            const nodeOpacity = (effectiveActive ? (uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
+            const nodeOpacity = ((uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
