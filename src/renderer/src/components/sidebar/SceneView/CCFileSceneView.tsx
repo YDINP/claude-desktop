@@ -498,7 +498,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const sy = (node.scale as { y?: number })?.y ?? 1
       const cumSx = parentSx * sx
       const cumSy = parentSy * sy
-      const effectiveActive = parentEffectiveActive && (node.active !== false)
+      const effectiveActive = parentEffectiveActive && !!node.active
       result.push({ node, worldX, worldY, depth, parentUuid, siblingIdx, siblingTotal, effectiveActive })
       // R2726: 씬 트리에서 접힌 노드는 자식을 SceneView에서도 숨김
       if (collapsedUuids?.has(node.uuid)) return
@@ -2442,7 +2442,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           // hit test all nodes for overlapping pick menu
           // fn.worldX/Y는 CC 좌표 → SVG 좌표로 변환: sp.x = cx + worldX, sp.y = cy - worldY
           const hits = flatNodes.filter(fn => {
-            if (!fn.node.size) return false
+            if (!fn.node.size || !fn.effectiveActive) return false
             const w = fn.node.size.x, h = fn.node.size.y
             const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
             const spx = cx + fn.worldX, spy = cy - fn.worldY
