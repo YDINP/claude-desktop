@@ -1002,7 +1002,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     hoverClientPosRef.current = { x: e.clientX, y: e.clientY }  // R1693
   }, [isPanning, cx, cy, snapSize, flatNodes])
 
-  const handleMouseUp = useCallback((e?: React.MouseEvent) => {
+  const handleMouseUp = useCallback(async (e?: React.MouseEvent) => {
     // R2740: 가이드라인 드래그 완료
     if (guideDragRef.current) { guideDragRef.current = null; return }
     // R2465: 측정 도구 — 드래그 완료 시 start ref 해제 (측정 선은 유지)
@@ -1020,21 +1020,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     anchorRef.current = null
     setAnchorOverride(null)
     if (rotateRef.current && rotateOverride) {
-      onRotate?.(rotateOverride.uuid, rotateOverride.angle)
+      // ref 즉시 해제 (이후 mousemove 무시), override는 await 후 해제(1프레임 플래시 방지)
       rotateRef.current = null
+      const saved = { ...rotateOverride }
+      await onRotate?.(saved.uuid, saved.angle)
       setRotateOverride(null)
       return
     }
     rotateRef.current = null
     setRotateOverride(null)
     if (resizeRef.current && resizeOverride) {
-      onResize?.(resizeOverride.uuid, resizeOverride.w, resizeOverride.h)
-      if ((resizeOverride.dx || resizeOverride.dy) && resizeRef.current) {
-        const newLocalX = resizeRef.current.startLocalX + (resizeOverride.dx ?? 0)
-        const newLocalY = resizeRef.current.startLocalY + (resizeOverride.dy ?? 0)
-        onMove?.(resizeOverride.uuid, newLocalX, newLocalY)
-      }
+      const savedRef = { ...resizeRef.current }
+      const savedOv = { ...resizeOverride }
       resizeRef.current = null
+      await onResize?.(savedOv.uuid, savedOv.w, savedOv.h)
+      if (savedOv.dx || savedOv.dy) {
+        const newLocalX = savedRef.startLocalX + (savedOv.dx ?? 0)
+        const newLocalY = savedRef.startLocalY + (savedOv.dy ?? 0)
+        await onMove?.(savedOv.uuid, newLocalX, newLocalY)
+      }
       setResizeOverride(null)
       return
     }
@@ -3693,12 +3697,12 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const hasTint = tr !== 255 || tg !== 255 || tb !== 255
                   const isGrayscale = !!(sc?.props?.grayscale ?? sc?.props?._grayscale ?? sc?.props?.['_N$grayscale'] ?? false)
                   // Sprite type badge (only for non-simple types)
-                  const spriteType = Number(sc?.props?.type ?? sc?.props?._type ?? 0)
+                  const spriteType = Number(sc?.props?.type ?? sc?.props?._type ?? sc?.props?.['_N$type'] ?? 0)
                   // 0=Simple, 1=Sliced, 2=Tiled, 3=Filled
                   const SPRITE_TYPE_LABELS: Record<number, string> = { 1: '9', 2: '⊞', 3: '◔' }
                   const spriteTypeLabel = SPRITE_TYPE_LABELS[spriteType]
                   // 0=Custom, 1=Trimmed, 2=Raw
-                  const sizeMode = Number(sc?.props?.sizeMode ?? sc?.props?._sizeMode ?? 1)
+                  const sizeMode = Number(sc?.props?.sizeMode ?? sc?.props?._sizeMode ?? sc?.props?.['_N$sizeMode'] ?? 1)
                   // Sliced (type=1) 9-slice 렌더링
                   if (spriteType === 1 && texW > 0 && texH > 0) {
                     // border값: spriteFrame .meta 파일에서 읽은 값 (캐시에 저장됨)
@@ -3708,7 +3712,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     const capR = spriteEntry?.bR ?? 0
                     const capB = spriteEntry?.bB ?? 0
 
-                    if (capL + capR > 0 || capT + capB > 0) {
+                    // border가 0이어도 sliced 타입이면 9-slice 레이아웃 적용 (중앙만 늘어남)
+                    if (true) {
                       const srcCW = Math.max(1, texW - capL - capR)
                       const srcCH = Math.max(1, texH - capT - capB)
                       const dstCW = Math.max(0, iw - capL - capR)
