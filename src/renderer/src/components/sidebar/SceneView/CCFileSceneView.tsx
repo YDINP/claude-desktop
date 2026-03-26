@@ -586,7 +586,13 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     uuids.forEach(uuid => {
       spriteCacheRef.current.set(uuid, { dataUrl: '', w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0 }) // pending
       // ccFileResolveSprite: dataUrl + meta border값(9-slice inset) 함께 반환
-      window.api.ccFileResolveSprite?.(uuid, assetsDir).then(result => {
+      // fallback: ccFileResolveSprite가 없으면(앱 재시작 전 hot-reload) ccFileResolveTexture 사용
+      const spritePromise = window.api.ccFileResolveSprite
+        ? window.api.ccFileResolveSprite(uuid, assetsDir)
+        : window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url =>
+            url ? { dataUrl: url, borderTop: 0, borderBottom: 0, borderLeft: 0, borderRight: 0 } : null
+          )
+      spritePromise?.then(result => {
         if (result) {
           const img = new Image()
           img.onload = () => {
@@ -605,7 +611,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           spriteCacheRef.current.delete(uuid)
           setSpriteCacheVer(v => v + 1)
         }
-      }).catch(() => {
+      })?.catch(() => {
         spriteCacheRef.current.delete(uuid)
       })
     })
