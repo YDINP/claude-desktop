@@ -2815,7 +2815,9 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             // Check cc.UIOpacity component (CC3.x)
             const uiOpacityComp = node.components?.find(c => c.type === 'cc.UIOpacity')
             const uiOpacityVal = uiOpacityComp ? Number(uiOpacityComp.props?.opacity ?? uiOpacityComp.props?._opacity ?? 255) : undefined
-            const nodeOpacity = ((uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
+            // 에디터 최소 가시성: opacity=0 노드(런타임 fade-in 등)도 구조 확인 가능하도록 0.15 보장
+            const rawOpacity = (uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255
+            const nodeOpacity = Math.max(0.15, rawOpacity) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
