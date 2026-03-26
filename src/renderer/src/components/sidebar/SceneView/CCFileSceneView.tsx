@@ -15,6 +15,7 @@ interface FlatNode {
   parentUuid: string | null  // R1570
   siblingIdx: number  // R1687
   siblingTotal: number  // R1687
+  effectiveActive: boolean
 }
 
 interface CCFileSceneViewProps {
@@ -88,8 +89,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2472: 다중 선택 노드 동시 드래그
   const multiDragRef = useRef<{ startMouseX: number; startMouseY: number; nodes: Map<string, { localX: number; localY: number }> } | null>(null)
   const [multiDragDelta, setMultiDragDelta] = useState<{ dx: number; dy: number } | null>(null)
-  const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number; dir: 'SE' | 'S' | 'E' } | null>(null)
-  const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
+  const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number; dir: 'SE' | 'S' | 'E' | 'NW' | 'N' | 'NE' | 'W' | 'SW'; startLocalX: number; startLocalY: number } | null>(null)
+  const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number; dx?: number; dy?: number } | null>(null)
   const rotateRef = useRef<{ uuid: string; centerX: number; centerY: number; startAngle: number; startRotation: number } | null>(null)
   const [rotateOverride, setRotateOverride] = useState<{ uuid: string; angle: number } | null>(null)
   // R1506: 앵커 포인트 드래그
@@ -474,7 +475,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const wy = parentWorldY + (sin * parentSx * localX + cos * parentSy * localY)
       return [wx, wy]
     }
-    function walk(node: CCSceneNode, parentWorldX: number, parentWorldY: number, parentRotDeg: number, parentSx: number, parentSy: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number) {
+    function walk(node: CCSceneNode, parentWorldX: number, parentWorldY: number, parentRotDeg: number, parentSx: number, parentSy: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number, parentEffectiveActive: boolean) {
       const localX = typeof node.position === 'object' ? (node.position as { x: number }).x : 0
       const localY = typeof node.position === 'object' ? (node.position as { y: number }).y : 0
       const [worldX, worldY] = applyParentTransform(parentRotDeg, parentSx, parentSy, parentWorldX, parentWorldY, localX, localY)
@@ -484,17 +485,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const sy = (node.scale as { y?: number })?.y ?? 1
       const cumSx = parentSx * sx
       const cumSy = parentSy * sy
-      result.push({ node, worldX, worldY, depth, parentUuid, siblingIdx, siblingTotal })
+      const effectiveActive = parentEffectiveActive && (node.active !== false)
+      result.push({ node, worldX, worldY, depth, parentUuid, siblingIdx, siblingTotal, effectiveActive })
       // R2726: 씬 트리에서 접힌 노드는 자식을 SceneView에서도 숨김
       if (collapsedUuids?.has(node.uuid)) return
       for (let i = 0; i < node.children.length; i++) {
-        walk(node.children[i], worldX, worldY, cumRotZ, cumSx, cumSy, depth + 1, node.uuid, i, node.children.length)
+        walk(node.children[i], worldX, worldY, cumRotZ, cumSx, cumSy, depth + 1, node.uuid, i, node.children.length, effectiveActive)
       }
     }
     // root부터 walk — 씬/프리펩 모두 root 포함
     // 씬 root(cc.Scene)는 size=0 이므로 렌더링에서 null 반환되어 무해
     // 프리펩 root는 실제 콘텐츠 노드이므로 반드시 포함해야 함
-    walk(sceneFile.root, 0, 0, 0, 1, 1, 0, null, 0, 1)
+    walk(sceneFile.root, 0, 0, 0, 1, 1, 0, null, 0, 1, true)
     return result
   }, [sceneFile, collapsedUuids])
 
@@ -778,19 +780,48 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       return
     }
     if (resizeRef.current) {
-      const dx = e.clientX - resizeRef.current.startMouseX
-      const dy = e.clientY - resizeRef.current.startMouseY
+      const mdx = e.clientX - resizeRef.current.startMouseX
+      const mdy = e.clientY - resizeRef.current.startMouseY
       const z = viewRef.current.zoom
       const { dir, startW, startH } = resizeRef.current
-      let newW = dir !== 'S' ? Math.max(1, startW + dx / z) : startW
-      let newH = dir !== 'E' ? Math.max(1, startH + dy / z) : startH
+      let newW = startW
+      let newH = startH
+      let posDx = 0  // CC local position delta X
+      let posDy = 0  // CC local position delta Y
+      if (dir === 'SE') {
+        newW = Math.max(1, startW + mdx / z)
+        newH = Math.max(1, startH + mdy / z)
+      } else if (dir === 'S') {
+        newH = Math.max(1, startH + mdy / z)
+      } else if (dir === 'E') {
+        newW = Math.max(1, startW + mdx / z)
+      } else if (dir === 'NW') {
+        newW = Math.max(1, startW - mdx / z)
+        newH = Math.max(1, startH - mdy / z)
+        posDx = -(newW - startW)
+        posDy = newH - startH
+      } else if (dir === 'N') {
+        newH = Math.max(1, startH - mdy / z)
+        posDy = newH - startH
+      } else if (dir === 'NE') {
+        newW = Math.max(1, startW + mdx / z)
+        newH = Math.max(1, startH - mdy / z)
+        posDy = newH - startH
+      } else if (dir === 'W') {
+        newW = Math.max(1, startW - mdx / z)
+        posDx = -(newW - startW)
+      } else if (dir === 'SW') {
+        newW = Math.max(1, startW - mdx / z)
+        newH = Math.max(1, startH + mdy / z)
+        posDx = -(newW - startW)
+      }
       // R1638: Shift+리사이즈 — SE 핸들에서 종횡비 유지
       if (e.shiftKey && dir === 'SE' && startW > 0 && startH > 0) {
         const ratio = startW / startH
-        if (Math.abs(dx) / z > Math.abs(dy) / z) newH = Math.max(1, newW / ratio)
+        if (Math.abs(mdx) / z > Math.abs(mdy) / z) newH = Math.max(1, newW / ratio)
         else newW = Math.max(1, newH * ratio)
       }
-      setResizeOverride({ uuid: resizeRef.current.uuid, w: newW, h: newH })
+      setResizeOverride({ uuid: resizeRef.current.uuid, w: newW, h: newH, dx: posDx, dy: posDy })
       return
     }
     if (dragRef.current) {
@@ -983,6 +1014,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     setRotateOverride(null)
     if (resizeRef.current && resizeOverride) {
       onResize?.(resizeOverride.uuid, resizeOverride.w, resizeOverride.h)
+      if ((resizeOverride.dx || resizeOverride.dy) && resizeRef.current) {
+        const newLocalX = resizeRef.current.startLocalX + (resizeOverride.dx ?? 0)
+        const newLocalY = resizeRef.current.startLocalY + (resizeOverride.dy ?? 0)
+        onMove?.(resizeOverride.uuid, newLocalX, newLocalY)
+      }
       resizeRef.current = null
       setResizeOverride(null)
       return
@@ -2620,7 +2656,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 </g>
           )}
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
-          {flatNodes.map(({ node, worldX, worldY, depth }) => {
+          {flatNodes.map(({ node, worldX, worldY, depth, effectiveActive }) => {
             const isDragged = dragOverride?.uuid === node.uuid
             const isResized = resizeOverride?.uuid === node.uuid
             // R2472: 다중 선택 동시 드래그 오프셋
@@ -2628,13 +2664,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             // dragOverride는 로컬 좌표 → 월드로 변환: worldX + (newLocal - oldLocal)
             const nodeLocalX = typeof node.position === 'object' ? (node.position as CCVec3).x : 0
             const nodeLocalY = typeof node.position === 'object' ? (node.position as CCVec3).y : 0
-            const effX = isDragged ? worldX + (dragOverride!.x - nodeLocalX) : isMultiDragged ? worldX + multiDragDelta!.dx : worldX
-            const effY = isDragged ? worldY + (dragOverride!.y - nodeLocalY) : isMultiDragged ? worldY + multiDragDelta!.dy : worldY
+            const resizeDx = isResized && resizeOverride!.dx ? resizeOverride!.dx : 0
+            const resizeDy = isResized && resizeOverride!.dy ? resizeOverride!.dy : 0
+            const effX = (isDragged ? worldX + (dragOverride!.x - nodeLocalX) : isMultiDragged ? worldX + multiDragDelta!.dx : worldX) + resizeDx
+            const effY = (isDragged ? worldY + (dragOverride!.y - nodeLocalY) : isMultiDragged ? worldY + multiDragDelta!.dy : worldY) + resizeDy
             const svgPos = ccToSvg(effX, effY)
             const w = isResized ? resizeOverride!.w : (node.size?.x || 0)
             const h = isResized ? resizeOverride!.h : (node.size?.y || 0)
             if (w === 0 && h === 0) return null  // 크기 없는 노드는 점으로 표시
-            if (hideInactiveNodes && node.active === false) return null  // R1610
+            if (hideInactiveNodes && !effectiveActive) return null  // R1610
             if (hiddenUuids.has(node.uuid)) return null  // R1692: 시각적 숨기기
 
             // 캔버스 범위 밖 노드 감지
@@ -2654,7 +2692,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             // Check cc.UIOpacity component (CC3.x)
             const uiOpacityComp = node.components?.find(c => c.type === 'cc.UIOpacity')
             const uiOpacityVal = uiOpacityComp ? Number(uiOpacityComp.props?.opacity ?? uiOpacityComp.props?._opacity ?? 255) : undefined
-            const nodeOpacity = (node.active !== false ? (uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
+            const nodeOpacity = (effectiveActive ? (uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
@@ -3549,7 +3587,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                             href={imgUrl}
                             x={rectX} y={rectY}
                             width={iw} height={ih}
-                            preserveAspectRatio="xMidYMid meet"
+                            preserveAspectRatio="none"
                             style={{ pointerEvents: 'none', filter: isGrayscale ? 'grayscale(1)' : undefined }}
                           />
                           <rect
@@ -3564,7 +3602,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           href={imgUrl}
                           x={rectX} y={rectY}
                           width={iw} height={ih}
-                          preserveAspectRatio="xMidYMid meet"
+                          preserveAspectRatio="none"
                           style={{ pointerEvents: 'none', filter: isGrayscale ? 'grayscale(1)' : undefined }}
                         />
                       )}
@@ -3806,23 +3844,35 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     opacity={0.8}
                   >🔒</text>
                 )}
-                {/* SE/S/E 리사이즈 핸들 (선택된 노드만, 잠긴/뷰잠금 노드 제외) */}
+                {/* 8방향 리사이즈 핸들 (선택된 노드만, 잠긴/뷰잠금 노드 제외) */}
                 {isSelected && !viewLock && !lockedUuids.has(node.uuid) && (() => {
                   const curW = resizeOverride?.uuid === node.uuid ? resizeOverride.w : w
                   const curH = resizeOverride?.uuid === node.uuid ? resizeOverride.h : h
-                  const startResize = (e: React.MouseEvent, dir: 'SE' | 'S' | 'E') => {
+                  const nodeLocalXVal = typeof node.position === 'object' ? (node.position as { x: number }).x : 0
+                  const nodeLocalYVal = typeof node.position === 'object' ? (node.position as { y: number }).y : 0
+                  const startResize = (e: React.MouseEvent, dir: 'SE' | 'S' | 'E' | 'NW' | 'N' | 'NE' | 'W' | 'SW') => {
                     e.stopPropagation()
-                    resizeRef.current = { uuid: node.uuid, startMouseX: e.clientX, startMouseY: e.clientY, startW: curW, startH: curH, dir }
+                    resizeRef.current = { uuid: node.uuid, startMouseX: e.clientX, startMouseY: e.clientY, startW: curW, startH: curH, dir, startLocalX: nodeLocalXVal, startLocalY: nodeLocalYVal }
                   }
-                  const hs = 8 / view.zoom  // handle size
+                  const hs = 8 / view.zoom  // R1619: S 핸들 / E 핸들 + 8방향 확장
                   return (
                     <>
+                      {/* NW 핸들 */}
+                      <rect x={rectX - hs / 2} y={rectY - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'nw-resize' }} onMouseDown={e => startResize(e, 'NW')} />
+                      {/* N 핸들 */}
+                      <rect x={rectX + curW / 2 - hs / 2} y={rectY - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'n-resize' }} onMouseDown={e => startResize(e, 'N')} />
+                      {/* NE 핸들 */}
+                      <rect x={rectX + curW - hs / 2} y={rectY - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'ne-resize' }} onMouseDown={e => startResize(e, 'NE')} />
+                      {/* W 핸들 */}
+                      <rect x={rectX - hs / 2} y={rectY + curH / 2 - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'w-resize' }} onMouseDown={e => startResize(e, 'W')} />
+                      {/* E 핸들 (너비만) */}
+                      <rect x={rectX + curW - hs / 2} y={rectY + curH / 2 - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'e-resize' }} onMouseDown={e => startResize(e, 'E')} />
+                      {/* SW 핸들 */}
+                      <rect x={rectX - hs / 2} y={rectY + curH - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'sw-resize' }} onMouseDown={e => startResize(e, 'SW')} />
+                      {/* S 핸들 (높이만) */}
+                      <rect x={rectX + curW / 2 - hs / 2} y={rectY + curH - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 's-resize' }} onMouseDown={e => startResize(e, 'S')} />
                       {/* SE 핸들 */}
-                      <rect x={rectX + w - hs / 2} y={rectY + h - hs / 2} width={hs} height={hs} fill="#58a6ff" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'se-resize' }} onMouseDown={e => startResize(e, 'SE')} />
-                      {/* R1619: S 핸들 (높이만) */}
-                      <rect x={rectX + w / 2 - hs / 2} y={rectY + h - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 's-resize' }} onMouseDown={e => startResize(e, 'S')} />
-                      {/* R1619: E 핸들 (너비만) */}
-                      <rect x={rectX + w - hs / 2} y={rectY + h / 2 - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'e-resize' }} onMouseDown={e => startResize(e, 'E')} />
+                      <rect x={rectX + curW - hs / 2} y={rectY + curH - hs / 2} width={hs} height={hs} fill="#58a6ff" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'se-resize' }} onMouseDown={e => startResize(e, 'SE')} />
                     </>
                   )
                 })()}
