@@ -15,6 +15,7 @@ interface FlatNode {
   parentUuid: string | null  // R1570
   siblingIdx: number  // R1687
   siblingTotal: number  // R1687
+  effectiveActive: boolean
 }
 
 interface CCFileSceneViewProps {
@@ -88,8 +89,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2472: 다중 선택 노드 동시 드래그
   const multiDragRef = useRef<{ startMouseX: number; startMouseY: number; nodes: Map<string, { localX: number; localY: number }> } | null>(null)
   const [multiDragDelta, setMultiDragDelta] = useState<{ dx: number; dy: number } | null>(null)
-  const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number; dir: 'SE' | 'S' | 'E' } | null>(null)
-  const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number } | null>(null)
+  const resizeRef = useRef<{ uuid: string; startMouseX: number; startMouseY: number; startW: number; startH: number; dir: 'SE' | 'S' | 'E' | 'NW' | 'N' | 'NE' | 'W' | 'SW'; startLocalX: number; startLocalY: number } | null>(null)
+  const [resizeOverride, setResizeOverride] = useState<{ uuid: string; w: number; h: number; dx?: number; dy?: number } | null>(null)
   const rotateRef = useRef<{ uuid: string; centerX: number; centerY: number; startAngle: number; startRotation: number } | null>(null)
   const [rotateOverride, setRotateOverride] = useState<{ uuid: string; angle: number } | null>(null)
   // R1506: 앵커 포인트 드래그
@@ -220,11 +221,19 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const resCustomWRef = useRef<HTMLInputElement | null>(null)
   const resCustomHRef = useRef<HTMLInputElement | null>(null)
   const isSpaceDownRef = useRef(false)
+  // W/E 도구 모드: W=이동, E=회전 (CC Editor 단축키)
+  const [transformTool, setTransformTool] = useState<'move' | 'rotate' | 'scale'>('move')
+  const transformToolRef = useRef<'move' | 'rotate' | 'scale'>('move')
+  transformToolRef.current = transformTool
   const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set())
   const multiSelectedRef = useRef(multiSelected)
   multiSelectedRef.current = multiSelected
+  // Ctrl+C/V 노드 복사용 클립보드 ref
+  const clipboardNodeRef = useRef<string | null>(null)
   const selBoxRef = useRef<{ startSvgX: number; startSvgY: number } | null>(null)
   const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+  // R2740: 같은 위치 클릭 반복 → 겹친 노드 순차 선택
+  const lastClickCycleRef = useRef<{ svgX: number; svgY: number; uuidList: string[]; idx: number } | null>(null)
   // R2544: 핀 마커 목록 패널 토글
   const [showPinPanel, setShowPinPanel] = useState(false)
   // R2521: 세계 좌표 표시 토글
@@ -400,13 +409,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return
+      const el = e.target as HTMLElement
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
       if (e.code === 'Space' && !isSpaceDownRef.current) {
-        const el = e.target as HTMLElement
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
         e.preventDefault()
         isSpaceDownRef.current = true
         if (svgRef.current) svgRef.current.style.cursor = 'grab'
       }
+      // W/V: 이동 도구 / E: 회전 도구 / R: 스케일 도구 (CC Editor 단축키)
+      if (e.key === 'w' || e.key === 'W') { setTransformTool('move') }
+      if (e.key === 'v' || e.key === 'V') { setTransformTool('move') }
+      if (e.key === 'e' || e.key === 'E') { setTransformTool('rotate') }
+      if (e.key === 'r' || e.key === 'R') { setTransformTool('scale') }
     }
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
@@ -474,7 +488,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const wy = parentWorldY + (sin * parentSx * localX + cos * parentSy * localY)
       return [wx, wy]
     }
-    function walk(node: CCSceneNode, parentWorldX: number, parentWorldY: number, parentRotDeg: number, parentSx: number, parentSy: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number) {
+    function walk(node: CCSceneNode, parentWorldX: number, parentWorldY: number, parentRotDeg: number, parentSx: number, parentSy: number, depth: number, parentUuid: string | null, siblingIdx: number, siblingTotal: number, parentEffectiveActive: boolean) {
       const localX = typeof node.position === 'object' ? (node.position as { x: number }).x : 0
       const localY = typeof node.position === 'object' ? (node.position as { y: number }).y : 0
       const [worldX, worldY] = applyParentTransform(parentRotDeg, parentSx, parentSy, parentWorldX, parentWorldY, localX, localY)
@@ -484,17 +498,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const sy = (node.scale as { y?: number })?.y ?? 1
       const cumSx = parentSx * sx
       const cumSy = parentSy * sy
-      result.push({ node, worldX, worldY, depth, parentUuid, siblingIdx, siblingTotal })
+      const effectiveActive = parentEffectiveActive && (node.active !== false)
+      result.push({ node, worldX, worldY, depth, parentUuid, siblingIdx, siblingTotal, effectiveActive })
       // R2726: 씬 트리에서 접힌 노드는 자식을 SceneView에서도 숨김
       if (collapsedUuids?.has(node.uuid)) return
       for (let i = 0; i < node.children.length; i++) {
-        walk(node.children[i], worldX, worldY, cumRotZ, cumSx, cumSy, depth + 1, node.uuid, i, node.children.length)
+        walk(node.children[i], worldX, worldY, cumRotZ, cumSx, cumSy, depth + 1, node.uuid, i, node.children.length, effectiveActive)
       }
     }
     // root부터 walk — 씬/프리펩 모두 root 포함
     // 씬 root(cc.Scene)는 size=0 이므로 렌더링에서 null 반환되어 무해
     // 프리펩 root는 실제 콘텐츠 노드이므로 반드시 포함해야 함
-    walk(sceneFile.root, 0, 0, 0, 1, 1, 0, null, 0, 1)
+    walk(sceneFile.root, 0, 0, 0, 1, 1, 0, null, 0, 1, true)
     return result
   }, [sceneFile, collapsedUuids])
 
@@ -539,6 +554,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   // R2324: 선택 노드 자동 팬 — 트리에서 선택 시 뷰포트 밖이면 중심 이동
   const flatNodesRef = useRef(flatNodes)
   flatNodesRef.current = flatNodes
+  const ccToSvgRef = useRef(ccToSvg)
+  ccToSvgRef.current = ccToSvg
   const effectiveWRef = useRef(effectiveW)
   effectiveWRef.current = effectiveW
   const effectiveHRef = useRef(effectiveH)
@@ -778,19 +795,48 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       return
     }
     if (resizeRef.current) {
-      const dx = e.clientX - resizeRef.current.startMouseX
-      const dy = e.clientY - resizeRef.current.startMouseY
+      const mdx = e.clientX - resizeRef.current.startMouseX
+      const mdy = e.clientY - resizeRef.current.startMouseY
       const z = viewRef.current.zoom
       const { dir, startW, startH } = resizeRef.current
-      let newW = dir !== 'S' ? Math.max(1, startW + dx / z) : startW
-      let newH = dir !== 'E' ? Math.max(1, startH + dy / z) : startH
+      let newW = startW
+      let newH = startH
+      let posDx = 0  // CC local position delta X
+      let posDy = 0  // CC local position delta Y
+      if (dir === 'SE') {
+        newW = Math.max(1, startW + mdx / z)
+        newH = Math.max(1, startH + mdy / z)
+      } else if (dir === 'S') {
+        newH = Math.max(1, startH + mdy / z)
+      } else if (dir === 'E') {
+        newW = Math.max(1, startW + mdx / z)
+      } else if (dir === 'NW') {
+        newW = Math.max(1, startW - mdx / z)
+        newH = Math.max(1, startH - mdy / z)
+        posDx = -(newW - startW)
+        posDy = newH - startH
+      } else if (dir === 'N') {
+        newH = Math.max(1, startH - mdy / z)
+        posDy = newH - startH
+      } else if (dir === 'NE') {
+        newW = Math.max(1, startW + mdx / z)
+        newH = Math.max(1, startH - mdy / z)
+        posDy = newH - startH
+      } else if (dir === 'W') {
+        newW = Math.max(1, startW - mdx / z)
+        posDx = -(newW - startW)
+      } else if (dir === 'SW') {
+        newW = Math.max(1, startW - mdx / z)
+        newH = Math.max(1, startH + mdy / z)
+        posDx = -(newW - startW)
+      }
       // R1638: Shift+리사이즈 — SE 핸들에서 종횡비 유지
       if (e.shiftKey && dir === 'SE' && startW > 0 && startH > 0) {
         const ratio = startW / startH
-        if (Math.abs(dx) / z > Math.abs(dy) / z) newH = Math.max(1, newW / ratio)
+        if (Math.abs(mdx) / z > Math.abs(mdy) / z) newH = Math.max(1, newW / ratio)
         else newW = Math.max(1, newH * ratio)
       }
-      setResizeOverride({ uuid: resizeRef.current.uuid, w: newW, h: newH })
+      setResizeOverride({ uuid: resizeRef.current.uuid, w: newW, h: newH, dx: posDx, dy: posDy })
       return
     }
     if (dragRef.current) {
@@ -983,6 +1029,11 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     setRotateOverride(null)
     if (resizeRef.current && resizeOverride) {
       onResize?.(resizeOverride.uuid, resizeOverride.w, resizeOverride.h)
+      if ((resizeOverride.dx || resizeOverride.dy) && resizeRef.current) {
+        const newLocalX = resizeRef.current.startLocalX + (resizeOverride.dx ?? 0)
+        const newLocalY = resizeRef.current.startLocalY + (resizeOverride.dy ?? 0)
+        onMove?.(resizeOverride.uuid, newLocalX, newLocalY)
+      }
       resizeRef.current = null
       setResizeOverride(null)
       return
@@ -1143,8 +1194,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return
       const el = e.target as HTMLElement
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
-      if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey) {
+      if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
         handleFitToSelected()
+        return
+      }
+      // Shift+F — 전체 노드 맞춤 (fit all)
+      if (e.code === 'KeyF' && e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault()
+        handleFit()
         return
       }
       // 화살표 키: 선택 노드 이동 (1px, Shift+10px)
@@ -1173,6 +1230,82 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
         e.preventDefault()
         if (selectedUuid) onDuplicate?.(selectedUuid)
+        return
+      }
+      // Ctrl+G — 다중 선택 노드 그룹화
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G')) {
+        e.preventDefault()
+        const multi = multiSelectedRef.current
+        if (multi.size >= 2 && onGroupNodes) {
+          onGroupNodes(Array.from(multi))
+        }
+        return
+      }
+      // Ctrl+C — 선택 노드 클립보드 복사
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedUuid) {
+        clipboardNodeRef.current = selectedUuid
+        // 기본 클립보드 동작은 유지 (preventDefault 안 함)
+        return
+      }
+      // Ctrl+V — 클립보드 노드 붙여넣기 (복제)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && clipboardNodeRef.current) {
+        onDuplicate?.(clipboardNodeRef.current)
+        // 기본 클립보드 동작은 유지 (preventDefault 안 함)
+        return
+      }
+      // Ctrl+[ / Ctrl+] — z-순서 변경
+      if ((e.ctrlKey || e.metaKey) && e.key === '[' && selectedUuid) {
+        e.preventDefault()
+        onReorder?.(selectedUuid, -1)
+        return
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === ']' && selectedUuid) {
+        e.preventDefault()
+        onReorder?.(selectedUuid, 1)
+        return
+      }
+      // L — 선택 노드 잠금 토글
+      if (e.code === 'KeyL' && !e.ctrlKey && !e.metaKey && !e.shiftKey && selectedUuid) {
+        e.preventDefault()
+        toggleLock(selectedUuid)
+        return
+      }
+      // +/= — 줌 인, - — 줌 아웃, 0 — 줌 리셋
+      if (!e.ctrlKey && !e.metaKey && (e.key === '+' || e.key === '=')) {
+        e.preventDefault()
+        setView(v => {
+          const newZoom = Math.max(0.1, Math.min(5, v.zoom * 1.25))
+          const svg = svgRef.current
+          if (!svg) return { ...v, zoom: newZoom }
+          const rect = svg.getBoundingClientRect()
+          const cx = rect.width / 2
+          const cy = rect.height / 2
+          const scale = newZoom / v.zoom
+          return { zoom: newZoom, offsetX: cx - (cx - v.offsetX) * scale, offsetY: cy - (cy - v.offsetY) * scale }
+        })
+        return
+      }
+      if (!e.ctrlKey && !e.metaKey && e.key === '-') {
+        e.preventDefault()
+        setView(v => {
+          const newZoom = Math.max(0.1, Math.min(5, v.zoom / 1.25))
+          const svg = svgRef.current
+          if (!svg) return { ...v, zoom: newZoom }
+          const rect = svg.getBoundingClientRect()
+          const cx = rect.width / 2
+          const cy = rect.height / 2
+          const scale = newZoom / v.zoom
+          return { zoom: newZoom, offsetX: cx - (cx - v.offsetX) * scale, offsetY: cy - (cy - v.offsetY) * scale }
+        })
+        return
+      }
+      if (!e.ctrlKey && !e.metaKey && e.key === '0' && !e.altKey) {
+        e.preventDefault()
+        const svg = svgRef.current
+        if (svg) {
+          const rect = svg.getBoundingClientRect()
+          setView({ zoom: 1.0, offsetX: (rect.width - effectiveW) / 2, offsetY: (rect.height - effectiveH) / 2 })
+        }
         return
       }
       // R1693: Ctrl+P — 마우스 위치에 핀 마커 추가
@@ -1352,7 +1485,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate, onToggleActive, onReorder])
+  }, [handleFitToSelected, handleFit, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate, onToggleActive, onReorder, onGroupNodes, effectiveW, effectiveH])
 
   // R1705: selectedUuid 변경 시 이력 기록
   const navSkipRef = useRef(false)
@@ -1467,6 +1600,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
         display: 'flex', gap: 4, padding: '3px 8px', borderBottom: '1px solid var(--border)',
         flexShrink: 0, alignItems: 'center', fontSize: 11,
       }}>
+        {/* W/E/R 도구 토글 버튼 */}
+        {(['move', 'rotate', 'scale'] as const).map(tool => (
+          <button key={tool} onClick={() => setTransformTool(tool)}
+            title={tool === 'move' ? 'W: 이동 도구' : tool === 'rotate' ? 'E: 회전 도구' : 'R: 스케일 도구'}
+            style={{
+              padding: '1px 6px', fontSize: 10, borderRadius: 3, cursor: 'pointer', flexShrink: 0,
+              background: transformTool === tool ? 'rgba(88,166,255,0.2)' : 'transparent',
+              color: transformTool === tool ? '#58a6ff' : 'var(--text-muted)',
+              border: `1px solid ${transformTool === tool ? '#58a6ff' : 'var(--border)'}`,
+            }}
+          >{tool === 'move' ? '↔ W' : tool === 'rotate' ? '↻ E' : '⤡ R'}</button>
+        ))}
         {/* R1548: 해상도 표시 클릭 → preset picker */}
         <span style={{ color: resOverride ? '#fbbf24' : 'var(--text-muted)', flex: 1, position: 'relative' }}>
           <span
@@ -2215,13 +2360,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 <tbody>
                   {[
                     ['Ctrl+D', '노드 복제'],
+                    ['Ctrl+C/V', '노드 복사/붙여넣기'],
                     ['H', 'active 토글'],
+                    ['L', '잠금 토글'],
                     ['Ctrl+↑/↓', '형제 순서 이동'],
+                    ['Ctrl+[/]', 'z-순서 변경'],
+                    ['Ctrl+G', '다중 노드 그룹화'],
                     ['Home/End', '맨 앞/뒤 이동'],
                     ['Alt+←/→', '선택 히스토리'],
                     ['Ctrl+P', '핀 마커 토글'],
-                    ['G', '그룹화'],
+                    ['G', '형제 그룹 토글'],
                     ['M', '거리 측정 도구'],
+                    ['R', '스케일 도구'],
+                    ['V', '선택(이동) 도구'],
+                    ['+/-', '줌 인/아웃'],
+                    ['0', '줌 리셋 (1:1)'],
+                    ['Shift+F', '전체 맞춤'],
                     ['Ctrl+A', '전체 선택'],
                     ['Del', '다중 삭제'],
                     ['Ctrl+Z/Y', 'Undo/Redo'],
@@ -2620,7 +2774,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 </g>
           )}
           {/* 노드 렌더링 (비활성 노드는 반투명 표시) */}
-          {flatNodes.map(({ node, worldX, worldY, depth }) => {
+          {flatNodes.map(({ node, worldX, worldY, depth, effectiveActive }) => {
             const isDragged = dragOverride?.uuid === node.uuid
             const isResized = resizeOverride?.uuid === node.uuid
             // R2472: 다중 선택 동시 드래그 오프셋
@@ -2628,13 +2782,15 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             // dragOverride는 로컬 좌표 → 월드로 변환: worldX + (newLocal - oldLocal)
             const nodeLocalX = typeof node.position === 'object' ? (node.position as CCVec3).x : 0
             const nodeLocalY = typeof node.position === 'object' ? (node.position as CCVec3).y : 0
-            const effX = isDragged ? worldX + (dragOverride!.x - nodeLocalX) : isMultiDragged ? worldX + multiDragDelta!.dx : worldX
-            const effY = isDragged ? worldY + (dragOverride!.y - nodeLocalY) : isMultiDragged ? worldY + multiDragDelta!.dy : worldY
+            const resizeDx = isResized && resizeOverride!.dx ? resizeOverride!.dx : 0
+            const resizeDy = isResized && resizeOverride!.dy ? resizeOverride!.dy : 0
+            const effX = (isDragged ? worldX + (dragOverride!.x - nodeLocalX) : isMultiDragged ? worldX + multiDragDelta!.dx : worldX) + resizeDx
+            const effY = (isDragged ? worldY + (dragOverride!.y - nodeLocalY) : isMultiDragged ? worldY + multiDragDelta!.dy : worldY) + resizeDy
             const svgPos = ccToSvg(effX, effY)
             const w = isResized ? resizeOverride!.w : (node.size?.x || 0)
             const h = isResized ? resizeOverride!.h : (node.size?.y || 0)
             if (w === 0 && h === 0) return null  // 크기 없는 노드는 점으로 표시
-            if (hideInactiveNodes && node.active === false) return null  // R1610
+            if (hideInactiveNodes && !effectiveActive) return null  // R1610
             if (hiddenUuids.has(node.uuid)) return null  // R1692: 시각적 숨기기
 
             // 캔버스 범위 밖 노드 감지
@@ -2654,7 +2810,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             // Check cc.UIOpacity component (CC3.x)
             const uiOpacityComp = node.components?.find(c => c.type === 'cc.UIOpacity')
             const uiOpacityVal = uiOpacityComp ? Number(uiOpacityComp.props?.opacity ?? uiOpacityComp.props?._opacity ?? 255) : undefined
-            const nodeOpacity = (node.active !== false ? (uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
+            const nodeOpacity = (effectiveActive ? (uiOpacityVal !== undefined ? uiOpacityVal : (node.opacity ?? 255)) / 255 : 0.2) * (isOutOfCanvas ? 0.4 : 1) * searchDim * soloDim * depthDim * compDim
 
             const anchorX = node.anchor?.x ?? 0.5
             const anchorY = node.anchor?.y ?? 0.5
@@ -2729,7 +2885,40 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     })
                   } else {
                     setMultiSelected(new Set())
-                    onSelect(node.uuid)
+                    // R2740: 같은 위치 반복 클릭 → 겹친 노드 순차 선택
+                    const svg = svgRef.current
+                    if (svg) {
+                      const rect = svg.getBoundingClientRect()
+                      const v = viewRef.current
+                      const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
+                      const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
+                      const cxH = effectiveWRef.current / 2, cyH = effectiveHRef.current / 2
+                      const hits = flatNodesRef.current
+                        .filter(fn => {
+                          if (!fn.node.size || !fn.effectiveActive) return false
+                          const w = fn.node.size.x, h = fn.node.size.y
+                          const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
+                          const spx = cxH + fn.worldX, spy = cyH - fn.worldY
+                          return svgX >= spx - ax * w && svgX <= spx + (1 - ax) * w
+                            && svgY >= spy - (1 - ay) * h && svgY <= spy + ay * h
+                        })
+                        .map(fn => fn.node.uuid)
+                      const last = lastClickCycleRef.current
+                      const TOLE = 6
+                      const isSame = last && Math.abs(last.svgX - svgX) < TOLE && Math.abs(last.svgY - svgY) < TOLE
+                        && last.uuidList.join(',') === hits.join(',') && hits.length > 1
+                      if (isSame && last) {
+                        const nextIdx = (last.idx + 1) % hits.length
+                        lastClickCycleRef.current = { ...last, idx: nextIdx }
+                        onSelect(hits[nextIdx])
+                      } else {
+                        const idx = hits.length > 0 ? hits.length - 1 : 0
+                        lastClickCycleRef.current = { svgX, svgY, uuidList: hits, idx }
+                        onSelect(node.uuid)
+                      }
+                    } else {
+                      onSelect(node.uuid)
+                    }
                   }
                 }}
                 onMouseEnter={e => { setHoverUuid(node.uuid); setHoverClientPos({ x: e.clientX, y: e.clientY }); hoverClientPosRef.current = { x: e.clientX, y: e.clientY } }}
@@ -2750,6 +2939,31 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     return
                   }
                   if (viewLock || lockedUuids.has(node.uuid)) return  // R1605 / R1543: 잠금
+                  // E 도구: 회전 모드
+                  if (transformToolRef.current === 'rotate') {
+                    e.stopPropagation()
+                    const svg = svgRef.current
+                    if (!svg) return
+                    const svgRect = svg.getBoundingClientRect()
+                    const v = viewRef.current
+                    const svgMouseX = (e.clientX - svgRect.left - v.offsetX) / v.zoom
+                    const svgMouseY = (e.clientY - svgRect.top - v.offsetY) / v.zoom
+                    const sp = ccToSvgRef.current(worldX, worldY)
+                    const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number })?.z ?? 0
+                    const startAngle = Math.atan2(svgMouseY - sp.y, svgMouseX - sp.x) * 180 / Math.PI
+                    rotateRef.current = { uuid: node.uuid, centerX: sp.x, centerY: sp.y, startAngle, startRotation: rotZ }
+                    return
+                  }
+                  // R 도구: 스케일(리사이즈) 모드 — SE 방향 리사이즈 시작
+                  if (transformToolRef.current === 'scale') {
+                    e.stopPropagation()
+                    const curW = node.size?.x ?? 100
+                    const curH = node.size?.y ?? 100
+                    const nodeLocalX = typeof node.position === 'object' ? (node.position as { x: number }).x : 0
+                    const nodeLocalY = typeof node.position === 'object' ? (node.position as { y: number }).y : 0
+                    resizeRef.current = { uuid: node.uuid, startMouseX: e.clientX, startMouseY: e.clientY, startW: curW, startH: curH, dir: 'SE', startLocalX: nodeLocalX, startLocalY: nodeLocalY }
+                    return
+                  }
                   const pos = node.position as CCVec3
                   // R2472: 다중 선택 노드 동시 드래그
                   const multiSel = multiSelectedRef.current
@@ -2776,7 +2990,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   // R1683: ghost 저장 (원래 world 위치)
                   setDragGhost({ uuid: node.uuid, worldX, worldY, w: node.size?.x ?? 0, h: node.size?.y ?? 0, anchorX: node.anchor?.x ?? 0.5, anchorY: node.anchor?.y ?? 0.5 })
                 }}
-                style={{ cursor: lockedUuids.has(node.uuid) ? 'not-allowed' : isDragged ? 'grabbing' : 'grab' }}
+                style={{ cursor: lockedUuids.has(node.uuid) ? 'not-allowed' : isDragged ? 'grabbing' : transformTool === 'rotate' ? 'crosshair' : transformTool === 'scale' ? 'nwse-resize' : 'grab' }}
               >
                 <title>{node.name}{node.components.length > 0 ? '\n' + node.components.map(c => c.type.split('.').pop()).join(', ') : ''}</title>
                 <rect
@@ -3549,7 +3763,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                             href={imgUrl}
                             x={rectX} y={rectY}
                             width={iw} height={ih}
-                            preserveAspectRatio="xMidYMid meet"
+                            preserveAspectRatio="none"
                             style={{ pointerEvents: 'none', filter: isGrayscale ? 'grayscale(1)' : undefined }}
                           />
                           <rect
@@ -3564,7 +3778,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           href={imgUrl}
                           x={rectX} y={rectY}
                           width={iw} height={ih}
-                          preserveAspectRatio="xMidYMid meet"
+                          preserveAspectRatio="none"
                           style={{ pointerEvents: 'none', filter: isGrayscale ? 'grayscale(1)' : undefined }}
                         />
                       )}
@@ -3806,23 +4020,35 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     opacity={0.8}
                   >🔒</text>
                 )}
-                {/* SE/S/E 리사이즈 핸들 (선택된 노드만, 잠긴/뷰잠금 노드 제외) */}
+                {/* 8방향 리사이즈 핸들 (선택된 노드만, 잠긴/뷰잠금 노드 제외) */}
                 {isSelected && !viewLock && !lockedUuids.has(node.uuid) && (() => {
                   const curW = resizeOverride?.uuid === node.uuid ? resizeOverride.w : w
                   const curH = resizeOverride?.uuid === node.uuid ? resizeOverride.h : h
-                  const startResize = (e: React.MouseEvent, dir: 'SE' | 'S' | 'E') => {
+                  const nodeLocalXVal = typeof node.position === 'object' ? (node.position as { x: number }).x : 0
+                  const nodeLocalYVal = typeof node.position === 'object' ? (node.position as { y: number }).y : 0
+                  const startResize = (e: React.MouseEvent, dir: 'SE' | 'S' | 'E' | 'NW' | 'N' | 'NE' | 'W' | 'SW') => {
                     e.stopPropagation()
-                    resizeRef.current = { uuid: node.uuid, startMouseX: e.clientX, startMouseY: e.clientY, startW: curW, startH: curH, dir }
+                    resizeRef.current = { uuid: node.uuid, startMouseX: e.clientX, startMouseY: e.clientY, startW: curW, startH: curH, dir, startLocalX: nodeLocalXVal, startLocalY: nodeLocalYVal }
                   }
-                  const hs = 8 / view.zoom  // handle size
+                  const hs = 8 / view.zoom  // R1619: S 핸들 / E 핸들 + 8방향 확장
                   return (
                     <>
+                      {/* NW 핸들 */}
+                      <rect x={rectX - hs / 2} y={rectY - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'nw-resize' }} onMouseDown={e => startResize(e, 'NW')} />
+                      {/* N 핸들 */}
+                      <rect x={rectX + curW / 2 - hs / 2} y={rectY - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'n-resize' }} onMouseDown={e => startResize(e, 'N')} />
+                      {/* NE 핸들 */}
+                      <rect x={rectX + curW - hs / 2} y={rectY - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'ne-resize' }} onMouseDown={e => startResize(e, 'NE')} />
+                      {/* W 핸들 */}
+                      <rect x={rectX - hs / 2} y={rectY + curH / 2 - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'w-resize' }} onMouseDown={e => startResize(e, 'W')} />
+                      {/* E 핸들 (너비만) */}
+                      <rect x={rectX + curW - hs / 2} y={rectY + curH / 2 - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'e-resize' }} onMouseDown={e => startResize(e, 'E')} />
+                      {/* SW 핸들 */}
+                      <rect x={rectX - hs / 2} y={rectY + curH - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'sw-resize' }} onMouseDown={e => startResize(e, 'SW')} />
+                      {/* S 핸들 (높이만) */}
+                      <rect x={rectX + curW / 2 - hs / 2} y={rectY + curH - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 's-resize' }} onMouseDown={e => startResize(e, 'S')} />
                       {/* SE 핸들 */}
-                      <rect x={rectX + w - hs / 2} y={rectY + h - hs / 2} width={hs} height={hs} fill="#58a6ff" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'se-resize' }} onMouseDown={e => startResize(e, 'SE')} />
-                      {/* R1619: S 핸들 (높이만) */}
-                      <rect x={rectX + w / 2 - hs / 2} y={rectY + h - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 's-resize' }} onMouseDown={e => startResize(e, 'S')} />
-                      {/* R1619: E 핸들 (너비만) */}
-                      <rect x={rectX + w - hs / 2} y={rectY + h / 2 - hs / 2} width={hs} height={hs} fill="rgba(88,166,255,0.6)" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'e-resize' }} onMouseDown={e => startResize(e, 'E')} />
+                      <rect x={rectX + curW - hs / 2} y={rectY + curH - hs / 2} width={hs} height={hs} fill="#58a6ff" stroke="#fff" strokeWidth={1 / view.zoom} style={{ cursor: 'se-resize' }} onMouseDown={e => startResize(e, 'SE')} />
                     </>
                   )
                 })()}
