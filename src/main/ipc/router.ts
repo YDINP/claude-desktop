@@ -10,6 +10,7 @@ import { registerCCFileHandlers } from './cc-file-handlers'
 import { registerOllamaHandlers } from './ollama-handlers'
 import { registerOpenAIHandlers } from './openai-handlers'
 import { registerCommandHandlers } from './command-handlers'
+import { registerFeatureHandlers } from './feature-handlers'
 
 export function registerAllHandlers(win: BrowserWindow) {
   const agentBridge = new AgentBridge(win)
@@ -24,6 +25,7 @@ export function registerAllHandlers(win: BrowserWindow) {
   registerOllamaHandlers(win)
   registerOpenAIHandlers(win)
   registerCommandHandlers()
+  registerFeatureHandlers()
 
   win.on('closed', () => {
     ptyManager.closeAll()

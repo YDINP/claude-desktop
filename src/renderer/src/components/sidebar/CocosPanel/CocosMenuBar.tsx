@@ -5,12 +5,14 @@ import { BuildTabContent } from './BuildTab'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { validateScene } from '../cocos-utils'
 import type { OptimizationSuggestion } from './types'
+import { useFeatureFlags } from '../../../hooks/useFeatureFlags'
 
 interface CocosMenuBarProps {
   ctx: UseCCFileProjectUIReturn
 }
 
 export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
+  const { features } = useFeatureFlags()
   const {
     sceneFile, projectInfo, projectSettings, showProjectSettings, setShowProjectSettings,
     recentSceneFiles, sceneThumbnails, loadScene, addRecentScene,
@@ -57,6 +59,8 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
     return () => document.removeEventListener('mousedown', handler)
   }, [showBuildMenu])
 
+  if (!projectInfo?.detected) return null
+
   const toggle = (id: string) => setOpenMenu(v => v === id ? null : id)
 
   const menuItemStyle: React.CSSProperties = {
@@ -84,8 +88,6 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
     padding: '4px 12px 2px', fontSize: 9, color: 'var(--text-muted)',
     fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase',
   }
-
-  if (!projectInfo?.detected) return null
 
   return (
     <div ref={barRef} style={{
@@ -221,7 +223,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
                   onMouseLeave={e => (e.currentTarget.style.background = 'none')}
                   onClick={() => { handleRestore(); setOpenMenu(null) }}
                 >🔙 .bak 백업 복원</button>
-                {sceneFile?.scenePath && (
+                {features['cc.backupManager'] && sceneFile?.scenePath && (
                   <>
                     <div style={{ margin: '2px 0', borderTop: '1px solid var(--border)' }} />
                     <div style={{ padding: '0 4px' }}>
@@ -277,7 +279,7 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
       </div>
 
       {/* -- 씬 -- */}
-      {sceneFile?.root && (
+      {features['cc.sceneValidation'] && sceneFile?.root && (
         <div style={menuItemStyle}>
           <button style={btnStyle(openMenu === 'scene')} onClick={() => toggle('scene')}>
             {'🎬'} 씬 <span style={{ fontSize: 8 }}>{'▾'}</span>
@@ -519,45 +521,49 @@ export function CocosMenuBar({ ctx }: CocosMenuBarProps) {
       </div>
 
       {/* -- 에셋 패널 토글 -- */}
-      <button
-        style={{
-          padding: '2px 8px', fontSize: 10, cursor: 'pointer',
-          background: showAssetPanel ? 'rgba(88,166,255,0.15)' : 'transparent',
-          color: showAssetPanel ? 'var(--accent)' : 'var(--text-muted)',
-          border: 'none', borderBottom: showAssetPanel ? '2px solid var(--accent)' : '2px solid transparent',
-          fontWeight: showAssetPanel ? 600 : 400,
-        }}
-        onClick={() => {
-          const next = !showAssetPanel
-          setShowAssetPanel(next)
-          localStorage.setItem('cc-asset-panel-open', String(next))
-        }}
-        title="에셋 브라우저 패널 토글"
-      >{'📁'} 에셋</button>
-
-      {/* -- 빌드 메뉴 -- */}
-      <div ref={buildMenuRef} style={{ position: 'relative' }}>
+      {features['cc.assetBrowser'] && (
         <button
           style={{
             padding: '2px 8px', fontSize: 10, cursor: 'pointer',
-            background: showBuildMenu ? 'rgba(251,191,36,0.15)' : 'transparent',
-            color: showBuildMenu ? '#fbbf24' : 'var(--text-muted)',
-            border: 'none', borderBottom: showBuildMenu ? '2px solid #fbbf24' : '2px solid transparent',
-            fontWeight: showBuildMenu ? 600 : 400,
+            background: showAssetPanel ? 'rgba(88,166,255,0.15)' : 'transparent',
+            color: showAssetPanel ? 'var(--accent)' : 'var(--text-muted)',
+            border: 'none', borderBottom: showAssetPanel ? '2px solid var(--accent)' : '2px solid transparent',
+            fontWeight: showAssetPanel ? 600 : 400,
           }}
-          onClick={() => setShowBuildMenu(v => !v)}
-        >{'🔨'} 빌드</button>
-        {showBuildMenu && projectInfo?.detected && (
-          <div style={{
-            position: 'absolute', top: '100%', left: 0, zIndex: 200,
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-            minWidth: 280, padding: 8,
-          }}>
-            <BuildTabContent projectInfo={projectInfo} />
-          </div>
-        )}
-      </div>
+          onClick={() => {
+            const next = !showAssetPanel
+            setShowAssetPanel(next)
+            localStorage.setItem('cc-asset-panel-open', String(next))
+          }}
+          title="에셋 브라우저 패널 토글"
+        >{'📁'} 에셋</button>
+      )}
+
+      {/* -- 빌드 메뉴 -- */}
+      {features['cc.buildTab'] && (
+        <div ref={buildMenuRef} style={{ position: 'relative' }}>
+          <button
+            style={{
+              padding: '2px 8px', fontSize: 10, cursor: 'pointer',
+              background: showBuildMenu ? 'rgba(251,191,36,0.15)' : 'transparent',
+              color: showBuildMenu ? '#fbbf24' : 'var(--text-muted)',
+              border: 'none', borderBottom: showBuildMenu ? '2px solid #fbbf24' : '2px solid transparent',
+              fontWeight: showBuildMenu ? 600 : 400,
+            }}
+            onClick={() => setShowBuildMenu(v => !v)}
+          >{'🔨'} 빌드</button>
+          {showBuildMenu && projectInfo?.detected && (
+            <div style={{
+              position: 'absolute', top: '100%', left: 0, zIndex: 200,
+              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+              borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              minWidth: 280, padding: 8,
+            }}>
+              <BuildTabContent projectInfo={projectInfo} />
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   )

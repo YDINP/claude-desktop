@@ -171,6 +171,7 @@ import { useCCFileContext } from '../../hooks/useCCFileContext'
 import { useProjectContext } from '../../hooks/useProjectContext'
 import { useContextFiles } from '../../hooks/useContextFiles'
 import { parseCCActions, executeCCActions } from '../../utils/cc-action-parser'
+import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 
 function ExportConversationButton({ messages }: { messages: ChatMessage[] }) {
   if (!messages.length) return null
@@ -470,6 +471,7 @@ const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, total
 
 export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ, onOpenPromptChain }: ChatPanelProps) {
   const chat = useChatStore()
+  const { features } = useFeatureFlags()
   const ccCtx = useCCContext()
   const ccFileCtx = useCCFileContext()
   const projectSummary = useProjectContext(project.currentPath ?? null)
@@ -1397,9 +1399,13 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         flexShrink: 0,
       }}>
         <CopyConversationButton messages={chat.messages} />
-        <ExportConversationButton messages={chat.messages} />
-        <ExportHtmlButton messages={chat.messages} sessionName={chat.messages.find(m => m.role === 'user')?.text.slice(0, 30).replace(/[^\w\s가-힣]/g, '').trim()} />
-        <ExportPdfButton messages={chat.messages} sessionId={chat.sessionId} />
+        {features.sessionExport && (
+          <>
+            <ExportConversationButton messages={chat.messages} />
+            <ExportHtmlButton messages={chat.messages} sessionName={chat.messages.find(m => m.role === 'user')?.text.slice(0, 30).replace(/[^\w\s가-힣]/g, '').trim()} />
+            <ExportPdfButton messages={chat.messages} sessionId={chat.sessionId} />
+          </>
+        )}
         {chat.messages.some(m => m.bookmarked) && (
           <>
             <button
