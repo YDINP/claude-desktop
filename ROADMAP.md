@@ -967,3 +967,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2767 | CodeBlock iframe sandbox + shell:exec 화이트리스트 + ChatPanel useEffect 3훅 분리 | ✅ |
 | R2768 | cc:open-file 이벤트명 통일 + 워크스페이스 대화복원 + selectedModel/ccLayout/fontSize 통합 | ✅ |
 | R2769 | syntax-highlighter 공통 모듈 추출 + SessionItem React.memo | ✅ |
+| R2770 | ui-store 생성 — AppLayout props 10개 제거, 모달 상태 zustand 중앙 관리 | ✅ |
+| R2771 | API 키 설정 UI — SettingsPanel AI 탭 + WelcomeScreen 미설정 경고 배너 | ✅ |
+| R2772 | aria 접근성 — Sidebar tablist/tab, SessionList listbox, FileTree tree | ✅ |
