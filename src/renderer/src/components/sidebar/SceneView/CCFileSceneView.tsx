@@ -1,10 +1,12 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import type { CCSceneNode, CCSceneFile, CCVec3 } from '../../../../../shared/ipc-schema'
-import type { FlatNode, CCFileSceneViewProps, ViewTransformCC } from './ccSceneTypes'
-import { sceneViewKey, ALIGN_SNAP_THRESHOLD, UUID_RE } from './ccSceneTypes'
+import { sceneViewKey, ALIGN_SNAP_THRESHOLD, UUID_RE, type FlatNode, type CCFileSceneViewProps, type ViewTransformCC } from './ccSceneTypes'
 import { useCCSceneOverlayState } from './useCCSceneOverlayState'
 import { useCCSceneAssets } from './useCCSceneAssets'
 import { useCCSceneKeyboard } from './useCCSceneKeyboard'
+import { useCCSceneMouse } from './useCCSceneMouse'
+import { CCSceneContextMenu, CCSceneNodePickMenu } from './CCSceneContextMenu'
+import { CCSceneMinimap } from './CCSceneMinimap'
 
 export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme, onAltDrag, collapsedUuids }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -87,7 +89,6 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     showOpacityHud, setShowOpacityHud, showRefArrows, setShowRefArrows,
   } = ov
   const [mmPos, setMmPos] = useState<{ x: number; y: number } | null>(null)
-  const mmDragRef = useRef<{ startMouseX: number; startMouseY: number; startX: number; startY: number } | null>(null)
   const [nodePickMenu, setNodePickMenu] = useState<{ x: number; y: number; nodes: Array<{ uuid: string; name: string }> } | null>(null)
   const nodePickMenuRef = useRef<HTMLDivElement>(null)
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; uuid: string | null } | null>(null)
@@ -401,432 +402,20 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }), [cx, cy])
   ccToSvgRef.current = ccToSvg
 
-  // 휠 줌 — native listener로 passive: false 강제 (React onWheel은 passive라 preventDefault 불가)
-  useEffect(() => {
-    const svg = svgRef.current
-    if (!svg) return
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault()
-      const rect = svg.getBoundingClientRect()
-      const mouseX = e.clientX - rect.left
-      const mouseY = e.clientY - rect.top
-      const delta = e.deltaY > 0 ? 0.9 : 1.1
-      setView(v => {
-        const newZoom = Math.max(0.1, Math.min(5, v.zoom * delta))
-        const scale = newZoom / v.zoom
-        return {
-          zoom: newZoom,
-          offsetX: mouseX - (mouseX - v.offsetX) * scale,
-          offsetY: mouseY - (mouseY - v.offsetY) * scale,
-        }
-      })
-    }
-    svg.addEventListener('wheel', onWheel, { passive: false })
-    return () => svg.removeEventListener('wheel', onWheel)
-  }, [])
-
-  // 패닝 (중간 버튼 또는 Space+드래그)
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 1 || e.button === 2 || (e.button === 0 && isSpaceDownRef.current)) {
-      e.preventDefault()
-      setIsPanning(true)
-      panStart.current = { mouseX: e.clientX, mouseY: e.clientY, offX: view.offsetX, offY: view.offsetY }
-    } else if (e.button === 0) {
-      const svg = svgRef.current
-      if (!svg) return
-      const rect = svg.getBoundingClientRect()
-      const v = viewRef.current
-      const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
-      const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
-      // R2465: 측정 모드 시작
-      if (measureMode) {
-        measureStartRef.current = { svgX, svgY }
-        setMeasureLine(null)
-        return
-      }
-      // 빈 공간 드래그: rubber-band 선택 시작
-      selBoxRef.current = { startSvgX: svgX, startSvgY: svgY }
-    }
-  }, [view, measureMode])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    // R2740: 가이드라인 드래그
-    if (guideDragRef.current) {
-      const gd = guideDragRef.current
-      const delta = gd.type === 'V'
-        ? (e.clientX - gd.startMouse) / viewRef.current.zoom
-        : (e.clientY - gd.startMouse) / viewRef.current.zoom
-      const newPos = gd.startPos + delta
-      setUserGuides(gs => gs.map((g, i) => i === gd.idx ? { ...g, pos: newPos } : g))
-      return
-    }
-    // R1598: 마우스 위치 씬 좌표 업데이트
-    {
-      const svg = svgRef.current
-      if (svg) {
-        const rect = svg.getBoundingClientRect()
-        const v = viewRef.current
-        const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
-        const svgY = -((e.clientY - rect.top - v.offsetY) / v.zoom)  // Y 반전 (씬 좌표계)
-        setMouseScenePos({ x: Math.round(svgX), y: Math.round(svgY) })
-      }
-    }
-    // R2465: 측정 도구 드래그 업데이트
-    if (measureStartRef.current) {
-      const svg = svgRef.current
-      if (svg) {
-        const rect = svg.getBoundingClientRect()
-        const v = viewRef.current
-        const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
-        const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
-        setMeasureLine({ svgX1: measureStartRef.current.svgX, svgY1: measureStartRef.current.svgY, svgX2: svgX, svgY2: svgY })
-      }
-      return
-    }
-    // R1506: 앵커 포인트 드래그
-    if (anchorRef.current) {
-      const svg = svgRef.current
-      if (!svg) return
-      const rect = svg.getBoundingClientRect()
-      const v = viewRef.current
-      const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
-      const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
-      const { rectX, rectY, w, h, uuid } = anchorRef.current
-      const ax = w > 0 ? Math.max(0, Math.min(1, (svgX - rectX) / w)) : 0.5
-      const ay = h > 0 ? Math.max(0, Math.min(1, 1 - (svgY - rectY) / h)) : 0.5
-      setAnchorOverride({ uuid, ax, ay })
-      return
-    }
-    if (rotateRef.current) {
-      const svg = svgRef.current
-      if (!svg) return
-      const rect = svg.getBoundingClientRect()
-      const v = viewRef.current
-      const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
-      const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
-      const angle = Math.atan2(svgY - rotateRef.current.centerY, svgX - rotateRef.current.centerX) * 180 / Math.PI
-      const delta = angle - rotateRef.current.startAngle
-      let newAngle = rotateRef.current.startRotation - delta
-      // Shift 키: 15° 단위 스냅
-      if (e.shiftKey) newAngle = Math.round(newAngle / 15) * 15
-      setRotateOverride({ uuid: rotateRef.current.uuid, angle: newAngle })
-      return
-    }
-    if (resizeRef.current) {
-      const mdx = e.clientX - resizeRef.current.startMouseX
-      const mdy = e.clientY - resizeRef.current.startMouseY
-      const z = viewRef.current.zoom
-      const { dir, startW, startH } = resizeRef.current
-      let newW = startW
-      let newH = startH
-      let posDx = 0  // CC local position delta X
-      let posDy = 0  // CC local position delta Y
-      if (dir === 'SE') {
-        newW = Math.max(1, startW + mdx / z)
-        newH = Math.max(1, startH + mdy / z)
-      } else if (dir === 'S') {
-        newH = Math.max(1, startH + mdy / z)
-      } else if (dir === 'E') {
-        newW = Math.max(1, startW + mdx / z)
-      } else if (dir === 'NW') {
-        newW = Math.max(1, startW - mdx / z)
-        newH = Math.max(1, startH - mdy / z)
-        posDx = -(newW - startW)
-        posDy = newH - startH
-      } else if (dir === 'N') {
-        newH = Math.max(1, startH - mdy / z)
-        posDy = newH - startH
-      } else if (dir === 'NE') {
-        newW = Math.max(1, startW + mdx / z)
-        newH = Math.max(1, startH - mdy / z)
-        posDy = newH - startH
-      } else if (dir === 'W') {
-        newW = Math.max(1, startW - mdx / z)
-        posDx = -(newW - startW)
-      } else if (dir === 'SW') {
-        newW = Math.max(1, startW - mdx / z)
-        newH = Math.max(1, startH + mdy / z)
-        posDx = -(newW - startW)
-      }
-      // R1638: Shift+리사이즈 — SE 핸들에서 종횡비 유지
-      if (e.shiftKey && dir === 'SE' && startW > 0 && startH > 0) {
-        const ratio = startW / startH
-        if (Math.abs(mdx) / z > Math.abs(mdy) / z) newH = Math.max(1, newW / ratio)
-        else newW = Math.max(1, newH * ratio)
-      }
-      setResizeOverride({ uuid: resizeRef.current.uuid, w: newW, h: newH, dx: posDx, dy: posDy })
-      return
-    }
-    if (dragRef.current) {
-      const dx = e.clientX - dragRef.current.startMouseX
-      const dy = e.clientY - dragRef.current.startMouseY
-      const z = viewRef.current.zoom
-      let nx = dragRef.current.startNodeX + dx / z
-      let ny = dragRef.current.startNodeY - dy / z
-      // R1685: Shift 키: 축 제한 (더 많이 이동한 축으로 고정)
-      if (e.shiftKey && !e.ctrlKey && !e.metaKey) {
-        if (Math.abs(dx) >= Math.abs(dy)) ny = dragRef.current.startNodeY
-        else nx = dragRef.current.startNodeX
-      }
-      // Ctrl 키: 그리드 스냅
-      if (e.ctrlKey || e.metaKey) {
-        nx = Math.round(nx / snapSize) * snapSize
-        ny = Math.round(ny / snapSize) * snapSize
-        // R1500: 스냅 포인트 시각적 피드백
-        setSnapIndicator({ x: nx, y: ny })
-      } else {
-        setSnapIndicator(null)
-      }
-      // R2742: 가이드라인 auto-snap (Ctrl/Shift 없을 때)
-      if (!e.ctrlKey && !e.metaKey && !e.shiftKey && showUserGuides && userGuides.length > 0) {
-        const SNAP_THRESH = 8 / viewRef.current.zoom
-        let snapped = false
-        for (const g of userGuides) {
-          if (g.type === 'V') {
-            const gWorld = g.pos - cx
-            if (Math.abs(nx - gWorld) < SNAP_THRESH) { nx = gWorld; snapped = true; break }
-          } else {
-            const gWorld = cy - g.pos
-            if (Math.abs(ny - gWorld) < SNAP_THRESH) { ny = gWorld; snapped = true; break }
-          }
-        }
-        if (snapped) setSnapIndicator({ x: nx, y: ny })
-      }
-      setDragOverride({ uuid: dragRef.current.uuid, x: nx, y: ny })
-      // R1512: 정렬 가이드라인 계산
-      const draggedFn = flatNodes.find(fn => fn.node.uuid === dragRef.current!.uuid)
-      if (draggedFn) {
-        const dw = draggedFn.node.size?.x ?? 0
-        const dh = draggedFn.node.size?.y ?? 0
-        const dax = draggedFn.node.anchor?.x ?? 0.5
-        const day = draggedFn.node.anchor?.y ?? 0.5
-        const dSvg = { x: cx + nx, y: cy - ny }
-        const dLeft = dSvg.x - dw * dax, dRight = dSvg.x + dw * (1 - dax)
-        const dTop = dSvg.y - dh * (1 - day), dBot = dSvg.y + dh * day
-        const dCX = dSvg.x, dCY = dSvg.y
-        const guides: typeof alignGuides = []
-        for (const fn of flatNodes) {
-          if (fn.node.uuid === dragRef.current!.uuid) continue
-          const sp = { x: cx + fn.worldX, y: cy - fn.worldY }
-          const fw = fn.node.size?.x ?? 0, fh = fn.node.size?.y ?? 0
-          const fax = fn.node.anchor?.x ?? 0.5, fay = fn.node.anchor?.y ?? 0.5
-          const fLeft = sp.x - fw * fax, fRight = sp.x + fw * (1 - fax)
-          const fTop = sp.y - fh * (1 - fay), fBot = sp.y + fh * fay
-          const fCX = sp.x, fCY = sp.y
-          const vPairs: [number,number][] = [[dLeft,fLeft],[dLeft,fCX],[dLeft,fRight],[dCX,fLeft],[dCX,fCX],[dCX,fRight],[dRight,fLeft],[dRight,fCX],[dRight,fRight]]
-          for (const [dp, fp] of vPairs) { if (Math.abs(dp - fp) < ALIGN_SNAP_THRESHOLD) guides.push({ type: 'V', pos: fp }) }
-          const hPairs: [number,number][] = [[dTop,fTop],[dTop,fCY],[dTop,fBot],[dCY,fTop],[dCY,fCY],[dCY,fBot],[dBot,fTop],[dBot,fCY],[dBot,fBot]]
-          for (const [dp, fp] of hPairs) { if (Math.abs(dp - fp) < ALIGN_SNAP_THRESHOLD) guides.push({ type: 'H', pos: fp }) }
-        }
-        // R1634: 캔버스 경계 정렬 가이드 (좌/중/우, 상/중/하)
-        for (const svgX of [0, cx, effectiveW]) {
-          if ([dLeft, dCX, dRight].some(dp => Math.abs(dp - svgX) < ALIGN_SNAP_THRESHOLD)) guides.push({ type: 'V', pos: svgX })
-        }
-        for (const svgY of [0, cy, effectiveH]) {
-          if ([dTop, dCY, dBot].some(dp => Math.abs(dp - svgY) < ALIGN_SNAP_THRESHOLD)) guides.push({ type: 'H', pos: svgY })
-        }
-        // R1669: 부모 노드 경계 정렬 가이드
-        if (draggedFn.parentUuid) {
-          const parentFn = flatNodes.find(fn => fn.node.uuid === draggedFn.parentUuid)
-          if (parentFn) {
-            const pp = { x: cx + parentFn.worldX, y: cy - parentFn.worldY }
-            const pw = parentFn.node.size?.x ?? 0, ph = parentFn.node.size?.y ?? 0
-            const pax = parentFn.node.anchor?.x ?? 0.5, pay = parentFn.node.anchor?.y ?? 0.5
-            const pLeft = pp.x - pw * pax, pRight = pp.x + pw * (1 - pax)
-            const pTop = pp.y - ph * (1 - pay), pBot = pp.y + ph * pay
-            for (const svgX of [pLeft, pp.x, pRight]) {
-              if ([dLeft, dCX, dRight].some(dp => Math.abs(dp - svgX) < ALIGN_SNAP_THRESHOLD * 1.5)) guides.push({ type: 'V', pos: svgX, label: '부모' })
-            }
-            for (const svgY of [pTop, pp.y, pBot]) {
-              if ([dTop, dCY, dBot].some(dp => Math.abs(dp - svgY) < ALIGN_SNAP_THRESHOLD * 1.5)) guides.push({ type: 'H', pos: svgY, label: '부모' })
-            }
-          }
-        }
-        setAlignGuides(guides)
-        // R1695: 가이드에 실제 스냅 적용 (Ctrl/Shift 없을 때)
-        if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
-          for (const g of guides) {
-            const cxn = cx + nx, cyn = cy - ny
-            if (g.type === 'V') {
-              const cands: [number, number][] = [
-                [cxn - dw * dax, dw * dax],
-                [cxn, 0],
-                [cxn + dw * (1 - dax), -dw * (1 - dax)],
-              ]
-              for (const [dragPos, offset] of cands) {
-                if (Math.abs(dragPos - g.pos) < ALIGN_SNAP_THRESHOLD) { nx = g.pos + offset - cx; break }
-              }
-            } else {
-              const cands: [number, number][] = [
-                [cyn - dh * (1 - day), dh * (1 - day)],
-                [cyn, 0],
-                [cyn + dh * day, -dh * day],
-              ]
-              for (const [dragPos, offset] of cands) {
-                if (Math.abs(dragPos - g.pos) < ALIGN_SNAP_THRESHOLD) { ny = cy - (g.pos + offset); break }
-              }
-            }
-          }
-          setDragOverride({ uuid: dragRef.current!.uuid, x: nx, y: ny })
-        }
-      }
-      return
-    }
-    // R2472: 다중 선택 동시 드래그
-    if (multiDragRef.current) {
-      const z = viewRef.current.zoom
-      let dx = (e.clientX - multiDragRef.current.startMouseX) / z
-      let dy = -(e.clientY - multiDragRef.current.startMouseY) / z
-      if (e.shiftKey && !e.ctrlKey) {
-        if (Math.abs(dx) >= Math.abs(dy)) dy = 0
-        else dx = 0
-      }
-      if (e.ctrlKey || e.metaKey) {
-        dx = Math.round(dx / snapSize) * snapSize
-        dy = Math.round(dy / snapSize) * snapSize
-      }
-      setMultiDragDelta({ dx, dy })
-      return
-    }
-    if (isPanning && panStart.current) {
-      const dx = e.clientX - panStart.current.mouseX
-      const dy = e.clientY - panStart.current.mouseY
-      const offX = panStart.current.offX
-      const offY = panStart.current.offY
-      setView(v => ({ ...v, offsetX: offX + dx, offsetY: offY + dy }))
-    }
-    // rubber-band selection box 업데이트
-    if (selBoxRef.current && !dragRef.current && !resizeRef.current && !rotateRef.current && !isPanning) {
-      const svg = svgRef.current
-      if (svg) {
-        const rect = svg.getBoundingClientRect()
-        const v = viewRef.current
-        const svgX = (e.clientX - rect.left - v.offsetX) / v.zoom
-        const svgY = (e.clientY - rect.top - v.offsetY) / v.zoom
-        setSelectionBox({ x1: selBoxRef.current.startSvgX, y1: selBoxRef.current.startSvgY, x2: svgX, y2: svgY })
-      }
-    }
-    // 마우스 씬 좌표 계산: ccX = (mouseX - offsetX) / zoom - cx, ccY = cy - (mouseY - offsetY) / zoom
-    const svg = svgRef.current
-    if (svg) {
-      const rect = svg.getBoundingClientRect()
-      const mx = e.clientX - rect.left
-      const my = e.clientY - rect.top
-      const v = viewRef.current
-      const scx = Math.round((mx - v.offsetX) / v.zoom - cx)
-      const scy = Math.round(cy - (my - v.offsetY) / v.zoom)
-      setMouseScenePos({ x: scx, y: scy })
-    }
-    hoverClientPosRef.current = { x: e.clientX, y: e.clientY }  // R1693
-  }, [isPanning, cx, cy, snapSize, flatNodes])
-
-  const handleMouseUp = useCallback(async (e?: React.MouseEvent) => {
-    // R2740: 가이드라인 드래그 완료
-    if (guideDragRef.current) { guideDragRef.current = null; return }
-    // R2465: 측정 도구 — 드래그 완료 시 start ref 해제 (측정 선은 유지)
-    if (measureStartRef.current) {
-      measureStartRef.current = null
-      return
-    }
-    // R1506: 앵커 포인트 드래그 완료
-    if (anchorRef.current && anchorOverride) {
-      onAnchorMove?.(anchorOverride.uuid, anchorOverride.ax, anchorOverride.ay)
-      anchorRef.current = null
-      setAnchorOverride(null)
-      return
-    }
-    anchorRef.current = null
-    setAnchorOverride(null)
-    if (rotateRef.current && rotateOverride) {
-      // ref 즉시 해제 (이후 mousemove 무시), override는 await 후 해제(1프레임 플래시 방지)
-      rotateRef.current = null
-      const saved = { ...rotateOverride }
-      await onRotate?.(saved.uuid, saved.angle)
-      setRotateOverride(null)
-      return
-    }
-    rotateRef.current = null
-    setRotateOverride(null)
-    if (resizeRef.current && resizeOverride) {
-      const savedRef = { ...resizeRef.current }
-      const savedOv = { ...resizeOverride }
-      resizeRef.current = null
-      await onResize?.(savedOv.uuid, savedOv.w, savedOv.h)
-      if (savedOv.dx || savedOv.dy) {
-        const newLocalX = savedRef.startLocalX + (savedOv.dx ?? 0)
-        const newLocalY = savedRef.startLocalY + (savedOv.dy ?? 0)
-        await onMove?.(savedOv.uuid, newLocalX, newLocalY)
-      }
-      setResizeOverride(null)
-      return
-    }
-    resizeRef.current = null
-    setResizeOverride(null)
-    if (dragRef.current && dragOverride) {
-      // R2705: altDrag — 복제 후 이동
-      if (dragRef.current.isAltDrag) {
-        onAltDrag?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
-      } else {
-        onMove?.(dragOverride.uuid, dragOverride.x, dragOverride.y)
-      }
-      dragRef.current = null
-      setDragOverride(null)
-      setSnapIndicator(null)
-      setAlignGuides([])
-      setDragGhost(null)
-      return
-    }
-    dragRef.current = null
-    setDragOverride(null)
-    setSnapIndicator(null)
-    setAlignGuides([])
-    setDragGhost(null)
-    // R2472: 다중 선택 동시 드래그 완료
-    if (multiDragRef.current && multiDragDelta) {
-      const { dx, dy } = multiDragDelta
-      const moves = Array.from(multiDragRef.current.nodes.entries()).map(([uuid, { localX, localY }]) => ({
-        uuid, x: localX + dx, y: localY + dy,
-      }))
-      if (moves.length > 0) onMultiMove?.(moves)
-      multiDragRef.current = null
-      setMultiDragDelta(null)
-      return
-    }
-    multiDragRef.current = null
-    setMultiDragDelta(null)
-    setIsPanning(false)
-    panStart.current = null
-    // rubber-band 완료: 박스 내 노드 선택
-    if (selBoxRef.current && selectionBox) {
-      const box = selectionBox
-      const hasSize = Math.abs(box.x2 - box.x1) > 4 || Math.abs(box.y2 - box.y1) > 4
-      if (hasSize) {
-        const minX = Math.min(box.x1, box.x2), maxX = Math.max(box.x1, box.x2)
-        const minY = Math.min(box.y1, box.y2), maxY = Math.max(box.y1, box.y2)
-        const picked = new Set<string>()
-        for (const fn of flatNodes) {
-          if (!fn.node.size?.x && !fn.node.size?.y) continue
-          const sp = ccToSvg(fn.worldX, fn.worldY)
-          const ax = fn.node.anchor?.x ?? 0.5
-          const ay = fn.node.anchor?.y ?? 0.5
-          const rx = sp.x - fn.node.size.x * ax
-          const ry = sp.y - fn.node.size.y * (1 - ay)
-          if (rx < maxX && rx + fn.node.size.x > minX && ry < maxY && ry + fn.node.size.y > minY) {
-            picked.add(fn.node.uuid)
-          }
-        }
-        // R2701: Shift 키 누른 채 마르키 선택 시 기존 선택 병합
-        if (e?.shiftKey) {
-          setMultiSelected(prev => new Set([...prev, ...picked]))
-        } else {
-          setMultiSelected(picked)
-        }
-        if (picked.size > 0) onSelect([...picked][0])
-      }
-    }
-    selBoxRef.current = null
-    setSelectionBox(null)
-  }, [anchorOverride, rotateOverride, dragOverride, resizeOverride, selectionBox, flatNodes, ccToSvg, onAnchorMove, onRotate, onMove, onResize, onSelect])
+  // Mouse/drag handlers (extracted to useCCSceneMouse hook)
+  const { handleMouseDown, handleMouseMove, handleMouseUp } = useCCSceneMouse({
+    svgRef, viewRef, isSpaceDownRef, panStart, dragRef, multiDragRef,
+    resizeRef, rotateRef, anchorRef, guideDragRef, measureStartRef,
+    selBoxRef, hoverClientPosRef,
+    view, isPanning, measureMode, snapSize, cx, cy, effectiveW, effectiveH,
+    flatNodes, showUserGuides, userGuides,
+    anchorOverride, rotateOverride, dragOverride, resizeOverride, multiDragDelta, selectionBox,
+    setView, setIsPanning, setMouseScenePos, setUserGuides, setMeasureLine,
+    setAnchorOverride, setRotateOverride, setResizeOverride,
+    setDragOverride, setSnapIndicator, setAlignGuides, setDragGhost,
+    setMultiDragDelta, setSelectionBox, setMultiSelected,
+    ccToSvg, onSelect, onMove, onResize, onRotate, onAnchorMove, onMultiMove, onAltDrag,
+  })
 
   // R2734: 가이드라인 추가
   const addUserGuide = (type: 'V' | 'H') => {
@@ -4663,204 +4252,41 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           </div>
         </div>
       )}
-      {/* R1489: 미니맵 오버레이 — 우하단 */}
-      {showMinimap && flatNodes.length > 0 && (() => {
-        const MM_W = 100, MM_H = 72
-        const svgEl = svgRef.current
-        const svgW = svgEl?.clientWidth ?? effectiveW
-        const svgH = svgEl?.clientHeight ?? effectiveH
-        // 뷰포트 영역 (씬 좌표계)
-        const vpX = -view.offsetX / view.zoom
-        const vpY = -view.offsetY / view.zoom
-        const vpW = svgW / view.zoom
-        const vpH = svgH / view.zoom
-        // R1554: effectiveW/H 기준 (resOverride 반영)
-        const sceneX = -effectiveW / 2, sceneY = -effectiveH / 2
-        const sceneW = effectiveW, sceneH = effectiveH
-        const scaleX = MM_W / sceneW
-        const scaleY = MM_H / sceneH
-        const s = Math.min(scaleX, scaleY)
-        const mmOffX = (MM_W - sceneW * s) / 2
-        const mmOffY = (MM_H - sceneH * s) / 2
-        const toMM = (x: number, y: number) => ({
-          x: (x - sceneX) * s + mmOffX,
-          y: (sceneH - (y - sceneY)) * s + mmOffY,  // Y 반전 (CC Y축 위=+)
-        })
-        const vpMM = toMM(vpX, vpY + vpH)
-        const vpW2 = vpW * s, vpH2 = vpH * s
-        return (
-          <div style={{
-            position: 'absolute',
-            ...(mmPos ? { left: mmPos.x, top: mmPos.y } : { bottom: 8, right: 8 }),
-            zIndex: 5,
-            width: MM_W,
-            background: 'rgba(10,10,20,0.85)', border: '1px solid #333',
-            borderRadius: 4, overflow: 'hidden', cursor: 'pointer',
-            display: 'flex', flexDirection: 'column' as const,
-          }}
-            onClick={e => {
-              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-              const mmX = e.clientX - rect.left
-              const mmY = e.clientY - rect.top
-              // R2470: 노드 히트 테스트 — 역순(나중에 렌더된 노드 우선)
-              let hitUuid: string | null = null
-              for (let i = flatNodes.length - 1; i >= 0; i--) {
-                const fn2 = flatNodes[i]
-                const p2 = toMM(fn2.worldX, fn2.worldY)
-                const nw2 = fn2.node.size?.x ?? 0, nh2 = fn2.node.size?.y ?? 0
-                const mw2 = nw2 * s, mh2 = nh2 * s
-                if (mw2 > 2 && mh2 > 2) {
-                  const ax2 = fn2.node.anchor?.x ?? 0.5, ay2 = fn2.node.anchor?.y ?? 0.5
-                  const rx = p2.x - mw2 * ax2, ry = p2.y - mh2 * (1 - ay2)
-                  if (mmX >= rx && mmX <= rx + mw2 && mmY >= ry && mmY <= ry + mh2) { hitUuid = fn2.node.uuid; break }
-                } else {
-                  if ((mmX - p2.x) ** 2 + (mmY - p2.y) ** 2 <= 16) { hitUuid = fn2.node.uuid; break }
-                }
-              }
-              if (hitUuid) { onSelect(hitUuid); return }
-              // R1498: 빈 공간 클릭 → 씬 좌표 역변환 → pan
-              const scX = (mmX - mmOffX) / s + sceneX
-              const scY = sceneH - (mmY - mmOffY) / s + sceneY
-              const svgEl = svgRef.current
-              if (!svgEl) return
-              const svgRect = svgEl.getBoundingClientRect()
-              const z = viewRef.current.zoom
-              // R2560: 미니맵 클릭 팬 — 씬 좌표 역변환
-              const svgClickX = svgRect.width / 2 - scX * z
-              const svgClickY = svgRect.height / 2 + scY * z
-              setView(v => ({ ...v, offsetX: svgClickX, offsetY: svgClickY }))
-            }}
-            title="미니맵 — 노드 클릭으로 선택 / 빈 공간 클릭으로 이동 (R2470)"
-          >
-            {/* drag handle */}
-            <div
-              style={{ height: 8, cursor: 'grab', background: 'rgba(255,255,255,0.08)', borderRadius: '3px 3px 0 0', flexShrink: 0 }}
-              onMouseDown={e => {
-                e.stopPropagation()
-                const parent = (e.currentTarget.parentElement?.parentElement) as HTMLElement | null
-                const rect = e.currentTarget.parentElement?.getBoundingClientRect()
-                if (!rect) return
-                mmDragRef.current = {
-                  startMouseX: e.clientX,
-                  startMouseY: e.clientY,
-                  startX: rect.left - (parent?.getBoundingClientRect().left ?? 0),
-                  startY: rect.top - (parent?.getBoundingClientRect().top ?? 0),
-                }
-                const onMove = (me: MouseEvent) => {
-                  if (!mmDragRef.current) return
-                  const dx = me.clientX - mmDragRef.current.startMouseX
-                  const dy = me.clientY - mmDragRef.current.startMouseY
-                  setMmPos({ x: mmDragRef.current.startX + dx, y: mmDragRef.current.startY + dy })
-                }
-                const onUp = () => {
-                  mmDragRef.current = null
-                  window.removeEventListener('mousemove', onMove)
-                  window.removeEventListener('mouseup', onUp)
-                }
-                window.addEventListener('mousemove', onMove)
-                window.addEventListener('mouseup', onUp)
-              }}
-            />
-            <svg width={MM_W} height={MM_H}>
-              {/* 씬 경계 */}
-              <rect x={mmOffX} y={mmOffY} width={sceneW * s} height={sceneH * s} fill="none" stroke="#333" strokeWidth={0.5} />
-              {/* R1554: 노드 rect/점 (크기 반영) */}
-              {flatNodes.map(fn => {
-                const p = toMM(fn.worldX, fn.worldY)
-                const isSelected = fn.node.uuid === selectedUuid || multiSelected.has(fn.node.uuid)
-                const isMatch = svSearch.trim() ? svSearchMatches.has(fn.node.uuid) : false
-                const nw = fn.node.size?.x ?? 0
-                const nh = fn.node.size?.y ?? 0
-                const mw = nw * s, mh = nh * s
-                if (mw > 2 && mh > 2) {
-                  const ax = fn.node.anchor?.x ?? 0.5, ay = fn.node.anchor?.y ?? 0.5
-                  return <rect key={fn.node.uuid}
-                    x={p.x - mw * ax} y={p.y - mh * (1 - ay)}
-                    width={mw} height={mh}
-                    fill={isSelected ? 'rgba(88,166,255,0.2)' : isMatch ? 'rgba(255,68,255,0.2)' : 'rgba(255,255,255,0.05)'}
-                    stroke={isSelected ? '#58a6ff' : isMatch ? '#ff44ff' : 'rgba(255,255,255,0.25)'}
-                    strokeWidth={isSelected ? 0.8 : 0.4}
-                  />
-                }
-                return <circle key={fn.node.uuid} cx={p.x} cy={p.y} r={isSelected ? 2 : 1.5}
-                  fill={isSelected ? '#58a6ff' : isMatch ? '#ff44ff' : 'rgba(255,255,255,0.3)'} />
-              })}
-              {/* 뷰포트 사각형 */}
-              <rect x={vpMM.x} y={vpMM.y} width={vpW2} height={vpH2}
-                fill="rgba(88,166,255,0.06)" stroke="#58a6ff" strokeWidth={0.75} />
-            </svg>
-          </div>
-        )
-      })()}
-      {/* R1496: 컨텍스트 메뉴 */}
+      {/* R1489: 미니맵 오버레이 (extracted to CCSceneMinimap) */}
+      {showMinimap && flatNodes.length > 0 && (
+        <CCSceneMinimap
+          flatNodes={flatNodes}
+          selectedUuid={selectedUuid}
+          multiSelected={multiSelected}
+          svSearch={svSearch}
+          svSearchMatches={svSearchMatches}
+          effectiveW={effectiveW}
+          effectiveH={effectiveH}
+          view={view}
+          svgRef={svgRef}
+          viewRef={viewRef}
+          mmPos={mmPos}
+          setMmPos={setMmPos}
+          setView={setView}
+          onSelect={onSelect}
+        />
+      )}
+      {/* R1496: 컨텍스트 메뉴 (extracted to CCSceneContextMenu) */}
       {ctxMenu && (
-        <div
-          style={{
-            position: 'fixed', left: ctxMenu.x, top: ctxMenu.y, zIndex: 100,
-            background: '#0d0d1a', border: '1px solid #2a2a3a', borderRadius: 5,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.6)', minWidth: 140, padding: '3px 0',
-          }}
-          onMouseLeave={() => setCtxMenu(null)}
-        >
-          {[
-            ctxMenu.uuid && { label: '복사 (Ctrl+C)', action: () => { /* CocosPanel handles via keyboard */ window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c', ctrlKey: true, bubbles: true })) } },
-            ctxMenu.uuid && { label: '붙여넣기 (Ctrl+V)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'v', ctrlKey: true, bubbles: true })) },
-            ctxMenu.uuid && { label: '복제 (Ctrl+D)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd', ctrlKey: true, bubbles: true })) },
-            ctxMenu.uuid && { label: '삭제 (Del)', action: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true })) },
-            ctxMenu.uuid && { label: lockedUuids.has(ctxMenu.uuid) ? '🔓 잠금 해제' : '🔒 잠금', action: () => { toggleLock(ctxMenu.uuid!); setCtxMenu(null) } },
-            { label: '전체 보기 (F)', action: () => handleFit() },
-            ctxMenu.uuid && { label: '포커스 (F)', action: () => handleFitToSelected() },
-            ctxMenu.uuid && { label: 'AI 분석 ✦', action: () => {
-              const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
-              if (!fn) return
-              const info = `노드 "${fn.node.name}" 분석 요청:\n- 위치: (${fn.worldX.toFixed(1)}, ${fn.worldY.toFixed(1)})\n- 크기: ${fn.node.size ? `${fn.node.size.x}×${fn.node.size.y}` : '없음'}\n- 컴포넌트: ${fn.node.components.map(c => c.type.replace('cc.','')).join(', ') || '없음'}`
-              window.dispatchEvent(new CustomEvent('cc-chat-prefill', { detail: { text: info } }))
-            }},
-            // R1621: 같은 컴포넌트 타입 노드 모두 선택
-            ctxMenu.uuid && (() => {
-              const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
-              const firstType = fn?.node.components?.[0]?.type
-              if (!firstType) return false
-              return { label: `같은 "${firstType.replace('cc.', '')}" 모두 선택`, action: () => {
-                const matched = flatNodes.filter(f => f.node.components?.[0]?.type === firstType).map(f => f.node.uuid)
-                setMultiSelected(new Set(matched))
-                if (matched.length > 0) onSelect(matched[0])
-              }}
-            })(),
-            // R2590: 동일 이름 노드 모두 선택
-            ctxMenu.uuid && (() => {
-              const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
-              if (!fn) return false
-              const count = flatNodes.filter(f => f.node.name === fn.node.name).length
-              if (count < 2) return false
-              return { label: `"${fn.node.name}" 동일 이름 모두 선택 (${count}개)`, action: () => {
-                const matched = flatNodes.filter(f => f.node.name === fn.node.name).map(f => f.node.uuid)
-                setMultiSelected(new Set(matched))
-                if (matched.length > 0) onSelect(matched[0])
-                setCtxMenu(null)
-              }}
-            })(),
-            // R1717: 활성/비활성 토글 + 새 노드 추가
-            ctxMenu.uuid && (() => {
-              const fn = flatNodes.find(f => f.node.uuid === ctxMenu.uuid)
-              if (!fn) return false
-              return { label: fn.node.active ? '◌ 비활성화 (H키)' : '● 활성화 (H키)', action: () => { onToggleActive?.(fn.node.uuid); setCtxMenu(null) } }
-            })(),
-            { label: '＋ 새 노드 추가 (Ctrl+N)', action: () => { onAddNode?.(ctxMenu.uuid ?? selectedUuid, undefined); setCtxMenu(null) } },
-          ].filter(Boolean).map((item, i) => (
-            item ? (
-              <div
-                key={i}
-                onClick={() => { item.action(); setCtxMenu(null) }}
-                style={{ padding: '5px 12px', fontSize: 11, cursor: 'pointer', color: item.label.includes('AI') ? '#a78bfa' : 'var(--text-primary, #ccc)' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.1)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-              >
-                {item.label}
-              </div>
-            ) : null
-          ))}
-        </div>
+        <CCSceneContextMenu
+          ctxMenu={ctxMenu}
+          flatNodes={flatNodes}
+          lockedUuids={lockedUuids}
+          selectedUuid={selectedUuid}
+          onClose={() => setCtxMenu(null)}
+          toggleLock={toggleLock}
+          handleFit={handleFit}
+          handleFitToSelected={handleFitToSelected}
+          onSelect={onSelect}
+          setMultiSelected={setMultiSelected}
+          onToggleActive={onToggleActive}
+          onAddNode={onAddNode}
+        />
       )}
       {/* R1630: 회전 중 각도 레이블 */}
       {rotateOverride && hoverClientPos && (() => {
@@ -4934,27 +4360,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
           <span>{mouseScenePos.x}, {mouseScenePos.y}</span>
         </div>
       )}
-      {/* Right-click node context menu (overlapping nodes) */}
+      {/* Right-click node context menu (overlapping nodes, extracted to CCSceneNodePickMenu) */}
       {nodePickMenu && (
-        <div ref={nodePickMenuRef} style={{
-          position: 'fixed', left: nodePickMenu.x, top: nodePickMenu.y, zIndex: 1000,
-          background: 'rgba(10,14,28,0.97)', border: '1px solid rgba(88,166,255,0.3)',
-          borderRadius: 5, padding: '4px 0', minWidth: 160, boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
-          fontSize: 10,
-        }}>
-          <div style={{ padding: '2px 10px 4px', fontSize: 9, color: '#556', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 2 }}>
-            노드 선택 ({nodePickMenu.nodes.length})
-          </div>
-          {nodePickMenu.nodes.map(n => (
-            <div
-              key={n.uuid}
-              onClick={() => { onSelect?.(n.uuid); setNodePickMenu(null) }}
-              style={{ padding: '3px 10px', cursor: 'pointer', color: '#ccc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(88,166,255,0.15)')}
-              onMouseLeave={e => (e.currentTarget.style.background = '')}
-            >{n.name}</div>
-          ))}
-        </div>
+        <CCSceneNodePickMenu
+          nodePickMenu={nodePickMenu}
+          nodePickMenuRef={nodePickMenuRef}
+          onSelect={onSelect}
+          onClose={() => setNodePickMenu(null)}
+        />
       )}
     </div>
   )
