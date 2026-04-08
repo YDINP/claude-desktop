@@ -964,3 +964,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2764 | 이중 IPC 구독 제거 — ipcBridge 9개 이벤트 구독 제거, terminal:data만 유지 | ✅ |
 | R2765 | 보안 강화 2차 — Mermaid strict, bypassCSP false, richToHtml hex-only 검증 | ✅ |
 | R2766 | session 도메인 dead code 삭제 + Sidebar 7탭 UI 버튼 추가 | ✅ |
+| R2767 | CodeBlock iframe sandbox + shell:exec 화이트리스트 + ChatPanel useEffect 3훅 분리 | ✅ |
+| R2768 | cc:open-file 이벤트명 통일 + 워크스페이스 대화복원 + selectedModel/ccLayout/fontSize 통합 | ✅ |
+| R2769 | syntax-highlighter 공통 모듈 추출 + SessionItem React.memo | ✅ |
