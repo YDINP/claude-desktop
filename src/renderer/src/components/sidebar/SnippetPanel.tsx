@@ -263,7 +263,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
         </span>
         {s.shortcut && (
           <span style={{
-            fontSize: 9, color: '#666', background: 'var(--bg-tertiary)',
+            fontSize: 9, color: 'var(--text-muted)', background: 'var(--bg-tertiary)',
             borderRadius: 3, padding: '1px 4px', flexShrink: 0, fontFamily: 'monospace',
           }}>
             {s.shortcut}

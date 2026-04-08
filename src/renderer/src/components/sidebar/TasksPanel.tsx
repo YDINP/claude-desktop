@@ -27,7 +27,7 @@ const PRIORITY_ORDER: Record<Task['priority'], number> = {
 }
 
 const PRIORITY_COLORS: Record<Task['priority'], string> = {
-  high: '#f87171',
+  high: 'var(--error)',
   medium: '#fbbf24',
   low: '#60a5fa',
 }
@@ -292,13 +292,13 @@ export function TasksPanel() {
         </div>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>빠른 마감일:</span>
-          <button onClick={() => setQuickDueDate(0)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
+          <button onClick={() => setQuickDueDate(0)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
             오늘
           </button>
-          <button onClick={() => setQuickDueDate(1)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
+          <button onClick={() => setQuickDueDate(1)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
             내일
           </button>
-          <button onClick={() => setQuickDueDate(7)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
+          <button onClick={() => setQuickDueDate(7)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
             7일
           </button>
           <input
@@ -307,7 +307,7 @@ export function TasksPanel() {
             onChange={e => setNewDueDate(e.target.value)}
             style={{
               marginLeft: 'auto', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 3, color: 'var(--text-primary)', fontSize: 9, padding: '0 4px', outline: 'none',
+              borderRadius: 4, color: 'var(--text-primary)', fontSize: 9, padding: '0 4px', outline: 'none',
             }}
           />
         </div>
@@ -354,7 +354,7 @@ export function TasksPanel() {
                     onKeyDown={e => { if (e.key === 'Enter') finishEdit(); if (e.key === 'Escape') { setEditingId(null) } }}
                     style={{
                       flex: 1, padding: '2px 4px', background: 'var(--bg-secondary)',
-                      border: '1px solid var(--accent)', borderRadius: 3,
+                      border: '1px solid var(--accent)', borderRadius: 4,
                       color: 'var(--text-primary)', fontSize: 11, outline: 'none',
                     }}
                   />
@@ -407,7 +407,7 @@ export function TasksPanel() {
                     onChange={e => updateDueDate(t.id, e.target.value)}
                     style={{
                       marginLeft: 'auto', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                      borderRadius: 3, color: 'var(--text-primary)', fontSize: 9, padding: '0 3px', outline: 'none',
+                      borderRadius: 4, color: 'var(--text-primary)', fontSize: 9, padding: '0 3px', outline: 'none',
                     }}
                   />
                 </div>
@@ -423,7 +423,7 @@ export function TasksPanel() {
                     style={{
                       width: '100%', boxSizing: 'border-box', padding: '4px 6px',
                       background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                      borderRadius: 3, color: 'var(--text-primary)', fontSize: 10,
+                      borderRadius: 4, color: 'var(--text-primary)', fontSize: 10,
                       resize: 'vertical', outline: 'none', fontFamily: 'inherit',
                     }}
                   />

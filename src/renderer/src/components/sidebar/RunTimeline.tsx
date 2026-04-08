@@ -51,7 +51,7 @@ function RunCard({ run }: { run: AguiRun }) {
           <button
             onClick={copyLog}
             title="런 로그 복사"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', fontSize: 10, color: logCopied ? '#4caf50' : 'var(--border)' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', fontSize: 10, color: logCopied ? 'var(--success-bright)' : 'var(--border)' }}
           >{logCopied ? '✓' : '📋'}</button>
         </span>
       </div>
@@ -61,10 +61,10 @@ function RunCard({ run }: { run: AguiRun }) {
             <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>도구 호출 없음</div>
           ) : run.steps.map(step => (
             <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0' }}>
-              <span style={{ color: step.status === 'done' ? '#4ade80' : step.status === 'error' ? '#f87171' : '#60a5fa', fontSize: 11 }}>
+              <span style={{ color: step.status === 'done' ? '#4ade80' : step.status === 'error' ? 'var(--error)' : '#60a5fa', fontSize: 11 }}>
                 {step.status === 'running' ? '⟳' : step.status === 'done' ? '✓' : '✗'}
               </span>
-              <span style={{ flex: 1, color: step.status === 'error' ? '#f87171' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ flex: 1, color: step.status === 'error' ? 'var(--error)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {step.name}
               </span>
               {step.finishedAt && (
@@ -119,7 +119,7 @@ export function RunTimeline() {
                   })
                 }}
                 title="전체 런 요약 복사"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: allCopied ? '#4caf50' : 'var(--text-muted)', fontSize: 10, padding: '0 2px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: allCopied ? 'var(--success-bright)' : 'var(--text-muted)', fontSize: 10, padding: '0 2px' }}
               >{allCopied ? '✓' : '📋'}</button>
             )}
             {activeRuns.length > 0 && finishedRuns.length > 0 && (

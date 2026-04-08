@@ -47,7 +47,7 @@ const STATUS_COLOR: Record<AgentTask['status'], string> = {
   idle: 'var(--text-muted)',
   running: '#60a5fa',
   done: '#4ade80',
-  error: '#f87171',
+  error: 'var(--error)',
 }
 
 const SCHEDULE_LABELS: Record<AgentTask['schedule'], string> = {
@@ -96,7 +96,7 @@ class ChainErrorBoundary extends Component<{ children: ReactNode }, EBState> {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: 16, fontSize: 12, color: '#f87171', textAlign: 'center' }}>
+        <div style={{ padding: 16, fontSize: 12, color: 'var(--error)', textAlign: 'center' }}>
           체이닝 패널 로딩 실패
         </div>
       )
@@ -121,7 +121,7 @@ function HistoryEntry({ run }: { run: WorkRun }) {
         <span
           style={{
             fontSize: 11,
-            color: run.success ? '#4ade80' : '#f87171',
+            color: run.success ? '#4ade80' : 'var(--error)',
             flexShrink: 0,
           }}
         >
@@ -144,7 +144,7 @@ function HistoryEntry({ run }: { run: WorkRun }) {
       </div>
       <div style={{ fontSize: 10, color: 'var(--text-muted)', paddingLeft: 15 }}>{date}</div>
       {run.error && (
-        <div style={{ fontSize: 10, color: '#f87171', paddingLeft: 15, marginTop: 2 }}>
+        <div style={{ fontSize: 10, color: 'var(--error)', paddingLeft: 15, marginTop: 2 }}>
           {run.error.slice(0, 80)}
         </div>
       )}
@@ -180,7 +180,7 @@ function StepTimeline({ steps }: { steps: WorkStep[] }) {
                   ? '#60a5fa'
                   : step.status === 'done'
                     ? '#4ade80'
-                    : '#f87171',
+                    : 'var(--error)',
             }}
           >
             {step.status === 'running' ? '⟳' : step.status === 'done' ? '✓' : '✗'}

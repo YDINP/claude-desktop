@@ -317,7 +317,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
                 title="이 날짜 이벤트 전체 삭제"
                 style={{
                   padding: '1px 6px', background: 'transparent',
-                  color: 'var(--error, #f87171)', borderRadius: 3, fontSize: 9,
+                  color: 'var(--error, #f87171)', borderRadius: 4, fontSize: 9,
                   border: '1px solid var(--error, #f87171)', cursor: 'pointer',
                 }}
               >
@@ -352,7 +352,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
                   style={{
                     flex: 1, fontSize: 11, padding: '1px 4px',
                     background: 'var(--bg-input)', color: 'var(--text-primary)',
-                    border: '1px solid var(--border)', borderRadius: 3, outline: 'none',
+                    border: '1px solid var(--border)', borderRadius: 4, outline: 'none',
                   }}
                 />
               ) : (
@@ -385,7 +385,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
               style={{
                 flex: 1, fontSize: 11, padding: '3px 6px',
                 background: 'var(--bg-input)', color: 'var(--text-primary)',
-                border: '1px solid var(--border)', borderRadius: 3, outline: 'none',
+                border: '1px solid var(--border)', borderRadius: 4, outline: 'none',
               }}
             />
             <button
@@ -393,7 +393,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
               disabled={!newEventTitle.trim()}
               style={{
                 padding: '3px 8px', background: 'var(--accent)', color: '#fff',
-                borderRadius: 3, fontSize: 10, cursor: 'pointer',
+                borderRadius: 4, fontSize: 10, cursor: 'pointer',
                 opacity: !newEventTitle.trim() ? 0.5 : 1,
                 border: 'none',
               }}
@@ -410,7 +410,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
           display: 'flex', alignItems: 'center', padding: '6px 8px',
           borderBottom: '1px solid var(--border)',
         }}>
-          <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--text-primary)' }}>
+          <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>
             다음 이벤트 ({upcomingEvents.length})
           </span>
           <button
@@ -426,7 +426,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
           </button>
         </div>
         {upcomingEvents.length === 0 ? (
-          <div style={{ padding: 12, textAlign: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
+          <div style={{ padding: '16px 12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
             예정된 이벤트 없음
           </div>
         ) : (

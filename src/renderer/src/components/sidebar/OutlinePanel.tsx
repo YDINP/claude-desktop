@@ -197,7 +197,7 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
                 <button
                   onClick={e => { e.stopPropagation(); copyHeading(`${'#'.repeat(item.level)} ${item.text}`, key) }}
                   title="헤딩 복사"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, padding: '0 2px', color: copiedItemKey === key ? '#4caf50' : 'var(--border)', flexShrink: 0, opacity: 0, transition: 'opacity 0.15s' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, padding: '0 2px', color: copiedItemKey === key ? 'var(--success-bright)' : 'var(--border)', flexShrink: 0, opacity: 0, transition: 'opacity 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
                   onMouseLeave={e => { if (copiedItemKey !== key) e.currentTarget.style.opacity = '0' }}
                   ref={el => { if (el && copiedItemKey === key) el.style.opacity = '1' }}

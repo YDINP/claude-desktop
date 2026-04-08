@@ -181,7 +181,7 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
                 <button
                   onClick={e => { e.stopPropagation(); const key = `${r.sessionId}-${r.messageIndex}-${i}`; copyExcerpt(r.excerpt, key) }}
                   title="발췌 복사"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: '0 2px', color: copiedResultKey === `${r.sessionId}-${r.messageIndex}-${i}` ? '#4caf50' : 'var(--text-muted)' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: '0 2px', color: copiedResultKey === `${r.sessionId}-${r.messageIndex}-${i}` ? 'var(--success-bright)' : 'var(--text-muted)' }}
                 >{copiedResultKey === `${r.sessionId}-${r.messageIndex}-${i}` ? '✓' : '📋'}</button>
                 <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
                   {fmtDate(r.updatedAt)}
