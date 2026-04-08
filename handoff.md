@@ -9,6 +9,28 @@
 
 ---
 
+## 최근 주요 작업 (2026-04-08 후속) — 미사용 IPC 정리
+
+### 미사용 IPC 채널 `/** @unused */` 주석 추가
+
+감사에서 확인된 Renderer 미사용 채널 6개 — 삭제 없이 preload 구현부 + Window 타입 선언에 JSDoc 주석 추가:
+- `ccFileReadSceneChunked` — 대형 씬 청크 스트리밍 (R1478)
+- `ccFileIsLargeScene`
+- `ccInstallExtension`
+- `ccOpenEditor`
+- `ccGetAssetInfo` (R1410)
+- `ccGetAllTextureUUIDs`
+
+### 유령 타입 선언 제거
+
+Window 타입에 선언만 있고 preload 구현이 없는 메서드 2개 삭제:
+- `getTasks` — TasksPanel.tsx의 동명 함수는 localStorage 로컬 함수로 무관
+- `saveTasks` — 동일
+
+**검증**: tsc 0 에러 확인
+
+---
+
 ## 최근 주요 작업 (2026-04-08) — 안정화/리팩토링 스프린트
 
 ### 대형 파일 리팩토링

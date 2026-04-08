@@ -265,7 +265,9 @@ contextBridge.exposeInMainWorld('api', {
   ccDetectProject: (rootPath: string): Promise<CCProjectInfo> => ipcRenderer.invoke('cc:detectProject', rootPath),
   ccGetPort: (): Promise<number> => ipcRenderer.invoke('cc:getPort'),
   ccSetPort: (port: number): Promise<boolean> => ipcRenderer.invoke('cc:setPort', port),
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccInstallExtension: (projectPath: string, version: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:installExtension', projectPath, version),
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccOpenEditor: (projectPath: string, version: string, creatorVersion?: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:openEditor', projectPath, version, creatorVersion),
   ccGetAssets: (port: number): Promise<AssetTree> => ipcRenderer.invoke('cc:get-assets', port),
 
@@ -318,7 +320,8 @@ contextBridge.exposeInMainWorld('api', {
   },
   ccFileBuildUUIDMap: (assetsDir: string): Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>> =>
     ipcRenderer.invoke('cc:file:buildUUIDMap', assetsDir),
-  // R1478: 대형 씬 청크 스트리밍 파싱
+  // R1478: 대형 씬 청크 스트리밍 파싱 (@unused Renderer 미사용 — 향후 사용 가능)
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccFileReadSceneChunked: (
     scenePath: string,
     projectInfo: import('../shared/ipc-schema').CCFileProjectInfo,
@@ -326,6 +329,7 @@ contextBridge.exposeInMainWorld('api', {
     chunkOffset?: number
   ): Promise<{ scene: import('../shared/ipc-schema').CCSceneFile; state: { done: boolean; parsedTopChildren: number; totalTopChildren: number; rawLength: number } } | { error: string }> =>
     ipcRenderer.invoke('cc:file:readSceneChunked', scenePath, projectInfo, chunkSize, chunkOffset),
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccFileIsLargeScene: (scenePath: string): Promise<boolean> =>
     ipcRenderer.invoke('cc:file:isLargeScene', scenePath),
   ccFileResolveTexture: (uuid: string, assetsDir: string): Promise<string | null> =>
@@ -339,9 +343,11 @@ contextBridge.exposeInMainWorld('api', {
   // R1438: 씬 로컬 HTTP 공유
   ccFileServeScene: (sceneJson: string): Promise<{ success: boolean; url?: string; error?: string }> =>
     ipcRenderer.invoke('cc:file:serveScene', sceneJson),
-  // R1410: UUID → 에셋 상세 정보
+  // R1410: UUID → 에셋 상세 정보 (@unused Renderer 미사용 — 향후 사용 가능)
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccGetAssetInfo: (uuid: string, assetsDir: string): Promise<{ path: string; type: string; name: string } | null> =>
     ipcRenderer.invoke('cc:file:getAssetInfo', uuid, assetsDir),
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccGetAllTextureUUIDs: (assetsDir: string): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:getAllTextureUUIDs', assetsDir),
 
@@ -500,9 +506,7 @@ declare global {
       getSystemPromptProfiles: () => Promise<Array<{ id: string; name: string; content: string }>>
       saveSystemPromptProfile: (profile: { id: string; name: string; content: string }) => Promise<void>
       deleteSystemPromptProfile: (id: string) => Promise<void>
-      getTasks: () => Promise<Array<{ id: string; text: string; done: boolean; createdAt: number; priority?: 'low' | 'medium' | 'high' }>>
-      saveTasks: (tasks: Array<{ id: string; text: string; done: boolean; createdAt: number; priority?: string }>) => Promise<void>
-      getNotificationSettings: () => Promise<{ responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }>
+getNotificationSettings: () => Promise<{ responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }>
       setNotificationSettings: (s: { responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }) => Promise<void>
       pluginsList: () => Promise<Array<{ filename: string; name: string; description: string; version: string; author: string; path: string }>>
       pluginsOpenFolder: () => Promise<void>
@@ -535,7 +539,9 @@ declare global {
       ccDetectProject: (rootPath: string) => Promise<{ detected: boolean; version?: string; port?: number; name?: string }>
       ccGetPort: () => Promise<number>
       ccSetPort: (port: number) => Promise<boolean>
+      /** @unused Renderer 미사용 — 향후 사용 가능 */
       ccInstallExtension?: (projectPath: string, version: string) => Promise<{ success: boolean; message: string }>
+      /** @unused Renderer 미사용 — 향후 사용 가능 */
       ccOpenEditor?: (projectPath: string, version: string, creatorVersion?: string) => Promise<{ success: boolean; message: string }>
       ccGetAssets?: (port: number) => Promise<import('../shared/ipc-schema').AssetTree>
       // CC File-based Engine (Phase A)
@@ -575,7 +581,9 @@ declare global {
       ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
       // R1438
       ccFileServeScene: (sceneJson: string) => Promise<{ success: boolean; url?: string; error?: string }>
+      /** @unused Renderer 미사용 — 향후 사용 가능 */
       ccGetAssetInfo?: (uuid: string, assetsDir: string) => Promise<{ path: string; type: string; name: string } | null>
+      /** @unused Renderer 미사용 — 향후 사용 가능 */
       ccGetAllTextureUUIDs?: (assetsDir: string) => Promise<string[]>
       // CC Editor Window
       openCCEditorWindow?: () => Promise<void>

@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-04-08T06:36:10.999Z
+> 2026-04-08T06:42:09.684Z
 
 ## Critical
 _없음_
@@ -12,7 +12,7 @@ _없음_
 - tsc --noEmit 오류 없음
 - 249개 소스 파일 검사 완료
 - package.json 파싱 성공 (name: claude-desktop)
-- preload expose 메서드 292개 확인
+- preload expose 메서드 290개 확인
 - ipcMain.handle 등록: 11개 이상
 - 의존성 설치됨: electron
 - 의존성 설치됨: react

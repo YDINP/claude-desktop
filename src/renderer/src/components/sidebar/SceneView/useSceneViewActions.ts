@@ -24,6 +24,7 @@ interface ActionDeps {
 
   updateNode: (uuid: string, partial: Partial<SceneNode>) => void
   refresh: () => Promise<void>
+  saveScene?: () => Promise<void>
 }
 
 export function useSceneViewActions(deps: ActionDeps) {
@@ -31,7 +32,7 @@ export function useSceneViewActions(deps: ActionDeps) {
     nodeMap, selectedUuid, selectedUuids, rootUuid, port,
     DESIGN_W, DESIGN_H, clipboard, svgRef, pngExportScale, pngExportBg,
     setSelectedUuid, setSelectedUuidsReplace, setClipboard, setCopiedNode, setScreenshotDone,
-    updateNode, refresh,
+    updateNode, refresh, saveScene,
   } = deps
 
   // ── deep clone ────────────────────────────────────────────
@@ -63,7 +64,7 @@ export function useSceneViewActions(deps: ActionDeps) {
     }
   }, [selectedUuids, selectedUuid, nodeMap])
 
-  const handlePaste = useCallback(() => {
+  const handlePaste = useCallback(async () => {
     if (clipboard.length === 0) return
     const newNodes: SceneNode[] = []
     clipboard.forEach(entry => {
@@ -84,18 +85,24 @@ export function useSceneViewActions(deps: ActionDeps) {
         registerChildren(orig)
       }
     })
-    if (newNodes.length > 0) newNodes.forEach(n => updateNode(n.uuid, n))
-  }, [clipboard, nodeMap, updateNode, deepCloneNode])
+    if (newNodes.length > 0) {
+      newNodes.forEach(n => updateNode(n.uuid, n))
+      await saveScene?.()
+    }
+  }, [clipboard, nodeMap, updateNode, deepCloneNode, saveScene])
 
-  const handleDuplicate = useCallback(() => {
+  const handleDuplicate = useCallback(async () => {
     const uuids = selectedUuids.size > 0 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
+    let didUpdate = false
     uuids.forEach((uuid) => {
       const orig = nodeMap.get(uuid)
       if (!orig) return
       const cloned = deepCloneNode(orig, 20)
       updateNode(cloned.uuid, cloned)
+      didUpdate = true
     })
-  }, [selectedUuids, selectedUuid, nodeMap, updateNode, deepCloneNode])
+    if (didUpdate) await saveScene?.()
+  }, [selectedUuids, selectedUuid, nodeMap, updateNode, deepCloneNode, saveScene])
 
   // ── 그룹화 / 해제 ────────────────────────────────────────
   const handleGroup = useCallback(() => {

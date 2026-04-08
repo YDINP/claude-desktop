@@ -1,20 +1,15 @@
 ---
 active: true
-iteration: 2
+iteration: 1
 max_iterations: 50
-completion_promise: 감사 발견 이슈 전부 해소 — C1~C4 + H1~H5 수정
-started_at: "2026-04-08T07:00:00Z"
+completion_promise: 코드 품질 완벽 — 더 이상 개선할 것 없을 때까지
+started_at: "2026-04-08T09:00:00Z"
 ---
 
-## 감사 기반 수정 루프
+## 안정화 루프 — 최종 정리 단계
 
-### CRITICAL 수정 (이번 iteration)
-- C1: cc-file-saver.ts _lrot.w 복원
-- C2: 6개 패널 Sidebar.tsx 연결
-- C3: GitPanel 비기능 → 제거 또는 IPC 구현
-- C4: remote:* Main 핸들러 구현
-
-### HIGH 수정 (다음 iteration)
-- H1~H3: Kernel 비활성 결정 (제거 or 활성화)
-- H4: stores/ vs domains/ 이중 구현 통합
-- H5: phantom useState 24개 제거
+### 남은 검토 대상
+1. CCFileSceneView.tsx (4,961줄) — 추가 분리 가능한 부분 탐색
+2. SceneViewPanel copy/paste 파일 저장 미연동 (낙관적 업데이트만)
+3. 미사용 IPC 채널 7개 정리
+4. handoff.md 최종 업데이트
