@@ -161,6 +161,36 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             </button>
           ))}
         </div>
+        {/* Row 3: 숨겨진 기능 탭 아이콘 */}
+        <div style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
+          {([
+            { id: 'bookmarks', label: '★', title: 'Bookmarks' },
+            { id: 'stats', label: '📊', title: 'Stats' },
+            { id: 'snippets', label: '✂', title: 'Snippets' },
+            { id: 'outline', label: '§', title: 'Outline' },
+            { id: 'plugins', label: '🧩', title: 'Plugins' },
+            { id: 'connections', label: '🔌', title: 'Connections' },
+            { id: 'agent', label: '🤖', title: 'Agent' },
+          ] as { id: Tab; label: string; title: string }[]).map((t) => (
+            <button
+              key={t.id}
+              onClick={() => switchTab(t.id)}
+              title={t.title}
+              style={{
+                flex: 1,
+                padding: '5px 2px',
+                background: activeTab === t.id ? 'var(--bg-primary)' : 'transparent',
+                color: activeTab === t.id ? 'var(--text-primary)' : 'var(--text-muted)',
+                borderBottom: activeTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
+                fontSize: 16,
+                transition: 'all 0.1s',
+                minWidth: 0,
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 현재 탭 타이틀 */}

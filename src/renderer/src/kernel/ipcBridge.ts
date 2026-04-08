@@ -8,7 +8,7 @@
  */
 import { eventBus } from './eventBus'
 import { commandBus } from './commandBus'
-import type { StreamEvent, PermissionRequest, CCEvent, CCStatus } from '../../../shared/ipc-schema'
+// StreamEvent, PermissionRequest, CCEvent, CCStatus — 각 adapter에서 직접 import
 
 let initialized = false
 const cleanups: (() => void)[] = []
@@ -24,82 +24,15 @@ export function initIpcBridge(): void {
   }
 
   // ── Main→Renderer 이벤트 → EventBus ──────────────────────────────────────
+  // 주의: claude:message, claude:permission, cc:event, cc:statusChange,
+  //       cc:fileChanged, fs:change, app:closeTab, app:fontSizeShortcut,
+  //       app:themeChanged 는 각 adapter/hook 에서 직접 window.api 구독.
+  //       여기서 중복 구독하면 이벤트가 2번 처리됨 (P0-1).
 
-  // Claude streaming
-  if (api.onClaudeMessage) {
-    const unsub = api.onClaudeMessage((event: unknown) => {
-      eventBus.emit({ type: 'claude:message', payload: event as StreamEvent })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // Claude permission
-  if (api.onClaudePermission) {
-    const unsub = api.onClaudePermission((req: unknown) => {
-      eventBus.emit({ type: 'claude:permission', payload: req as PermissionRequest })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // CC live events
-  if (api.onCCEvent) {
-    const unsub = api.onCCEvent((event: unknown) => {
-      eventBus.emit({ type: 'cc:event', payload: event as CCEvent })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  if (api.onCCStatusChange) {
-    const unsub = api.onCCStatusChange((status: unknown) => {
-      eventBus.emit({ type: 'cc:statusChange', payload: status as CCStatus })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // CC file watcher — preload 시그니처: cb({ type, path, timestamp })
-  if (api.onCCFileChanged) {
-    const unsub = api.onCCFileChanged((event: unknown) => {
-      const e = event as { type: string; path: string; timestamp: number }
-      eventBus.emit({ type: 'cc:fileChanged', payload: { path: e.path } })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // Terminal — preload 시그니처: cb(id: string, data: string)
+  // Terminal — eventBus 경유로만 소비되므로 유일하게 유지
   if (api.onTerminalData) {
     const unsub = api.onTerminalData((id: string, data: string) => {
       eventBus.emit({ type: 'terminal:data', payload: { id, data } })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // Filesystem watcher — preload 시그니처: cb({ dirPath, eventType, filename })
-  if (api.onDirChanged) {
-    const unsub = api.onDirChanged((info: unknown) => {
-      const i = info as { dirPath: string; eventType: string; filename: string }
-      eventBus.emit({ type: 'fs:change', payload: { path: i.dirPath, type: i.eventType } })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // App-level shortcuts
-  if (api.onCloseTab) {
-    const unsub = api.onCloseTab(() => {
-      eventBus.emit({ type: 'app:closeTab', payload: {} })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  if (api.onFontSizeShortcut) {
-    const unsub = api.onFontSizeShortcut((delta: unknown) => {
-      eventBus.emit({ type: 'app:fontSizeShortcut', payload: { delta: delta as number } })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  if (api.onNativeThemeChanged) {
-    const unsub = api.onNativeThemeChanged((isDark: unknown) => {
-      eventBus.emit({ type: 'app:themeChanged', payload: { isDark: isDark as boolean } })
     })
     if (typeof unsub === 'function') cleanups.push(unsub)
   }

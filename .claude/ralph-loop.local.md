@@ -1,5 +1,5 @@
 ---
-active: true
+active: false
 iteration: 1
 max_iterations: 50
 completion_promise: 코드 품질 완벽 — 더 이상 개선할 것 없을 때까지

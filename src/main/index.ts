@@ -20,7 +20,7 @@ const LOCAL_MIME: Record<string, string> = {
 
 // Must be called before app.whenReady()
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'local', privileges: { secure: true, standard: true, bypassCSP: true, supportFetchAPI: true } }
+  { scheme: 'local', privileges: { secure: true, standard: true, bypassCSP: false, supportFetchAPI: true } }
 ])
 
 function createWindow(): BrowserWindow {

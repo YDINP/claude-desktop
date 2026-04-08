@@ -744,9 +744,11 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
               const HALIGN = ['Left', 'Center', 'Right']
               const OVERFLOW = ['None', 'Clamp', 'Shrink', 'Resize']
               // R1767: RichText 마크업 → HTML 변환 (미리보기용)
+              const isValidColor = (c: string) => /^#[0-9a-fA-F]{3,8}$/.test(c)
               const richToHtml = (src: string) => src
                 .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                .replace(/&lt;color=(#[0-9a-fA-F]{3,8})&gt;(.*?)&lt;\/color&gt;/gs, '<span style="color:$1">$2</span>')
+                .replace(/&lt;color=(#[0-9a-fA-F]{3,8})&gt;(.*?)&lt;\/color&gt;/gs, (_m, col: string, body: string) =>
+                  `<span style="color:${isValidColor(col) ? col : '#ffffff'}">${body}</span>`)
                 .replace(/&lt;size=(\d+)&gt;(.*?)&lt;\/size&gt;/gs, '<span style="font-size:$1px">$2</span>')
                 .replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gs, '<b>$1</b>')
                 .replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gs, '<i>$1</i>')
