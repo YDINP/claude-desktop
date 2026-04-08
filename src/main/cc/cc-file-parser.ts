@@ -723,11 +723,12 @@ function parseNode3x(
 
   // CC 3.x position/rotation/scale: _lpos/_lrot(euler)/_lscale
   const lpos = e._lpos as { x?: number; y?: number; z?: number } | undefined
-  const lrot = e._lrot as { x?: number; y?: number; z?: number } | undefined
+  const lrot = e._lrot as { x?: number; y?: number; z?: number; w?: number } | undefined
   const lscale = e._lscale as { x?: number; y?: number; z?: number } | undefined
 
   const position: CCVec3 = { x: lpos?.x ?? 0, y: lpos?.y ?? 0, z: lpos?.z ?? 0 }
   const rotation: CCVec3 = { x: lrot?.x ?? 0, y: lrot?.y ?? 0, z: lrot?.z ?? 0 }
+  const lrotW: number | undefined = lrot?.w
   const scale: CCVec3 = { x: lscale?.x ?? 1, y: lscale?.y ?? 1, z: lscale?.z ?? 1 }
 
   // Size/Anchor from UITransform (CC 3.x separates transform from size)
@@ -777,6 +778,7 @@ function parseNode3x(
     children,
     ...(eventHandlers.length > 0 ? { eventHandlers } : {}),
     _rawIndex: idx,
+    ...(lrotW !== undefined ? { _lrotW: lrotW } : {}),
   }
 }
 

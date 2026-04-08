@@ -12,6 +12,12 @@ import { PluginsPanel } from './PluginsPanel'
 import { ConnectionPanel } from './ConnectionPanel'
 import { AgentPanel } from './AgentPanel'
 import { GlobalSearchPanel } from './GlobalSearchPanel'
+import { CalendarPanel } from './CalendarPanel'
+import { TasksPanel } from './TasksPanel'
+import { NotesPanel } from './NotesPanel'
+import { ClipboardPanel } from './ClipboardPanel'
+import { DiffPanel } from './DiffPanel'
+import { RemotePanel } from './RemotePanel'
 import type { ChangedFile } from './ChangedFilesPanel'
 import type { ChatMessage } from '../../stores/chat-store'
 import { useProject } from '../../stores/project-store'
@@ -41,7 +47,7 @@ interface SidebarProps {
 
 export type { Tab as SidebarTab }
 
-type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'bookmarks' | 'stats' | 'snippets' | 'outline' | 'plugins' | 'connections' | 'agent' | 'globalsearch'
+type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'bookmarks' | 'stats' | 'snippets' | 'outline' | 'plugins' | 'connections' | 'agent' | 'globalsearch' | 'calendar' | 'tasks' | 'notes' | 'clipboard' | 'diff' | 'remote'
 
 const PANEL_TITLES: Record<Tab, string> = {
   files: 'Files',
@@ -56,6 +62,12 @@ const PANEL_TITLES: Record<Tab, string> = {
   plugins: 'Plugins',
   connections: 'Connections',
   agent: 'Agent',
+  calendar: '캘린더',
+  tasks: '작업',
+  notes: '노트',
+  clipboard: '클립보드',
+  diff: 'Diff',
+  remote: '리모트',
 }
 
 export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange, forceTab }: SidebarProps) {
@@ -110,6 +122,35 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
                 padding: '5px 2px',
                 background: activeTab === t.id ? 'var(--bg-primary)' : 'transparent',
                 color: activeTab === t.id ? 'var(--text-primary)' : t.id === 'changes' && changedFiles.length > 0 ? 'var(--warning)' : 'var(--text-muted)',
+                borderBottom: activeTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
+                fontSize: 16,
+                transition: 'all 0.1s',
+                minWidth: 0,
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {/* Row 2: 추가 패널 아이콘 */}
+        <div style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
+          {([
+            { id: 'calendar', label: '📅', title: '캘린더' },
+            { id: 'tasks', label: '✅', title: '작업' },
+            { id: 'notes', label: '📝', title: '노트' },
+            { id: 'clipboard', label: '📋', title: '클립보드' },
+            { id: 'diff', label: '⊟', title: 'Diff' },
+            { id: 'remote', label: '🔗', title: '리모트' },
+          ] as { id: Tab; label: string; title: string }[]).map((t) => (
+            <button
+              key={t.id}
+              onClick={() => switchTab(t.id)}
+              title={t.title}
+              style={{
+                flex: 1,
+                padding: '5px 2px',
+                background: activeTab === t.id ? 'var(--bg-primary)' : 'transparent',
+                color: activeTab === t.id ? 'var(--text-primary)' : 'var(--text-muted)',
                 borderBottom: activeTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
                 fontSize: 16,
                 transition: 'all 0.1s',
@@ -271,6 +312,24 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
               onSessionSelect(sessionId)
             }}
           />
+        )}
+        {activeTab === 'calendar' && (
+          <CalendarPanel />
+        )}
+        {activeTab === 'tasks' && (
+          <TasksPanel />
+        )}
+        {activeTab === 'notes' && (
+          <NotesPanel />
+        )}
+        {activeTab === 'clipboard' && (
+          <ClipboardPanel />
+        )}
+        {activeTab === 'diff' && (
+          <DiffPanel />
+        )}
+        {activeTab === 'remote' && (
+          <RemotePanel />
         )}
       </div>
     </div>

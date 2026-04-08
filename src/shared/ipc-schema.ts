@@ -201,6 +201,8 @@ export interface CCSceneNode {
   eventHandlers?: { component: string; event: string; handler: string; target?: string }[]
   /** 원본 flat 배열 인덱스 (직접 편집용) */
   _rawIndex?: number
+  /** CC 3.x _lrot quaternion w 컴포넌트 보존용 (라운드트립 손실 방지) */
+  _lrotW?: number
 }
 
 export interface CCSceneFile {

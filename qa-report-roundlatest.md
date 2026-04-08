@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-04-08T05:45:12.538Z
+> 2026-04-08T06:19:06.439Z
 
 ## Critical
 _없음_
@@ -231,7 +231,6 @@ _없음_
 - SearchPanel: 단어 단위 검색 Ww 토글 존재
 - CalendarPanel: 이벤트 목록 복사 버튼 존재
 - AgentPanel: 태스크 마지막 결과 복사 버튼 존재
-- GitPanel: 커밋 해시 복사 버튼 존재
 - DiffPanel: diff 결과 요약 복사 버튼 존재
 - ClipboardPanel: 핀 보호 스마트 삭제 + 핀 카운트 배지 존재
 - FileTree: 파일 검색 결과 카운트 + ESC 초기화 존재
@@ -283,7 +282,6 @@ _없음_
 - CalendarPanel: 연도 빠른 이동 (yearPickerOpen/setYearPickerOpen) 존재
 - ChangedFilesPanel: W/E 오퍼레이션 필터 (opFilter/setOpFilter) 존재
 - RemotePanel: 최근 접속 순 정렬 (lastUsed/sortedSaved/savedId) 존재
-- GitPanel: 전체 스테이지/해제 (handleStageAll/handleUnstageAll/stageAllLoading) 존재
 - SnippetPanel: 카테고리 퀵 필터 (catFilter/availableCategories) 존재
 - ConnectionPanel: 자동 핑 토글 (autoPing/setAutoPing/30000) 존재
 - CocosPanel WS 코드 제거됨 — 연결 유지 시간 체크 면제 (파일 기반 모드 전환)
@@ -309,7 +307,6 @@ _없음_
 - RemotePanel: 호스트 검색 필터 (filteredSsh/filteredSaved/query) 존재
 - SnippetPanel: 스니펫 복사 버튼 (copiedId/📋/✓) 존재
 - ConnectionPanel: 헤더 활성 서버 수 배지 (alive/pinged) 존재
-- GitPanel: 헤더 변경 파일 수 배지 (stagedFiles.length/files.length/↑) 존재
 - SearchPanel: 결과 요약 배너 (grouped.length/totalMatches/매치) 존재
 - PluginsPanel: 정렬 토글 (sortMode/sortedPlugins/활성 먼저) 존재
 - ClipboardPanel: 검색 시 필터 결과 수 표시 (filtered.length/entries.length) 존재
@@ -331,7 +328,6 @@ _없음_
 - RemotePanel: 총 호스트 수 배지 (sshHosts+savedHosts 합산) 존재
 - SearchPanel: 검색어 하이라이트 (highlightLine/<mark>/fbbf24) 존재
 - ConnectionPanel: 모두 핑 버튼 (pingAll/Promise.all) 존재
-- GitPanel: 커밋 메시지 글자 수 카운터 (/72 제한) 존재
 - ChangedFilesPanel: W/E 작업 구분 카운트 (W:N E:N) 존재
 - ClipboardPanel: 글자 수 표시 (text.length/toLocaleString/자) 존재
 - SnippetPanel: 정렬 토글 (생성 순/이름 순) 존재

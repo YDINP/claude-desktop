@@ -356,11 +356,12 @@ function patch3x(
 
   e._lpos = { x: pos.x ?? 0, y: pos.y ?? 0, z: pos.z ?? 0 }
 
-  // rotation: 3x stores euler {x,y,z}
+  // rotation: 3x stores quaternion {x,y,z,w}; w defaults to 1 if not preserved
+  const lrotW = node._lrotW ?? 1
   if (typeof node.rotation === 'object' && node.rotation !== null) {
-    e._lrot = { x: (node.rotation as CCVec3).x ?? 0, y: (node.rotation as CCVec3).y ?? 0, z: (node.rotation as CCVec3).z ?? 0 }
+    e._lrot = { x: (node.rotation as CCVec3).x ?? 0, y: (node.rotation as CCVec3).y ?? 0, z: (node.rotation as CCVec3).z ?? 0, w: lrotW }
   } else {
-    e._lrot = { x: 0, y: 0, z: typeof node.rotation === 'number' ? node.rotation : 0 }
+    e._lrot = { x: 0, y: 0, z: typeof node.rotation === 'number' ? node.rotation : 0, w: lrotW }
   }
 
   e._lscale = { x: sc.x ?? 1, y: sc.y ?? 1, z: sc.z ?? 1 }

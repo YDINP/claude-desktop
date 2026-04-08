@@ -67,8 +67,8 @@ export function RemotePanel() {
   // SSH config 로드
   useEffect(() => {
     setLoading(true)
-    window.api.getSshHosts?.()
-      .then((hosts: SshHost[]) => setSshHosts(hosts ?? []))
+    window.api.listSshHosts?.()
+      .then((hosts) => setSshHosts((hosts ?? []).map(h => ({ name: h.alias, host: h.hostname, port: h.port, user: h.user }))))
       .catch(() => setSshHosts([]))
       .finally(() => setLoading(false))
   }, [])

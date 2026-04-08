@@ -11,6 +11,7 @@ import { registerOllamaHandlers } from './ollama-handlers'
 import { registerOpenAIHandlers } from './openai-handlers'
 import { registerCommandHandlers } from './command-handlers'
 import { registerFeatureHandlers } from './feature-handlers'
+import { registerRemoteHandlers } from './remote-handlers'
 
 export function registerAllHandlers(win: BrowserWindow) {
   const agentBridge = new AgentBridge(win)
@@ -26,6 +27,7 @@ export function registerAllHandlers(win: BrowserWindow) {
   registerOpenAIHandlers(win)
   registerCommandHandlers()
   registerFeatureHandlers()
+  registerRemoteHandlers()
 
   win.on('closed', () => {
     ptyManager.closeAll()
