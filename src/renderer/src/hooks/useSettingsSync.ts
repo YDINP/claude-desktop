@@ -68,6 +68,8 @@ export function useSettingsSync(): SettingsSync {
   const [focusMode, setFocusMode] = useState(false)
 
   // ── Theme toggle ──
+  // 저장소 우선순위: electron-store(주) > localStorage(캐시/폴백)
+  // 초기값은 localStorage에서 동기로 빠르게 읽고, startup useEffect에서 electron-store 값으로 덮어씀
   const [theme, setTheme] = useState<'dark' | 'light' | 'system'>(() =>
     (localStorage.getItem('theme') as 'dark' | 'light' | 'system') ?? 'dark'
   )
@@ -81,7 +83,9 @@ export function useSettingsSync(): SettingsSync {
   }, [])
 
   useEffect(() => {
+    // 저장: electron-store(주) + localStorage(캐시) 양쪽 동시 저장
     localStorage.setItem('theme', theme)
+    window.api?.settingsGet().then(s => window.api?.settingsSave({ ...s, theme })).catch(() => {})
     if (theme !== 'system') {
       applyTheme(theme)
       return
@@ -128,17 +132,29 @@ export function useSettingsSync(): SettingsSync {
     return () => window.removeEventListener('font-size-change', onFontSizeChange)
   }, [])
 
-  // ── Apply saved accent color + compact mode on startup ──
+  // ── Apply saved settings on startup ──
+  // 로드 우선순위: electron-store(주 저장소) > localStorage(캐시/폴백)
+  // 1단계: localStorage에서 accent-color를 동기로 즉시 적용 (폴백, 시각적 깜빡임 방지)
+  // 2단계: electron-store(settingsGet)에서 비동기로 읽어 덮어씀 — 항상 electron-store가 최종 결정값
   useEffect(() => {
+    // 폴백: localStorage accent-color를 동기로 선적용
     const savedAccent = localStorage.getItem('accent-color')
     if (savedAccent) {
       document.documentElement.style.setProperty('--accent', savedAccent)
       try { document.documentElement.style.setProperty('--accent-rgb', hexToRgb(savedAccent)) } catch { /* ignore */ }
     }
+    // 주 저장소: electron-store에서 모든 설정 로드, localStorage 값 덮어씀
     window.api?.settingsGet().then(settings => {
+      // accent-color: electron-store 우선
       if (settings.accentColor) {
         document.documentElement.style.setProperty('--accent', settings.accentColor)
         try { document.documentElement.style.setProperty('--accent-rgb', hexToRgb(settings.accentColor)) } catch { /* ignore */ }
+        localStorage.setItem('accent-color', settings.accentColor) // 캐시 동기화
+      }
+      // theme: electron-store 우선 (초기 useState는 localStorage 폴백이었으므로 여기서 확정)
+      if (settings.theme) {
+        setTheme(settings.theme as 'dark' | 'light' | 'system')
+        localStorage.setItem('theme', settings.theme) // 캐시 동기화
       }
       const compact = !!settings.compactMode
       if (compact) document.documentElement.setAttribute('data-compact', 'true')

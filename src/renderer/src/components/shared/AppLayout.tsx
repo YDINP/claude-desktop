@@ -263,6 +263,10 @@ export function AppLayout({
                   setTimeout(() => setScrollToMessageId(null), 500)
                 }}
                 onSessionSelect={async sid => {
+                  if (chat.isStreaming) {
+                    window.api.claudeInterrupt?.()
+                    chat.finishStreaming()
+                  }
                   try {
                     const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
                     if (saved?.messages?.length) {
@@ -468,6 +472,10 @@ export function AppLayout({
                   messages={chat.messages}
                   onScrollToMessage={messageId => { setScrollToMessageId(messageId); switchToChat() }}
                   onSessionSelect={async sid => {
+                    if (chat.isStreaming) {
+                      window.api.claudeInterrupt?.()
+                      chat.finishStreaming()
+                    }
                     const saved = await window.api.sessionLoad(sid) as any
                     if (saved?.messages?.length) { chat.hydrate(saved.messages, sid) }
                     else { chat.clearMessages(); chat.setSessionId(sid) }
@@ -522,6 +530,10 @@ export function AppLayout({
                         toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-5)}
                         width={agentBayWidth}
                         onSelectSession={async (sid: string) => {
+                          if (chat.isStreaming) {
+                            window.api.claudeInterrupt?.()
+                            chat.finishStreaming()
+                          }
                           const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
                           if (saved?.messages?.length) {
                             chat.hydrate(saved.messages as ChatMessage[], sid)
@@ -709,6 +721,10 @@ export function AppLayout({
           onClose={() => setPaletteOpen(false)}
           openTabs={openTabs.filter(t => t !== 'chat' && t !== 'preview' && t !== 'scene')}
           onSelectSession={async sid => {
+            if (chat.isStreaming) {
+              window.api.claudeInterrupt?.()
+              chat.finishStreaming()
+            }
             const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[] } | null
             if (saved?.messages?.length) {
               chat.hydrate(saved.messages as ChatMessage[], sid)

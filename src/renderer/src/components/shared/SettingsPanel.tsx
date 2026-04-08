@@ -51,6 +51,8 @@ function hexToRgb(hex: string): string {
   return `${r},${g},${b}`
 }
 
+// accent-color 적용 + localStorage 캐시 저장 (미리보기 전용)
+// 실제 영속 저장은 handleSave()의 settingsSave()에서 electron-store에 기록됨
 function applyAccentColor(color: string) {
   document.documentElement.style.setProperty('--accent', color)
   try {
@@ -58,7 +60,7 @@ function applyAccentColor(color: string) {
   } catch {
     // ignore invalid hex
   }
-  localStorage.setItem('accent-color', color)
+  localStorage.setItem('accent-color', color) // 캐시 (폴백용)
   window.dispatchEvent(new CustomEvent('accent-change', { detail: { color } }))
 }
 

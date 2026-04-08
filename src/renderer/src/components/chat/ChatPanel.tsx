@@ -338,6 +338,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
 
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
+    if (chat.isStreaming) return
     const model = project.selectedModel
     const prevMessages = chat.messages
     autoSetTitle(text)
