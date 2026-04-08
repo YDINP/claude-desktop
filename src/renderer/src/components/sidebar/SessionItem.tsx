@@ -74,7 +74,7 @@ export interface SessionItemProps {
   renderSessionItem: (s: SessionMeta, depth: number) => React.ReactNode
 }
 
-export function SessionItem(props: SessionItemProps) {
+export const SessionItem = React.memo(function SessionItem(props: SessionItemProps) {
   const {
     session: s,
     depth = 0,
@@ -601,4 +601,4 @@ export function SessionItem(props: SessionItemProps) {
     {depth < 10 && forkChildren.map(child => props.renderSessionItem(child, depth + 1))}
     </div>
   )
-}
+})
