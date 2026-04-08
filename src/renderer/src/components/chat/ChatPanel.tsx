@@ -29,6 +29,7 @@ import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 import { useChatScroll } from '../../hooks/useChatScroll'
 import { useChatSearch } from '../../hooks/useChatSearch'
 import { useChatEvents } from '../../hooks/useChatEvents'
+import { useDebounce } from '../../hooks/useDebounce'
 
 interface ChatPanelProps {
   project: ReturnType<typeof useProject>
@@ -68,14 +69,13 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     try { return localStorage.getItem('custom-system-prompt') ?? '' } catch { return '' }
   })
   const [showSystemPrompt, setShowSystemPrompt] = useState(false)
-  const customSystemPromptDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const persistSystemPrompt = useDebounce((value: string) => {
+    try { localStorage.setItem('custom-system-prompt', value) } catch { /* ignore */ }
+  }, 500)
   const setCustomSystemPrompt = useCallback((value: string) => {
     setCustomSystemPromptRaw(value)
-    if (customSystemPromptDebounceRef.current) clearTimeout(customSystemPromptDebounceRef.current)
-    customSystemPromptDebounceRef.current = setTimeout(() => {
-      try { localStorage.setItem('custom-system-prompt', value) } catch { /* ignore */ }
-    }, 500)
-  }, [])
+    persistSystemPrompt(value)
+  }, [persistSystemPrompt])
   const [showMinimap, setShowMinimap] = useState(false)
   const [showCtxFiles, setShowCtxFiles] = useState(false)
   const [summaryOpen, setSummaryOpen] = useState(false)

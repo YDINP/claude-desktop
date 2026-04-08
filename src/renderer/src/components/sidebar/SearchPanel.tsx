@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react'
+import { useDebounce } from '../../hooks/useDebounce'
 
 interface SearchResult {
   filePath: string
@@ -22,7 +23,6 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
   const [wholeWord, setWholeWord] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedExts, setSelectedExts] = useState<Set<string>>(new Set())
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [replaceMode, setReplaceMode] = useState(false)
   const [replaceText, setReplaceText] = useState('')
@@ -75,10 +75,11 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
     }
   }, [rootPath, caseSensitive, useRegex, wholeWord])
 
+  const debouncedSearch = useDebounce(doSearch, 400)
+
   const handleChange = (val: string) => {
     setQuery(val)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => doSearch(val), 400)
+    debouncedSearch(val)
   }
 
   const handleSubmit = (q: string) => {

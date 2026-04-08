@@ -1,5 +1,6 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
+import { useDebounce } from '../../hooks/useDebounce'
 
 const SEARCH_HISTORY_KEY = 'global-search-history'
 
@@ -34,7 +35,6 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
   const [searchHistory, setSearchHistory] = useState<string[]>(loadSearchHistory)
   const [showHistory, setShowHistory] = useState(false)
   const { copiedKey: copiedResultKey, copy: copyExcerpt } = useCopyToClipboard()
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) { setResults([]); setSearched(false); return }
@@ -56,11 +56,12 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
     }
   }, [])
 
+  const debouncedSearch = useDebounce(search, 400)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value
     setQuery(v)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => search(v), 400)
+    debouncedSearch(v)
   }
 
   const fmtDate = (ts: number) => {
@@ -86,7 +87,6 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
           onKeyDown={e => {
             if (e.key === 'Escape') { setQuery(''); setResults([]); setSearched(false) }
             else if (e.key === 'Enter' && query.trim().length >= 2) {
-              if (debounceRef.current) clearTimeout(debounceRef.current)
               search(query)
             }
           }}
