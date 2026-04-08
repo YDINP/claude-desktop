@@ -291,6 +291,11 @@ export function registerFsHandlers(_win: unknown) {
       /:\(\)\{.*:\|:/,                  // fork bomb
       />\s*\/dev\/sd[a-z]/i,            // disk overwrite
       /\b(shutdown|reboot)\b/i,         // shutdown/reboot
+      /python3?\s+-c/i,                 // python -c inline exec
+      /node\s+-e\b/i,                   // node -e inline exec
+      /\beval\s*\(/i,                   // eval(...)
+      /\bexec\s*\(/i,                   // exec(...)
+      /\bos\.system\s*\(/i,             // os.system(...)
     ]
     if (DANGEROUS.some(p => p.test(code))) {
       return { ok: false, output: '보안 정책으로 차단된 명령어입니다.' }

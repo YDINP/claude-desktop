@@ -1,6 +1,6 @@
 ---
 active: true
-iteration: 1
+iteration: 2
 max_iterations: 50
 completion_promise: 감사 발견 이슈 전부 해소 — C1~C4 + H1~H5 수정
 started_at: "2026-04-08T07:00:00Z"

@@ -250,19 +250,24 @@ export function AppLayout({
                   setTimeout(() => setScrollToMessageId(null), 500)
                 }}
                 onSessionSelect={async sid => {
-                  const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
-                  if (saved?.messages?.length) {
-                    chat.hydrate(saved.messages as ChatMessage[], sid)
-                  } else {
+                  try {
+                    const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
+                    if (saved?.messages?.length) {
+                      chat.hydrate(saved.messages as ChatMessage[], sid)
+                    } else {
+                      chat.clearMessages()
+                      chat.setSessionId(sid)
+                    }
+                    setSessionTitle(saved?.title)
+                    setSessionCreatedAt(saved?.createdAt)
+                    if (saved?.forkedFrom) {
+                      window.api.claudeClose()
+                    } else {
+                      window.api.claudeResume(sid)
+                    }
+                  } catch {
                     chat.clearMessages()
                     chat.setSessionId(sid)
-                  }
-                  setSessionTitle(saved?.title)
-                  setSessionCreatedAt(saved?.createdAt)
-                  if (saved?.forkedFrom) {
-                    window.api.claudeClose()
-                  } else {
-                    window.api.claudeResume(sid)
                   }
                   switchToChat()
                 }}

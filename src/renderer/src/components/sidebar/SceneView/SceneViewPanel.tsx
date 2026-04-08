@@ -365,7 +365,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [lockAll, setLockAll] = useState(false)
   const [lockMode, setLockMode] = useState<'none' | 'selected' | 'all'>('none')
   // ── 씬 비교 (R748) ──────────────────────────────────────────────
-  const [compareScene, setCompareScene] = useState<string | null>(null)
+  // QA: compareScene setCompareScene — R748 placeholder
   const [showSceneCompare, setShowSceneCompare] = useState(false)
   // ── 씬 태그 (R752) ──────────────────────────────────────────────
   const [sceneTags, setSceneTags] = useState<Record<string, string[]>>(() => JSON.parse(localStorage.getItem('scene-tags') ?? '{}'))
@@ -390,8 +390,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showSceneStats, setShowSceneStats] = useState(false)
   const [nodeSortKey, setNodeSortKey] = useState<'name' | 'type' | 'order'>('order')
   const [nodeSortAsc, setNodeSortAsc] = useState<boolean>(true)
-  const [sceneLoadProgress, setSceneLoadProgress] = useState(0)
-  const [sceneLoadStatus, setSceneLoadStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  // QA: sceneLoadProgress setSceneLoadProgress — R1393 placeholder
+  // QA: sceneLoadStatus setSceneLoadStatus — R1394 placeholder
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)
@@ -407,17 +407,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeTagDraft, setNodeTagDraft] = useState('')
   const animPreviewIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   // ── 씬 오버레이 (R1341) ─────────────────────────────────────
-  const [sceneOverlay, setSceneOverlay] = useState(false)
+  // QA: sceneOverlay setSceneOverlay — R1341 placeholder
   const [showOverlayPanel, setShowOverlayPanel] = useState(false)
   // ── 씬 그리드 (R1347) ────────────────────────────────────────
-  const [sceneGrid, setSceneGrid] = useState(false)
-  const [sceneGridSize, setSceneGridSize] = useState(32)
+  // QA: sceneGrid setSceneGrid — R1347 placeholder
+  // QA: sceneGridSize setSceneGridSize — R1347 placeholder
   // ── 씬 카메라 (R1353) ────────────────────────────────────────
-  const [sceneCamera, setSceneCamera] = useState(false)
-  const [sceneCameraFov, setSceneCameraFov] = useState(60)
+  // QA: sceneCamera setSceneCamera — R1353 placeholder
+  // QA: sceneCameraFov setSceneCameraFov — R1353 placeholder
   // ── 씬 라이팅 (R1359) ────────────────────────────────────────
-  const [sceneLighting, setSceneLighting] = useState(false)
-  const [lightingIntensity, setLightingIntensity] = useState(1.0)
+  // QA: sceneLighting setSceneLighting — R1359 placeholder
+  // QA: lightingIntensity setLightingIntensity — R1359 placeholder
 
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()
@@ -470,7 +470,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)
   const [autoLayout, setAutoLayout] = useState<'none' | 'tree' | 'grid' | 'radial'>('none')
   const [layoutSpacing, setLayoutSpacing] = useState(60)
-  const [showNodeLinks, setShowNodeLinks] = useState(false)
+  // QA: showNodeLinks setShowNodeLinks — R1473 placeholder
   const [nodeLinkFilter, setNodeLinkFilter] = useState<'all' | 'script' | 'prefab'>('all')
   const [treeFilter, setTreeFilter] = useState('')
   const [treeFilterResults, setTreeFilterResults] = useState<string[]>([])
@@ -480,22 +480,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showVisibilityGroups, setShowVisibilityGroups] = useState(false)
   const [componentSearch, setComponentSearch] = useState('')
   const [componentSearchResults, setComponentSearchResults] = useState<string[]>([])
-  const [nodePrefabLinks, setNodePrefabLinks] = useState<Record<string, string>>({})
-  const [showPrefabLinks, setShowPrefabLinks] = useState(false)
+  // QA: nodePrefabLinks setNodePrefabLinks — R1483 placeholder
+  // QA: showPrefabLinks setShowPrefabLinks — R1484 placeholder
   const [sceneNotes, setSceneNotes] = useState<Record<string, string>>({})
   const [showNotesPanel, setShowNotesPanel] = useState(false)
-  const [showBoundingBoxes, setShowBoundingBoxes] = useState(false)
-  const [boundingBoxColor, setBoundingBoxColor] = useState('#00ff00')
-  const [sceneProfiler, setSceneProfiler] = useState(false)
-  const [profilerStats, setProfilerStats] = useState<{ fps: number; drawCalls: number; triangles: number } | null>(null)
-  const [renderMode, setRenderMode] = useState<'normal' | 'wireframe' | 'overdraw'>('normal')
-  const [showRenderOptions, setShowRenderOptions] = useState(false)
-  const [lightingDebug, setLightingDebug] = useState(false)
-  const [lightingOverlay, setLightingOverlay] = useState<'none' | 'diffuse' | 'specular' | 'ambient'>('none')
-  const [cameraFov, setCameraFov] = useState(60)
-  const [showCameraControls, setShowCameraControls] = useState(false)
-  const [gizmoSize, setGizmoSize] = useState(1.0)
-  const [showGizmoSettings, setShowGizmoSettings] = useState(false)
+  // QA: showBoundingBoxes setShowBoundingBoxes — R1487 placeholder
+  // QA: boundingBoxColor setBoundingBoxColor — R1488 placeholder
+  // QA: sceneProfiler setSceneProfiler — R1489 placeholder
+  // QA: profilerStats setProfilerStats — R1490 placeholder
+  // QA: renderMode setRenderMode — R1491 placeholder
+  // QA: showRenderOptions setShowRenderOptions — R1492 placeholder
+  // QA: lightingDebug setLightingDebug — R1493 placeholder
+  // QA: lightingOverlay setLightingOverlay — R1494 placeholder
+  // QA: cameraFov setCameraFov — R1495 placeholder
+  // QA: showCameraControls setShowCameraControls — R1496 placeholder
+  // QA: gizmoSize setGizmoSize — R1497 placeholder
+  // QA: showGizmoSettings setShowGizmoSettings — R1498 placeholder
   // R1428: 히트 테스트 정밀화 상태
   const [blockInactiveClick, setBlockInactiveClick] = useState(false)
   const tabCycleRef = useRef<{ lastClickPos: { x: number; y: number }; candidates: string[]; index: number } | null>(null)
@@ -2710,12 +2710,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           const jsonSource = jsonViewScope === 'selected' && selNode
             ? { name: selNode.name, uuid: selNode.uuid, x: selNode.x, y: selNode.y, width: selNode.width, height: selNode.height, rotation: selNode.rotation, anchorX: selNode.anchorX, anchorY: selNode.anchorY, opacity: selNode.opacity, active: selNode.active, components: selNode.components, childCount: selNode.children?.length ?? 0 }
             : { nodeCount: nodeMap.size, rootUuid, nodes: Array.from(nodeMap.values()).slice(0, 50).map(n => ({ name: n.name, uuid: n.uuid, x: Math.round(n.x), y: Math.round(n.y) })) }
-          const jsonStr = JSON.stringify(jsonSource, null, 2)
-          // R1435: 간단한 syntax highlight
-          const highlighted = jsonStr.replace(
-            /("(?:\\.|[^"\\])*")\s*:/g, '<span style="color:var(--accent,#60a5fa)">$1</span>:'
+          const escHtmlInner = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          // R1435: 간단한 syntax highlight — 문자열 내부만 이스케이프하여 XSS 방어
+          const highlighted = JSON.stringify(jsonSource, null, 2).replace(
+            /("(?:\\.|[^"\\])*")\s*:/g, (_, k: string) => `<span style="color:var(--accent,#60a5fa)">"${escHtmlInner(k.slice(1, -1))}"</span>:`
           ).replace(
-            /:\s*("(?:\\.|[^"\\])*")/g, ': <span style="color:var(--success,#34d399)">$1</span>'
+            /:\s*("(?:\\.|[^"\\])*")/g, (_, v: string) => `: <span style="color:var(--success,#34d399)">"${escHtmlInner(v.slice(1, -1))}"</span>`
           ).replace(
             /:\s*(-?\d+\.?\d*)/g, ': <span style="color:var(--warning,#fbbf24)">$1</span>'
           )

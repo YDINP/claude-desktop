@@ -58,15 +58,14 @@ export function StatsPanel() {
     setMonthlyCost(getMonthlyCost())
     setDailyCosts(getDailyCosts(7))
     await Promise.all([
-      window.api.sessionGlobalStats().then(setStats),
+      window.api.sessionGlobalStats().then(setStats).catch(() => {}),
       window.api.sessionList().then((sessions) => {
         const titles = (sessions as Array<{ title?: string }>)
           .map((s) => s.title ?? '')
           .filter(Boolean)
         setSessionTitles(titles)
-      }),
-    ])
-    setRefreshing(false)
+      }).catch(() => {}),
+    ]).finally(() => setRefreshing(false))
   }, [])
 
   useEffect(() => { loadStats() }, [loadStats])

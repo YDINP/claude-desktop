@@ -131,8 +131,11 @@ function runInSandbox(code: string): { output: string[]; error?: string } {
     warn: (...args: any[]) => logs.push('Warn: ' + args.map(String).join(' ')),
   }
   try {
-    const fn = new Function('console', code)
-    fn(sandboxConsole)
+    const sandbox = new Proxy({ console: sandboxConsole } as Record<string | symbol, unknown>, {
+      has: () => true,
+      get: (t, k) => (k in t ? t[k as string] : undefined),
+    })
+    new Function('sandbox', `with(sandbox){${code}}`)(sandbox)
     return { output: logs }
   } catch (e) {
     return { output: logs, error: String(e) }

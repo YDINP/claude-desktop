@@ -149,10 +149,15 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
     if (showBlame) { setShowBlame(false); return }
     if (!cwd || !path) return
     setBlameLoading(true)
-    const data = await window.api.gitBlame(cwd, path)
-    setBlameData(data)
-    setShowBlame(true)
-    setBlameLoading(false)
+    try {
+      const data = await window.api.gitBlame(cwd, path)
+      setBlameData(data)
+      setShowBlame(true)
+    } catch {
+      setBlameData([])
+    } finally {
+      setBlameLoading(false)
+    }
   }
 
   const containerRef = useRef<HTMLDivElement>(null)
