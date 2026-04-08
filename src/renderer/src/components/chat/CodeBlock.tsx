@@ -786,7 +786,7 @@ export function makeMdComponents(
     table({ children }: { children?: React.ReactNode }) {
       return (
         <div style={{ overflowX: 'auto', margin: '8px 0' }}>
-          <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 'var(--chat-font-size, 13px)' }}>
+          <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 'var(--chat-font-size, 14px)' }}>
             {children}
           </table>
         </div>

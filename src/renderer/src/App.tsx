@@ -26,6 +26,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { WelcomeScreen } from './components/shared/WelcomeScreen'
 import { AppLayout } from './components/shared/AppLayout'
 import { CocosPanel } from './components/sidebar/CocosPanel'
+import { useCocosStore } from './domains/cocos/store'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -83,10 +84,9 @@ function AppContent() {
   // handleToggleHQ wrapper (needs setActiveTab from workspace)
   const handleToggleHQ = useCallback(() => _toggleHQ(() => setActiveTab('chat')), [_toggleHQ, setActiveTab])
 
-  // ── CC Layout mode (stays in AppContent) ──
-  const [ccLayout, setCCLayout] = useState<CCLayoutMode>(() =>
-    (localStorage.getItem('cc-layout-mode') as CCLayoutMode) ?? 'tab'
-  )
+  // ── CC Layout mode (from cocosStore — single source of truth) ──
+  const ccLayout = useCocosStore(s => s.layoutMode)
+  const setCCLayout = useCocosStore(s => s.setLayoutMode)
   const [ccTab, setCCTab] = useState<'claude' | 'editor'>('claude')
   const [mainPanelTab, setMainPanelTab] = useState<SidebarTab | null>(null)
   const [ccSplitRatio, setCCSplitRatio] = useState(0.5)
@@ -209,12 +209,10 @@ function AppContent() {
   const openCCEditorWindow = async () => {
     await window.api.openCCEditorWindow?.()
     setCCLayout('detach')
-    localStorage.setItem('cc-layout-mode', 'detach')
   }
 
   const setCCLayoutMode = (mode: CCLayoutMode) => {
     setCCLayout(mode)
-    localStorage.setItem('cc-layout-mode', mode)
   }
 
   // ── Export current session as markdown ──

@@ -237,7 +237,7 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
           ⏱ {sessionElapsed}
         </span>
       )}
-      {chatFontSize !== undefined && chatFontSize !== 13 && (
+      {chatFontSize !== undefined && chatFontSize !== 14 && (
         <span
           title="채팅 폰트 크기 (Ctrl+0으로 초기화)"
           style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}

@@ -101,7 +101,7 @@ export function useSettingsSync(): SettingsSync {
 
   // ── Chat font size (Ctrl+=/- shortcut) ──
   const [chatFontSize, setChatFontSize] = useState(() =>
-    Number(localStorage.getItem('chat-font-size') ?? '13')
+    Number(localStorage.getItem('chat-font-size') ?? '14')
   )
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export function useSettingsSync(): SettingsSync {
   useEffect(() => {
     const unsub = window.api?.onFontSizeShortcut?.((delta, reset) => {
       setChatFontSize(prev => {
-        if (reset) return 13
+        if (reset) return 14
         return Math.min(18, Math.max(11, prev + delta))
       })
     })

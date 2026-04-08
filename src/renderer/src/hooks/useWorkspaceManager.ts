@@ -157,7 +157,17 @@ export function useWorkspaceManager(deps: WorkspaceManagerDeps): WorkspaceManage
   }, [activeWsId])
 
   const applySnapshot = useCallback((snap: WorkspaceSnapshot, path: string) => {
-    chatHydrate(snap.messages, snap.sessionId)
+    // [SEC-C9] messages는 스냅샷에 빈 배열로 저장됨 — sessionId가 있으면 sessionLoad로 복원
+    if (snap.sessionId && snap.messages.length === 0) {
+      chatHydrate([], snap.sessionId)
+      window.api?.sessionLoad(snap.sessionId).then((saved: { messages?: ChatMessage[] } | null) => {
+        if (saved?.messages?.length) {
+          chatHydrate(saved.messages as ChatMessage[], snap.sessionId)
+        }
+      }).catch(() => {})
+    } else {
+      chatHydrate(snap.messages, snap.sessionId)
+    }
     const safeTabs = snap.openTabs.filter(t => t !== 'preview' && t !== 'scene')
     // [C-1] activeTab이 scene/preview이면 'chat'으로 폴백
     const safeActive: MainTab = snap.activeTab === 'scene' || snap.activeTab === 'preview'

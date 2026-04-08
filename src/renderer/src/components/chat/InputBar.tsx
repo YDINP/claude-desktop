@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { SlashCommandRegistry, type SlashCommandCompat } from '../../domains/commands/SlashCommandRegistry'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
+import { useProject } from '../../stores/project-store'
 import { SlashCommandDropdown } from './SlashCommandDropdown'
 import { MentionDropdown, VarSuggestionDropdown, SnippetDropdown } from './SuggestionDropdown'
 import { QuickActionsBar, TemplatePanel } from './QuickActionsBar'
@@ -280,9 +281,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [snippetMenuIdx, setSnippetMenuIdx] = useState(-1)
   const [showTemplates, setShowTemplates] = useState(false)
   const [templates, setTemplates] = useState<MessageTemplate[]>([])
-  const [selectedModel, setSelectedModel] = useState<string>(
-    () => localStorage.getItem('selected-model') ?? 'claude-opus-4-6'
-  )
+  const { selectedModel, setModel: setSelectedModel } = useProject()
   const [ollamaModels, setOllamaModels] = useState<string[]>([])
   const [multilineMode, setMultilineMode] = useState(false)
   const multilineModeRef = useRef(false)
@@ -304,16 +303,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cursorPosRef = useRef<number>(0)
 
-  useEffect(() => {
-    window.api.settingsGet().then((s) => {
-      if (s?.selectedModel) {
-        const stored = localStorage.getItem('selected-model')
-        if (!stored) {
-          setSelectedModel(s.selectedModel)
-        }
-      }
-    }).catch(() => {})
-  }, [])
+  // selectedModel now reads from project-store (single source of truth)
 
   useEffect(() => {
     window.api.ollamaList?.().then(models => {
@@ -323,8 +313,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
 
   const handleModelChange = (model: string) => {
     setSelectedModel(model)
-    localStorage.setItem('selected-model', model)
-    window.dispatchEvent(new CustomEvent('model-change', { detail: { model } }))
   }
 
   useEffect(() => {

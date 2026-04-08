@@ -814,7 +814,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
             onDoubleClick={handleDoubleClick}
             style={{
               color: 'var(--text-primary)',
-              fontSize: 'var(--chat-font-size, 13px)',
+              fontSize: 'var(--chat-font-size, 14px)',
               lineHeight: 'var(--chat-line-height, 1.65)',
               wordBreak: 'break-word',
               fontFamily: 'var(--font-ui)',
@@ -833,7 +833,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
       ) : (
         <div style={{
           color: 'var(--text-primary)',
-          fontSize: 'var(--chat-font-size, 13px)',
+          fontSize: 'var(--chat-font-size, 14px)',
           lineHeight: 'var(--chat-line-height, 1.65)',
           wordBreak: 'break-word',
           fontFamily: 'var(--font-ui)',
@@ -849,7 +849,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
               fontFamily: 'var(--font-ui)',
-              fontSize: 'var(--chat-font-size, 13px)',
+              fontSize: 'var(--chat-font-size, 14px)',
               margin: 0,
             }}>
               {msg.text}

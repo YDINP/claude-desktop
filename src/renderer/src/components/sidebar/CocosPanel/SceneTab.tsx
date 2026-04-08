@@ -291,15 +291,6 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
               ref={inspectorScrollRef}
               style={{ width: sceneViewHeight, flexShrink: 0, overflow: 'auto', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)' }}
               onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' }}
-              onDrop={e => {
-                e.preventDefault()
-                try {
-                  const data = JSON.parse(e.dataTransfer.getData('application/cc-asset') || '{}')
-                  if (data.uuid && selectedNode) {
-                    window.dispatchEvent(new CustomEvent('cc-asset-drop-inspector', { detail: { ...data, nodeUuid: selectedNode.uuid } }))
-                  }
-                } catch {}
-              }}
             >
               <div style={{ width: '100%' }}>
               <InspectorErrorBoundary>

@@ -444,7 +444,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             }}
             title={`프리팹 인스턴스 — 클릭하여 소스 .prefab 하이라이트`}
             onClick={() => {
-              window.dispatchEvent(new CustomEvent('cc-open-file', { detail: { uuid: prefabUuid, type: 'prefab' } }))
+              window.dispatchEvent(new CustomEvent('cc:open-file', { detail: { uuid: prefabUuid, type: 'prefab' } }))
             }}
           >
             <span>{'\uD83D\uDCE6'}</span>
