@@ -979,3 +979,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2779 | 씬 저장 직렬화 큐 (pendingSaveRef) + useDebounce 공통 훅 3곳 적용 | ✅ |
 | R2780 | vitest 도입 — cc-file-parser/saver/chat-store/SlashCommandRegistry 76 테스트 | ✅ |
 | R2781 | CCFileSceneView 4,961→4,374줄 — useCCSceneMouse/CCSceneContextMenu/CCSceneMinimap 추출 | ✅ |
+| R2782 | 테스트 확장 — 공통 훅/유틸 28 테스트 추가 (총 104) + CSS panel-scroll/divider | ✅ |
