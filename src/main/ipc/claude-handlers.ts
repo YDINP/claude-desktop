@@ -2,15 +2,22 @@ import { ipcMain, dialog } from 'electron'
 import { AgentBridge } from '../claude/agent-bridge'
 import { AppConfig, PromptTemplate } from '../store/app-config'
 
+function getApiKey(): string {
+  return AppConfig.getInstance().getAnthropicApiKey() || process.env.ANTHROPIC_API_KEY || ''
+}
+
 export function registerClaudeHandlers(bridge: AgentBridge) {
   ipcMain.on('claude:send', (_, { text, cwd, model, extraSystemPrompt }: { text: string; cwd: string; model: string; extraSystemPrompt?: string }) => {
-    const basePrompt = AppConfig.getInstance().getProjectSystemPrompt(cwd)
+    const config = AppConfig.getInstance()
+    // AppConfig 키를 환경변수로 오버라이드 (SDK가 process.env를 직접 읽음)
+    const storedKey = config.getAnthropicApiKey()
+    if (storedKey) process.env.ANTHROPIC_API_KEY = storedKey
+    const basePrompt = config.getProjectSystemPrompt(cwd)
     const systemPrompt = extraSystemPrompt
       ? [basePrompt, extraSystemPrompt].filter(Boolean).join('\n\n')
       : basePrompt
     bridge.setSystemPrompt(systemPrompt)
-    const temperature = AppConfig.getInstance().getTemperature()
-    bridge.setTemperature(temperature)
+    bridge.setTemperature(config.getTemperature())
     bridge.sendMessage(text, cwd, model)
   })
 
@@ -90,6 +97,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
       compactMode: config.getCompactMode(),
       soundEnabled: config.getSoundEnabled(),
       customCSS: config.getCustomCSS(),
+      anthropicApiKey: config.getAnthropicApiKey(),
     }
   })
 
@@ -105,6 +113,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
     if (patch.compactMode !== undefined) config.setCompactMode(patch.compactMode as boolean)
     if (patch.soundEnabled !== undefined) config.setSoundEnabled(patch.soundEnabled as boolean)
     if (patch.customCSS !== undefined) config.setCustomCSS(patch.customCSS as string)
+    if (patch.anthropicApiKey !== undefined) config.setAnthropicApiKey(patch.anthropicApiKey as string)
     return true
   })
 
@@ -123,7 +132,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+          'x-api-key': getApiKey(),
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
         },
@@ -148,7 +157,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+          'x-api-key': getApiKey(),
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
         },
@@ -178,7 +187,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+          'x-api-key': getApiKey(),
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
         },
@@ -200,7 +209,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
   })
 
   ipcMain.handle('claude:explainCode', async (_, { code, language }: { code: string; language: string }) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = getApiKey()
     if (!apiKey) return '❌ API 키가 설정되지 않았습니다.'
 
     try {
@@ -228,7 +237,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
   })
 
   ipcMain.handle('claude:translate', async (_, { text, targetLang }: { text: string; targetLang: 'ko' | 'en' }) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = getApiKey()
     if (!apiKey) return text
 
     try {
@@ -257,7 +266,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
   })
 
   ipcMain.handle('claude:enhancePrompt', async (_, { prompt }: { prompt: string }) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = getApiKey()
     if (!apiKey) return prompt
 
     try {
@@ -285,7 +294,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
   })
 
   ipcMain.handle('claude:generateInsights', async (_, { totalSessions, totalTokens, avgTokensPerSession, topHours, peakDay, totalDays }: { totalSessions: number; totalTokens: number; avgTokensPerSession: number; topHours: number[]; peakDay: string; totalDays: number }) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = getApiKey()
     if (!apiKey) return '❌ API 키가 설정되지 않았습니다.'
 
     try {
@@ -314,7 +323,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
   })
 
   ipcMain.handle('claude:summarizeSession', async (_, { messages }: { messages: Array<{ role: string; content: string }> }) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = getApiKey()
     if (!apiKey) return { summary: '❌ API 키가 설정되지 않았습니다.' }
 
     try {
@@ -348,7 +357,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
   })
 
   ipcMain.handle('claude:generateDocs', async (_, { code, lang }: { code: string; lang: string }) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = getApiKey()
     if (!apiKey) return '❌ API 키가 설정되지 않았습니다.'
 
     try {
@@ -377,7 +386,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
   })
 
   ipcMain.handle('claude:suggestFollowUps', async (_, { lastAssistantMsg, lastUserMsg }: { lastAssistantMsg: string; lastUserMsg: string }) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = getApiKey()
     if (!apiKey) return []
 
     try {
@@ -408,7 +417,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
   })
 
   ipcMain.handle('claude:suggestSnippets', async (_, { messages }: { messages: Array<{ role: string; content: string }> }) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = getApiKey()
     if (!apiKey) return []
 
     try {
@@ -448,7 +457,7 @@ export function registerClaudeHandlers(bridge: AgentBridge) {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+          'x-api-key': getApiKey(),
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
         },

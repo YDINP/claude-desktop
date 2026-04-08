@@ -105,7 +105,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
       {/* Tab bar — 2 rows: text tabs + icon tabs */}
       <div style={{ flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
         {/* Row 1: icon tabs — 균등 분배 */}
-        <div style={{ display: 'flex' }}>
+        <div role="tablist" aria-label="사이드바 탭" style={{ display: 'flex' }}>
           {([
             { id: 'files', label: '📁', title: 'Files' },
             { id: 'search', label: '🔍', title: 'Search' },
@@ -115,6 +115,8 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
+              role="tab"
+              aria-selected={activeTab === t.id}
               onClick={() => switchTab(t.id)}
               title={t.title}
               style={{
@@ -133,7 +135,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           ))}
         </div>
         {/* Row 2: 추가 패널 아이콘 */}
-        <div style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
+        <div role="tablist" aria-label="사이드바 추가 탭" style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
           {([
             { id: 'calendar', label: '📅', title: '캘린더' },
             { id: 'tasks', label: '✅', title: '작업' },
@@ -144,6 +146,8 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
+              role="tab"
+              aria-selected={activeTab === t.id}
               onClick={() => switchTab(t.id)}
               title={t.title}
               style={{
@@ -162,7 +166,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           ))}
         </div>
         {/* Row 3: 숨겨진 기능 탭 아이콘 */}
-        <div style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
+        <div role="tablist" aria-label="사이드바 기능 탭" style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
           {([
             { id: 'bookmarks', label: '★', title: 'Bookmarks' },
             { id: 'stats', label: '📊', title: 'Stats' },
@@ -174,6 +178,8 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
+              role="tab"
+              aria-selected={activeTab === t.id}
               onClick={() => switchTab(t.id)}
               title={t.title}
               style={{
@@ -226,7 +232,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
       </button>
 
       {/* Content */}
-      <div key={activeTab} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.15s ease' }}>
+      <div key={activeTab} role="tabpanel" aria-label={PANEL_TITLES[activeTab]} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.15s ease' }}>
         {activeTab === 'files' && currentPath && (
           <>
             {/* File search */}

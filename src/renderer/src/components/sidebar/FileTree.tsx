@@ -192,6 +192,8 @@ const FileNode = memo(function FileNode({ entry, depth, onFileClick, activeFileP
         </div>
       )}
       <div
+        role="treeitem"
+        aria-expanded={entry.isDir ? expanded : undefined}
         onClick={toggle}
         onContextMenu={(e) => onContextMenu(e, entry.path, entry.isDir)}
         onMouseEnter={async (e) => {
@@ -629,6 +631,8 @@ export function FileTree({ rootPath, onFileClick, activeFilePath, onOpenInSplit 
       )}
       {/* File tree with keyboard navigation */}
       <div
+        role="tree"
+        aria-label="파일 트리"
         tabIndex={0}
         style={{ paddingTop: 4, outline: 'none' }}
         onKeyDown={async (e) => {

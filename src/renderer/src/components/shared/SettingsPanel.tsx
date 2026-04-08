@@ -31,6 +31,7 @@ interface SettingsData {
   compactMode: boolean
   soundEnabled: boolean
   customCSS: string
+  anthropicApiKey?: string
 }
 
 const ACCENT_PRESETS = [
@@ -143,11 +144,14 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
   const [profileName, setProfileName] = useState('')
   const [openaiApiKey, setOpenaiApiKey] = useState('')
   const [showOpenaiKey, setShowOpenaiKey] = useState(false)
+  const [anthropicApiKey, setAnthropicApiKey] = useState('')
+  const [showAnthropicKey, setShowAnthropicKey] = useState(false)
 
   useEffect(() => {
     if (!open) { setLoaded(false); return }
     window.api?.settingsGet().then(data => {
       setSettings(data)
+      setAnthropicApiKey(data.anthropicApiKey ?? '')
       setLoaded(true)
     })
     window.api?.getNotificationSettings().then(s => s && setNotifSettings(s))
@@ -218,6 +222,8 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
       localStorage.removeItem('settings:openaiApiKey')
       await window.api?.settingsSet({ openaiApiKey: '' })
     }
+    // Save Anthropic API key
+    await window.api?.settingsSet({ anthropicApiKey })
     // Dispatch event so App can sync model state
     window.dispatchEvent(new CustomEvent('settings:changed', { detail: settings }))
     onClose()
@@ -779,6 +785,52 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            {/* Anthropic API Key */}
+            <div style={sectionStyle}>
+              <div style={sectionTitleStyle}>API 설정</div>
+              <div style={{ marginBottom: 6 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>Anthropic API Key</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
+                  {anthropicApiKey
+                    ? '✓ API 키가 설정되어 있습니다.'
+                    : '미설정 — 환경변수 ANTHROPIC_API_KEY 사용 중 (또는 미설정)'}
+                </div>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input
+                    type={showAnthropicKey ? 'text' : 'password'}
+                    value={anthropicApiKey}
+                    onChange={e => setAnthropicApiKey(e.target.value)}
+                    placeholder="sk-ant-..."
+                    style={{
+                      flex: 1, padding: '6px 10px', background: 'var(--bg-input, var(--bg-tertiary))',
+                      border: '1px solid var(--border)', borderRadius: 4, color: 'var(--text-primary)',
+                      fontSize: 12, fontFamily: 'var(--font-mono)', boxSizing: 'border-box',
+                    }}
+                  />
+                  <button
+                    onClick={() => setShowAnthropicKey(v => !v)}
+                    style={{
+                      padding: '6px 10px', background: 'var(--bg-tertiary)', border: '1px solid var(--border)',
+                      borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, flexShrink: 0,
+                    }}
+                  >
+                    {showAnthropicKey ? '숨기기' : '표시'}
+                  </button>
+                  {anthropicApiKey && (
+                    <button
+                      onClick={() => setAnthropicApiKey('')}
+                      style={{
+                        padding: '6px 10px', background: 'var(--bg-tertiary)', border: '1px solid var(--border)',
+                        borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, flexShrink: 0,
+                      }}
+                    >
+                      초기화
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 

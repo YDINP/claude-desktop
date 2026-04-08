@@ -3,16 +3,9 @@
  * Extracted from App.tsx: the single useEffect that handles all Ctrl+* shortcuts.
  */
 import { useEffect, useRef } from 'react'
+import { useUIStore } from '../stores/ui-store'
 
 interface KeyboardShortcutDeps {
-  // palette
-  setPaletteOpen: (updater: (o: boolean) => boolean | boolean) => void
-  paletteOpen: boolean
-  // shortcuts overlay
-  shortcutsOpen: boolean
-  setShortcutsOpen: (updater: (o: boolean) => boolean | boolean) => void
-  // settings
-  setSettingsOpen: (updater: (o: boolean) => boolean | boolean) => void
   // sidebar
   setSidebarCollapsed: (updater: (c: boolean) => boolean) => void
   // terminal
@@ -39,9 +32,6 @@ interface KeyboardShortcutDeps {
 
 export function useKeyboardShortcuts(deps: KeyboardShortcutDeps): void {
   const {
-    setPaletteOpen, paletteOpen,
-    shortcutsOpen, setShortcutsOpen,
-    setSettingsOpen,
     setSidebarCollapsed,
     setTerminalOpen,
     setFocusMode,
@@ -52,9 +42,19 @@ export function useKeyboardShortcuts(deps: KeyboardShortcutDeps): void {
     setProjectModel,
   } = deps
 
+  // UI overlay state from store (stable selectors — no re-render churn)
+  const setPaletteOpen = useUIStore(s => s.setPaletteOpen)
+  const setShortcutsOpen = useUIStore(s => s.setShortcutsOpen)
+  const setSettingsOpen = useUIStore(s => s.setSettingsOpen)
+
   // Stable refs to avoid stale closures for frequently-read values
-  const paletteOpenRef = useRef(paletteOpen)
-  paletteOpenRef.current = paletteOpen
+  const paletteOpenRef = useRef(useUIStore.getState().paletteOpen)
+  const shortcutsOpenRef = useRef(useUIStore.getState().shortcutsOpen)
+  // Subscribe to store changes outside React render cycle
+  useEffect(() => useUIStore.subscribe(s => {
+    paletteOpenRef.current = s.paletteOpen
+    shortcutsOpenRef.current = s.shortcutsOpen
+  }), [])
 
   const openTabsRef = useRef(openTabs)
   openTabsRef.current = openTabs
@@ -106,7 +106,7 @@ export function useKeyboardShortcuts(deps: KeyboardShortcutDeps): void {
           e.preventDefault()
           setShortcutsOpen(o => !o)
         }
-      } else if (e.key === 'Escape' && shortcutsOpen) {
+      } else if (e.key === 'Escape' && shortcutsOpenRef.current) {
         setShortcutsOpen(false)
       } else if (e.ctrlKey && e.key === '1') {
         e.preventDefault()
@@ -151,5 +151,5 @@ export function useKeyboardShortcuts(deps: KeyboardShortcutDeps): void {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [chatClearMessages, shortcutsOpen, handleToggleHQ])
+  }, [chatClearMessages, handleToggleHQ, setPaletteOpen, setShortcutsOpen, setSettingsOpen])
 }

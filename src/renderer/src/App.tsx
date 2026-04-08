@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import './styles/hq.css'
 import { ProjectProvider, useProject } from './stores/project-store'
+import { useUIStore } from './stores/ui-store'
 import { useChatStore } from './domains/chat/store'
 import type { ChatMessage } from './domains/chat/domain'
 import { initChatAdapter } from './domains/chat/adapter'
@@ -97,8 +98,6 @@ function AppContent() {
   const [chatSearchTrigger, setChatSearchTrigger] = useState(0)
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null)
   const [splitFilePath, setSplitFilePath] = useState<string | null>(null)
-  const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
-
   // ── File dirty tracking ──
   const [dirtyTabs, setDirtyTabs] = useState<Set<string>>(new Set())
   const setTabDirty = useCallback((path: string, dirty: boolean) => {
@@ -129,15 +128,12 @@ function AppContent() {
     })
   }
 
-  // ── UI overlays ──
-  const [paletteOpen, setPaletteOpen] = useState(false)
-  const [shortcutsOpen, setShortcutsOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [pendingInsert, setPendingInsert] = useState<string | undefined>(undefined)
+  // ── UI overlays (from ui-store) ──
+  const setPendingInsert = useUIStore(s => s.setPendingInsert)
   const handleReplyToMessage = useCallback((text: string) => {
     const quoted = text.split('\n').map(line => `> ${line}`).join('\n')
     setPendingInsert(quoted + '\n\n')
-  }, [])
+  }, [setPendingInsert])
 
   // ── Sidebar ──
   const sidebarSwitchTabRef = useRef<((tab: SidebarTab) => void) | null>(null)
@@ -225,11 +221,6 @@ function AppContent() {
 
   // ── Keyboard shortcuts ──
   useKeyboardShortcuts({
-    setPaletteOpen,
-    paletteOpen,
-    shortcutsOpen,
-    setShortcutsOpen,
-    setSettingsOpen,
     setSidebarCollapsed,
     setTerminalOpen,
     setFocusMode,
@@ -435,16 +426,6 @@ function AppContent() {
       setTabDirty={setTabDirty}
       changedFiles={changedFiles}
       setChangedFiles={setChangedFiles}
-      lightbox={lightbox}
-      setLightbox={setLightbox}
-      paletteOpen={paletteOpen}
-      setPaletteOpen={setPaletteOpen}
-      shortcutsOpen={shortcutsOpen}
-      setShortcutsOpen={setShortcutsOpen}
-      settingsOpen={settingsOpen}
-      setSettingsOpen={setSettingsOpen}
-      pendingInsert={pendingInsert}
-      setPendingInsert={setPendingInsert}
       activeSidebarIconTab={activeSidebarIconTab}
       setActiveSidebarIconTab={setActiveSidebarIconTab}
       mainPanelTab={mainPanelTab}

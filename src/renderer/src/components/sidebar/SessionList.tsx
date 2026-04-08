@@ -426,7 +426,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     const sCustomTags = (s.tags ?? []).filter(t => !TAG_COLORS.includes(t as TagColor)).slice(0, 2)
     return (
       <div key={s.id}>
-      <div draggable onContextMenu={(e) => { e.preventDefault(); setContextMenu({ sessionId: s.id, x: e.clientX, y: e.clientY }) }} onDragStart={() => setDragId(s.id)} onDragOver={(e) => { e.preventDefault(); setDragOverId(s.id) }} onDragLeave={() => setDragOverId(null)}
+      <div role="option" aria-selected={isActive} draggable onContextMenu={(e) => { e.preventDefault(); setContextMenu({ sessionId: s.id, x: e.clientX, y: e.clientY }) }} onDragStart={() => setDragId(s.id)} onDragOver={(e) => { e.preventDefault(); setDragOverId(s.id) }} onDragLeave={() => setDragOverId(null)}
         onDrop={async () => { if (dragId && dragId !== s.id) { await window.api.sessionReorder(dragId, s.id); await refresh() } setDragId(null); setDragOverId(null) }}
         onDragEnd={() => { setDragId(null); setDragOverId(null) }}
         onClick={() => { if (mergeMode) { setMergeTargets(prev => { const next = new Set(prev); if (next.has(s.id)) next.delete(s.id); else next.add(s.id); return next }) } else if (selectionMode) { setSelectedIds(prev => { const next = new Set(prev); if (next.has(s.id)) next.delete(s.id); else next.add(s.id); return next }) } else onSelect(s.id) }}
@@ -516,7 +516,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   }
 
   return (
-    <div>
+    <div role="listbox" aria-label="세션 목록">
       <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <span style={{ position: 'absolute', left: 7, fontSize: 11, color: 'var(--text-muted)', pointerEvents: 'none', lineHeight: 1 }}>🔍</span>

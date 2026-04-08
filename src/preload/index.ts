@@ -492,7 +492,7 @@ declare global {
       commandLoadWorkflow: (filePath: string) => Promise<{ content: string; error?: string }>
       onCloseTab: (cb: () => void) => () => void
       onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => () => void
-      settingsGet: () => Promise<{ theme: string; fontSize: number; maxTokensPerRequest: number; temperature: number; showTimestamps: boolean; selectedModel: string; accentColor: string; compactMode: boolean; soundEnabled: boolean; customCSS: string }>
+      settingsGet: () => Promise<{ theme: string; fontSize: number; maxTokensPerRequest: number; temperature: number; showTimestamps: boolean; selectedModel: string; accentColor: string; compactMode: boolean; soundEnabled: boolean; customCSS: string; anthropicApiKey: string }>
       settingsSet: (patch: Record<string, unknown>) => Promise<boolean>
       featuresGet: () => Promise<Record<string, boolean>>
       featuresSet: (key: string, enabled: boolean) => Promise<void>

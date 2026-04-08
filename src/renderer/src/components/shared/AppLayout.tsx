@@ -30,6 +30,7 @@ import type { WorkspaceManager } from '../../hooks/useWorkspaceManager'
 import type { SettingsSync } from '../../hooks/useSettingsSync'
 import type { ResizeHandlers } from '../../hooks/useResizeHandlers'
 import type { ChatMessage } from '../../domains/chat/domain'
+import { useUIStore } from '../../stores/ui-store'
 
 type CCLayoutMode = 'tab' | 'split' | 'detach'
 
@@ -85,18 +86,6 @@ export interface AppLayoutProps {
   setTabDirty: (path: string, dirty: boolean) => void
   changedFiles: ChangedFile[]
   setChangedFiles: React.Dispatch<React.SetStateAction<ChangedFile[]>>
-  lightbox: { src: string; alt?: string } | null
-  setLightbox: React.Dispatch<React.SetStateAction<{ src: string; alt?: string } | null>>
-
-  // Overlays
-  paletteOpen: boolean
-  setPaletteOpen: (v: boolean | ((o: boolean) => boolean)) => void
-  shortcutsOpen: boolean
-  setShortcutsOpen: (v: boolean | ((o: boolean) => boolean)) => void
-  settingsOpen: boolean
-  setSettingsOpen: (v: boolean | ((o: boolean) => boolean)) => void
-  pendingInsert: string | undefined
-  setPendingInsert: React.Dispatch<React.SetStateAction<string | undefined>>
 
   // Sidebar
   activeSidebarIconTab: SidebarTab | null
@@ -126,15 +115,21 @@ export function AppLayout({
   ccLayout, ccTab, ccSplitRatio, setCCTab, setCCLayoutMode, openCCEditorWindow, handleCCSplitDragStart,
   chatFocusTrigger, chatSearchTrigger, scrollToMessageId, setScrollToMessageId,
   splitFilePath, setSplitFilePath, dirtyTabs, setTabDirty, changedFiles, setChangedFiles,
-  lightbox, setLightbox,
-  paletteOpen, setPaletteOpen, shortcutsOpen, setShortcutsOpen, settingsOpen, setSettingsOpen,
-  pendingInsert, setPendingInsert,
   activeSidebarIconTab, setActiveSidebarIconTab, sidebarSwitchTabRef,
   mainPanelTab, setMainPanelTab,
   handleToggleHQ, openFile, switchToChat, closeFileTab,
   handleExportMarkdown, handleEditResend, handleFork, handleCompressContext, handleReplyToMessage,
 }: AppLayoutProps) {
   const { features } = useFeatureFlags()
+
+  // ── UI overlay state from store ──────────────────────────────────────────
+  const {
+    paletteOpen, setPaletteOpen,
+    shortcutsOpen, setShortcutsOpen,
+    settingsOpen, setSettingsOpen,
+    lightbox, setLightbox,
+    pendingInsert, setPendingInsert,
+  } = useUIStore()
 
   // ── Destructure domain hooks for convenient local-name access ─────────────
   const {
