@@ -956,3 +956,8 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2756 | SceneInspector 1,869→1,227줄 (InspectorComponents 추출), TerminalPanel 1,621→1,442줄, misc 1,523→1,238줄 | ✅ |
 | R2757 | UX/UI 일관성 — --success-bright CSS변수, 색상 하드코딩 제거, empty state/borderRadius 통일 | ✅ |
 | R2758 | 아키텍처 Phase D — session/terminal 도메인 모듈 생성 (zustand store, adapter, commands) | ✅ |
+| R2759 | 감사 CRITICAL — _lrot.w 복원, 6패널 Sidebar 연결, GitPanel 삭제, remote IPC 구현 | ✅ |
+| R2760 | Kernel ipcBridge 시그니처 8건 수정 + initIpcBridge App.tsx 초기화 + adapter 연결 | ✅ |
+| R2761 | store 이중 구현 통합 — chat-store/terminal-store 삭제, domains로 이관 | ✅ |
+| R2762 | 보안 강화 — CodeBlock Proxy 샌드박스, XSS 이스케이프, shell:exec 블록리스트 확장 | ✅ |
+| R2763 | 에러 핸들링 — StatsPanel/FileViewer/AppLayout catch 추가, phantom useState 주석 전환 | ✅ |
