@@ -1952,6 +1952,83 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           ↺ 재시도
         </button>
       )}
+
+      {/* Always-visible action bar for last assistant message */}
+      {!isUser && isLast && !isStreaming && !isError && (onRegenerate || (altCount ?? 0) > 0) && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          marginTop: 8,
+          paddingTop: 6,
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+        }}>
+          {onRegenerate && (
+            <button
+              onClick={onRegenerate}
+              title="응답 재생성"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                color: 'var(--text-muted)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 4,
+                padding: '3px 10px',
+                fontSize: 11,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                transition: 'background 0.15s, color 0.15s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(137,180,250,0.15)'
+                ;(e.currentTarget as HTMLElement).style.color = 'var(--accent)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
+                ;(e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'
+              }}
+            >
+              &#8634; 재생성
+            </button>
+          )}
+          {(altCount ?? 0) > 0 && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              fontSize: 11,
+              color: 'var(--text-muted)',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 4,
+              padding: '2px 6px',
+            }}>
+              <button
+                onClick={() => onPrevAlt?.((altIndex ?? (altCount ?? 0)) - 1)}
+                disabled={(altIndex ?? (altCount ?? 0)) <= 0}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--text-muted)', fontSize: 13, padding: '0 3px',
+                  opacity: (altIndex ?? (altCount ?? 0)) <= 0 ? 0.3 : 1,
+                }}
+              >&#9664;</button>
+              <span style={{ fontVariantNumeric: 'tabular-nums', minWidth: 28, textAlign: 'center' }}>
+                {(altIndex ?? (altCount ?? 0)) + 1}/{(altCount ?? 0) + 1}
+              </span>
+              <button
+                onClick={() => onPrevAlt?.(altIndex !== undefined ? altIndex + 1 : (altCount ?? 0))}
+                disabled={altIndex === undefined || altIndex >= (altCount ?? 0)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--text-muted)', fontSize: 13, padding: '0 3px',
+                  opacity: (altIndex === undefined || altIndex >= (altCount ?? 0)) ? 0.3 : 1,
+                }}
+              >&#9654;</button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }, (prev, next) => {

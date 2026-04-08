@@ -127,6 +127,27 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
     }}>
       <span>{modelLabel}</span>
       {cwd && <span style={{ opacity: 0.8 }}>{cwd.split(/[\\/]/).slice(-2).join('/')}</span>}
+      {/* Session token counter - always visible when tokens exist */}
+      {(inputTokens ?? 0) > 0 && (
+        <span style={{
+          fontSize: 10,
+          opacity: 0.85,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+          fontVariantNumeric: 'tabular-nums',
+        }}>
+          <span style={{ color: 'rgba(255,255,255,0.6)' }}>
+            {(inputTokens ?? 0) > 1000 ? `${((inputTokens ?? 0) / 1000).toFixed(1)}k` : inputTokens}↑
+          </span>
+          <span style={{ color: 'rgba(255,255,255,0.6)' }}>
+            {(outputTokens ?? 0) > 1000 ? `${((outputTokens ?? 0) / 1000).toFixed(1)}k` : outputTokens}↓
+          </span>
+          {costUsd !== null && costUsd > 0.001 && (
+            <span style={{ color: 'rgba(255,255,255,0.8)' }}>${costUsd.toFixed(4)}</span>
+          )}
+        </span>
+      )}
       {contextUsage !== undefined && contextUsage > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
           <div style={{

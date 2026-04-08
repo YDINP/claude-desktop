@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import type { ChatMessage } from '../../stores/chat-store'
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 
 type OutlineItem = {
   level: 1 | 2 | 3
@@ -52,7 +53,7 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
     return list
   }, [allItems, search, levelFilter, reversed])
   const [copied, setCopied] = useState(false)
-  const [copiedItemKey, setCopiedItemKey] = useState<string | null>(null)
+  const { copiedKey: copiedItemKey, copy: copyHeading } = useCopyToClipboard()
   const copyOutline = useCallback(() => {
     const md = items.map(it => `${'#'.repeat(it.level)} ${it.text}`).join('\n')
     navigator.clipboard.writeText(md).then(() => {
@@ -194,7 +195,7 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
               >
                 <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.text}</span>
                 <button
-                  onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(`${'#'.repeat(item.level)} ${item.text}`).then(() => { setCopiedItemKey(key); setTimeout(() => setCopiedItemKey(k => k === key ? null : k), 1500) }) }}
+                  onClick={e => { e.stopPropagation(); copyHeading(`${'#'.repeat(item.level)} ${item.text}`, key) }}
                   title="헤딩 복사"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, padding: '0 2px', color: copiedItemKey === key ? '#4caf50' : 'var(--border)', flexShrink: 0, opacity: 0, transition: 'opacity 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.opacity = '1')}

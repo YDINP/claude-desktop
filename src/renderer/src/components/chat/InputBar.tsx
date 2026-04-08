@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { SlashCommandRegistry, type CommandCategory } from '../../domains/commands/SlashCommandRegistry'
+import { SlashCommandRegistry, type SlashCommandCompat } from '../../domains/commands/SlashCommandRegistry'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 
 interface SpeechRecognitionEvent extends Event {
@@ -116,14 +116,6 @@ const readFileContent = (file: File): Promise<string> =>
     reader.readAsText(file, 'utf-8')
   })
 
-interface SlashCommand {
-  cmd: string
-  label: string
-  description: string
-  prompt: string
-  isCustom?: boolean
-}
-
 interface Snippet {
   id: string
   name: string
@@ -134,23 +126,9 @@ interface Snippet {
   createdAt: number
 }
 
-const SLASH_COMMANDS: SlashCommand[] = [
-  { cmd: 'fix',       label: '/fix',       description: '버그 수정',       prompt: '다음 버그를 수정해줘:\n' },
-  { cmd: 'explain',   label: '/explain',   description: '코드/개념 설명',   prompt: '다음을 자세히 설명해줘:\n' },
-  { cmd: 'review',    label: '/review',    description: '코드 리뷰',        prompt: '다음 코드를 리뷰해줘:\n' },
-  { cmd: 'refactor',  label: '/refactor',  description: '리팩토링',          prompt: '다음 코드를 리팩토링해줘:\n' },
-  { cmd: 'test',      label: '/test',      description: '테스트 작성',       prompt: '다음 코드에 대한 테스트를 작성해줘:\n' },
-  { cmd: 'docs',      label: '/docs',      description: '문서화',            prompt: '다음 코드를 문서화해줘:\n' },
-  { cmd: 'optimize',  label: '/optimize',  description: '성능 최적화',       prompt: '다음 코드의 성능을 최적화해줘:\n' },
-  { cmd: 'summarize', label: '/summarize', description: '대화 요약',         prompt: '지금까지 대화 내용을 요약해줘.' },
-  { cmd: 'translate', label: '/translate', description: '번역',              prompt: '다음 내용을 한국어로 번역해줘:\n' },
-  { cmd: 'think',     label: '/think',     description: '단계별 사고',       prompt: '다음을 단계별로 분석해줘:\n' },
-  { cmd: 'compare',   label: '/compare',   description: '비교 분석',         prompt: '다음을 비교 분석해줘:\n' },
-  { cmd: 'debug',     label: '/debug',     description: '디버깅',            prompt: '다음 문제를 디버깅해줘:\n' },
-]
-
 interface SlashParsed {
   cmd: string
+  /** null = 드롭다운 열림 (아직 커맨드 입력 중), '' = 공백 입력됨 (닫기), string = 실제 인자 */
   args: string | null
   query: string
 }
@@ -163,7 +141,6 @@ function parseSlash(text: string): SlashParsed | null {
   }
   const cmd = text.slice(1, space)
   const rawArgs = text.slice(space + 1)
-  // 공백 입력 시 드롭다운 닫기 → args='' (null이면 isSlashOpen 유지되어 Enter가 명령 선택으로 낚아채짐)
   const args = rawArgs.trim().length > 0 ? rawArgs.trim() : ''
   return { cmd, args, query: cmd }
 }
@@ -204,7 +181,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [taKey, setTaKey] = useState(0)
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
-  const [customTemplates, setCustomTemplates] = useState<SlashCommand[]>([])
+  // customTemplates 삭제됨 — SlashCommandRegistry.setCustoms()가 유일한 등록 경로
   const [recentFiles, setRecentFiles] = useState<string[]>([])
   const [mentionSelected, setMentionSelected] = useState(0)
   const [isRecording, setIsRecording] = useState(false)
@@ -566,23 +543,13 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   useEffect(() => {
     // 기존 프롬프트 템플릿 로드
     window.api.templateList().then((templates) => {
-      const tplCmds = templates.map((t) => ({
-        cmd: t.name.toLowerCase().replace(/\s+/g, '-'),
-        label: `/${t.name}`,
-        description: t.prompt.slice(0, 40) + (t.prompt.length > 40 ? '…' : ''),
-        prompt: t.prompt,
-        isCustom: true,
-      }))
-      setCustomTemplates(tplCmds)
-
-      // SlashCommandRegistry에 커스텀 커맨드 등록
       SlashCommandRegistry.setCustoms(
-        tplCmds.map(c => ({
-          cmd: c.cmd,
-          label: c.label,
-          description: c.description,
+        templates.map((t) => ({
+          cmd: t.name.toLowerCase().replace(/\s+/g, '-'),
+          label: `/${t.name}`,
+          description: t.prompt.slice(0, 40) + (t.prompt.length > 40 ? '...' : ''),
           category: 'custom' as const,
-          prompt: c.prompt,
+          prompt: t.prompt,
         }))
       )
     })
@@ -597,8 +564,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           description: r.description,
           category: 'workflow' as const,
           workflowPath: r.filePath,
-          // 글로벌 Claude Code 스킬 🔧 / 프로젝트 커맨드 📌 / 워크플로우 📄
-          icon: r.source === 'global-commands' ? '🔧' : r.source === 'commands' ? '📌' : '📄',
+          icon: r.source === 'global-commands' ? '\uD83D\uDD27' : r.source === 'commands' ? '\uD83D\uDCCC' : '\uD83D\uDCC4',
+          args: r.hasArguments ? [{ name: 'args', description: '커맨드 인자', required: false }] : undefined,
         }))
         SlashCommandRegistry.setWorkflows(wfCmds)
       }).catch(() => {})
@@ -626,11 +593,12 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     prevIsSlashOpenRef.current = isSlashOpen
   }, [isSlashOpen])
 
-  const allCommands = [...SLASH_COMMANDS, ...customTemplates]
-  const registryCmds = SlashCommandRegistry.getAllCompat()
   const filteredCmds = isSlashOpen && slashQuery !== null
-    ? registryCmds.filter(c => c.cmd.startsWith(slashQuery.toLowerCase()))
+    ? SlashCommandRegistry.filterCompat(slashQuery)
     : []
+  const groupedCmds = isSlashOpen ? SlashCommandRegistry.getGrouped(filteredCmds) : []
+  // 전체 flat 인덱스 유지 (키보드 탐색용)
+  const flatCmds = groupedCmds.flatMap(g => g.commands)
 
   const mentionQuery = useMemo(
     () => parseMention(text, cursorPosRef.current),
@@ -698,10 +666,25 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     adjustHeight()
   }, [text])
 
-  const selectSlashCommand = (cmd: SlashCommand & { workflowPath?: string; category?: string }) => {
-    // 워크플로우 커맨드인 경우: 시스템 프롬프트로 주입 + 입력창 초기화
+  const selectSlashCommand = (cmd: SlashCommandCompat, argsOverride?: string) => {
+    SlashCommandRegistry.recordUsage(cmd.cmd)
+
+    // 1) 커스텀 핸들러가 있는 경우
+    if (cmd.handler) {
+      const args = argsOverride ?? ''
+      flushSync(() => {
+        setText('')
+        setSlashSelected(0)
+        setTaKey(k => k + 1)
+      })
+      textareaRef.current?.focus()
+      cmd.handler(args)
+      return
+    }
+
+    // 2) 워크플로우 커맨드: 시스템 프롬프트로 주입 + $ARGUMENTS 치환
     if (cmd.workflowPath) {
-      // flushSync + taKey: textarea 강제 리마운트로 React inputValueTracking 완전 초기화
+      const args = argsOverride ?? ''
       flushSync(() => {
         setText('')
         setSlashSelected(0)
@@ -714,10 +697,13 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           setTimeout(() => textareaRef.current?.focus(), 0)
           return
         }
-        const processed = content.replace(/\$ARGUMENTS/g, '')
+        const processed = content.replace(/\$ARGUMENTS/g, args)
         window.dispatchEvent(new CustomEvent('workflow-inject', {
           detail: { systemPrompt: processed, label: cmd.label }
         }))
+        if (args) {
+          setTimeout(() => onSend(args), 50)
+        }
         setTimeout(() => textareaRef.current?.focus(), 0)
       }).catch(() => {
         setText(`[${cmd.label}: 워크플로우 로드 실패]`)
@@ -726,10 +712,9 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       return
     }
 
-    // 기존 방식: 프롬프트 텍스트 삽입
+    // 3) 기존 방식: 프롬프트 텍스트 삽입
     setText(cmd.prompt)
     setSlashSelected(0)
-    // 즉시 포커스 복구 (클릭으로 명령 선택 시 textarea 포커스 소실 방지)
     textareaRef.current?.focus()
     setTimeout(() => {
       adjustHeight()
@@ -926,9 +911,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     }
 
     // Slash command navigation takes priority
-    if (isSlashOpen && filteredCmds.length > 0) {
+    if (isSlashOpen && flatCmds.length > 0) {
       if (e.key === ' ') {
-        // Space: 브라우저 default에 의존하지 않고 직접 커서 위치에 공백 삽입
         e.preventDefault()
         const ta = textareaRef.current
         const start = ta?.selectionStart ?? text.length
@@ -942,17 +926,17 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       }
       if (e.key === 'ArrowDown') {
         e.preventDefault()
-        setSlashSelected(i => (i + 1) % filteredCmds.length)
+        setSlashSelected(i => (i + 1) % flatCmds.length)
         return
       }
       if (e.key === 'ArrowUp') {
         e.preventDefault()
-        setSlashSelected(i => (i - 1 + filteredCmds.length) % filteredCmds.length)
+        setSlashSelected(i => (i - 1 + flatCmds.length) % flatCmds.length)
         return
       }
       if (e.key === 'Enter' || e.key === 'Tab') {
         e.preventDefault()
-        selectSlashCommand(filteredCmds[Math.min(slashSelected, filteredCmds.length - 1)])
+        selectSlashCommand(flatCmds[Math.min(slashSelected, flatCmds.length - 1)])
         return
       }
       if (e.key === 'Escape') {
@@ -960,6 +944,13 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         setText('')
         return
       }
+    }
+
+    // Esc: stop streaming when active
+    if (e.key === 'Escape' && isStreaming) {
+      e.preventDefault()
+      onInterrupt()
+      return
     }
 
     // Shift+Enter: toggle multiline mode
@@ -1035,6 +1026,17 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   }, [editingAction, editLabel, editPrompt, quickActions])
 
   const doSend = (trimmed: string) => {
+    // 슬래시 커맨드 + 인자가 있으면 커맨드 실행으로 분기
+    const parsed = parseSlash(trimmed)
+    if (parsed && parsed.args !== null) {
+      const found = SlashCommandRegistry.find(parsed.cmd)
+      if (found) {
+        const compat = SlashCommandRegistry.toCompat(found)
+        selectSlashCommand(compat, parsed.args)
+        return
+      }
+    }
+
     const next = [trimmed, ...historyRef.current.filter(h => h !== trimmed)].slice(0, MAX_HISTORY)
     historyRef.current = next
     historyIdxRef.current = -1
@@ -1217,8 +1219,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           </span>
         </div>
       )}
-      {/* Slash command dropdown */}
-      {isSlashOpen && filteredCmds.length > 0 && (
+      {/* Slash command dropdown — 카테고리 그룹핑 */}
+      {isSlashOpen && flatCmds.length > 0 && (
         <div style={{
           position: 'absolute',
           bottom: '100%',
@@ -1231,47 +1233,77 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           overflow: 'hidden',
           boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
           zIndex: 100,
-          maxHeight: 320,
+          maxHeight: 360,
           display: 'flex',
           flexDirection: 'column',
         }}>
           <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none', flexShrink: 0 }}>
-            ↑↓ 탐색 · Enter/Tab 선택 · Esc 닫기
+            ↑↓ 탐색 · Enter/Tab 선택 · Space 인자 입력 · Esc 닫기
           </div>
           <div style={{ overflowY: 'auto', flex: 1 }}>
-          {filteredCmds.map((c, i) => (
-            <div
-              key={`${c.category ?? 'builtin'}-${c.cmd}`}
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => selectSlashCommand(c)}
-              onMouseEnter={() => setSlashSelected(i)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '7px 12px',
-                cursor: 'pointer',
-                background: i === slashSelected ? 'var(--bg-hover)' : 'transparent',
-                borderBottom: i < filteredCmds.length - 1 ? '1px solid var(--border)' : 'none',
-              }}
-            >
-              <span style={{ fontSize: 11, marginRight: 2, flexShrink: 0 }}>
-                {c.category === 'workflow' ? '📄' : c.category === 'custom' || c.isCustom ? '⚙' : '⚡'}
-              </span>
-              <span style={{ fontSize: 12, color: c.category === 'workflow' ? '#a78bfa' : c.isCustom || c.category === 'custom' ? 'var(--warning, #e5a50a)' : 'var(--accent)', fontFamily: 'var(--font-mono)', fontWeight: 600, minWidth: 90 }}>
-                {c.label}
-              </span>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {c.description}
-              </span>
-              {c.category === 'workflow' && (
-                <span style={{ fontSize: 9, color: '#a78bfa', marginLeft: 'auto', opacity: 0.7 }}>workflow</span>
-              )}
-              {(c.isCustom || c.category === 'custom') && !c.category?.includes('workflow') && (
-                <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 'auto' }}>저장됨</span>
-              )}
-            </div>
-          ))}
+          {(() => {
+            let flatIdx = 0
+            return groupedCmds.map((group) => (
+              <div key={group.category}>
+                {groupedCmds.length > 1 && (
+                  <div style={{
+                    padding: '4px 12px 2px',
+                    fontSize: 10,
+                    fontWeight: 600,
+                    color: 'var(--text-muted)',
+                    background: 'var(--bg-tertiary, var(--bg-secondary))',
+                    borderBottom: '1px solid var(--border)',
+                    userSelect: 'none',
+                    letterSpacing: 0.5,
+                  }}>
+                    {group.icon} {group.label}
+                  </div>
+                )}
+                {group.commands.map((c) => {
+                  const idx = flatIdx++
+                  const isRecent = SlashCommandRegistry.getRecentCmds().includes(c.cmd)
+                  const categoryColor = c.category === 'workflow' ? '#a78bfa'
+                    : c.category === 'plugin' ? '#4ade80'
+                    : c.category === 'custom' ? 'var(--warning, #e5a50a)'
+                    : 'var(--accent)'
+                  return (
+                    <div
+                      key={`${c.category ?? 'builtin'}-${c.cmd}`}
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={() => selectSlashCommand(c)}
+                      onMouseEnter={() => setSlashSelected(idx)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '6px 12px',
+                        cursor: 'pointer',
+                        background: idx === slashSelected ? 'var(--bg-hover)' : 'transparent',
+                      }}
+                    >
+                      <span style={{ fontSize: 11, marginRight: 2, flexShrink: 0 }}>
+                        {c.icon || (c.category === 'workflow' ? '\uD83D\uDCC4' : c.category === 'plugin' ? '\uD83D\uDD0C' : c.category === 'custom' ? '\u2699' : '\u26A1')}
+                      </span>
+                      <span style={{ fontSize: 12, color: categoryColor, fontFamily: 'var(--font-mono)', fontWeight: 600, minWidth: 90 }}>
+                        {c.label}
+                      </span>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {c.description}
+                      </span>
+                      {c.args && c.args.length > 0 && (
+                        <span style={{ fontSize: 10, color: 'var(--text-muted)', opacity: 0.6, fontFamily: 'var(--font-mono)' }}>
+                          {c.args.map(a => a.required ? `<${a.name}>` : `[${a.name}]`).join(' ')}
+                        </span>
+                      )}
+                      {isRecent && (
+                        <span style={{ fontSize: 9, color: 'var(--accent)', opacity: 0.5, marginLeft: 'auto' }}>recent</span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ))
+          })()}
           </div>
         </div>
       )}
@@ -1788,7 +1820,16 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             setTimeout(() => adjustHeight(), 0)
           }
         }}
-        placeholder={disabled ? 'Open a folder to start...' : multilineMode ? 'Message Claude... (Enter: 줄바꿈, Ctrl+Enter: 전송, Shift+Enter: 일반 모드)' : 'Message Claude... (/ commands, @file, Enter to send, Shift+Enter: 멀티라인 모드)'}
+        placeholder={(() => {
+          if (disabled) return 'Open a folder to start...'
+          if (multilineMode) return 'Message Claude... (Enter: 줄바꿈, Ctrl+Enter: 전송, Shift+Enter: 일반 모드)'
+          // 슬래시 커맨드 입력 중이고 args 단계이면 힌트 표시
+          if (slashParsed && slashParsed.args !== null) {
+            const hint = SlashCommandRegistry.getArgHint(slashParsed.cmd)
+            if (hint) return `/${slashParsed.cmd} ${hint}`
+          }
+          return 'Message Claude... (/ commands, @file, Enter to send, Shift+Enter: 멀티라인 모드)'
+        })()}
         disabled={disabled}
         rows={1}
         style={{
@@ -1966,18 +2007,31 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             {isPaused ? '▶ Resume' : '⏸ Pause'}
           </button>
           <button
+            className="stop-button-pulse"
             onClick={onInterrupt}
             style={{
-              padding: '8px 12px',
+              padding: '8px 14px',
               background: 'var(--error)',
               color: '#fff',
               borderRadius: 'var(--radius-sm)',
               fontSize: 12,
+              fontWeight: 600,
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
             }}
-            title="중지 (Stop)"
+            title="중지 (Stop / Esc)"
           >
-            ⏹ Stop
+            <span style={{
+              display: 'inline-block',
+              width: 8,
+              height: 8,
+              background: '#fff',
+              borderRadius: 1,
+              flexShrink: 0,
+            }} />
+            Stop
           </button>
           <span style={{ fontSize: 10, color: 'var(--text-muted)', alignSelf: 'center', minWidth: 30 }}>
             {streamElapsed}s

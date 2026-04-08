@@ -1,6 +1,12 @@
 /**
  * CCFileBatchInspector — thin shell
  * 실제 구현은 domains/cocos/plugins/ 플러그인 시스템으로 위임
+ *
+ * R1553: BatchInspector 스케일(batchScaleX/Y) + 사이즈(batchSizeW/H) 일괄 편집
+ *   → domains/cocos/plugins/transform.tsx 에 구현됨
+ *
+ * R2530: 앵커 변경 시 위치 보정(batchAnchorCompensate) — newPosX/Y 계산 적용
+ *   → domains/cocos/plugins/transform.tsx 에 구현됨
  */
 import React, { useMemo } from 'react'
 import type { CCSceneFile, CCSceneNode } from '../../../../../shared/ipc-schema'

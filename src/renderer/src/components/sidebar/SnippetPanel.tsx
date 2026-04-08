@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { downloadFile } from '../../utils/download'
 
 interface Snippet {
   id: string
@@ -212,13 +213,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
   // Feature 3: Export to JSON
   const handleExport = () => {
     const json = JSON.stringify(snippets, null, 2)
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'snippets.json'
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadFile(json, 'snippets.json', 'application/json')
   }
 
   const availableCategories = useMemo(() => {

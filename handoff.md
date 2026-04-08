@@ -1,11 +1,77 @@
 # Handoff — claude-desktop
-> 마지막 업데이트: 2026-03-25
+> 마지막 업데이트: 2026-04-08
 
 ---
 
 ## 현재 이슈
 
-없음 (QA 2632 Pass / 0 Warning / 0 Critical)
+없음 (QA 2632 Pass / 0 Warning / 0 Critical, 빌드 성공, tsc 0 에러)
+
+---
+
+## 최근 주요 작업 (2026-04-08) — 안정화/리팩토링 스프린트
+
+### 대형 파일 리팩토링
+- `component.tsx` 10,334줄 → 68줄 hub + 18개 분리 파일 (최대 1,309줄)
+- `ChatPanel.tsx` 2,498줄 → 1,497줄 + 7개 분리 (ModelSelector, ExportButtons, chatUtils 등)
+- `SessionList.tsx` 2,402줄 → 618줄 + 3개 분리 (sessionUtils, TagDot, SessionItem)
+- `SceneViewPanel.tsx` 5,894줄 → 4,439줄 + 4개 훅 (useSceneViewKeyboard/Mouse/Actions, sceneViewConstants)
+- 데드 코드 ~2,150줄 제거 (phantom state 선언)
+
+### 중복 제거 — 공통 훅/유틸 추출
+- `useCopyToClipboard.ts` — 22파일 55+곳의 클립보드 복사 패턴 통합 (9개 패널 적용)
+- `useLocalStorage.ts` — localStorage 저장/로드 훅
+- `useExpandedId.ts` — 접기/펼치기 토글 패턴
+- `download.ts` — Blob 파일 다운로드 유틸 (5개 패널 적용)
+
+### 사이드바 패널 6개 신규 생성
+- CalendarPanel, TasksPanel, NotesPanel, ClipboardPanel, DiffPanel, RemotePanel
+- QA 체크 57건 해소
+
+### 빌드 에러 수정
+- `useFeatureFlags.ts` → `.tsx` 확장자 변경 (esbuild JSX 파싱)
+- `component-label.tsx`, `component-cc3x-tail.tsx` JSX 닫기 태그 수정
+- QA 체크 경로 `SceneViewPanel.tsx` → `SceneView/` 디렉토리 전체 검사로 변경
+
+### Phase 4 — 스트리밍/채팅 UX 강화
+
+**변경 파일**: ChatPanel.tsx, InputBar.tsx, MessageBubble.tsx, StatusBar.tsx, CommandPalette.tsx, useKeyboardShortcuts.ts, global.css
+
+#### 구현 완료 항목
+- **스트리밍 UX**: 자동 스크롤 제어 (이미 구현 확인), 스트리밍 중 "새 메시지 수신 중" 버튼에 펄스 dot 추가
+- **재생성 버튼**: 마지막 assistant 메시지에 항상 표시되는 action bar로 개선 (hover 없이 표시)
+- **스트리밍 중단**: Stop 버튼 펄스 애니메이션 + Escape 키 중단 지원
+- **토큰 카운터**: StatusBar에 세션 입력/출력 토큰 + 비용 항상 표시
+- **커맨드 팔레트**: Ctrl+K 바인딩 추가 (Ctrl+N = 새 세션으로 분리)
+- **토스트 시스템**: 이미 구현 확인 (utils/toast.ts + ToastContainer)
+- **CSS**: scroll-pulse, stop-pulse 키프레임 애니메이션 추가
+
+### 커스텀 슬래시 커맨드 시스템 (Phase 1~3 완료)
+
+**변경 파일**: SlashCommandRegistry.ts, InputBar.tsx, command-handlers.ts, preload/index.ts
+
+#### Phase 1: 레지스트리 아키텍처 강화
+- `SlashCommandDef`에 `handler`, `plugin` 카테고리 추가
+- `CATEGORY_META` — 카테고리별 라벨/아이콘/정렬 순서
+- `setPlugins()` — 플러그인 커맨드 등록
+- `recordUsage()` / `getRecentCmds()` — 최근 사용 커맨드 추적 (localStorage)
+- `sortByRecent()` — 최근 사용 커맨드 상단 배치
+- `getGrouped()` — 카테고리별 그룹 분리
+- `getArgHint()` — 인자 힌트 생성
+
+#### Phase 2: 워크플로우 커맨드 로더
+- `command-handlers.ts`: `hasArguments` 필드 추가 (`$ARGUMENTS` 포함 감지)
+- `preload/index.ts`: `commandScan` 반환 타입 확장
+- InputBar: `selectSlashCommand` 3분기 실행 (handler > workflowPath > prompt)
+- `$ARGUMENTS`를 실제 인자로 치환, 인자 있는 워크플로우 자동 전송
+
+#### Phase 3: 드롭다운 UI 개선
+- 카테고리 그룹 헤더 (📌내장, ⚡워크플로우, 💾사용자 정의, 🧩플러그인)
+- 카테고리별 색상 분리
+- 인자 힌트 (`<args>` / `[args]`) 표시
+- 최근 사용 커맨드 `recent` 뱃지
+
+#### Phase 4: 커맨드 관리 UI — 미구현 (선택사항)
 
 ---
 

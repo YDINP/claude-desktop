@@ -184,7 +184,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
     : []
 
   const ACTIONS: PaletteResult[] = [
-    { type: 'action', actionId: 'new-chat', label: '새 세션 시작', sub: 'New chat', shortcut: 'Ctrl+K' },
+    { type: 'action', actionId: 'new-chat', label: '새 세션 시작', sub: 'New chat', shortcut: 'Ctrl+N' },
     { type: 'action', actionId: 'open-folder', label: '폴더 열기', sub: 'Open workspace' },
     { type: 'action', actionId: 'toggle-terminal', label: '터미널 토글', sub: 'Terminal', shortcut: 'Ctrl+T' },
     { type: 'action', actionId: 'open-settings', label: '설정 열기', sub: 'Settings', shortcut: 'Ctrl+,' },

@@ -1,5 +1,8 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo } from 'react'
 import type { ChatMessage } from '../../stores/chat-store'
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
+import { useExpandedId } from '../../hooks/useExpandedId'
+import { downloadFile } from '../../utils/download'
 
 export function BookmarksPanel({
   messages,
@@ -10,19 +13,12 @@ export function BookmarksPanel({
 }) {
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'assistant'>('all')
-  const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const { copiedKey: copiedId, copy: copyBookmark } = useCopyToClipboard()
+  const { expandedId, toggle: setExpandedId } = useExpandedId()
   const [copiedAll, setCopiedAll] = useState(false)
   const [sortOrder, setSortOrder] = useState<'default' | 'newest' | 'oldest'>('default')
   const cycleSortOrder = () => setSortOrder(s => s === 'default' ? 'newest' : s === 'newest' ? 'oldest' : 'default')
   const SORT_ICONS: Record<typeof sortOrder, string> = { default: '↕', newest: '🔽', oldest: '🔼' }
-
-  const copyBookmark = useCallback((id: string, text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedId(id)
-      setTimeout(() => setCopiedId(cur => cur === id ? null : cur), 1500)
-    })
-  }, [])
   const bookmarked = messages.filter(m => m.bookmarked)
 
   const filtered = useMemo(() => {
@@ -42,13 +38,7 @@ export function BookmarksPanel({
     const md = bookmarked.map(b =>
       `### ${b.role === 'assistant' ? 'Claude' : '사용자'}\n\n${b.text}\n\n---`
     ).join('\n\n')
-    const blob = new Blob([md], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `bookmarks-${new Date().toISOString().slice(0, 10)}.md`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadFile(md, `bookmarks-${new Date().toISOString().slice(0, 10)}.md`, 'text/markdown')
   }
 
   if (bookmarked.length === 0) {
@@ -141,14 +131,14 @@ export function BookmarksPanel({
                 </span>
               )}
               <button
-                onClick={e => { e.stopPropagation(); setExpandedId(id => id === m.id ? null : m.id) }}
+                onClick={e => { e.stopPropagation(); setExpandedId(m.id) }}
                 title={expandedId === m.id ? '접기' : '펼치기'}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', color: 'var(--text-muted)', fontSize: 9, lineHeight: 1, flexShrink: 0 }}
               >
                 {expandedId === m.id ? '▲' : '▼'}
               </button>
               <button
-                onClick={e => { e.stopPropagation(); copyBookmark(m.id, m.text) }}
+                onClick={e => { e.stopPropagation(); copyBookmark(m.text, m.id) }}
                 title="클립보드에 복사"
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px',

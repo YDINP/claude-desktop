@@ -482,7 +482,7 @@ declare global {
       templateList: () => Promise<Array<{ id: string; name: string; prompt: string }>>
       templateSave: (t: { id: string; name: string; prompt: string }) => Promise<boolean>
       templateDelete: (id: string) => Promise<boolean>
-      commandScan: (projectPath: string) => Promise<Array<{ cmd: string; label: string; description: string; filePath: string; source: 'commands' | 'workflows' | 'global-commands' }>>
+      commandScan: (projectPath: string) => Promise<Array<{ cmd: string; label: string; description: string; filePath: string; source: 'commands' | 'workflows' | 'global-commands'; hasArguments: boolean }>>
       commandLoadWorkflow: (filePath: string) => Promise<{ content: string; error?: string }>
       onCloseTab: (cb: () => void) => () => void
       onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => () => void

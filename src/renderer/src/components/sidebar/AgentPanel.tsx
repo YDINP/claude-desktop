@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense, Component } from 'react'
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 import type { ReactNode } from 'react'
 import { saveRun, loadRuns } from '../../utils/work-history'
 import type { WorkRun } from '../../utils/work-history'
@@ -224,7 +225,7 @@ export function AgentPanel() {
   const [runningSteps, setRunningSteps] = useState<Record<string, WorkStep[]>>({})
   const [runs, setRuns] = useState<WorkRun[]>([])
   const [taskSearch, setTaskSearch] = useState('')
-  const [copiedResultId, setCopiedResultId] = useState<string | null>(null)
+  const { copiedKey: copiedResultId, copy: copyResult } = useCopyToClipboard()
   const onStartRanRef = useRef(false)
   const mountedRef = useRef(true)
   useEffect(() => {
@@ -736,7 +737,7 @@ export function AgentPanel() {
                         {task.lastResult.length > 100 ? '…' : ''}
                       </div>
                       <button
-                        onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(task.lastResult!).then(() => { setCopiedResultId(task.id); setTimeout(() => setCopiedResultId(id => id === task.id ? null : id), 1500) }) }}
+                        onClick={e => { e.stopPropagation(); copyResult(task.lastResult!, task.id) }}
                         title="결과 전체 복사"
                         style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: copiedResultId === task.id ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
                       >{copiedResultId === task.id ? '✓' : '📋'}</button>

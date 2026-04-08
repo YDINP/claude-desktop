@@ -7,56 +7,18 @@ import type { SceneBgValue } from './SceneToolbar'
 import { SceneInspector } from './SceneInspector'
 import { getRenderOrder, cocosToSvg, getComponentIcon } from './utils'
 import { NodeHierarchyList } from './NodeHierarchyList'
+import { useSceneViewKeyboard } from './useSceneViewKeyboard'
+import { useSceneViewMouse } from './useSceneViewMouse'
+import { useSceneViewActions } from './useSceneViewActions'
+import {
+  type Annotation, type SnapshotEntry, type NodeSnapshot, type EditHistoryEntry,
+  type ViewportPreset, type NodeTemplate, type CameraBookmark, type SceneViewPanelProps,
+  CC_LAYER_NAMES, CANVAS_PRESETS, COLOR_TAG_PALETTE, LAYER_COLOR_PALETTE,
+  VP_KEY, NT_KEY, VB_KEY, DEFAULT_PRESETS, DEFAULT_TEMPLATES, PNG_BG_COLORS,
+  getRulerTicks, buildHeatmap, slotKey,
+} from './sceneViewConstants'
 
-interface Annotation { id: string; svgX: number; svgY: number; text: string }
-type SnapshotEntry = { uuid: string; x: number; y: number; width: number; height: number }
-
-interface SceneViewPanelProps {
-  connected: boolean
-  wsKey: string
-  port?: number
-}
-
-
-const CC_LAYER_NAMES: Record<number, string> = {
-  1: 'DEFAULT', 2: 'UI_3D', 4: 'GIZMOS', 8: 'EDITOR',
-  16: 'UI_2D', 32: 'SCENE_GIZMO', 64: 'PROFILER',
-}
-
-function getRulerTicks(
-  axis: 'h' | 'v',
-  svgSize: number,
-  view: { zoom: number; offsetX: number; offsetY: number }
-): { pos: number; label: string | null; isMajor: boolean }[] {
-  const ticks: { pos: number; label: string | null; isMajor: boolean }[] = []
-  const rawStep = 50 / view.zoom
-  const step = Math.pow(10, Math.round(Math.log10(rawStep)))
-  const offset = axis === 'h' ? view.offsetX : view.offsetY
-  const startScene = -offset / view.zoom
-  const endScene = (svgSize - offset) / view.zoom
-  const start = Math.floor(startScene / step) * step
-  for (let s = start; s <= endScene; s += step) {
-    const pos = s * view.zoom + offset
-    if (pos < 0 || pos > svgSize) continue
-    ticks.push({ pos, label: String(Math.round(s)), isMajor: true })
-    for (let i = 1; i < 5; i++) {
-      const subPos = pos + (i / 5) * step * view.zoom
-      if (subPos >= 0 && subPos <= svgSize) {
-        ticks.push({ pos: subPos, label: null, isMajor: false })
-      }
-    }
-  }
-  return ticks
-}
-
-const CANVAS_PRESETS = [
-  { label: '960×640 (기본)', w: 960, h: 640 },
-  { label: '1280×720 (HD)', w: 1280, h: 720 },
-  { label: '1920×1080 (FHD)', w: 1920, h: 1080 },
-  { label: '750×1334 (iPhone)', w: 750, h: 1334 },
-  { label: '1334×750 (iPhone 가로)', w: 1334, h: 750 },
-  { label: '480×320 (소형)', w: 480, h: 320 },
-]
+// Types and constants imported from ./sceneViewConstants
 
 export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) {
   // ── 씬 데이터 ──────────────────────────────────────────────
@@ -160,7 +122,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
   })
   // R1407: 노드 색상 태그 (7색 팔레트, localStorage per scene)
-  const COLOR_TAG_PALETTE = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899']
   const [nodeColorTags, setNodeColorTags] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem(`node-color-tags-${rootUuid ?? 'default'}`) ?? '{}') } catch { return {} }
   })
@@ -218,19 +179,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [layerColors, setLayerColors] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('scene-layer-colors') ?? '{}') } catch { return {} }
   })
-  const LAYER_COLOR_PALETTE = ['#4af', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#f472b6', '#22d3ee']
+  // LAYER_COLOR_PALETTE imported from sceneViewConstants
   const [sceneAtlas, setSceneAtlas] = useState<string[]>([])
   const [showAtlasPanel, setShowAtlasPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
 
   // ── R1419: 뷰포트 프리셋 ─────────────────────────────────────
-  type ViewportPreset = { name: string; zoom: number; panX: number; panY: number }
-  const VP_KEY = 'viewport-presets'
-  const DEFAULT_PRESETS: ViewportPreset[] = [
-    { name: '1:1', zoom: 1, panX: 0, panY: 0 },
-    { name: '2:1', zoom: 2, panX: 0, panY: 0 },
-  ]
   const [viewportPresets, setViewportPresets] = useState<ViewportPreset[]>(() => {
     try { return JSON.parse(localStorage.getItem(VP_KEY) ?? '[]') } catch { return [] }
   })
@@ -250,7 +205,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [importError, setImportError] = useState<string | null>(null)
 
   // ── R1446: 씬 편집 이력 (리플레이용) ──────────────────────
-  type EditHistoryEntry = { timestamp: number; action: string; nodeUuid: string; nodeName: string; before: Record<string, unknown>; after: Record<string, unknown> }
   const [editHistory, setEditHistory] = useState<EditHistoryEntry[]>([])
   const [showEditHistory, setShowEditHistory] = useState(false)
   const addEditHistory = useCallback((action: string, nodeUuid: string, nodeName: string, before: Record<string, unknown>, after: Record<string, unknown>) => {
@@ -262,20 +216,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [layerDropIdx, setLayerDropIdx] = useState<number | null>(null)
 
   // ── R1452: 씬 노드 템플릿 라이브러리 ──────────────────────
-  type NodeTemplate = { name: string; node: Record<string, unknown> }
-  const NT_KEY = 'node-templates'
-  const DEFAULT_TEMPLATES: NodeTemplate[] = [
-    { name: '빈 노드', node: { uuid: '', name: 'EmptyNode', active: true, position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, size: { x: 0, y: 0 }, anchor: { x: 0.5, y: 0.5 }, opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 }, components: [], children: [] } },
-    { name: 'UI 버튼', node: { uuid: '', name: 'Button', active: true, position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, size: { x: 200, y: 60 }, anchor: { x: 0.5, y: 0.5 }, opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 }, components: [{ type: 'cc.Button', props: { transition: 1 } }, { type: 'cc.Sprite', props: {} }], children: [] } },
-  ]
   const [nodeTemplates, setNodeTemplates] = useState<NodeTemplate[]>(() => {
     try { const raw = localStorage.getItem(NT_KEY); return raw ? JSON.parse(raw) : [] } catch { return [] }
   })
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false)
 
   // ── R1455: 씬 뷰 북마크 (카메라 포지션) ──────────────────
-  type CameraBookmark = { zoom: number; offsetX: number; offsetY: number } | null
-  const VB_KEY = 'view-bookmarks'
   const [viewBookmarks, setViewBookmarks] = useState<(CameraBookmark)[]>(() => {
     try { const raw = localStorage.getItem(VB_KEY); return raw ? JSON.parse(raw) : [null, null, null, null, null] } catch { return [null, null, null, null, null] }
   })
@@ -301,7 +247,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showDiff, setShowDiff] = useState(false)
 
   // ── R1381: 씬 diff 뷰어 — savedSnapshot + diffMode ────────
-  type NodeSnapshot = { x: number; y: number; w: number; h: number; name: string; active: boolean }
   const [savedSnapshot, setSavedSnapshot] = useState<Map<string, NodeSnapshot>>(new Map())
   const [diffModeR1381, setDiffModeR1381] = useState(false)
 
@@ -493,15 +438,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     })
   }, [nodeMap])
 
-  // ── 히트맵 밀도 계산 ───────────────────────────────────────
-  function buildHeatmap(nodes: SceneNode[], cellSize: number): Map<string, number> {
-    const map = new Map<string, number>()
-    for (const node of nodes) {
-      const key = `${Math.floor(node.x / cellSize)},${Math.floor(node.y / cellSize)}`
-      map.set(key, (map.get(key) ?? 0) + 1)
-    }
-    return map
-  }
+  // buildHeatmap imported from sceneViewConstants
 
   // ── 주석 (Annotation) 상태 ─────────────────────────────────
   const [annotations, setAnnotations] = useState<Annotation[]>(() => {
@@ -672,373 +609,46 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (rootUuid) handleFit()
   }, [rootUuid])
 
-  // ── R1386: deep clone 헬퍼 (UUID 재귀 갱신) ─────────────────
-  const deepCloneNode = useCallback((node: SceneNode, offset = 20): SceneNode => {
-    const newUuid = node.uuid + '-clone-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6)
-    const clonedChildren = node.childUuids.map(cid => {
-      const child = nodeMap.get(cid)
-      return child ? deepCloneNode(child, 0).uuid : cid
-    })
-    return {
-      ...node,
-      uuid: newUuid,
-      name: node.name + '_Copy',
-      x: (node.x ?? 0) + offset,
-      y: (node.y ?? 0) + offset,
-      childUuids: clonedChildren,
-    }
-  }, [nodeMap])
+  // ── Actions hook (copy/paste/group/align/export 등) ─────────
+  const {
+    handleCopy, handlePaste, handleDuplicate,
+    handleGroup, handleUngroup,
+    handleCreateNode, handleDeleteNode,
+    handleZOrder, handleAlign,
+    handleMatchSize, handleDistribute, handleGridLayout,
+    handleDistributeHEqual, handleDistributeVEqual, handleCircularLayout,
+    handleExportSvg, handleExportPng, handleScreenshot,
+  } = useSceneViewActions({
+    nodeMap, selectedUuid, selectedUuids, rootUuid, port,
+    DESIGN_W, DESIGN_H, clipboard, svgRef, pngExportScale, pngExportBg,
+    setSelectedUuid, setSelectedUuidsReplace: setSelectedUuids as unknown as (s: Set<string>) => void,
+    setClipboard, setCopiedNode, setScreenshotDone,
+    updateNode, refresh,
+  })
 
-  // ── copy / paste (키보드 useEffect보다 먼저 선언 필요) ──────
-  const handleCopy = useCallback(() => {
-    const uuids = selectedUuids.size > 0 ? selectedUuids : (selectedUuid ? new Set([selectedUuid]) : new Set<string>())
-    const copied: ClipboardEntry[] = []
-    uuids.forEach(uuid => {
-      const n = nodeMap.get(uuid)
-      if (n) copied.push({ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 })
-    })
-    if (copied.length > 0) {
-      setClipboard(copied)
-      const primaryUuid = [...uuids][0]
-      const primaryNode = primaryUuid ? nodeMap.get(primaryUuid) ?? null : null
-      setCopiedNode(primaryNode ? { ...primaryNode } : null)
-    }
-  }, [selectedUuids, selectedUuid, nodeMap])
+  // ── Keyboard hook (단축키 + Space패닝 + Ctrl+1~5 뷰북마크 + 전체선택 + 방향키) ──
+  useSceneViewKeyboard({
+    nodeMap, selectedUuid, selectedUuids, rootUuid, isDragging, isResizing,
+    spaceDown, port, view, viewRef, viewHistoryRef, viewHistIdxRef,
+    dragRef, resizeRef, canvasSearchRef, viewBookmarks, viewBookmarkToastRef,
+    setActiveTool, setSelectedUuid,
+    setSelectedUuids: fn => setSelectedUuids(fn as any),
+    setSelectedUuidsReplace: s => setSelectedUuids(s),
+    setView, setShowStatsOverlay, setShowNodeInfo, setShowMinimap, setShowRuler,
+    setShowCanvasSearch, setShowShortcuts, setSpaceDown,
+    setIsDragging, setIsResizing, setMarquee: () => setMarquee(null),
+    setUndoStack, setRedoStack,
+    setBookmarkedUuids: fn => setBookmarkedUuids(fn),
+    setFocusMode, setMeasureMode,
+    setMeasureLine: () => setMeasureLine(null),
+    setCollapsedUuids,
+    setViewBookmarks, setViewBookmarkToast,
+    handleFit, handleFocusSelected, handleCopy, handlePaste, handleDuplicate,
+    handleGroup, handleUngroup, handleCreateNode, handleDeleteNode,
+    updateNode, measureStartRef,
+  })
 
-  const handlePaste = useCallback(() => {
-    if (clipboard.length === 0) return
-    const newNodes: SceneNode[] = []
-    clipboard.forEach(entry => {
-      const orig = nodeMap.get(entry.uuid)
-      if (orig) {
-        const cloned = deepCloneNode(orig, 20)
-        newNodes.push(cloned)
-        // 재귀적으로 자식 노드도 등록
-        const registerChildren = (parentNode: SceneNode) => {
-          parentNode.childUuids.forEach(cid => {
-            const child = nodeMap.get(cid)
-            if (child) {
-              const clonedChild = deepCloneNode(child, 0)
-              updateNode(clonedChild.uuid, clonedChild)
-              registerChildren(clonedChild)
-            }
-          })
-        }
-        registerChildren(orig)
-      }
-    })
-    if (newNodes.length > 0) {
-      newNodes.forEach(n => updateNode(n.uuid, n))
-    }
-  }, [clipboard, nodeMap, updateNode, deepCloneNode])
-
-  // ── 복제 (Ctrl+D): clipboard 변경 없이 직접 노드 복제 ─────
-  // ── 그룹화 (Ctrl+G): 선택 노드들을 새 Group 노드 아래로 묶기 ─
-  const handleGroup = useCallback(() => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(u => nodeMap.get(u)).filter(Boolean) as import('./types').SceneNode[]
-    if (nodes.length < 2) return
-    // 공통 부모 찾기 (모두 같은 부모면 해당 부모, 아니면 root)
-    const parentUuids = new Set(nodes.map(n => n.parentUuid))
-    const commonParentUuid = parentUuids.size === 1 ? [...parentUuids][0] : rootUuid
-    if (!commonParentUuid) return
-    const parent = nodeMap.get(commonParentUuid)
-    if (!parent) return
-    // bbox 중심 계산
-    const xs = nodes.map(n => n.x ?? 0)
-    const ys = nodes.map(n => n.y ?? 0)
-    const cx = (Math.min(...xs) + Math.max(...xs)) / 2
-    const cy = (Math.min(...ys) + Math.max(...ys)) / 2
-    const groupUuid = 'group-' + Date.now()
-    const childUuids = nodes.map(n => n.uuid)
-    // 신규 Group 노드 삽입
-    updateNode(groupUuid, {
-      uuid: groupUuid, name: 'Group', active: true,
-      x: cx, y: cy, width: 0, height: 0,
-      anchorX: 0.5, anchorY: 0.5, scaleX: 1, scaleY: 1, rotation: 0, opacity: 1,
-      color: { r: 255, g: 255, b: 255, a: 255 },
-      parentUuid: commonParentUuid, childUuids,
-      components: [],
-    })
-    // 부모의 childUuids 업데이트: 선택 노드 제거 + 그룹 추가
-    const newParentChildren = parent.childUuids
-      .filter(u => !selectedUuids.has(u))
-      .concat(groupUuid)
-    updateNode(commonParentUuid, { childUuids: newParentChildren })
-    // 각 선택 노드의 parentUuid 업데이트
-    nodes.forEach(n => updateNode(n.uuid, { parentUuid: groupUuid }))
-    // 그룹 노드 선택
-    setSelectedUuid(groupUuid)
-    setSelectedUuids(new Set([groupUuid]))
-  }, [selectedUuids, nodeMap, rootUuid, updateNode])
-
-  // ── 그룹 해제 (Ctrl+Shift+G): 선택 그룹 노드의 자식을 상위 레벨로 올리기 ─
-  const handleUngroup = useCallback(() => {
-    if (!selectedUuid) return
-    const group = nodeMap.get(selectedUuid)
-    if (!group || group.childUuids.length === 0) return
-    const grandParentUuid = group.parentUuid
-    if (!grandParentUuid) return
-    const grandParent = nodeMap.get(grandParentUuid)
-    if (!grandParent) return
-    // 그랜드 부모의 childUuids: 그룹 노드를 제거하고 자식들로 대체
-    const newGrandChildren = grandParent.childUuids
-      .filter(u => u !== selectedUuid)
-      .concat(group.childUuids)
-    updateNode(grandParentUuid, { childUuids: newGrandChildren })
-    // 각 자식의 parentUuid를 grandParent로 업데이트
-    group.childUuids.forEach(u => updateNode(u, { parentUuid: grandParentUuid }))
-    // 그룹 노드 제거 (빈 노드로 만들고 선택 해제)
-    updateNode(selectedUuid, { active: false, childUuids: [] })
-    setSelectedUuids(new Set(group.childUuids))
-    setSelectedUuid(group.childUuids[0] ?? null)
-  }, [selectedUuid, nodeMap, updateNode])
-
-  const handleDuplicate = useCallback(() => {
-    const uuids = selectedUuids.size > 0 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
-    uuids.forEach((uuid) => {
-      const orig = nodeMap.get(uuid)
-      if (!orig) return
-      const cloned = deepCloneNode(orig, 20)
-      updateNode(cloned.uuid, cloned)
-    })
-  }, [selectedUuids, selectedUuid, nodeMap, updateNode, deepCloneNode])
-
-  // ── 단축키 ────────────────────────────────────────────────
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      // Ctrl+F: 씬 검색
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault()
-        setShowCanvasSearch(v => !v)
-        setTimeout(() => canvasSearchRef.current?.focus(), 50)
-        return
-      }
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
-      if (e.key === 'v' || e.key === 'V') setActiveTool('select')
-      if (e.key === 'w' || e.key === 'W') setActiveTool('move')
-      if (e.key === 'f' || e.key === 'F') {
-        const arr = viewHistoryRef.current.slice(0, viewHistIdxRef.current + 1)
-        viewHistoryRef.current = [...arr, viewRef.current].slice(-20)
-        viewHistIdxRef.current = viewHistoryRef.current.length - 1
-        handleFit()
-      }
-      if (e.key === 'g' || e.key === 'G') {
-        const arr = viewHistoryRef.current.slice(0, viewHistIdxRef.current + 1)
-        viewHistoryRef.current = [...arr, viewRef.current].slice(-20)
-        viewHistIdxRef.current = viewHistoryRef.current.length - 1
-        handleFocusSelected()
-      }
-      // R1401: I키 — 씬 통계 오버레이, Shift+I — 노드 상세 정보
-      if ((e.key === 'i' || e.key === 'I') && !e.shiftKey) setShowStatsOverlay(v => !v)
-      if (e.key === 'I' && e.shiftKey) setShowNodeInfo(v => !v)
-      // P — 부모 노드 선택
-      if ((e.key === 'p' || e.key === 'P') && selectedUuid) {
-        const node = nodeMap.get(selectedUuid)
-        if (node?.parentUuid) {
-          setSelectedUuid(node.parentUuid)
-          setSelectedUuids(new Set([node.parentUuid]))
-        }
-      }
-      if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
-      if (e.key === 'r' || e.key === 'R') setShowRuler(v => !v)
-      if (e.key === 'n' || e.key === 'N') handleCreateNode()
-      // H — 선택 노드 가시성 토글
-      if ((e.key === 'h' || e.key === 'H') && (selectedUuids.size > 0 || selectedUuid)) {
-        const uuids = selectedUuids.size > 1 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
-        const anyVisible = uuids.some(u => nodeMap.get(u)?.visible !== false)
-        uuids.forEach(u => { const n = nodeMap.get(u); if (n) updateNode(u, { visible: !anyVisible }) })
-      }
-      // Tab / Shift+Tab: 형제 노드 순환 선택
-      if (e.key === 'Tab' && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node?.parentUuid) {
-          const parent = nodeMap.get(node.parentUuid)
-          if (parent && parent.childUuids.length > 1) {
-            const idx = parent.childUuids.indexOf(selectedUuid)
-            const next = e.shiftKey
-              ? parent.childUuids[(idx - 1 + parent.childUuids.length) % parent.childUuids.length]
-              : parent.childUuids[(idx + 1) % parent.childUuids.length]
-            setSelectedUuid(next)
-            setSelectedUuids(new Set([next]))
-          }
-        }
-      }
-      if (e.key === '?') setShowShortcuts(v => !v)
-      if (e.key === 'Escape') {
-        if (isDragging && dragRef.current) {
-          // 드래그 중 Escape → 원래 위치로 복원 (드래그 취소)
-          const drag = dragRef.current
-          if (drag.groupOffsets) {
-            Object.entries(drag.groupOffsets).forEach(([u, { startX, startY }]) => {
-              updateNode(u, { x: startX, y: startY })
-            })
-          } else {
-            updateNode(drag.uuid, { x: drag.startNodeX, y: drag.startNodeY })
-          }
-          dragRef.current = null
-          setIsDragging(false)
-        } else if (isResizing && resizeRef.current) {
-          // 리사이즈 중 Escape → 원래 크기/위치로 복원 (리사이즈 취소)
-          const rs = resizeRef.current
-          updateNode(rs.uuid, { width: rs.startWidth, height: rs.startHeight, x: rs.startNodeX, y: rs.startNodeY })
-          resizeRef.current = null
-          setIsResizing(false)
-        } else {
-          setSelectedUuid(null)
-          setSelectedUuids(new Set())
-          setMarquee(null)
-        }
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault()
-        setUndoStack(prev => {
-          if (prev.length === 0) return prev
-          const entry = prev[prev.length - 1]
-          setRedoStack(r => [...r, entry])
-          if (!entry.type || entry.type === 'move') {
-            updateNode(entry.uuid, { x: entry.prevX, y: entry.prevY })
-            window.api.ccSetProperty?.(port, entry.uuid, 'x', entry.prevX).catch(() => {})
-            window.api.ccSetProperty?.(port, entry.uuid, 'y', entry.prevY).catch(() => {})
-          } else {
-            updateNode(entry.uuid, { [entry.key!]: entry.prevVal } as Partial<SceneNode>)
-            window.api.ccSetProperty?.(port, entry.uuid, entry.key!, entry.prevVal).catch(() => {})
-          }
-          return prev.slice(0, -1)
-        })
-      }
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-        e.preventDefault()
-        setRedoStack(prev => {
-          if (prev.length === 0) return prev
-          const entry = prev[prev.length - 1]
-          setUndoStack(u => [...u, entry])
-          if (!entry.type || entry.type === 'move') {
-            updateNode(entry.uuid, { x: entry.nextX, y: entry.nextY })
-            window.api.ccSetProperty?.(port, entry.uuid, 'x', entry.nextX).catch(() => {})
-            window.api.ccSetProperty?.(port, entry.uuid, 'y', entry.nextY).catch(() => {})
-          } else {
-            updateNode(entry.uuid, { [entry.key!]: entry.nextVal } as Partial<SceneNode>)
-            window.api.ccSetProperty?.(port, entry.uuid, entry.key!, entry.nextVal).catch(() => {})
-          }
-          return prev.slice(0, -1)
-        })
-      }
-      if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
-        handleCopy()
-        e.preventDefault()
-      }
-      if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
-        handlePaste()
-        e.preventDefault()
-      }
-      if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
-        handleDuplicate()
-        e.preventDefault()
-      }
-      if (e.key === 'g' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
-        handleGroup()
-        e.preventDefault()
-      }
-      // Ctrl+Shift+G — 그룹 해제
-      if (e.key === 'g' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
-        handleUngroup()
-        e.preventDefault()
-      }
-      // Delete / Backspace — 선택 노드 삭제
-      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedUuid || selectedUuids.size > 0)) {
-        e.preventDefault()
-        handleDeleteNode()
-        return
-      }
-      // Ctrl+] / Ctrl+[: z-order 변경 (앞으로/뒤로)
-      if ((e.ctrlKey || e.metaKey) && (e.key === ']' || e.key === '[') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node?.parentUuid) {
-          const parent = nodeMap.get(node.parentUuid)
-          if (parent && parent.childUuids.length > 1) {
-            const idx = parent.childUuids.indexOf(selectedUuid)
-            const newChildUuids = [...parent.childUuids]
-            if (e.key === ']' && idx < newChildUuids.length - 1) {
-              // 앞으로 (위로): idx+1과 교환
-              ;[newChildUuids[idx], newChildUuids[idx + 1]] = [newChildUuids[idx + 1], newChildUuids[idx]]
-              updateNode(parent.uuid, { childUuids: newChildUuids })
-            } else if (e.key === '[' && idx > 0) {
-              // 뒤로 (아래로): idx-1과 교환
-              ;[newChildUuids[idx], newChildUuids[idx - 1]] = [newChildUuids[idx - 1], newChildUuids[idx]]
-              updateNode(parent.uuid, { childUuids: newChildUuids })
-            }
-          }
-        }
-      }
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, handleGroup, handleUngroup, selectedUuid, nodeMap, selectedUuids, isDragging, isResizing])
-
-  // ── Space 키 임시 패닝 모드 ────────────────────────────────
-  useEffect(() => {
-    const onDown = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
-      if (e.code === 'Space' && !spaceDown) { e.preventDefault(); setSpaceDown(true) }
-    }
-    const onUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') setSpaceDown(false)
-    }
-    window.addEventListener('keydown', onDown)
-    window.addEventListener('keyup', onUp)
-    return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
-  }, [spaceDown])
-
-  // ── R1455: Ctrl+1~5 카메라 뷰 북마크 저장/이동 ──────────
-  useEffect(() => {
-    const handleViewBookmark = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return
-      const key = parseInt(e.key)
-      if (isNaN(key) || key < 1 || key > 5) return
-      const idx = key - 1
-      if (e.ctrlKey || e.metaKey) {
-        // 저장
-        e.preventDefault()
-        const bm = { zoom: viewRef.current.zoom, offsetX: viewRef.current.offsetX, offsetY: viewRef.current.offsetY }
-        setViewBookmarks(prev => {
-          const next = [...prev]
-          while (next.length < 5) next.push(null)
-          next[idx] = bm
-          localStorage.setItem(VB_KEY, JSON.stringify(next))
-          return next
-        })
-        if (viewBookmarkToastRef.current) clearTimeout(viewBookmarkToastRef.current)
-        setViewBookmarkToast(`뷰 ${key} 저장됨`)
-        viewBookmarkToastRef.current = setTimeout(() => setViewBookmarkToast(null), 1500)
-      } else if (!e.shiftKey && !e.altKey) {
-        // 이동 (숫자키만)
-        const bm = viewBookmarks[idx]
-        if (!bm) return
-        e.preventDefault()
-        // 부드러운 애니메이션 200ms lerp
-        const start = { ...viewRef.current }
-        const startTime = Date.now()
-        const DURATION = 200
-        const animate = () => {
-          const elapsed = Date.now() - startTime
-          const t = Math.min(elapsed / DURATION, 1)
-          const eased = t * (2 - t) // ease-out
-          setView({
-            zoom: start.zoom + (bm.zoom - start.zoom) * eased,
-            offsetX: start.offsetX + (bm.offsetX - start.offsetX) * eased,
-            offsetY: start.offsetY + (bm.offsetY - start.offsetY) * eased,
-          })
-          if (t < 1) requestAnimationFrame(animate)
-        }
-        requestAnimationFrame(animate)
-      }
-    }
-    window.addEventListener('keydown', handleViewBookmark)
-    return () => window.removeEventListener('keydown', handleViewBookmark)
-  }, [viewBookmarks])
+  // Space키/뷰북마크/전체선택/방향키 → useSceneViewKeyboard에서 처리
 
   // R1412: 채팅 연동 노드 하이라이트 (cc-highlight-node 커스텀 이벤트)
   useEffect(() => {
@@ -1064,155 +674,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => window.removeEventListener('cc-highlight-node', handler)
   }, [nodeMap])
 
-  // ── Ctrl+A 전체 선택 / Ctrl+Shift+A 선택 반전 ─────────────
-  useEffect(() => {
-    const handleSelectAll = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && !e.shiftKey) {
-        e.preventDefault()
-        const all = new Set(nodeMap.keys())
-        setSelectedUuids(all)
-        setSelectedUuid(rootUuid || null)
-      }
-      // Ctrl+Shift+A — 선택 반전
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && e.shiftKey) {
-        e.preventDefault()
-        const all = new Set(nodeMap.keys())
-        const inverted = new Set([...all].filter(u => !selectedUuids.has(u)))
-        setSelectedUuids(inverted)
-        setSelectedUuid(inverted.size > 0 ? [...inverted][0] : null)
-      }
-    }
-    window.addEventListener('keydown', handleSelectAll)
-    return () => window.removeEventListener('keydown', handleSelectAll)
-  }, [nodeMap, rootUuid, selectedUuids])
-
-  // ── 방향키 nudge: 선택 노드 1px / Shift+10px 이동 ─────────
-  useEffect(() => {
-    const arrows: Record<string, [number, number]> = {
-      ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1],
-    }
-    const handleNudge = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
-      // Alt+Up: 부모 선택, Alt+Down: 첫 자식 선택
-      if (e.altKey && (e.key === 'z' || e.key === 'Z')) {
-        e.preventDefault()
-        setFocusMode(v => !v)
-        return
-      }
-      // Alt+[ / Alt+] — 선택 노드 투명도 -10 / +10 (0~255)
-      if (e.altKey && (e.key === '[' || e.key === ']') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node) {
-          const delta = e.key === '[' ? -10 : 10
-          updateNode(selectedUuid, { opacity: Math.min(255, Math.max(0, node.opacity + delta)) })
-        }
-        return
-      }
-      // Alt+0~9 — 빠른 색상 레이블 (Alt+0: 초기화)
-      if (e.altKey && /^[0-9]$/.test(e.key) && selectedUuid) {
-        e.preventDefault()
-        const LABEL_COLORS: Record<string, string | undefined> = {
-          '0': undefined,
-          '1': '#f87171', '2': '#fb923c', '3': '#facc15', '4': '#4ade80',
-          '5': '#34d399', '6': '#60a5fa', '7': '#a78bfa', '8': '#f472b6', '9': '#9ca3af',
-        }
-        updateNode(selectedUuid, { labelColor: LABEL_COLORS[e.key] })
-        return
-      }
-      // Alt+L — 노드 잠금/해제 (다중 선택 일괄 처리)
-      if (e.altKey && (e.key === 'l' || e.key === 'L') && (selectedUuids.size > 0 || selectedUuid)) {
-        e.preventDefault()
-        const uuids = selectedUuids.size > 1 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
-        const anyUnlocked = uuids.some(u => !nodeMap.get(u)?.locked)
-        uuids.forEach(u => { const n = nodeMap.get(u); if (n) updateNode(u, { locked: anyUnlocked }) })
-        return
-      }
-      // Alt+← / Alt+→ — 카메라 히스토리 뒤로/앞으로
-      if (e.altKey && e.key === 'ArrowLeft') {
-        e.preventDefault()
-        if (viewHistIdxRef.current > 0) {
-          viewHistIdxRef.current--
-          setView(viewHistoryRef.current[viewHistIdxRef.current])
-        }
-        return
-      }
-      if (e.altKey && e.key === 'ArrowRight') {
-        e.preventDefault()
-        if (viewHistIdxRef.current < viewHistoryRef.current.length - 1) {
-          viewHistIdxRef.current++
-          setView(viewHistoryRef.current[viewHistIdxRef.current])
-        }
-        return
-      }
-      // Ctrl+B — 즐겨찾기 토글
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B') && selectedUuid) {
-        e.preventDefault()
-        setBookmarkedUuids(prev => {
-          const next = new Set(prev)
-          if (next.has(selectedUuid)) next.delete(selectedUuid)
-          else next.add(selectedUuid)
-          return next
-        })
-        return
-      }
-      if ((e.altKey || e.shiftKey) && (e.key === 'm' || e.key === 'M')) {
-        e.preventDefault()
-        setMeasureMode(v => !v)
-        setMeasureLine(null)
-        measureStartRef.current = null
-        return
-      }
-      if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (!node) return
-        if (e.key === 'ArrowUp' && node.parentUuid) {
-          setSelectedUuid(node.parentUuid)
-          setSelectedUuids(new Set([node.parentUuid]))
-        } else if (e.key === 'ArrowDown' && node.childUuids.length > 0) {
-          const firstChild = node.childUuids[0]
-          setSelectedUuid(firstChild)
-          setSelectedUuids(new Set([firstChild]))
-        }
-        return
-      }
-      // Ctrl+← →: 회전 (1° / Shift+10°)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (!node) return
-        const rotStep = e.shiftKey ? 10 : 1
-        const delta = e.key === 'ArrowLeft' ? rotStep : -rotStep
-        updateNode(selectedUuid, { rotation: parseFloat(((node.rotation + delta) % 360).toFixed(2)) })
-        return
-      }
-      // Alt+H / Alt+V: 좌우/상하 반전 (scaleX/scaleY 부호 반전)
-      if (e.altKey && (e.key === 'h' || e.key === 'H') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node) updateNode(selectedUuid, { scaleX: -(node.scaleX ?? 1) })
-        return
-      }
-      if (e.altKey && (e.key === 'v' || e.key === 'V') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node) updateNode(selectedUuid, { scaleY: -(node.scaleY ?? 1) })
-        return
-      }
-      if (!selectedUuid || !(e.key in arrows)) return
-      if (e.altKey || e.ctrlKey || e.metaKey) return
-      e.preventDefault()
-      const step = e.shiftKey ? 10 : 1
-      const node = nodeMap.get(selectedUuid)
-      if (!node) return
-      const [dx, dy] = arrows[e.key]
-      updateNode(selectedUuid, { x: node.x + dx * step, y: node.y + dy * step })
-    }
-    window.addEventListener('keydown', handleNudge)
-    return () => window.removeEventListener('keydown', handleNudge)
-  }, [selectedUuid, nodeMap, updateNode, setSelectedUuid, setSelectedUuids, selectedUuids])
+  // Ctrl+A, nudge 등 → useSceneViewKeyboard에서 처리
 
   // ── CC 이벤트: 외부 선택 동기화 + 노드 최신화 ───────────────
   useEffect(() => {
@@ -1242,62 +704,32 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setQuickActionDismissed(false)
   }, [selectedUuid])
 
-  // ── SVG 좌표 변환 헬퍼 ────────────────────────────────────
-  const getSvgCoords = useCallback((e: React.MouseEvent | MouseEvent): { x: number; y: number } => {
-    if (!svgRef.current) return { x: 0, y: 0 }
-    const rect = svgRef.current.getBoundingClientRect()
-    return {
-      x: (e.clientX - rect.left),
-      y: (e.clientY - rect.top),
-    }
-  }, [])
+  // ── Mouse hook (SVG좌표변환 + 드래그/리사이즈/회전/줌/패닝) ──
+  const {
+    getSvgCoords, svgToScene, hitTestAtPoint,
+    handleSvgMouseDown, handleNodeMouseDown,
+    handleResizeMouseDown, handleRotateMouseDown,
+    handleMouseMove, handleMouseUp,
+    animateToTarget,
+  } = useSceneViewMouse({
+    nodeMap, selectedUuid, selectedUuids, view, viewRef,
+    activeTool, spaceDown, snapEnabled, snapGrid, measureMode,
+    blockInactiveClick, port, DESIGN_W, DESIGN_H,
+    svgRef, dragRef, resizeRef, rotateRef, isPanning, panStart,
+    measureStartRef, marqueeRef, tabCycleRef, targetViewRef, animFrameRef,
+    pinnedUuids, lockedUuids, marquee,
+    setView, setSelectedUuid,
+    setSelectedUuidsReplace: s => setSelectedUuids(s),
+    setSelectedUuids: fn => setSelectedUuids(fn as any),
+    setHoveredUuid, setIsDragging, setIsResizing, setIsRotating,
+    setIsPanningActive, setCursorScenePos, setHoverTooltipPos, setTooltipVisibleUuid,
+    setDragDelta, setAlignGuides, setMarquee, setMeasureLine,
+    setUndoStack, setRedoStack: v => setRedoStack(v),
+    setChangeHistory, setNodeAccessCount, setNodeClickCount, setCollapsedUuids,
+    tooltipDelayRef, updateNode, addEditHistory,
+  })
 
-  // 씬 좌표 변환 (SVG px → Cocos 좌표)
-  const svgToScene = useCallback((svgX: number, svgY: number): { cx: number; cy: number } => {
-    const sceneX = (svgX - view.offsetX) / view.zoom
-    const sceneY = (svgY - view.offsetY) / view.zoom
-    return {
-      cx: sceneX - DESIGN_W / 2,
-      cy: -(sceneY - DESIGN_H / 2),
-    }
-  }, [view, canvasSize])
-
-  // ── 마우스 이벤트 ─────────────────────────────────────────
-  const handleSvgMouseDown = useCallback((e: React.MouseEvent) => {
-    // 측정 모드 — 클릭으로 측정 시작
-    if (measureMode && e.button === 0) {
-      const svgPos = getSvgCoords(e)
-      measureStartRef.current = { x: svgPos.x, y: svgPos.y }
-      setMeasureLine({ x1: svgPos.x, y1: svgPos.y, x2: svgPos.x, y2: svgPos.y })
-      return
-    }
-    // 빈 영역 클릭 → 패닝 (middle btn 또는 space + left)
-    if (e.button === 1 || (e.button === 0 && (activeTool === 'move' || spaceDown))) {
-      isPanning.current = true
-      setIsPanningActive(true)
-      panStart.current = {
-        mx: e.clientX,
-        my: e.clientY,
-        ox: view.offsetX,
-        oy: view.offsetY,
-      }
-      e.preventDefault()
-      return
-    }
-    // 빈 배경 클릭 → 선택 해제 + 마퀴 시작
-    if (e.button === 0 && activeTool === 'select') {
-      if (!e.shiftKey) {
-        setSelectedUuid(null)
-        setSelectedUuids(new Set())
-      }
-      const svgCoords = getSvgCoords(e)
-      marqueeRef.current = { startX: svgCoords.x, startY: svgCoords.y, shiftKey: e.shiftKey }
-      setMarquee({ startX: svgCoords.x, startY: svgCoords.y, endX: svgCoords.x, endY: svgCoords.y, active: true })
-    } else if (e.button === 0) {
-      setSelectedUuid(null)
-      setSelectedUuids(new Set())
-    }
-  }, [activeTool, view, getSvgCoords, canvasSize])
+  // handleSvgMouseDown → useSceneViewMouse에서 제공
 
   const togglePin = useCallback((uuid: string) => {
     setPinnedUuids(prev => {
@@ -1319,694 +751,14 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     })
   }, [])
 
-  const handleNodeMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
-    e.stopPropagation()
-    if (e.button !== 0) return
-    // 잠긴 노드는 드래그/선택 불가
-    if (nodeMap.get(uuid)?.locked) return
-    if (lockedUuids.has(uuid)) return
-    // 핀된 노드는 드래그/선택 불가
-    if (pinnedUuids.has(uuid)) return
-    // R1428: 비활성 노드 클릭 방지 옵션
-    const clickedNode = nodeMap.get(uuid)
-    if (blockInactiveClick && clickedNode && !clickedNode.active) return
+  // handleNodeMouseDown → useSceneViewMouse에서 제공
 
-    if (e.altKey) {
-      // Alt 클릭: 자식 그룹 접기/펼치기
-      const node = nodeMap.get(uuid)
-      if (node && node.childUuids.length > 0) {
-        setCollapsedUuids(prev => {
-          const next = new Set(prev)
-          if (next.has(uuid)) next.delete(uuid)
-          else next.add(uuid)
-          return next
-        })
-      }
-      return
-    }
-
-    if (e.shiftKey) {
-      // Shift 클릭: 멀티 선택 토글
-      setSelectedUuids(prev => {
-        const next = new Set(prev)
-        if (next.has(uuid)) {
-          next.delete(uuid)
-        } else {
-          next.add(uuid)
-        }
-        return next
-      })
-      setSelectedUuid(uuid)
-      return
-    }
-
-    // 일반 클릭: 단일 선택 (멀티셀렉트 상태에서 선택된 노드를 클릭하면 그룹 드래그)
-    const isGroupDrag = selectedUuids.size > 1 && selectedUuids.has(uuid)
-
-    if (!isGroupDrag) {
-      setSelectedUuid(uuid)
-      setSelectedUuids(new Set())
-    }
-
-    // 접근 횟수 누적 (R702)
-    setNodeAccessCount(prev => ({ ...prev, [uuid]: (prev[uuid] ?? 0) + 1 }))
-    // R1460: 클릭 히트맵 카운트 증가
-    setNodeClickCount(prev => { const next = new Map(prev); next.set(uuid, (next.get(uuid) ?? 0) + 1); return next })
-
-    const node = nodeMap.get(uuid)
-    if (!node) return
-
-    const svgCoords = getSvgCoords(e)
-    // R1428: 클릭 위치의 겹치는 노드 후보 기록 (Tab 순환용)
-    const candidates = hitTestAtPoint(svgCoords.x, svgCoords.y)
-    if (candidates.length > 1) {
-      tabCycleRef.current = { lastClickPos: { x: svgCoords.x, y: svgCoords.y }, candidates, index: candidates.indexOf(uuid) }
-    } else {
-      tabCycleRef.current = null
-    }
-    const groupOffsets: Record<string, { startX: number; startY: number }> | undefined = isGroupDrag
-      ? Object.fromEntries(
-          [...selectedUuids].map(uid => {
-            const n = nodeMap.get(uid)
-            return [uid, { startX: n?.x ?? 0, startY: n?.y ?? 0 }]
-          })
-        )
-      : undefined
-
-    dragRef.current = {
-      uuid,
-      startSvgX: svgCoords.x,
-      startSvgY: svgCoords.y,
-      startNodeX: node.x,
-      startNodeY: node.y,
-      groupOffsets,
-    }
-    setIsDragging(true)
-  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids, lockedUuids, blockInactiveClick])
-
-  // R1428: 히트 테스트 — 최소 8px 클릭 영역 확장 + z-order 역순 + Tab 키 순환
-  const hitTestAtPoint = useCallback((svgX: number, svgY: number): string[] => {
-    const minHitPx = 8 / view.zoom
-    const allNodes = [...nodeMap.values()]
-    // z-order: 배열 역순 (최상단 우선)
-    const hits: string[] = []
-    for (let i = allNodes.length - 1; i >= 0; i--) {
-      const n = allNodes[i]
-      if (!n.active && blockInactiveClick) continue
-      if (n.locked || lockedUuids.has(n.uuid)) continue
-      const { sx, sy } = cocosToSvg(n.worldX ?? n.x, n.worldY ?? n.y, DESIGN_W, DESIGN_H)
-      const w = Math.max(n.width, minHitPx)
-      const h = Math.max(n.height, minHitPx)
-      const rx = sx - w * (n.anchorX ?? 0.5)
-      const ry = sy - h * (1 - (n.anchorY ?? 0.5))
-      if (svgX >= rx && svgX <= rx + w && svgY >= ry && svgY <= ry + h) {
-        hits.push(n.uuid)
-      }
-    }
-    return hits
-  }, [nodeMap, view.zoom, DESIGN_W, DESIGN_H, blockInactiveClick, lockedUuids])
-
-  // R1428: Tab 키로 겹치는 노드 순환
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab' || !tabCycleRef.current) return
-      e.preventDefault()
-      const { candidates, index } = tabCycleRef.current
-      if (candidates.length <= 1) return
-      const nextIdx = (index + 1) % candidates.length
-      tabCycleRef.current.index = nextIdx
-      setSelectedUuid(candidates[nextIdx])
-      setSelectedUuids(new Set())
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [])
-
-  // R1416: handleResizeMouseDown — 잠긴 노드 리사이즈 차단
-  const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (e.button !== 0) return
-    if (nodeMap.get(uuid)?.locked) return
-    if (lockedUuids.has(uuid)) return
-    const node = nodeMap.get(uuid)
-    if (!node) return
-    const svgCoords = getSvgCoords(e)
-    resizeRef.current = {
-      uuid,
-      handle,
-      startSvgX: svgCoords.x,
-      startSvgY: svgCoords.y,
-      startWidth: node.width,
-      startHeight: node.height,
-      startNodeX: node.x,
-      startNodeY: node.y,
-    }
-    setIsResizing(true)
-  }, [nodeMap, getSvgCoords, canvasSize, lockedUuids])
-
-  // R1416: handleRotateMouseDown — 잠긴 노드 회전 차단
-  const handleRotateMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (e.button !== 0) return
-    if (nodeMap.get(uuid)?.locked) return
-    if (lockedUuids.has(uuid)) return
-    const node = nodeMap.get(uuid)
-    if (!node) return
-    const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
-    // anchor 점의 SVG 화면 좌표
-    const anchorSx = sx * view.zoom + view.offsetX
-    const anchorSy = sy * view.zoom + view.offsetY
-    rotateRef.current = { uuid, anchorSx, anchorSy, startRotation: node.rotation }
-    setIsRotating(true)
-  }, [nodeMap, view, lockedUuids])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    // 커서 씬 좌표 업데이트
-    const svgPos = getSvgCoords(e)
-    const { cx, cy } = svgToScene(svgPos.x, svgPos.y)
-    setCursorScenePos({ x: Math.round(cx), y: Math.round(cy) })
-
-    // 측정 모드 드래그
-    if (measureMode && measureStartRef.current && e.buttons === 1) {
-      setMeasureLine({ x1: measureStartRef.current.x, y1: measureStartRef.current.y, x2: svgPos.x, y2: svgPos.y })
-      return
-    }
-
-    // 호버 툴팁 위치 (마우스 커서 우하단 +10, +10)
-    setHoverTooltipPos({ x: svgPos.x + 10, y: svgPos.y + 10 })
-
-    // 마퀴 업데이트
-    if (marqueeRef.current) {
-      const svgCoords = getSvgCoords(e)
-      setMarquee({
-        startX: marqueeRef.current.startX,
-        startY: marqueeRef.current.startY,
-        endX: svgCoords.x,
-        endY: svgCoords.y,
-        active: true,
-      })
-      return
-    }
-
-    // 회전
-    if (rotateRef.current) {
-      const rt = rotateRef.current
-      const dx = e.clientX - rt.anchorSx
-      const dy = e.clientY - rt.anchorSy
-      const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI
-      // SVG Y-down이므로 Cocos rotation = -angleDeg - 90 (핸들이 위쪽에 있으므로)
-      const newRotation = parseFloat((-angleDeg - 90).toFixed(1))
-      updateNode(rt.uuid, { rotation: newRotation })
-      return
-    }
-
-    // 리사이즈
-    if (resizeRef.current) {
-      const rs = resizeRef.current
-      const svgCoords = getSvgCoords(e)
-      const dsvgX = svgCoords.x - rs.startSvgX
-      const dsvgY = svgCoords.y - rs.startSvgY
-      const dsceneX = dsvgX / view.zoom
-      const dsceneY = -dsvgY / view.zoom  // Y 반전
-
-      let newW = rs.startWidth
-      let newH = rs.startHeight
-      // SE: +dsceneX, -dsceneY (SVG Y-down → height decrease)
-      if (rs.handle === 'se') { newW = rs.startWidth + dsceneX; newH = rs.startHeight - dsceneY }
-      else if (rs.handle === 'ne') { newW = rs.startWidth + dsceneX; newH = rs.startHeight + dsceneY }
-      else if (rs.handle === 'sw') { newW = rs.startWidth - dsceneX; newH = rs.startHeight - dsceneY }
-      else if (rs.handle === 'nw') { newW = rs.startWidth - dsceneX; newH = rs.startHeight + dsceneY }
-      // 측면 핸들: 단일 축만 변경
-      else if (rs.handle === 'e') { newW = rs.startWidth + dsceneX }
-      else if (rs.handle === 'w') { newW = rs.startWidth - dsceneX }
-      else if (rs.handle === 's') { newH = rs.startHeight - dsceneY }
-      else if (rs.handle === 'n') { newH = rs.startHeight + dsceneY }
-
-      // Shift: 비례 리사이즈 — 코너 핸들에서만 적용
-      if (e.shiftKey && ['nw', 'ne', 'se', 'sw'].includes(rs.handle) && rs.startHeight > 0) {
-        const aspect = rs.startWidth / rs.startHeight
-        if (Math.abs(newW - rs.startWidth) >= Math.abs(newH - rs.startHeight) * aspect) {
-          newH = newW / aspect
-        } else {
-          newW = newH * aspect
-        }
-      }
-
-      newW = Math.max(4, newW)
-      newH = Math.max(4, newH)
-      // 측면 핸들은 해당 축만 위치 조정
-      const newX = (rs.handle === 'n' || rs.handle === 's') ? rs.startNodeX : rs.startNodeX + dsceneX / 2
-      const newY = (rs.handle === 'e' || rs.handle === 'w') ? rs.startNodeY : rs.startNodeY + dsceneY / 2
-
-      updateNode(rs.uuid, { width: newW, height: newH, x: newX, y: newY })
-      return
-    }
-
-    // 패닝
-    if (isPanning.current && panStart.current) {
-      const ps = panStart.current  // setView 업데이터 호출 전에 캡처
-      const dx = e.clientX - ps.mx
-      const dy = e.clientY - ps.my
-      setView(prev => ({
-        ...prev,
-        offsetX: ps.ox + dx,
-        offsetY: ps.oy + dy,
-      }))
-      return
-    }
-
-    // 노드 드래그
-    if (dragRef.current) {
-      const drag = dragRef.current
-      const svgCoords = getSvgCoords(e)
-      const dsvgX = svgCoords.x - drag.startSvgX
-      const dsvgY = svgCoords.y - drag.startSvgY
-
-      // SVG 델타 → 씬 좌표 델타
-      const dSceneX = dsvgX / view.zoom
-      const dSceneY = -dsvgY / view.zoom  // Y축 반전
-
-      let newX = drag.startNodeX + dSceneX
-      let newY = drag.startNodeY + dSceneY
-      setDragDelta({ dx: Math.round(dSceneX), dy: Math.round(dSceneY) })
-
-      // 스냅 (Alt 홀드 시 일시 비활성화)
-      if (snapEnabled && !e.altKey) {
-        newX = Math.round(newX / snapGrid) * snapGrid
-        newY = Math.round(newY / snapGrid) * snapGrid
-      }
-
-      // 정렬 가이드라인 계산 (드래그 중 타 노드와 정렬 감지)
-      if (!drag.groupOffsets) {
-        const dragNode = nodeMap.get(drag.uuid)
-        const threshold = 12 / view.zoom
-        const guides: { x?: number; y?: number }[] = []
-        if (dragNode) {
-          const hw = dragNode.width / 2; const hh = dragNode.height / 2
-          const myXs = [newX - hw, newX, newX + hw]
-          const myYs = [newY - hh, newY, newY + hh]
-          nodeMap.forEach((n, uid) => {
-            if (uid === drag.uuid || selectedUuids.has(uid)) return
-            const nXs = [n.x - n.width / 2, n.x, n.x + n.width / 2]
-            const nYs = [n.y - n.height / 2, n.y, n.y + n.height / 2]
-            for (const nx2 of nXs) {
-              for (const mx of myXs) {
-                if (Math.abs(nx2 - mx) < threshold) {
-                  guides.push({ x: nx2 })
-                  if (snapEnabled) newX = nx2 - (mx - newX)
-                }
-              }
-            }
-            for (const ny2 of nYs) {
-              for (const my of myYs) {
-                if (Math.abs(ny2 - my) < threshold) {
-                  guides.push({ y: ny2 })
-                  if (snapEnabled) newY = ny2 - (my - newY)
-                }
-              }
-            }
-          })
-        }
-        setAlignGuides(guides)
-      }
-
-      if (drag.groupOffsets) {
-        // 그룹 드래그: 모든 선택 노드를 같은 델타만큼 이동
-        for (const [uid, { startX, startY }] of Object.entries(drag.groupOffsets)) {
-          let nx = startX + dSceneX
-          let ny = startY + dSceneY
-          if (snapEnabled && !e.altKey) {
-            nx = Math.round(nx / snapGrid) * snapGrid
-            ny = Math.round(ny / snapGrid) * snapGrid
-          }
-          updateNode(uid, { x: nx, y: ny })
-        }
-      } else {
-        // 낙관적 업데이트 (즉시 반영)
-        updateNode(drag.uuid, { x: newX, y: newY })
-      }
-    }
-  }, [view.zoom, snapEnabled, snapGrid, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids, canvasSize, measureMode])
-
-  const handleMouseUp = useCallback(async () => {
-    setAlignGuides([])
-    // 마퀴 종료 → 히트 테스트
-    if (marqueeRef.current && marquee) {
-      const wasShift = marqueeRef.current.shiftKey
-      marqueeRef.current = null
-      const mx1 = Math.min(marquee.startX, marquee.endX)
-      const my1 = Math.min(marquee.startY, marquee.endY)
-      const mx2 = Math.max(marquee.startX, marquee.endX)
-      const my2 = Math.max(marquee.startY, marquee.endY)
-
-      // 마퀴가 충분히 크면 노드 히트 테스트
-      if (mx2 - mx1 > 4 || my2 - my1 > 4) {
-        const hit = new Set<string>()
-        nodeMap.forEach((node) => {
-          // worldX/worldY 우선 사용 (부모 이동 반영), 없으면 로컬 좌표 fallback
-          const nodeX = node.worldX ?? node.x
-          const nodeY = node.worldY ?? node.y
-          const { sx, sy } = cocosToSvg(nodeX, nodeY, DESIGN_W, DESIGN_H)
-          const pw = node.width * Math.abs(node.scaleX)
-          const ph = node.height * Math.abs(node.scaleY)
-          const rx = sx - pw * node.anchorX
-          const ry = sy - ph * (1 - node.anchorY)
-          // scene transform 적용 → SVG 화면 좌표
-          const nx1 = rx * view.zoom + view.offsetX
-          const ny1 = ry * view.zoom + view.offsetY
-          const nx2 = (rx + pw) * view.zoom + view.offsetX
-          const ny2 = (ry + ph) * view.zoom + view.offsetY
-          // 교차 판정
-          if (nx1 < mx2 && nx2 > mx1 && ny1 < my2 && ny2 > my1) {
-            hit.add(node.uuid)
-          }
-        })
-        if (hit.size > 0) {
-          // Shift: 기존 선택에 추가, 아니면 교체
-          setSelectedUuids(prev => wasShift ? new Set([...prev, ...hit]) : hit)
-          const first = hit.values().next().value
-          setSelectedUuid(first ?? null)
-        }
-      }
-
-      setMarquee(null)
-      return
-    }
-
-    // 패닝 종료
-    if (isPanning.current) {
-      isPanning.current = false
-      setIsPanningActive(false)
-      panStart.current = null
-      return
-    }
-
-    // 드래그 종료 → IPC 전송
-    // [C-7] race condition 방지: await 전에 dragRef를 로컬 캡처 후 즉시 null 처리
-    const capturedDrag = dragRef.current
-    if (capturedDrag) {
-      dragRef.current = null
-      const drag = capturedDrag
-
-      if (drag.groupOffsets) {
-        // 그룹 드래그 완료: 모든 선택 노드 저장
-        const entries: UndoEntry[] = []
-        for (const [uid, { startX, startY }] of Object.entries(drag.groupOffsets)) {
-          const n = nodeMap.get(uid)
-          if (!n) continue
-          if (n.x !== startX || n.y !== startY) {
-            entries.push({ uuid: uid, prevX: startX, prevY: startY, nextX: n.x, nextY: n.y })
-            try {
-              await window.api.ccSetProperty?.(port, uid, 'x', n.x)
-              await window.api.ccSetProperty?.(port, uid, 'y', n.y)
-            } catch (e) {
-              console.error('[SceneView] setProperty failed:', e)
-            }
-          }
-        }
-        if (entries.length > 0) {
-          setUndoStack(prev => [...prev.slice(-(50 - entries.length)), ...entries])
-          setRedoStack([])
-        }
-      } else {
-        // 단일 노드 처리
-        const node = nodeMap.get(drag.uuid)
-        if (node) {
-          // 실제로 이동이 있었을 때만 undo 항목 추가
-          if (node.x !== drag.startNodeX || node.y !== drag.startNodeY) {
-            setUndoStack(prev => [...prev.slice(-49), {
-              uuid: drag.uuid,
-              prevX: drag.startNodeX,
-              prevY: drag.startNodeY,
-              nextX: node.x,
-              nextY: node.y,
-            }])
-            setRedoStack([])
-          }
-          try {
-            await window.api.ccSetProperty?.(port, drag.uuid, 'x', node.x)
-            await window.api.ccSetProperty?.(port, drag.uuid, 'y', node.y)
-          } catch (e) {
-            console.error('[SceneView] setProperty failed:', e)
-          }
-        }
-      }
-      // 이동 히스토리 기록
-      const draggedNode = nodeMap.get(drag.uuid)
-      if (draggedNode) {
-        setChangeHistory(prev => {
-          const entry = { uuid: drag.uuid, name: draggedNode.name, x: Math.round(draggedNode.x), y: Math.round(draggedNode.y), ts: Date.now() }
-          return [entry, ...prev.filter(e => e.uuid !== drag.uuid)].slice(0, 20)
-        })
-        // R1446: 편집 이력 기록 (드래그 이동)
-        if (draggedNode.x !== drag.startNodeX || draggedNode.y !== drag.startNodeY) {
-          addEditHistory('move', drag.uuid, draggedNode.name, { x: drag.startNodeX, y: drag.startNodeY }, { x: draggedNode.x, y: draggedNode.y })
-        }
-      }
-      // dragRef.current already nulled at start of handler (race condition fix)
-      setIsDragging(false)
-      setDragDelta(null)
-    }
-
-    // 리사이즈 종료 → IPC 전송
-    if (resizeRef.current) {
-      const rs = resizeRef.current
-      const node = nodeMap.get(rs.uuid)
-      if (node) {
-        // R1446: 편집 이력 기록 (리사이즈)
-        if (node.width !== rs.startWidth || node.height !== rs.startHeight) {
-          addEditHistory('resize', rs.uuid, node.name, { width: rs.startWidth, height: rs.startHeight }, { width: node.width, height: node.height })
-        }
-        try {
-          await window.api.ccSetProperty?.(port, rs.uuid, 'width', node.width)
-          await window.api.ccSetProperty?.(port, rs.uuid, 'height', node.height)
-          await window.api.ccSetProperty?.(port, rs.uuid, 'x', node.x)
-          await window.api.ccSetProperty?.(port, rs.uuid, 'y', node.y)
-        } catch (e) {
-          console.error('[SceneView] resize failed:', e)
-        }
-      }
-      resizeRef.current = null
-      setIsResizing(false)
-    }
-
-    // 회전 종료 → IPC 전송
-    if (rotateRef.current) {
-      const rt = rotateRef.current
-      const node = nodeMap.get(rt.uuid)
-      if (node) {
-        try {
-          await window.api.ccSetProperty?.(port, rt.uuid, 'rotation', node.rotation)
-        } catch (e) {
-          console.error('[SceneView] rotate failed:', e)
-        }
-      }
-      rotateRef.current = null
-      setIsRotating(false)
-    }
-  }, [nodeMap, marquee, view, port])
-
-  // ── 줌 애니메이션 (RAF 보간) ────────────────────────────────
-  const animateToTarget = useCallback(() => {
-    if (!targetViewRef.current) return
-    setView(curr => {
-      const target = targetViewRef.current!
-      const dz = target.zoom - curr.zoom
-      const dx = target.offsetX - curr.offsetX
-      const dy = target.offsetY - curr.offsetY
-      if (Math.abs(dz) < 0.001 && Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
-        targetViewRef.current = null
-        animFrameRef.current = null
-        return target
-      }
-      const EASE = 0.18
-      return {
-        zoom: curr.zoom + dz * EASE,
-        offsetX: curr.offsetX + dx * EASE,
-        offsetY: curr.offsetY + dy * EASE,
-      }
-    })
-    if (targetViewRef.current) {
-      animFrameRef.current = requestAnimationFrame(animateToTarget)
-    }
-  }, [])
-
-  // ── 줌 (wheel) — passive: false 필요 ───────────────────────
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault()
-    if (e.ctrlKey || e.metaKey) {
-      // 핀치 줌 / Ctrl+wheel 줌
-      const factor = e.deltaY < 0 ? 1.1 : 0.9
-      const svgCoords = getSvgCoords(e)
-      const curr = targetViewRef.current ?? viewRef.current
-      const newZoom = Math.min(8, Math.max(0.1, curr.zoom * factor))
-      const newOffsetX = svgCoords.x - (svgCoords.x - curr.offsetX) * (newZoom / curr.zoom)
-      const newOffsetY = svgCoords.y - (svgCoords.y - curr.offsetY) * (newZoom / curr.zoom)
-      targetViewRef.current = { zoom: newZoom, offsetX: newOffsetX, offsetY: newOffsetY }
-      if (!animFrameRef.current) {
-        animFrameRef.current = requestAnimationFrame(animateToTarget)
-      }
-    } else {
-      // 2손가락 스크롤 → 패닝
-      setView(prev => ({
-        ...prev,
-        offsetX: prev.offsetX - e.deltaX,
-        offsetY: prev.offsetY - e.deltaY,
-      }))
-    }
-  }, [getSvgCoords])
-
-  // ── SVG 씬 내보내기 ─────────────────────────────────────────
-  const handleExportSvg = useCallback(() => {
-    if (!svgRef.current) return
-    // 씬 콘텐츠만 포함하는 독립 SVG 생성
-    const ns = 'http://www.w3.org/2000/svg'
-    const exportSvg = document.createElementNS(ns, 'svg')
-    exportSvg.setAttribute('xmlns', ns)
-    exportSvg.setAttribute('width', String(DESIGN_W))
-    exportSvg.setAttribute('height', String(DESIGN_H))
-    exportSvg.setAttribute('viewBox', `${-DESIGN_W / 2} ${-DESIGN_H / 2} ${DESIGN_W} ${DESIGN_H}`)
-    // 배경
-    const bg = document.createElementNS(ns, 'rect')
-    bg.setAttribute('x', String(-DESIGN_W / 2)); bg.setAttribute('y', String(-DESIGN_H / 2))
-    bg.setAttribute('width', String(DESIGN_W)); bg.setAttribute('height', String(DESIGN_H))
-    bg.setAttribute('fill', '#1a1a2e')
-    exportSvg.appendChild(bg)
-    // 각 노드를 사각형으로 렌더
-    nodeMap.forEach(n => {
-      if (!n.active) return
-      const rect = document.createElementNS(ns, 'rect')
-      const hw = n.width / 2; const hh = n.height / 2
-      const cx = n.x - DESIGN_W / 2; const cy = -(n.y - DESIGN_H / 2)  // Cocos → SVG Y
-      rect.setAttribute('x', String(cx - hw)); rect.setAttribute('y', String(cy - hh))
-      rect.setAttribute('width', String(n.width)); rect.setAttribute('height', String(n.height))
-      const r = n.color.r; const g = n.color.g; const b = n.color.b; const a = (n.color.a / 255).toFixed(2)
-      rect.setAttribute('fill', `rgba(${r},${g},${b},${a})`)
-      rect.setAttribute('stroke', 'rgba(96,165,250,0.3)'); rect.setAttribute('stroke-width', '0.5')
-      exportSvg.appendChild(rect)
-      if (n.name) {
-        const text = document.createElementNS(ns, 'text')
-        text.setAttribute('x', String(cx)); text.setAttribute('y', String(cy + 4))
-        text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '10')
-        text.setAttribute('fill', 'rgba(255,255,255,0.6)'); text.setAttribute('font-family', 'sans-serif')
-        text.textContent = n.name
-        exportSvg.appendChild(text)
-      }
-    })
-    const blob = new Blob([new XMLSerializer().serializeToString(exportSvg)], { type: 'image/svg+xml' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url; a.download = 'scene.svg'; a.click()
-    URL.revokeObjectURL(url)
-  }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
-
+  // hitTestAtPoint → useSceneViewMouse에서 제공
   // R1404: PNG 내보내기 설정 (배경색, 해상도)
   const [pngExportBg, setPngExportBg] = useState<'dark' | 'light' | 'transparent'>('dark')
   const [pngExportScale, setPngExportScale] = useState<1 | 2 | 4>(1)
   const [showPngExportPanel, setShowPngExportPanel] = useState(false)
-  const PNG_BG_COLORS: Record<string, string> = { dark: '#1a1a2e', light: '#f8f8f8', transparent: 'transparent' }
-
-  // ── R1404: PNG 내보내기 (SVG -> Canvas -> PNG, 해상도/배경 선택) ──
-  const handleExportPng = useCallback(async () => {
-    if (!svgRef.current) return
-    const scale = pngExportScale
-    const bgFill = PNG_BG_COLORS[pngExportBg] ?? '#1a1a2e'
-    const ns = 'http://www.w3.org/2000/svg'
-    const exportSvg = document.createElementNS(ns, 'svg')
-    exportSvg.setAttribute('xmlns', ns)
-    exportSvg.setAttribute('width', String(DESIGN_W * scale))
-    exportSvg.setAttribute('height', String(DESIGN_H * scale))
-    exportSvg.setAttribute('viewBox', `${-DESIGN_W / 2} ${-DESIGN_H / 2} ${DESIGN_W} ${DESIGN_H}`)
-    if (bgFill !== 'transparent') {
-      const bg = document.createElementNS(ns, 'rect')
-      bg.setAttribute('x', String(-DESIGN_W / 2)); bg.setAttribute('y', String(-DESIGN_H / 2))
-      bg.setAttribute('width', String(DESIGN_W)); bg.setAttribute('height', String(DESIGN_H))
-      bg.setAttribute('fill', bgFill)
-      exportSvg.appendChild(bg)
-    }
-    nodeMap.forEach(n => {
-      if (!n.active) return
-      const rect = document.createElementNS(ns, 'rect')
-      const hw = n.width / 2; const hh = n.height / 2
-      const cx = n.x - DESIGN_W / 2; const cy = -(n.y - DESIGN_H / 2)
-      rect.setAttribute('x', String(cx - hw)); rect.setAttribute('y', String(cy - hh))
-      rect.setAttribute('width', String(n.width)); rect.setAttribute('height', String(n.height))
-      const r = n.color.r; const g2 = n.color.g; const b = n.color.b; const a = (n.color.a / 255).toFixed(2)
-      rect.setAttribute('fill', `rgba(${r},${g2},${b},${a})`)
-      rect.setAttribute('stroke', 'rgba(96,165,250,0.3)'); rect.setAttribute('stroke-width', '0.5')
-      exportSvg.appendChild(rect)
-      if (n.name) {
-        const text = document.createElementNS(ns, 'text')
-        text.setAttribute('x', String(cx)); text.setAttribute('y', String(cy + 4))
-        text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '10')
-        text.setAttribute('fill', 'rgba(255,255,255,0.6)'); text.setAttribute('font-family', 'sans-serif')
-        text.textContent = n.name
-        exportSvg.appendChild(text)
-      }
-    })
-    const svgStr = new XMLSerializer().serializeToString(exportSvg)
-    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
-    const svgUrl = URL.createObjectURL(svgBlob)
-    const img = new Image()
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = DESIGN_W * scale; canvas.height = DESIGN_H * scale
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0, DESIGN_W * scale, DESIGN_H * scale)
-      URL.revokeObjectURL(svgUrl)
-      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-      canvas.toBlob(blob => {
-        if (!blob) return
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url; a.download = `scene-${ts}.png`; a.click()
-        URL.revokeObjectURL(url)
-      }, 'image/png')
-    }
-    img.src = svgUrl
-  }, [svgRef, nodeMap, DESIGN_W, DESIGN_H, pngExportScale, pngExportBg])
-
-  // ── 씬뷰 스크린샷 (SVG 캔버스 → PNG 다운로드 + 클립보드) ───────
-  const [screenshotDone, setScreenshotDone] = useState(false)
-
-  const handleScreenshot = useCallback(async () => {
-    if (!svgRef.current) return
-    const svgEl = svgRef.current
-    const svgStr = new XMLSerializer().serializeToString(svgEl)
-    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
-    const svgUrl = URL.createObjectURL(svgBlob)
-    const img = new Image()
-    img.onload = async () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = svgEl.clientWidth || DESIGN_W
-      canvas.height = svgEl.clientHeight || DESIGN_H
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0)
-      URL.revokeObjectURL(svgUrl)
-      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-      canvas.toBlob(async (blob) => {
-        if (!blob) return
-        // 다운로드
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `scene-${ts}.png`
-        a.click()
-        URL.revokeObjectURL(url)
-        // 클립보드 복사
-        try {
-          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-        } catch {
-          // 클립보드 미지원 환경 무시
-        }
-        setScreenshotDone(true)
-        setTimeout(() => setScreenshotDone(false), 1500)
-      }, 'image/png')
-    }
-    img.src = svgUrl
-  }, [svgRef, DESIGN_W, DESIGN_H])
+  // PNG_BG_COLORS imported from sceneViewConstants
 
   // ── 씬 저장 / 로드 슬롯 (localStorage) ──────────────────────
   const [activeSlot, setActiveSlot] = useState(0)
@@ -2148,7 +900,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showFontPanel, setShowFontPanel] = useState(false)
   const [sceneTimers, setSceneTimers] = useState<Array<{ id: string; interval: number }>>([])
   const [showTimerPanel, setShowTimerPanel] = useState(false)
-  const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
+  // slotKey imported from sceneViewConstants
 
   const saveToSlot = useCallback((slot: number) => {
     const data = JSON.stringify([...nodeMap.entries()])
@@ -2450,214 +1202,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     try { localStorage.setItem('sceneview-annotations', JSON.stringify(next)) } catch {}
   }, [annotations])
 
-  const handleCreateNode = useCallback(async () => {
-    const name = 'NewNode'
-    try {
-      await window.api.ccCreateNode?.(port, name, selectedUuid ?? undefined)
-      refresh()
-    } catch (e) {
-      console.error('[SceneView] createNode failed:', e)
-    }
-  }, [port, selectedUuid, refresh])
-
-  const handleDeleteNode = useCallback(async () => {
-    if (!selectedUuid) return
-    try {
-      await window.api.ccDeleteNode?.(port, selectedUuid)
-      setSelectedUuid(null)
-      refresh()
-    } catch (e) {
-      console.error('[SceneView] deleteNode failed:', e)
-    }
-  }, [port, selectedUuid, refresh])
-
-  const handleZOrder = useCallback(async (direction: 'front' | 'back' | 'up' | 'down') => {
-    if (selectedUuids.size !== 1) return
-    const uuid = [...selectedUuids][0]
-    try {
-      await window.api.ccSetZOrder?.(port, uuid, direction)
-      refresh()
-    } catch (e) {
-      console.error('[SceneView] zorder failed:', e)
-    }
-  }, [selectedUuids, port, refresh])
-
-  const handleAlign = useCallback(async (direction: 'left' | 'centerH' | 'right' | 'top' | 'centerV' | 'bottom') => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-
-    const positions: Record<string, { x: number; y: number }> = {}
-
-    if (direction === 'left') {
-      const minLeft = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
-      for (const n of nodes) positions[n.uuid] = { x: minLeft + n.width * (n.anchorX ?? 0.5), y: n.y }
-    } else if (direction === 'right') {
-      const maxRight = Math.max(...nodes.map(n => n.x + n.width * (1 - (n.anchorX ?? 0.5))))
-      for (const n of nodes) positions[n.uuid] = { x: maxRight - n.width * (1 - (n.anchorX ?? 0.5)), y: n.y }
-    } else if (direction === 'centerH') {
-      const minLeft = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
-      const maxRight = Math.max(...nodes.map(n => n.x + n.width * (1 - (n.anchorX ?? 0.5))))
-      const bboxCx = (minLeft + maxRight) / 2
-      for (const n of nodes) positions[n.uuid] = { x: bboxCx, y: n.y }
-    } else if (direction === 'top') {
-      const maxTop = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
-      for (const n of nodes) positions[n.uuid] = { x: n.x, y: maxTop - n.height * (1 - (n.anchorY ?? 0.5)) }
-    } else if (direction === 'bottom') {
-      const minBottom = Math.min(...nodes.map(n => n.y - n.height * (n.anchorY ?? 0.5)))
-      for (const n of nodes) positions[n.uuid] = { x: n.x, y: minBottom + n.height * (n.anchorY ?? 0.5) }
-    } else if (direction === 'centerV') {
-      const maxTop = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
-      const minBottom = Math.min(...nodes.map(n => n.y - n.height * (n.anchorY ?? 0.5)))
-      const bboxCy = (minBottom + maxTop) / 2
-      for (const n of nodes) positions[n.uuid] = { x: n.x, y: bboxCy }
-    }
-
-    for (const [uid, { x, y }] of Object.entries(positions)) {
-      updateNode(uid, { x, y })
-      try {
-        await window.api.ccSetProperty?.(port, uid, 'x', x)
-        await window.api.ccSetProperty?.(port, uid, 'y', y)
-      } catch (e) {
-        console.error('[SceneView] align failed:', e)
-      }
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  // ── 균등 분포 배치 ────────────────────────────────────────
-  // 선택 노드 크기 맞추기 — 기준 노드(첫 번째 선택) 크기로 동일화
-  const handleMatchSize = useCallback(async (dim: 'W' | 'H' | 'both') => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-    const ref = nodes[0]
-    for (let i = 1; i < nodes.length; i++) {
-      const n = nodes[i]
-      if (dim === 'W' || dim === 'both') {
-        updateNode(n.uuid, { width: ref.width })
-        try { await window.api.ccSetProperty?.(port, n.uuid, 'width', ref.width) } catch (_) {}
-      }
-      if (dim === 'H' || dim === 'both') {
-        updateNode(n.uuid, { height: ref.height })
-        try { await window.api.ccSetProperty?.(port, n.uuid, 'height', ref.height) } catch (_) {}
-      }
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  const handleDistribute = useCallback(async (axis: 'H' | 'V') => {
-    if (selectedUuids.size < 3) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 3) return
-
-    if (axis === 'H') {
-      const sorted = [...nodes].sort((a, b) => a.x - b.x)
-      const minX = sorted[0].x
-      const maxX = sorted[sorted.length - 1].x
-      const step = (maxX - minX) / (sorted.length - 1)
-      for (let i = 1; i < sorted.length - 1; i++) {
-        const n = sorted[i]
-        const newX = minX + step * i
-        updateNode(n.uuid, { x: newX })
-        try { await window.api.ccSetProperty?.(port, n.uuid, 'x', newX) } catch (_) {}
-      }
-    } else {
-      const sorted = [...nodes].sort((a, b) => a.y - b.y)
-      const minY = sorted[0].y
-      const maxY = sorted[sorted.length - 1].y
-      const step = (maxY - minY) / (sorted.length - 1)
-      for (let i = 1; i < sorted.length - 1; i++) {
-        const n = sorted[i]
-        const newY = minY + step * i
-        updateNode(n.uuid, { y: newY })
-        try { await window.api.ccSetProperty?.(port, n.uuid, 'y', newY) } catch (_) {}
-      }
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  const handleGridLayout = useCallback(async (gridGap = 20) => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-
-    const cols = Math.ceil(Math.sqrt(nodes.length))
-    // 시작 위치: 가장 왼쪽-상단 노드 기준
-    const startX = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
-    const startY = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
-
-    for (let i = 0; i < nodes.length; i++) {
-      const n = nodes[i]
-      const col = i % cols
-      const row = Math.floor(i / cols)
-      const newX = startX + col * (n.width + gridGap) + n.width * (n.anchorX ?? 0.5)
-      const newY = startY - row * (n.height + gridGap) - n.height * (1 - (n.anchorY ?? 0.5))
-      updateNode(n.uuid, { x: newX, y: newY })
-      try {
-        await window.api.ccSetProperty?.(port, n.uuid, 'x', newX)
-        await window.api.ccSetProperty?.(port, n.uuid, 'y', newY)
-      } catch (e) {
-        console.error('[SceneView] gridLayout failed:', e)
-      }
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  // ── R1458: 수평 균등 배분 ────────────────────────────────────
-  const handleDistributeHEqual = useCallback(async () => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-    const sorted = [...nodes].sort((a, b) => a.x - b.x)
-    const minX = sorted[0].x
-    const maxX = sorted[sorted.length - 1].x
-    const step = nodes.length > 1 ? (maxX - minX) / (nodes.length - 1) : 0
-    for (let i = 0; i < sorted.length; i++) {
-      const n = sorted[i]
-      const newX = minX + step * i
-      updateNode(n.uuid, { x: newX })
-      try { await window.api.ccSetProperty?.(port, n.uuid, 'x', newX) } catch (_) {}
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  // ── R1458: 수직 균등 배분 ────────────────────────────────────
-  const handleDistributeVEqual = useCallback(async () => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-    const sorted = [...nodes].sort((a, b) => a.y - b.y)
-    const minY = sorted[0].y
-    const maxY = sorted[sorted.length - 1].y
-    const step = nodes.length > 1 ? (maxY - minY) / (nodes.length - 1) : 0
-    for (let i = 0; i < sorted.length; i++) {
-      const n = sorted[i]
-      const newY = minY + step * i
-      updateNode(n.uuid, { y: newY })
-      try { await window.api.ccSetProperty?.(port, n.uuid, 'y', newY) } catch (_) {}
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  // ── R1458: 원형 배치 ──────────────────────────────────────────
-  const handleCircularLayout = useCallback(async () => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-    // 중심점: 선택 노드들의 평균 좌표
-    const cx = nodes.reduce((s, n) => s + n.x, 0) / nodes.length
-    const cy = nodes.reduce((s, n) => s + n.y, 0) / nodes.length
-    // 반지름: 노드 수에 비례
-    const radius = Math.max(80, nodes.length * 30)
-    const angleStep = (2 * Math.PI) / nodes.length
-    for (let i = 0; i < nodes.length; i++) {
-      const n = nodes[i]
-      const angle = angleStep * i - Math.PI / 2 // 12시 방향 시작
-      const newX = cx + radius * Math.cos(angle)
-      const newY = cy + radius * Math.sin(angle)
-      updateNode(n.uuid, { x: newX, y: newY })
-      try {
-        await window.api.ccSetProperty?.(port, n.uuid, 'x', newX)
-        await window.api.ccSetProperty?.(port, n.uuid, 'y', newY)
-      } catch (_) {}
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
+  // handleCreateNode~handleCircularLayout -> useSceneViewActions에서 제공
   // ── R1458: 자동정렬 드롭다운 상태 ──────────────────────────
   const [showAutoLayoutMenu, setShowAutoLayoutMenu] = useState(false)
   const autoLayoutMenuRef = useRef<HTMLDivElement>(null)

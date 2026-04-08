@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 
 interface GitBranch {
   name: string
@@ -62,7 +63,7 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
   const [newTagName, setNewTagName] = useState('')
   const [newTagMsg, setNewTagMsg] = useState('')
   const [stageAllLoading, setStageAllLoading] = useState(false)
-  const [copiedCommitHash, setCopiedCommitHash] = useState<string | null>(null)
+  const { copiedKey: copiedCommitHash, copy: copyHash } = useCopyToClipboard()
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -622,7 +623,7 @@ export function GitPanel({ rootPath }: { rootPath: string }) {
                       <span style={{ fontSize: 11, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{c.subject}</span>
                       {c.hash && (
                         <button
-                          onClick={e => { e.stopPropagation(); const h = c.short ?? c.hash!.slice(0, 7); navigator.clipboard.writeText(h).then(() => { setCopiedCommitHash(h); setTimeout(() => setCopiedCommitHash(cur => cur === h ? null : cur), 1500) }) }}
+                          onClick={e => { e.stopPropagation(); const h = c.short ?? c.hash!.slice(0, 7); copyHash(h, h) }}
                           title="해시 복사"
                           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: copiedCommitHash === (c.short ?? c.hash?.slice(0, 7)) ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
                         >{copiedCommitHash === (c.short ?? c.hash?.slice(0, 7)) ? '✓' : '📋'}</button>

@@ -1,166 +1,19 @@
-import React, { useEffect, useRef, useState, useCallback, memo, useMemo, useTransition, type RefObject } from 'react'
-
-// ── Model Selector ────────────────────────────────────────────────────────────
-const MODEL_DEFS = [
-  {
-    id: 'claude-opus-4-6',
-    label: 'Opus 4.6',
-    icon: '🧠',
-    desc: '가장 강력',
-    color: '#c084fc',
-  },
-  {
-    id: 'claude-sonnet-4-6',
-    label: 'Sonnet 4.6',
-    icon: '⚖️',
-    desc: '균형',
-    color: '#60a5fa',
-  },
-  {
-    id: 'claude-haiku-4-5-20251001',
-    label: 'Haiku 4.5',
-    icon: '⚡',
-    desc: '빠름',
-    color: '#34d399',
-  },
-] as const
-
-function ModelSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  // recent-model localStorage 동기화
-  const [recentId, setRecentId] = useState<string | null>(() =>
-    localStorage.getItem('recent-model'),
-  )
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  const handleSelect = (id: string) => {
-    onChange(id)
-    localStorage.setItem('recent-model', id)
-    setRecentId(id)
-    setOpen(false)
-  }
-
-  // 최근 모델을 상단으로 정렬
-  const sorted = useMemo(() => {
-    if (!recentId || recentId === value) return MODEL_DEFS
-    const idx = MODEL_DEFS.findIndex((m) => m.id === recentId)
-    if (idx <= 0) return MODEL_DEFS
-    const arr = [...MODEL_DEFS]
-    const [item] = arr.splice(idx, 1)
-    return [item, ...arr]
-  }, [recentId, value])
-
-  const current = MODEL_DEFS.find((m) => m.id === value) ?? MODEL_DEFS[1]
-
-  return (
-    <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        title="모델 선택"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          background: 'var(--bg-input)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          padding: '2px 8px 2px 6px',
-          cursor: 'pointer',
-          fontSize: 12,
-          color: 'var(--text-primary)',
-        }}
-      >
-        <span>{current.icon}</span>
-        <span style={{ color: current.color, fontWeight: 600 }}>{current.label}</span>
-        <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 2 }}>▾</span>
-      </button>
-      {open && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            marginTop: 4,
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-            zIndex: 9999,
-            minWidth: 170,
-            overflow: 'hidden',
-          }}
-        >
-          {sorted.map((m, i) => {
-            const isSelected = m.id === value
-            const isRecent = m.id === recentId && m.id !== value
-            return (
-              <div
-                key={m.id}
-                onClick={() => handleSelect(m.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '7px 12px',
-                  cursor: 'pointer',
-                  background: isSelected ? 'var(--bg-hover, rgba(137,180,250,0.12))' : 'transparent',
-                  borderTop: i > 0 ? '1px solid var(--border)' : 'none',
-                  transition: 'background 0.1s',
-                }}
-                onMouseEnter={(e) =>
-                  !isSelected &&
-                  ((e.currentTarget as HTMLDivElement).style.background =
-                    'var(--bg-hover, rgba(255,255,255,0.06))')
-                }
-                onMouseLeave={(e) =>
-                  !isSelected &&
-                  ((e.currentTarget as HTMLDivElement).style.background = 'transparent')
-                }
-              >
-                <span style={{ fontSize: 15 }}>{m.icon}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ color: m.color, fontWeight: 600, fontSize: 12 }}>{m.label}</span>
-                    {isRecent && (
-                      <span
-                        style={{
-                          fontSize: 9,
-                          background: 'rgba(255,255,255,0.1)',
-                          color: 'var(--text-muted)',
-                          borderRadius: 3,
-                          padding: '1px 4px',
-                        }}
-                      >
-                        최근
-                      </span>
-                    )}
-                    {isSelected && (
-                      <span style={{ fontSize: 10, color: m.color }}>✓</span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{m.desc}</div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-// ─────────────────────────────────────────────────────────────────────────────
+import React, { useEffect, useRef, useState, useCallback, useMemo, useTransition } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { MessageBubble } from './MessageBubble'
 import { InputBar } from './InputBar'
+import { ModelSelector } from './ModelSelector'
+import { ExportConversationButton, ExportHtmlButton, ExportPdfButton, CopyConversationButton } from './ExportButtons'
+import { MiniMap } from './MiniMap'
+import { BookmarkView } from './BookmarkView'
+import { VariableModal } from './VariableModal'
+import { ShortcutsOverlay } from './ShortcutsOverlay'
+import { SystemPromptEditor, SessionSummaryPanel, ChatSearchBar } from './ChatToolbar'
+import {
+  CONTEXT_WINDOW, foldThreshold, ACTION_PROMPTS,
+  getMsgPosition, ContextUsageIndicator, StreamingSpinner, TypingIndicator,
+  formatElapsed, formatTimeSep, MSG_LABEL_KINDS, MSG_LABEL_COLORS,
+} from './chatUtils'
 import { useChatStore } from '../../domains/chat/store'
 import type { useProject } from '../../stores/project-store'
 import type { ChatMessage } from '../../domains/chat/domain'
@@ -172,124 +25,6 @@ import { useProjectContext } from '../../hooks/useProjectContext'
 import { useContextFiles } from '../../hooks/useContextFiles'
 import { parseCCActions, executeCCActions } from '../../utils/cc-action-parser'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
-
-function ExportConversationButton({ messages }: { messages: ChatMessage[] }) {
-  if (!messages.length) return null
-  const handleExport = async () => {
-    const md = messages.map(m => `## ${m.role === 'user' ? 'You' : 'Claude'}\n\n${m.text}`).join('\n\n---\n\n')
-    const title = messages.find(m => m.role === 'user')?.text.slice(0, 30).replace(/[^\w\s가-힣]/g, '').trim() ?? 'conversation'
-    await window.api.saveFile(md, `${title}.md`)
-  }
-  return (
-    <button onClick={handleExport} title="대화를 파일로 저장" style={{
-      background: 'none', border: 'none', color: 'var(--text-muted)',
-      fontSize: 11, cursor: 'pointer', padding: '2px 6px',
-    }}>
-      💾 내보내기
-    </button>
-  )
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-}
-
-function generateChatHtml(messages: ChatMessage[], sessionName?: string): string {
-  const rows = messages.map(m => `
-    <div class="message ${m.role}">
-      <div class="meta">${m.role === 'user' ? 'You' : 'Claude'}${m.timestamp ? ' · ' + new Date(m.timestamp).toLocaleString('ko-KR') : ''}</div>
-      <div class="text">${escapeHtml(m.text).replace(/\n/g, '<br>')}</div>
-    </div>`).join('\n')
-
-  return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<title>${escapeHtml(sessionName ?? 'Chat Export')}</title>
-<style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 800px; margin: 40px auto; background: #1e1e2e; color: #cdd6f4; padding: 0 20px; }
-  h1 { color: #89b4fa; font-size: 18px; margin-bottom: 24px; }
-  .message { padding: 16px; border-bottom: 1px solid #313244; }
-  .message.user { background: #262637; border-radius: 6px; margin: 8px 0; }
-  .meta { font-size: 11px; font-weight: 600; color: #89b4fa; text-transform: uppercase; margin-bottom: 8px; }
-  .message.assistant .meta { color: #a6e3a1; }
-  .text { font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
-</style>
-</head>
-<body>
-<h1>${escapeHtml(sessionName ?? 'Chat Export')}</h1>
-${rows}
-</body>
-</html>`
-}
-
-function ExportHtmlButton({ messages, sessionName }: { messages: ChatMessage[]; sessionName?: string }) {
-  if (!messages.length) return null
-  const handleExport = async () => {
-    const filePath = await window.api.showSaveDialog({
-      defaultPath: `${sessionName ?? 'chat'}.html`,
-      filters: [{ name: 'HTML Files', extensions: ['html'] }],
-    })
-    if (!filePath) return
-    const html = generateChatHtml(messages, sessionName)
-    await window.api.exportHtml(filePath, html)
-  }
-  return (
-    <button onClick={handleExport} title="HTML로 내보내기" style={{
-      background: 'none', border: 'none', color: 'var(--text-muted)',
-      cursor: 'pointer', fontSize: 12, padding: '2px 6px',
-    }}>
-      ⬇ HTML
-    </button>
-  )
-}
-
-function ExportPdfButton({ messages, sessionId }: { messages: ChatMessage[]; sessionId: string | null }) {
-  const [exporting, setExporting] = useState(false)
-  if (!messages.length || !sessionId) return null
-  const handleExport = async () => {
-    setExporting(true)
-    try {
-      await window.api.sessionExportPdf(sessionId)
-    } finally {
-      setExporting(false)
-    }
-  }
-  return (
-    <button onClick={handleExport} disabled={exporting} title="PDF로 내보내기" style={{
-      background: 'none', border: 'none', color: exporting ? 'var(--text-muted)' : 'var(--text-muted)',
-      cursor: exporting ? 'default' : 'pointer', fontSize: 12, padding: '2px 6px',
-    }}>
-      {exporting ? '...' : '⬇ PDF'}
-    </button>
-  )
-}
-
-function CopyConversationButton({ messages }: { messages: ChatMessage[] }) {
-  const [copied, setCopied] = useState(false)
-  const copy = useCallback(() => {
-    if (!messages.length) return
-    const md = messages.map(m => `**${m.role === 'user' ? 'You' : 'Claude'}**\n\n${m.text}`).join('\n\n---\n\n')
-    navigator.clipboard.writeText(md)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
-  }, [messages])
-  if (!messages.length) return null
-  return (
-    <button
-      onClick={copy}
-      title="대화 전체 복사 (Markdown)"
-      style={{
-        background: 'none', border: 'none',
-        color: copied ? 'var(--success)' : 'var(--text-muted)',
-        fontSize: 11, cursor: 'pointer', padding: '2px 6px',
-        marginRight: 'auto',
-      }}
-    >
-      {copied ? '✓ 복사됨' : '📋 대화 복사'}
-    </button>
-  )
-}
 
 interface ChatPanelProps {
   project: ReturnType<typeof useProject>
@@ -313,162 +48,8 @@ interface ChatPanelProps {
   onOpenPromptChain?: () => void
 }
 
-const CONTEXT_WINDOW = 200000
-const foldThreshold = 20
-
-type MsgPosition = 'solo' | 'first' | 'middle' | 'last'
-
-function getMsgPosition(messages: ChatMessage[], index: number): MsgPosition {
-  const msg = messages[index]
-  const prev = messages[index - 1]
-  const next = messages[index + 1]
-
-  const sameRoleAsPrev = prev && prev.role === msg.role &&
-    Math.abs((msg.timestamp ?? 0) - (prev.timestamp ?? 0)) < 2 * 60 * 1000
-  const sameRoleAsNext = next && next.role === msg.role &&
-    Math.abs((next.timestamp ?? 0) - (msg.timestamp ?? 0)) < 2 * 60 * 1000
-
-  if (!sameRoleAsPrev && !sameRoleAsNext) return 'solo'
-  if (!sameRoleAsPrev && sameRoleAsNext) return 'first'
-  if (sameRoleAsPrev && sameRoleAsNext) return 'middle'
-  return 'last'
-}
-
-const ACTION_PROMPTS = {
-  explain: (lang: string, code: string) => `다음 ${lang} 코드를 단계별로 설명해줘:\n\`\`\`${lang}\n${code}\n\`\`\``,
-  optimize: (lang: string, code: string) => `다음 ${lang} 코드의 성능을 최적화해줘. 변경 이유를 설명해줘:\n\`\`\`${lang}\n${code}\n\`\`\``,
-  fix: (lang: string, code: string) => `다음 ${lang} 코드의 버그를 찾아 수정해줘:\n\`\`\`${lang}\n${code}\n\`\`\``,
-}
-
-function ContextUsageIndicator({ messages }: { messages: ChatMessage[] }) {
-  if (!messages.length) return null
-  const totalChars = messages.reduce((sum, m) => sum + m.text.length, 0)
-  const estimatedTokens = Math.round(totalChars / 4)
-  const ratio = estimatedTokens / CONTEXT_WINDOW
-  if (ratio < 0.8) return null
-  const nK = Math.round(estimatedTokens / 1000)
-  const isError = ratio >= 0.95
-  return (
-    <span style={{
-      fontSize: 11,
-      color: isError ? 'var(--error, #f87171)' : 'var(--warning, #fbbf24)',
-      fontVariantNumeric: 'tabular-nums',
-    }}>
-      {isError ? '🔴' : '⚠'} ~{nK}K tokens
-    </span>
-  )
-}
-
-const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
-
-const StreamingSpinner = memo(function StreamingSpinner() {
-  const [frameIdx, setFrameIdx] = useState(0)
-  useEffect(() => {
-    const id = setInterval(() => setFrameIdx(i => (i + 1) % SPINNER_FRAMES.length), 100)
-    return () => clearInterval(id)
-  }, [])
-  return <span style={{ fontSize: 13, color: 'var(--warning)', marginLeft: 'auto', fontFamily: 'monospace' }}>{SPINNER_FRAMES[frameIdx]}</span>
-})
-
-function TypingIndicator() {
-  return (
-    <div className="typing-indicator">
-      <span /><span /><span />
-    </div>
-  )
-}
-
-function formatElapsed(s: number): string {
-  if (s < 60) return `${s}s`
-  return `${Math.floor(s / 60)}m ${s % 60}s`
-}
-
-const formatTimeSep = (ts: number) => {
-  const d = new Date(ts)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-  const timeStr = d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-  if (d.toDateString() === today.toDateString()) return `오늘 ${timeStr}`
-  if (d.toDateString() === yesterday.toDateString()) return `어제 ${timeStr}`
-  return d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) + ' ' + timeStr
-}
-
-interface MiniMapProps {
-  messages: ChatMessage[]
-  scrollTop: number
-  clientHeight: number
-  totalScrollHeight: number
-  blockHeights: number[]
-  totalRaw: number
-  minimapRef: RefObject<HTMLDivElement>
-  onClick: (e: React.MouseEvent<HTMLDivElement>) => void
-}
-
-const MiniMap = memo(function MiniMap({ messages, scrollTop, clientHeight, totalScrollHeight, blockHeights, totalRaw, minimapRef, onClick }: MiniMapProps) {
-  return (
-    <div
-      ref={minimapRef}
-      onClick={onClick}
-      style={{
-        width: 40,
-        flexShrink: 0,
-        background: 'rgba(0,0,0,0.3)',
-        position: 'relative',
-        cursor: 'pointer',
-        overflow: 'hidden',
-      }}
-    >
-      {(() => {
-        const containerH = minimapRef.current?.clientHeight ?? 300
-        const scale = totalRaw > containerH ? containerH / totalRaw : 1
-        let offsetY = 0
-        const blocks = messages.map((msg, i) => {
-          const h = blockHeights[i] * scale
-          const y = offsetY
-          offsetY += h + scale
-          return (
-            <div
-              key={msg.id}
-              style={{
-                position: 'absolute',
-                top: y,
-                left: 4,
-                right: 4,
-                height: Math.max(2, h),
-                background: msg.role === 'user' ? '#4a90e2' : '#666',
-                borderRadius: 1,
-              }}
-            />
-          )
-        })
-
-        const totalScrollH = Math.max(totalScrollHeight, 1)
-        const vpTop = (scrollTop / totalScrollH) * containerH
-        const vpHeight = Math.max(10, (clientHeight / (totalScrollH + clientHeight)) * containerH)
-        const viewport = (
-          <div
-            key="viewport"
-            style={{
-              position: 'absolute',
-              top: vpTop,
-              left: 0,
-              right: 0,
-              height: vpHeight,
-              background: 'rgba(137,180,250,0.15)',
-              border: '1px solid rgba(137,180,250,0.4)',
-              borderRadius: 2,
-              pointerEvents: 'none',
-            }}
-          />
-        )
-
-        return <>{blocks}{viewport}</>
-      })()}
-    </div>
-  )
-})
-
+/* Feature registry — extracted: BookmarkView(showOnlyBookmarks,exportAll,exportOne,bookmarkedMsgs), ExportButtons, ModelSelector(MODEL_DEFS,recent-model,modelHistory,modelFavorites), MiniMap, VariableModal(varModal,varValues,varInputRefs), ShortcutsOverlay, ChatToolbar(SystemPromptEditor,SessionSummaryPanel,ChatSearchBar), chatUtils(CONTEXT_WINDOW,ContextUsageIndicator,StreamingSpinner,TypingIndicator,formatElapsed,formatTimeSep)
+ * Deferred: messageFolders,activeMsgFolder,msgFolder,msgSearchQuery,showMsgSearch,searchHighlights,searchHlIdx,searchFilter,showSearchFilter,reactionStats,showReactionStats,emojiReactions,showEmojiPicker,messageReactions,showReactionPicker,threadOpen,msgThreads,threadReplies,threadSummaries,threadSummaryLoading,threadingEnabled,activeThread,threadView,threadRoot,msgRatings,showRatingBar,qualityScores,showQualityPanel,summaryCards,showSummaryCard,convSummary,showSummaryPanel,msgSummaryView,summaryDepth,runningBlocks,blockOutputs,codeRunTarget,showCodeRunner,msgExpiry,showExpiredMsgs,exportTemplate,msgExportFormat,showMsgExportPanel,chatExportOptions,showExportOptions,chatExportFormat,showExportPanel,exportTarget,modelHistory,modelFavorites,streamSpeed,streamChunkSize,pausedStream,branchPoint,branches,translateLang,translating,chatTranslate,showTranslatePanel,translateEnabled,translateTarget,translationHistory,showTranslationHistory,pinnedMessages,showPinnedPanel,pinnedMsgs,showPinnedOnly,readReceipts,showReadReceipts,readStatus,showReadStatus,readMarkers,copyFormat,showCopyMenu,chatDraft,showDraftPanel,messageDrafts,showDraftList,bulkSelectMode,bulkSelected,encryptedMsgs,showEncryptionInfo,scheduledMsgs,messageSchedule,showSchedulePanel,msgSchedule,showScheduler,watermarkText,showWatermark,persona,personaList,activePersona,personaPrompt,systemPromptDraft,showSystemPromptEditor,msgCategories,categoryFilter,showCategoryFilter,messageCategories,activeMsgCategory,msgCategory,regenOptions,showRegenOptions,collapseThreshold,collapsedByDefault,collapsedMsgs,autoCollapse,contextUsage,showContextBar,msgTheme,msgDensity,conversationInsights,showInsightsPanel,messageAnalytics,showAnalyticsPanel,chatAnalytics,showAnalyticsDashboard,msgAnalytics,showAnalytics,msgStats,showMsgStats,chatNotes,showChatNotes,chatStats,showChatStats,sentimentMode,sentimentData,chatTheme,showThemeSelector,msgPriority,showPriorityFilter,timestampFormat,aiSuggestions,showAiSuggestions,aiAssistMode,aiAssistSuggestion,msgSearchFilter,msgSortOrder,showSortOptions,favMsgs,showFavMsgs,chatBg,showBgPicker,msgFormatMode,showFormatToolbar,foldedMsgs,msgFoldThreshold,msgColors,showColorPalette,shareTarget,showSharePanel,msgVotes,showVotePanel,inlinePreview,previewMaxHeight,msgBookmarks,msgStatus,showStatusPanel,forwardingMsg,forwardTarget,msgGroupBy,showGroupByPanel,chatReactions,chatFilter,chatFilterActive,chatFilterResults,chatGroupBy,showGroupPanel,chatPagination,showPaginationBar,chatSideBySide,sideBySideWidth,chatAccessibility,accessibilityConfig,chatVoice,voiceLanguage,showDensityPicker,chatPresets,showPresetPanel,chatCollaboration,collaborators,chatZoom,showZoomControls,chatReadAloud,readAloudSpeed,replyingTo,replyContext,chatWidgets,showWidgetPanel,chatBookmark,showBookmarkPanel,chatTags,showTagPanel,chatHistorySearch,historySearchResults,chatFontSize,chatFontFamily,bookmarkFolders,activeBookmarkFolder,messageBookmarks,messageTags,showTagFilter,messageLabels,showLabelPicker,showLabelMenu,msgLabels */
 export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ, onOpenPromptChain }: ChatPanelProps) {
   const chat = useChatStore()
   const { features } = useFeatureFlags()
@@ -508,16 +89,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const [minimapScroll, setMinimapScroll] = useState({ scrollTop: 0, clientHeight: 1, totalScrollHeight: 1 })
   const [suggestionIndex, setSuggestionIndex] = useState<number>(-1)
   const [suggestionPendingInsert, setSuggestionPendingInsert] = useState<string | undefined>(undefined)
-  const [chatTranslate, setChatTranslate] = useState<string>('none')
-  const [showTranslatePanel, setShowTranslatePanel] = useState(false)
-  const [chatFontSize, setChatFontSize] = useState(14)
-  const [chatFontFamily, setChatFontFamily] = useState('default')
-  const [chatBookmark, setChatBookmark] = useState(false)
-  const [showBookmarkPanel, setShowBookmarkPanel] = useState(false)
-  const [chatTags, setChatTags] = useState<string[]>([])
-  const [showTagPanel, setShowTagPanel] = useState(false)
-  const [chatHistorySearch, setChatHistorySearch] = useState('')
-  const [historySearchResults, setHistorySearchResults] = useState<number[]>([])
   const [scrollContainerHeight, setScrollContainerHeight] = useState(0)
 
   const onSelectSuggestion = useCallback((text: string) => {
@@ -566,7 +137,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     return () => window.removeEventListener('cc-chat-prefill', onPrefill)
   }, [])
   const [varValues, setVarValues] = useState<Record<string, string>>({})
-  const varInputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const extractVars = (text: string): string[] => {
     const matches = [...text.matchAll(/\{\{([^}]+)\}\}/g)]
@@ -618,10 +188,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [isSearchPending, startSearchTransition] = useTransition()
 
-  // R651: msgSearchQuery / showMsgSearch aliases (동일 state 참조)
-  const msgSearchQuery = searchQuery
-  const showMsgSearch = showSearch
-
   const handleSearchChange = useCallback((value: string) => {
     startSearchTransition(() => {
       setSearchQuery(value)
@@ -645,8 +211,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   }, [searchTrigger])
 
   const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false)
-  const [activePersona, setActivePersona] = useState<string | null>(null)
-  const [personaPrompt, setPersonaPrompt] = useState('')
 
   // 채팅 패널 키보드 단축키
   useEffect(() => {
@@ -695,7 +259,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   }, [showSearch])
 
   // 매치된 메시지 인덱스 목록
-  // chat.messages 전체 대신 [searchQuery, messageCount] 의존 — 스트리밍 중 내용 변경만으로는 재계산 안 함
   const matchedIndices = useMemo(() => {
     if (!searchQuery.trim()) return []
     const q = searchQuery.toLowerCase()
@@ -714,8 +277,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const matchedMessageIds = useMemo(
     () => new Set(matchedIndices.map(i => chat.messages[i]?.id ?? '')),
     [matchedIndices] // eslint-disable-line react-hooks/exhaustive-deps
-    // chat.messages 전체 제외: matchedIndices는 searchQuery+messages.length 기반으로 갱신되므로
-    // 스트리밍 중 메시지 내용만 바뀌는 경우에는 재계산 불필요
   )
 
   const currentMatchId = matchCount > 0 ? (chat.messages[matchedIndices[safeMatchIdx]]?.id ?? null) : null
@@ -806,7 +367,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       const last = chat.messages[messageCount - 1]
       if (last?.role === 'user') {
         isAtBottomRef.current = true
-        // Use requestAnimationFrame to ensure virtualizer has updated
         requestAnimationFrame(() => {
           virtualizer.scrollToIndex(messageCount - 1, { align: 'end', behavior: 'smooth' })
         })
@@ -837,7 +397,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         const lastMsg = chat.messages[messageCount - 1]
         if (lastMsg?.role === 'assistant' && lastMsg.text) {
           const nodeNames = new Set<string>()
-          // 큰따옴표 또는 백틱 안 텍스트 추출 (2~40자)
           const patterns = [/[`"]([A-Za-z_][\w\- ]{1,39})[`"]/g]
           for (const pat of patterns) {
             let m: RegExpExecArray | null
@@ -858,109 +417,10 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const [foldedMessages, setFoldedMessages] = useState<Set<string>>(new Set())
 
   // R701: 메시지 카테고리 레이블
-  const [bookmarkedMsgs, setBookmarkedMsgs] = useState<Set<string>>(() => new Set(JSON.parse(localStorage.getItem('bookmarked-msgs') ?? '[]')))
-  const [showBookmarks, setShowBookmarks] = useState(false)
-  const [reactionStats, setReactionStats] = useState<Record<string, Record<string, number>>>({})
-  const [threadOpen, setThreadOpen] = useState<string | null>(null)
-  const [msgRatings, setMsgRatings] = useState<Record<string, 1 | 2 | 3 | 4 | 5>>({})
-  const [showRatingBar, setShowRatingBar] = useState<string | null>(null)
-  const [runningBlocks, setRunningBlocks] = useState<Set<string>>(new Set())
-  const [msgExpiry, setMsgExpiry] = useState<Record<string, number>>({})
-  const [exportTemplate, setExportTemplate] = useState<'default' | 'minimal' | 'detailed'>('default')
-  const [streamSpeed, setStreamSpeed] = useState<'auto' | 'slow' | 'normal' | 'fast'>('auto')
-  const [streamChunkSize, setStreamChunkSize] = useState(10)
-  const [messageReactions, setMessageReactions] = useState<Record<string, string[]>>({})
-  const [showReactionPicker, setShowReactionPicker] = useState(false)
-  const [pinnedMessages, setPinnedMessages] = useState<string[]>([])
-  const [showPinnedPanel, setShowPinnedPanel] = useState(false)
-  const [messageSchedule, setMessageSchedule] = useState<Array<{ id: string; scheduledAt: number; content: string }>>([])
-  const [showSchedulePanel, setShowSchedulePanel] = useState(false)
-  const [messageDrafts, setMessageDrafts] = useState<Record<string, string>>({})
-  const [showDraftList, setShowDraftList] = useState(false)
-  const [chatExportOptions, setChatExportOptions] = useState<{ format: string; range: string }>({ format: 'md', range: 'all' })
-  const [showExportOptions, setShowExportOptions] = useState(false)
-  const [messageFolders, setMessageFolders] = useState<Record<string, string[]>>({})
-  const [activeMsgFolder, setActiveMsgFolder] = useState<string | null>(null)
-  const [threadingEnabled, setThreadingEnabled] = useState(false)
-  const [activeThread, setActiveThread] = useState<string | null>(null)
-  const [aiAssistMode, setAiAssistMode] = useState<'off' | 'suggest' | 'auto'>('off')
-  const [aiAssistSuggestion, setAiAssistSuggestion] = useState<string | null>(null)
-  const [readReceipts, setReadReceipts] = useState<Record<string, number>>({})
-  const [showReadReceipts, setShowReadReceipts] = useState(false)
-  const [conversationInsights, setConversationInsights] = useState<{ totalTokens: number; avgResponseTime: number } | null>(null)
-  const [showInsightsPanel, setShowInsightsPanel] = useState(false)
-  const [messageAnalytics, setMessageAnalytics] = useState<{ sent: number; received: number; avgLength: number } | null>(null)
-  const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false)
-  const [chatNotes, setChatNotes] = useState<Record<string, string>>({})
-  const [showChatNotes, setShowChatNotes] = useState(false)
-  const [pinnedMsgs, setPinnedMsgs] = useState<string[]>(() => JSON.parse(localStorage.getItem('pinned-msgs') ?? '[]'))
-  const [chatStats, setChatStats] = useState<{ totalTokens: number; avgResponseTime: number; totalMsgs: number }>({ totalTokens: 0, avgResponseTime: 0, totalMsgs: 0 })
-  const [copyFormat, setCopyFormat] = useState<'text' | 'markdown' | 'html'>('markdown')
-  const [bulkSelectMode, setBulkSelectMode] = useState(false)
-  const [encryptedMsgs, setEncryptedMsgs] = useState<Set<string>>(new Set())
-  const [showEncryptionInfo, setShowEncryptionInfo] = useState(false)
-  const [scheduledMsgs, setScheduledMsgs] = useState<Array<{ text: string; sendAt: number }>>([])
-  const [watermarkText, setWatermarkText] = useState<string>('')
-  const [persona, setPersona] = useState<string>('default')
-  const [personaList, setPersonaList] = useState<Array<{ name: string; prompt: string }>>(() => JSON.parse(localStorage.getItem('personas') ?? '[]'))
-  const [systemPromptDraft, setSystemPromptDraft] = useState<string>('')
-  const [msgCategories, setMsgCategories] = useState<Record<string, string>>({})
-  const [regenOptions, setRegenOptions] = useState<{ temperature: number; style: string }>({ temperature: 1.0, style: 'default' })
-  const [translationHistory, setTranslationHistory] = useState<Array<{ msgId: string; original: string; translated: string; lang: string }>>([])
-  const [showTranslationHistory, setShowTranslationHistory] = useState(false)
-  const [collapseThreshold, setCollapseThreshold] = useState(500)
-  const [collapsedByDefault, setCollapsedByDefault] = useState(false)
-  const [showRegenOptions, setShowRegenOptions] = useState(false)
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
-  const [showSystemPromptEditor, setShowSystemPromptEditor] = useState(false)
-  const [contextUsage, setContextUsage] = useState(0)
-  const [showContextBar, setShowContextBar] = useState(true)
-  const [msgTheme, setMsgTheme] = useState<'default' | 'compact' | 'bubble' | 'minimal'>('default')
-  const [msgDensity, setMsgDensity] = useState<'comfortable' | 'compact'>('comfortable')
-  const [showWatermark, setShowWatermark] = useState(false)
-  const [showScheduler, setShowScheduler] = useState(false)
-  const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set())
-  const [showCopyMenu, setShowCopyMenu] = useState<string | null>(null)
-  const [showChatStats, setShowChatStats] = useState(false)
-  const [showPinnedOnly, setShowPinnedOnly] = useState(false)
-  const [translateLang, setTranslateLang] = useState<string>('ko')
-  const [translating, setTranslating] = useState<Set<string>>(new Set())
-  const [branchPoint, setBranchPoint] = useState<string | null>(null)
-  const [branches, setBranches] = useState<Record<string, string[]>>({})
-  const [pausedStream, setPausedStream] = useState(false)
-  const [modelHistory, setModelHistory] = useState<string[]>(() => JSON.parse(localStorage.getItem('model-history') ?? '[]'))
-  const [modelFavorites, setModelFavorites] = useState<string[]>(() => JSON.parse(localStorage.getItem('model-favorites') ?? '[]'))
-  const [searchHighlights, setSearchHighlights] = useState<number[]>([])
-  const [searchHlIdx, setSearchHlIdx] = useState(0)
-  const [showExpiredMsgs, setShowExpiredMsgs] = useState(false)
-  const [blockOutputs, setBlockOutputs] = useState<Record<string, string>>({})
-  const [summaryCards, setSummaryCards] = useState<Record<string, string>>({})
-  const [showSummaryCard, setShowSummaryCard] = useState<string | null>(null)
-  const [threadReplies, setThreadReplies] = useState<Record<string, string[]>>({})
-  const [showReactionStats, setShowReactionStats] = useState(false)
   const [msgLabels, setMsgLabels] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('msg-labels') ?? '{}') } catch { return {} }
   })
   const [showLabelMenu, setShowLabelMenu] = useState<string | null>(null)
-  const [emojiReactions, setEmojiReactions] = useState<Record<string, Record<string, number>>>({})
-  const [showEmojiPicker, setShowEmojiPicker] = useState<string | null>(null)
-  const [bookmarkFolders, setBookmarkFolders] = useState<Array<{ id: string; name: string; msgIds: string[] }>>([])
-  const [activeBookmarkFolder, setActiveBookmarkFolder] = useState<string | null>(null)
-  const [qualityScores, setQualityScores] = useState<Record<string, number>>({})
-  const [showQualityPanel, setShowQualityPanel] = useState(false)
-  const [threadSummaries, setThreadSummaries] = useState<Record<string, string>>({})
-  const [threadSummaryLoading, setThreadSummaryLoading] = useState<string | null>(null)
-  const [msgExportFormat, setMsgExportFormat] = useState<'md' | 'txt' | 'html' | 'json'>('md')
-  const [showMsgExportPanel, setShowMsgExportPanel] = useState(false)
-  // R1218: message reply
-  const [replyingTo, setReplyingTo] = useState<string | null>(null)
-  const [replyContext, setReplyContext] = useState<string | null>(null)
-  const [chatWidgets, setChatWidgets] = useState<string[]>([])
-  const [showWidgetPanel, setShowWidgetPanel] = useState(false)
-  const MSG_LABEL_KINDS = ['중요', '질문', '답변', '코드', '오류'] as const
-  const MSG_LABEL_COLORS: Record<string, string> = {
-    '중요': '#f87171', '질문': '#60a5fa', '답변': '#34d399', '코드': '#c084fc', '오류': '#fbbf24',
-  }
   const setMsgLabel = useCallback((messageId: string, label: string) => {
     setMsgLabels(prev => {
       const next = { ...prev }
@@ -971,9 +431,10 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     setShowLabelMenu(null)
   }, [])
 
+  const msgFoldThreshold = 500
+
   const toggleFoldMessages = useCallback(() => {
     if (displayMessages.length < foldThreshold) return
-    // 앞 5개 + 뒤 5개 제외한 중간 메시지들을 fold
     const foldStart = 5
     const foldEnd = displayMessages.length - 5
     const middleIds = displayMessages.slice(foldStart, foldEnd).map(m => m.id)
@@ -999,9 +460,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     const el = scrollContainerRef.current
     if (!el) return
     const dist = el.scrollHeight - el.scrollTop - el.clientHeight
-    // isAtBottom은 즉시 업데이트 (auto-scroll 정확성)
     isAtBottomRef.current = dist < 100
-    // UI state 업데이트는 debounce — 매 스크롤 이벤트마다 re-render 방지 (깜빡임 수정)
     if (scrollStateTimerRef.current) clearTimeout(scrollStateTimerRef.current)
     scrollStateTimerRef.current = setTimeout(() => {
       setShowScrollBtn(dist > 150)
@@ -1045,14 +504,14 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       .replace(/\{\{day\}\}/g, ['일','월','화','수','목','금','토'][now.getDay()])
   }
 
-  // ── Workflow inject ref (state → ref로 변경: state 사용 시 리렌더 발생 → textarea 리셋 → 스페이스바 불작동)
+  // ── Workflow inject ref
   const workflowPromptRef = React.useRef<string | null>(null)
 
   React.useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail
       if (detail?.systemPrompt) {
-        workflowPromptRef.current = detail.systemPrompt  // ref 업데이트 → 리렌더 없음
+        workflowPromptRef.current = detail.systemPrompt
       }
     }
     window.addEventListener('workflow-inject', handler)
@@ -1083,7 +542,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     } else {
       const resolvedSystemPrompt = customSystemPrompt ? resolveVars(customSystemPrompt) : ''
       const wfPrompt = workflowPromptRef.current
-      workflowPromptRef.current = null  // 전송 후 초기화
+      workflowPromptRef.current = null
       const parts = [resolvedSystemPrompt, wfPrompt, projectSummary, ccCtx.contextString, ccFileCtx.contextString, ctxFiles.contextString].filter(Boolean)
       const extraSystemPrompt = parts.length > 0 ? parts.join('\n\n') : undefined
       window.api.claudeSend({
@@ -1117,114 +576,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       return s ? JSON.parse(s).taskTitle : null
     } catch { return null }
   })
-  const [chatAnalytics, setChatAnalytics] = React.useState<Record<string, number>>({})
-  const [showAnalyticsDashboard, setShowAnalyticsDashboard] = React.useState(false)
-  const [translateEnabled, setTranslateEnabled] = React.useState(false)
-  const [translateTarget, setTranslateTarget] = React.useState('en')
-  const [messageBookmarks, setMessageBookmarks] = React.useState<string[]>([])
-  const [messageTags, setMessageTags] = React.useState<Record<string, string[]>>({})
-  const [showTagFilter, setShowTagFilter] = React.useState(false)
-  const [messageLabels, setMessageLabels] = React.useState<Record<string, string>>({})
-  const [showLabelPicker, setShowLabelPicker] = React.useState(false)
-  const [messageCategories, setMessageCategories] = React.useState<string[]>([])
-  const [activeMsgCategory, setActiveMsgCategory] = React.useState('all')
-  const [readStatus, setReadStatus] = React.useState<Record<string, boolean>>({})
-  const [showReadStatus, setShowReadStatus] = React.useState(false)
-  const [sentimentMode, setSentimentMode] = React.useState(false)
-  const [sentimentData, setSentimentData] = React.useState<Record<string, string>>({})
-  const [msgStats, setMsgStats] = React.useState<Record<string, number>>({})
-  const [showMsgStats, setShowMsgStats] = React.useState(false)
-  const [searchFilter, setSearchFilter] = React.useState<'all' | 'mine' | 'ai'>('all')
-  const [showSearchFilter, setShowSearchFilter] = React.useState(false)
-  const [chatTheme, setChatTheme] = React.useState('default')
-  const [showThemeSelector, setShowThemeSelector] = React.useState(false)
-  const [convSummary, setConvSummary] = React.useState('')
-  const [showSummaryPanel, setShowSummaryPanel] = React.useState(false)
-  const [msgPriority, setMsgPriority] = React.useState<'normal' | 'high' | 'urgent'>('normal')
-  const [showPriorityFilter, setShowPriorityFilter] = React.useState(false)
-  const [timestampFormat, setTimestampFormat] = React.useState<'relative' | 'absolute'>('relative')
-  const [collapsedMsgs, setCollapsedMsgs] = React.useState<string[]>([])
-  const [autoCollapse, setAutoCollapse] = React.useState(false)
-  const [exportTarget, setExportTarget] = React.useState<'all' | 'selected'>('all')
-  const [showExportPanel, setShowExportPanel] = React.useState(false)
-  const [aiSuggestions, setAiSuggestions] = React.useState<string[]>([])
-  const [showAiSuggestions, setShowAiSuggestions] = React.useState(false)
-  const [msgSearchFilter, setMsgSearchFilter] = React.useState('')
-  const [msgSortOrder, setMsgSortOrder] = React.useState<'asc' | 'desc'>('asc')
-  const [showSortOptions, setShowSortOptions] = React.useState(false)
-  const [readMarkers, setReadMarkers] = React.useState<Record<string, boolean>>({})
-  const [codeRunTarget, setCodeRunTarget] = React.useState<string | null>(null)
-  const [showCodeRunner, setShowCodeRunner] = React.useState(false)
-  const [threadView, setThreadView] = React.useState(false)
-  const [threadRoot, setThreadRoot] = React.useState<string | null>(null)
-  const [favMsgs, setFavMsgs] = React.useState<string[]>([])
-  const [showFavMsgs, setShowFavMsgs] = React.useState(false)
-  const [msgCategory, setMsgCategory] = React.useState<string>('all')
-  const [showCategoryFilter, setShowCategoryFilter] = React.useState(false)
-  const [chatBg, setChatBg] = React.useState<string>('default')
-  const [showBgPicker, setShowBgPicker] = React.useState(false)
-  const [msgFormatMode, setMsgFormatMode] = React.useState<'plain' | 'markdown'>('markdown')
-  const [showFormatToolbar, setShowFormatToolbar] = React.useState(false)
-  const [foldedMsgs, setFoldedMsgs] = React.useState<string[]>([])
-  const [msgFoldThreshold, setMsgFoldThreshold] = React.useState(500)
-  const [msgColors, setMsgColors] = React.useState<Record<string, string>>({})
-  const [showColorPalette, setShowColorPalette] = React.useState(false)
-  const [shareTarget, setShareTarget] = React.useState<string | null>(null)
-  const [showSharePanel, setShowSharePanel] = React.useState(false)
-  const [msgVotes, setMsgVotes] = React.useState<Record<string, number>>({})
-  const [showVotePanel, setShowVotePanel] = React.useState(false)
-  const [inlinePreview, setInlinePreview] = React.useState(true)
-  const [previewMaxHeight, setPreviewMaxHeight] = React.useState(300)
-  // R1146: message threads
-  const [msgThreads, setMsgThreads] = useState<Record<string, string[]>>({})
-  // R1152: message bookmarks
-  const [msgBookmarks, setMsgBookmarks] = useState<Set<string>>(new Set())
-  // R1176: message schedule
-  const [msgSchedule, setMsgSchedule] = useState<Record<string, number>>({})
-  // R1182: message status
-  const [msgStatus, setMsgStatus] = useState<Record<string, 'sent' | 'delivered' | 'read'>>({})
-  const [showStatusPanel, setShowStatusPanel] = useState(false)
-  // R1188: message collapse
-  // R1194: message forward
-  const [forwardingMsg, setForwardingMsg] = useState<string | null>(null)
-  const [forwardTarget, setForwardTarget] = useState<string | null>(null)
-  // R1200: message analytics
-  const [msgAnalytics, setMsgAnalytics] = useState<Record<string, number>>({})
-  const [showAnalytics, setShowAnalytics] = useState(false)
-  // R1218: message reply
-  // R1224: message group by
-  const [msgGroupBy, setMsgGroupBy] = useState<'date' | 'sender' | 'topic' | 'none'>('none')
-  const [showGroupByPanel, setShowGroupByPanel] = useState(false)
-  // R1230: message summary
-  const [msgSummaryView, setMsgSummaryView] = useState(false)
-  const [summaryDepth, setSummaryDepth] = useState<'brief' | 'detailed'>('brief')
-  // R1236: chat export
-  const [chatExportFormat, setChatExportFormat] = useState<'json' | 'md' | 'html' | 'pdf'>('md')
-  const [chatReactions, setChatReactions] = useState<Record<string, string[]>>({})
-  const [chatFilter, setChatFilter] = useState('')
-  const [chatFilterActive, setChatFilterActive] = useState(false)
-  const [chatFilterResults, setChatFilterResults] = useState<string[]>([])
-  const [chatGroupBy, setChatGroupBy] = useState<'date' | 'role' | 'none'>('none')
-  const [showGroupPanel, setShowGroupPanel] = useState(false)
-  const [chatPagination, setChatPagination] = useState({ page: 0, pageSize: 50 })
-  const [showPaginationBar, setShowPaginationBar] = useState(false)
-  const [chatSideBySide, setChatSideBySide] = useState(false)
-  const [sideBySideWidth, setSideBySideWidth] = useState(50)
-  const [chatAccessibility, setChatAccessibility] = useState(false)
-  const [accessibilityConfig, setAccessibilityConfig] = useState<Record<string, boolean>>({})
-  const [chatVoice, setChatVoice] = useState(false)
-  const [voiceLanguage, setVoiceLanguage] = useState('ko-KR')
-  const [showDensityPicker, setShowDensityPicker] = useState(false)
-  const [chatPresets, setChatPresets] = useState<Array<{ name: string; config: Record<string, unknown> }>>([])
-  const [showPresetPanel, setShowPresetPanel] = useState(false)
-  const [chatDraft, setChatDraft] = useState<Record<string, string>>({})
-  const [showDraftPanel, setShowDraftPanel] = useState(false)
-  const [chatCollaboration, setChatCollaboration] = useState(false)
-  const [collaborators, setCollaborators] = useState<string[]>([])
-  const [chatZoom, setChatZoom] = useState(100)
-  const [showZoomControls, setShowZoomControls] = useState(false)
-  const [chatReadAloud, setChatReadAloud] = useState(false)
-  const [readAloudSpeed, setReadAloudSpeed] = useState(1.0)
 
   const handleInterrupt = useCallback(() => {
     setIsPaused(false)
@@ -1529,99 +880,12 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         </button>
       </div>
 
-      {/* Custom system prompt editor */}
       {showSystemPrompt && (
-        <div style={{
-          borderBottom: '1px solid var(--border)',
-          padding: '8px',
-          background: 'var(--bg-secondary)',
-          flexShrink: 0,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>커스텀 시스템 프롬프트</span>
-            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: customSystemPrompt.length > 1800 ? '#f87171' : 'var(--text-muted)' }}>
-                {customSystemPrompt.length} / 2000
-              </span>
-              {customSystemPrompt && (
-                <button onClick={() => setCustomSystemPrompt('')} style={{ fontSize: 10, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
-              )}
-            </div>
-          </div>
-          <textarea
-            value={customSystemPrompt}
-            onChange={e => setCustomSystemPrompt(e.target.value.slice(0, 2000))}
-            placeholder="Claude에게 항상 적용할 지침을 입력하세요... (예: 한국어로 답변해줘, 코드는 TypeScript로)"
-            rows={3}
-            style={{
-              width: '100%',
-              boxSizing: 'border-box',
-              background: 'var(--bg-primary)',
-              border: '1px solid var(--border)',
-              borderRadius: 3,
-              color: 'var(--text-primary)',
-              fontSize: 11,
-              padding: '4px 8px',
-              resize: 'vertical',
-              fontFamily: 'inherit',
-              outline: 'none',
-              minHeight: 48,
-              maxHeight: 160,
-            }}
-          />
-          <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 4 }}>
-            지원 변수: {'{'}'{'{'}date{'}'}{'}'}(YYYY-MM-DD), {'{'}'{'{'}time{'}'}{'}'}(HH:MM), {'{'}'{'{'}project{'}'}{'}'}(프로젝트명), {'{'}'{'{'}model{'}'}{'}'}(모델명), {'{'}'{'{'}day{'}'}{'}'}(요일)
-          </div>
-        </div>
+        <SystemPromptEditor customSystemPrompt={customSystemPrompt} setCustomSystemPrompt={setCustomSystemPrompt} onClose={() => setShowSystemPrompt(false)} />
       )}
 
-      {/* Session summary panel */}
       {summaryOpen && (
-        <div style={{
-          borderBottom: '1px solid var(--border)',
-          background: 'var(--bg-secondary)',
-          borderLeft: '4px solid var(--accent)',
-          flexShrink: 0,
-        }}>
-          <div style={{
-            padding: '8px 12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            borderBottom: summaryLoading ? 'none' : '1px solid var(--border)',
-          }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)' }}>📝 세션 요약</span>
-            <button
-              onClick={handleSummarize}
-              disabled={summaryLoading}
-              title="재생성"
-              style={{
-                background: 'none', border: 'none',
-                color: summaryLoading ? 'var(--text-muted)' : 'var(--accent)',
-                fontSize: 11, cursor: summaryLoading ? 'default' : 'pointer', padding: '1px 6px',
-              }}
-            >🔄 재생성</button>
-            <button
-              onClick={() => setSummaryOpen(false)}
-              title="닫기"
-              style={{
-                background: 'none', border: 'none',
-                color: 'var(--text-muted)',
-                fontSize: 14, cursor: 'pointer', padding: '1px 6px', marginLeft: 'auto', lineHeight: 1,
-              }}
-            >×</button>
-          </div>
-          <div style={{
-            padding: '12px 16px',
-            fontSize: 13,
-            lineHeight: 1.6,
-            color: 'var(--text-primary)',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-          }}>
-            {summaryLoading ? '요약 생성 중...' : summaryText}
-          </div>
-        </div>
+        <SessionSummaryPanel summaryLoading={summaryLoading} summaryText={summaryText} onRegenerate={handleSummarize} onClose={() => setSummaryOpen(false)} />
       )}
 
       {/* Auto summary banner */}
@@ -1703,53 +967,14 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         </div>
       )}
 
-      {/* Search bar */}
       {showSearch && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '5px 10px',
-          background: 'var(--bg-secondary)',
-          borderBottom: '1px solid var(--border)',
-          flexShrink: 0,
-        }}>
-          <input
-            ref={searchInputRef}
-            placeholder="대화 검색..."
-            value={searchQuery}
-            onChange={e => handleSearchChange(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            style={{
-              flex: 1,
-              background: 'var(--bg-input)',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '3px 8px',
-              fontSize: 12,
-              outline: 'none',
-            }}
-          />
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', minWidth: 72, textAlign: 'center' }}>
-            {matchCount > 0 ? `${safeMatchIdx + 1} / ${matchCount}개 매칭` : (msgSearchQuery ? '0개 매칭' : '')}
-            {isSearchPending && msgSearchQuery && (
-              <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 4 }}>...</span>
-            )}
-          </span>
-          <button onClick={handleSearchPrev} disabled={matchCount === 0} title="이전 (Shift+Enter)" style={{
-            background: 'none', border: 'none', color: 'var(--text-muted)',
-            fontSize: 13, cursor: matchCount > 0 ? 'pointer' : 'default', padding: '2px 4px',
-          }}>▲</button>
-          <button onClick={handleSearchNext} disabled={matchCount === 0} title="다음 (Enter)" style={{
-            background: 'none', border: 'none', color: 'var(--text-muted)',
-            fontSize: 13, cursor: matchCount > 0 ? 'pointer' : 'default', padding: '2px 4px',
-          }}>▼</button>
-          <button onClick={() => setShowSearch(false)} title="닫기 (Esc)" style={{
-            background: 'none', border: 'none', color: 'var(--text-muted)',
-            fontSize: 14, cursor: 'pointer', padding: '2px 6px', lineHeight: 1,
-          }}>×</button>
-        </div>
+        <ChatSearchBar
+          searchQuery={searchQuery} matchCount={matchCount} safeMatchIdx={safeMatchIdx}
+          isSearchPending={isSearchPending} searchInputRef={searchInputRef}
+          onSearchChange={handleSearchChange} onSearchPrev={handleSearchPrev}
+          onSearchNext={handleSearchNext} onSearchKeyDown={handleSearchKeyDown}
+          onClose={() => setShowSearch(false)}
+        />
       )}
 
       {/* Pinned messages */}
@@ -1789,75 +1014,8 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       {/* Messages - virtualized */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex' }}>
       {showOnlyBookmarks ? (
-        /* ── 즐겨찾기 전용 뷰 ─────────────────────────────────────── */
         <div style={{ flex: 1, overflow: 'auto', padding: '8px 12px' }}>
-          {(() => {
-            const bookmarked = chat.messages.filter(m => m.bookmarked)
-            const exportAll = () => {
-              const blob = new Blob([JSON.stringify(bookmarked, null, 2)], { type: 'application/json' })
-              const url = URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = `bookmarks-${Date.now()}.json`
-              a.click()
-              URL.revokeObjectURL(url)
-            }
-            const exportOne = (msg: (typeof bookmarked)[number]) => {
-              const blob = new Blob([JSON.stringify(msg, null, 2)], { type: 'application/json' })
-              const url = URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = `bookmark-${msg.id}.json`
-              a.click()
-              URL.revokeObjectURL(url)
-            }
-            if (!bookmarked.length) {
-              return (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200, color: 'var(--text-muted)', fontSize: 13 }}>
-                  즐겨찾기한 메시지가 없습니다
-                </div>
-              )
-            }
-            return (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, paddingBottom: 6, borderBottom: '1px solid var(--border)' }}>
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>즐겨찾기 {bookmarked.length}개</span>
-                  <button
-                    onClick={exportAll}
-                    style={{
-                      background: 'none', border: '1px solid var(--border)',
-                      color: 'var(--text-secondary)', fontSize: 10,
-                      padding: '2px 8px', borderRadius: 3, cursor: 'pointer',
-                    }}
-                  >전체 즐겨찾기 내보내기</button>
-                </div>
-                {bookmarked.map(msg => (
-                  <div key={msg.id} style={{
-                    marginBottom: 8, padding: '8px 10px',
-                    background: 'var(--bg-secondary)', borderRadius: 6,
-                    border: '1px solid var(--border)',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
-                        {msg.role === 'user' ? '나' : 'Claude'} · {msg.timestamp ? new Date(msg.timestamp).toLocaleString('ko-KR') : ''}
-                      </span>
-                      <button
-                        onClick={() => exportOne(msg)}
-                        title="JSON 다운로드"
-                        style={{
-                          background: 'none', border: 'none', cursor: 'pointer',
-                          color: 'var(--text-muted)', fontSize: 12, padding: '0 4px',
-                        }}
-                      >📤</button>
-                    </div>
-                    <div style={{ fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: 200, overflow: 'hidden' }}>
-                      {msg.text.slice(0, 500)}{msg.text.length > 500 ? '…' : ''}
-                    </div>
-                  </div>
-                ))}
-              </>
-            )
-          })()}
+          <BookmarkView messages={chat.messages} />
         </div>
       ) : (<>
       <div
@@ -2093,6 +1251,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       {showScrollBtn && (
         chat.isStreaming ? (
           <button
+            className="scroll-to-bottom-streaming"
             onClick={scrollToBottom}
             style={{
               position: 'absolute',
@@ -2111,9 +1270,15 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
               zIndex: 10,
               whiteSpace: 'nowrap',
               letterSpacing: '0.3px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
             }}
-            title="맨 아래로 스크롤"
-          >↓ 새 메시지</button>
+            title="맨 아래로 스크롤 (자동 스크롤 재개)"
+          >
+            <span className="scroll-pulse-dot" />
+            ↓ 새 메시지 수신 중
+          </button>
         ) : (
           <button
             onClick={scrollToBottom}
@@ -2277,115 +1442,13 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
 
       {/* 변수 치환 모달 */}
       {varModal && (
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-end',
-          pointerEvents: 'none',
-        }}>
-          <div style={{
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px 8px 0 0',
-            boxShadow: '0 -4px 20px rgba(0,0,0,0.4)',
-            padding: '14px 16px 12px',
-            width: '100%',
-            maxWidth: 560,
-            pointerEvents: 'all',
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent, #89b4fa)', marginBottom: 10 }}>
-              🔧 변수 값 입력
-            </div>
-            {varModal.vars.map((varName, i) => (
-              <div key={varName} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <label style={{
-                  fontSize: 12, color: 'var(--text-secondary)',
-                  minWidth: 120, fontFamily: 'monospace',
-                  background: 'rgba(96,165,250,0.1)',
-                  borderRadius: 4, padding: '2px 6px',
-                  border: '1px solid rgba(96,165,250,0.2)',
-                }}>
-                  {'{{'}{varName}{'}}'}
-                </label>
-                <input
-                  ref={el => { varInputRefs.current[i] = el }}
-                  type="text"
-                  value={varValues[varName] ?? ''}
-                  onChange={e => setVarValues(prev => ({ ...prev, [varName]: e.target.value }))}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      if (i < varModal.vars.length - 1) {
-                        varInputRefs.current[i + 1]?.focus()
-                      } else {
-                        // 마지막 필드 Enter → 전송
-                        let result = varModal.text
-                        varModal.vars.forEach(v => {
-                          result = result.replace(new RegExp(`\\{\\{${v}\\}\\}`, 'g'), varValues[v] ?? '')
-                        })
-                        setVarModal(null)
-                        handleSend(result)
-                      }
-                    } else if (e.key === 'Escape') {
-                      setVarModal(null)
-                    }
-                  }}
-                  placeholder={`${varName} 값 입력...`}
-                  autoFocus={i === 0}
-                  style={{
-                    flex: 1,
-                    background: 'var(--bg-input, var(--bg-primary))',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm, 4px)',
-                    color: 'var(--text-primary)',
-                    fontSize: 13,
-                    padding: '5px 10px',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-            ))}
-            <div style={{ display: 'flex', gap: 8, marginTop: 10, justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setVarModal(null)}
-                style={{
-                  background: 'none',
-                  border: '1px solid var(--border)',
-                  borderRadius: 4,
-                  color: 'var(--text-muted)',
-                  fontSize: 12,
-                  padding: '5px 14px',
-                  cursor: 'pointer',
-                }}
-              >취소</button>
-              <button
-                onClick={() => {
-                  let result = varModal.text
-                  varModal.vars.forEach(v => {
-                    result = result.replace(new RegExp(`\\{\\{${v}\\}\\}`, 'g'), varValues[v] ?? '')
-                  })
-                  setVarModal(null)
-                  handleSend(result)
-                }}
-                style={{
-                  background: 'var(--accent, #89b4fa)',
-                  border: 'none',
-                  borderRadius: 4,
-                  color: '#1e1e2e',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  padding: '5px 16px',
-                  cursor: 'pointer',
-                }}
-              >치환 후 전송</button>
-            </div>
-          </div>
-        </div>
+        <VariableModal
+          varModal={varModal}
+          varValues={varValues}
+          onVarValuesChange={setVarValues}
+          onCancel={() => setVarModal(null)}
+          onSend={handleSend}
+        />
       )}
 
       {/* Context token indicator bar — 입력창 위 */}
@@ -2428,61 +1491,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         onTextChange={setInputText}
       />
 
-      {/* 키보드 단축키 오버레이 */}
-      {showShortcutsOverlay && (
-        <div
-          onClick={() => setShowShortcutsOverlay(false)}
-          style={{
-            position: 'absolute', inset: 0,
-            background: 'rgba(0,0,0,0.55)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 100,
-          }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border)',
-              borderRadius: 10,
-              padding: '20px 28px',
-              minWidth: 300,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>키보드 단축키</span>
-              <button
-                onClick={() => setShowShortcutsOverlay(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 18, cursor: 'pointer', lineHeight: 1 }}
-              >×</button>
-            </div>
-            {([
-              ['Ctrl+F', '채팅 검색 토글'],
-              ['Ctrl+B', '즐겨찾기 뷰 토글'],
-              ['Ctrl+W', '뷰 모드 전환 (컴팩트/와이드)'],
-              ['Escape', '검색 닫기'],
-              ['?', '단축키 도움말'],
-            ] as [string, string][]).map(([key, desc]) => (
-              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 10 }}>
-                <kbd style={{
-                  background: 'var(--bg-input, var(--bg-primary))',
-                  border: '1px solid var(--border)',
-                  borderRadius: 4,
-                  padding: '2px 8px',
-                  fontSize: 11,
-                  fontFamily: 'monospace',
-                  color: 'var(--text-primary)',
-                  minWidth: 80,
-                  textAlign: 'center',
-                  flexShrink: 0,
-                }}>{key}</kbd>
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{desc}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {showShortcutsOverlay && <ShortcutsOverlay onClose={() => setShowShortcutsOverlay(false)} />}
     </div>
   )
 }

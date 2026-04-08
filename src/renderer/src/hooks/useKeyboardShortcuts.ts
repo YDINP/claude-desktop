@@ -72,7 +72,10 @@ export function useKeyboardShortcuts(deps: KeyboardShortcutDeps): void {
         setPaletteOpen(o => !o)
       } else if (e.key === 'Escape' && paletteOpenRef.current) {
         setPaletteOpen(false)
-      } else if (e.ctrlKey && (e.key === 'k' || e.key === 'n')) {
+      } else if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault()
+        setPaletteOpen(o => !o)
+      } else if (e.ctrlKey && e.key === 'n') {
         e.preventDefault()
         chatClearMessages()
         window.api?.claudeClose()

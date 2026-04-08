@@ -501,16 +501,16 @@
 - Subagent 워크플로우 시각화 + Prompt 체이닝
 - QA 라운드 x2 (Round 77, 82) ✅ Critical 0, Warning 0
 
-### Phase 4 — 예정 (Round 83~90)
-- 스트리밍 UX 완성: 자동 스크롤 제어, ▌ 커서 애니메이션, 배치 렌더링
-- 채팅 인터랙션: 메시지 재생성(↺), 스트리밍 중단(■), 인라인 편집
-- 세션 관리: 태그 시스템, 즐겨찾기 핀, 날짜별 그룹 헤더
-- StatusBar: 실시간 토큰 카운터, API 비용 추산(세션/월별)
-- 커맨드 팔레트: 최근 항목, AI 제안 명령어
-- 알림/토스트 시스템: 성공/에러/정보 컴포넌트
-- 키보드 단축키 오버레이 (? 키)
-- PromptChain 템플릿 라이브러리
-- AG-UI 이벤트 모델 기반 에이전트 실행 표준화
+### Phase 4 — ✅ 대부분 완료 (R2745)
+- ~~스트리밍 UX 완성: 자동 스크롤 제어, ▌ 커서 애니메이션, 배치 렌더링~~ ✅
+- ~~채팅 인터랙션: 메시지 재생성(↺), 스트리밍 중단(■), 인라인 편집~~ ✅
+- ~~세션 관리: 태그 시스템, 즐겨찾기 핀, 날짜별 그룹 헤더~~ ✅ (이전 라운드에서 구현)
+- ~~StatusBar: 실시간 토큰 카운터, API 비용 추산(세션/월별)~~ ✅
+- ~~커맨드 팔레트: 최근 항목, AI 제안 명령어~~ ✅ (Ctrl+K)
+- ~~알림/토스트 시스템: 성공/에러/정보 컴포넌트~~ ✅ (이전 라운드에서 구현)
+- ~~키보드 단축키 오버레이 (? 키)~~ ✅ (이전 라운드에서 구현)
+- PromptChain 템플릿 라이브러리 — 미착수
+- AG-UI 이벤트 모델 기반 에이전트 실행 표준화 — 미착수
 
 ### Phase DD6 — ✅ 완료 (Round 513~523) — CC 씬에디터 완성 단계
 
@@ -942,3 +942,11 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2742 | SceneView 가이드라인 auto-snap — 드래그 시 8px 이내 가이드에 자동 snap | ✅ |
 | R2743 | BatchInspector 색상 밝기 조절 — +/- delta로 RGB 일괄 증감 | ✅ |
 | R2744 | QA 체크 3개 추가 (R2741/R2742/R2743) — QA 2629→2632 Pass | ✅ |
+| R2745 | Phase 4 스트리밍 UX — 재생성 action bar(항상 표시), Stop 펄스 애니메이션, Escape 중단, StatusBar 토큰/비용 표시, Ctrl+K 커맨드팔레트 | ✅ |
+| R2746 | 커스텀 슬래시 커맨드 Phase 1~3 — SlashCommandRegistry handler/plugin/recent/grouped 확장, $ARGUMENTS 치환, 카테고리 그룹 드롭다운 UI | ✅ |
+| R2747 | 사이드바 패널 6개 생성 (Calendar/Tasks/Notes/Clipboard/Diff/Remote) — QA Warning 57→0 | ✅ |
+| R2748 | component.tsx 리팩토링 — 10,334줄→68줄 hub + 18개 분리 파일, 빌드 에러 수정 | ✅ |
+| R2749 | SceneViewPanel 리팩토링 — 5,894→4,439줄 + 4개 훅(keyboard/mouse/actions/constants) 추출 | ✅ |
+| R2750 | ChatPanel 리팩토링 — 2,498→1,497줄 + 7개 분리(ModelSelector/ExportButtons/chatUtils 등), 데드코드 350줄 제거 | ✅ |
+| R2751 | SessionList 리팩토링 — 2,402→618줄 + 3개 분리(sessionUtils/TagDot/SessionItem), 데드코드 1,800줄 제거 | ✅ |
+| R2752 | 중복 제거 — useCopyToClipboard(9패널)/useLocalStorage/useExpandedId/download.ts 공통 훅·유틸 추출 | ✅ |
