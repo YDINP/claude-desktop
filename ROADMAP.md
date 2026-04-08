@@ -955,3 +955,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2755 | MessageBubble 2,070→1,272줄 (CodeBlock 848줄 추출) | ✅ |
 | R2756 | SceneInspector 1,869→1,227줄 (InspectorComponents 추출), TerminalPanel 1,621→1,442줄, misc 1,523→1,238줄 | ✅ |
 | R2757 | UX/UI 일관성 — --success-bright CSS변수, 색상 하드코딩 제거, empty state/borderRadius 통일 | ✅ |
+| R2758 | 아키텍처 Phase D — session/terminal 도메인 모듈 생성 (zustand store, adapter, commands) | ✅ |
