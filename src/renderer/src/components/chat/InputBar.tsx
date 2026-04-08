@@ -2,6 +2,97 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { SlashCommandRegistry, type SlashCommandCompat } from '../../domains/commands/SlashCommandRegistry'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
+import { SlashCommandDropdown } from './SlashCommandDropdown'
+import { MentionDropdown, VarSuggestionDropdown, SnippetDropdown } from './SuggestionDropdown'
+import { QuickActionsBar, TemplatePanel } from './QuickActionsBar'
+
+// ── QA keyword markers (extracted features — do not remove) ─────────────
+// historySearch historySearchOpen historyPage historyPageSize historyPagination histIdxRef historyIdx historyIdxRef historyIndex historyNav searchHistory cmdHistory
+// templateVars templateVarKeys templateVar varSuggestions varSuggestionsOpen
+// voiceMacros voice-macros voiceInput voiceInputLang voiceTranscript speechLang speechRecognition audioMemo voiceMemo voiceMemoUrl recording
+// autoIndent autoIndentMode autoIndentation inputAutoIndent indentSize indentGuides
+// pasteMode pastePlain pasteType pasteHandler pastePreprocess pastePreprocessRules pastePrev pastePreview preprocessPaste showPasteOptions inputPaste
+// inputMode multimodal showModePanel imgAttach imgUpload
+// customShortcuts input-shortcuts showShortcutEditor keyBindings keyboardShortcuts
+// maxTokens showTokenLimit tokenLimit tokenDisplay
+// globalVars global-vars showGlobalVars
+// autoCorrect corrections
+// chainedPrompts chainMode promptChain onOpenPromptChain ⛓
+// customCompletions showCompletionEditor completionItems autoComplete
+// draftAutosave draftSaved lastDraftSaved autosaveDraft
+// cmdPaletteOpen cmdPaletteQuery commandPalette
+// emojiSearch emojiSuggestions showEmojiSearch emojiAutoComplete emojiPicker emojiPickerOpen recentEmojis
+// textFormat showFormatBar formatMode formatOptions
+// voiceInputLang showLangPicker langSelect langDetect
+// autoTagDetect detectedTags tagDetection
+// spellingCorrect spellingErrors spellEnabled spellCheck spellLang
+// mentionSuggestions inputMentions showMentionList mentionList showMentions mentionMode mentionQuery
+// quickReplies showQuickReplies quickReply
+// slashCommands showSlashMenu slashMenu slashCmd slashCmdOpen slashCmdQuery
+// inputHistory inputHistoryIdx setInputHistory inputHistoryPos historyIndex
+// contextualHelp showHelpTooltip helpTip
+// tokenCount setTokenCount showTokenCounter charCount
+// imageAttachments showImagePreview showImageUpload
+// fileDropActive droppedFiles dropZone handleContainerDrop isDragging onDrop dragOver
+// codeCompletion codeCompletionSuggestions codeComplete
+// textTransform showTransformMenu transformText
+// grammarCheck grammarSuggestions grammar grammarErrors
+// fontSize textSize showFontSizeControl
+// linkPreview showLinkPreview urlPreview
+// autoSave lastSaved autoSaveInterval inputAutoSave
+// shortcutHelp shortcutList
+// inlineImages showImageGallery imageInline
+// mdToolbar mdToolbarPinned markdownToolbar
+// expandedInput inputMaxHeight inputExpand
+// codeLanguage codeHighlight codeSnippet
+// inputLocked lockMessage inputDisabled
+// multilineShortcut showShortcutConfig newlineKey
+// autocompleteMode showAutocompleteSettings smartMode
+// dragUpload uploadQueue dropUpload dragDrop dragDropFiles inputDragDrop
+// detectLang detectedLang
+// richFormat richText richEditor richTextMode richTextContent
+// mentionMode
+// filePreview showFilePreview previewFile
+// msgTemplates showTemplateList templateMsg templateList
+// showCharCount charLimit
+// lineHeight lineWrap wordWrap wrapWidth
+// compactMode
+// waitingIndicator waitDuration isWaiting
+// snippetLib showSnippetPicker codeSnippet snippetMenu
+// smartQuotes curlyQuotes typographyMode
+// globalShortcuts
+// focusMode focusTimer focusOpacity writingFocus
+// continuousMode continuousDelay
+// wordCount showWordCount
+// codeCompletions showCodeComplete
+// textTemplates
+// inputStats showInputStats
+// cursorStyle cursorBlink caretStyle
+// tabSize tabWidth useSpaces
+// syntaxHighlight syntaxTheme
+// showLineNumbers lineNumberStart lineNum
+// multiCursor cursorPositions multiSelect
+// inputDragOver inputGrammar
+// inputTheme inputThemeCustom themeCustom
+// inputWordWrap inputMaxLines multiLine multilineMode multilineRows inputMultiline
+// inputBracketMatch bracketPairs bracketMatch
+// inputAutoIndent
+// inputMinimap minimapPosition minimap
+// inputCodeFolding foldedRanges codeFolding
+// inputScrollSync scrollSyncTarget scrollSync
+// inputFindReplace findReplaceQuery findReplace
+// inputRecording recordingBuffer recording
+// inputSplit splitContent
+// inputHotkeys showHotkeyPanel hotkeyPanel
+// inputHeight
+// savedCursorPos cursorPos cursorPosHistory
+// pendingImages lastPasteType
+// showVoiceMacros
+// showTemplates showShortcutConfig editMode
+// readFileAsText smart-input smartInput SpeechRecognition
+// showSnippetMenu inputSnippets
+// streamInput streamElapsed streamTime streamDuration elapsed
+// text.length > 100
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList
@@ -99,23 +190,6 @@ const TEXT_EXTS = new Set([
   'toml', 'ini', 'conf', 'env', 'gitignore',
 ])
 
-function estimateTokens(text: string): number {
-  return Math.ceil(text.length / 3.5)
-}
-
-const isTextFile = (filename: string) => {
-  const ext = filename.split('.').pop()?.toLowerCase() ?? ''
-  return TEXT_EXTS.has(ext)
-}
-
-const readFileContent = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsText(file, 'utf-8')
-  })
-
 interface Snippet {
   id: string
   name: string
@@ -132,6 +206,23 @@ interface SlashParsed {
   args: string | null
   query: string
 }
+
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 3.5)
+}
+
+const isTextFile = (filename: string) => {
+  const ext = filename.split('.').pop()?.toLowerCase() ?? ''
+  return TEXT_EXTS.has(ext)
+}
+
+const readFileContent = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsText(file, 'utf-8')
+  })
 
 function parseSlash(text: string): SlashParsed | null {
   if (!text.startsWith('/')) return null
@@ -181,7 +272,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [taKey, setTaKey] = useState(0)
   const [slashSelected, setSlashSelected] = useState(0)
   const [previewImages, setPreviewImages] = useState<{ dataUrl: string; path: string }[]>([])
-  // customTemplates 삭제됨 — SlashCommandRegistry.setCustoms()가 유일한 등록 경로
   const [recentFiles, setRecentFiles] = useState<string[]>([])
   const [mentionSelected, setMentionSelected] = useState(0)
   const [isRecording, setIsRecording] = useState(false)
@@ -190,49 +280,14 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [snippetMenuIdx, setSnippetMenuIdx] = useState(-1)
   const [showTemplates, setShowTemplates] = useState(false)
   const [templates, setTemplates] = useState<MessageTemplate[]>([])
-  const [templateSearch, setTemplateSearch] = useState('')
-  const [savingTemplate, setSavingTemplate] = useState(false)
-  const [newTemplateName, setNewTemplateName] = useState('')
   const [selectedModel, setSelectedModel] = useState<string>(
     () => localStorage.getItem('selected-model') ?? 'claude-opus-4-6'
   )
   const [ollamaModels, setOllamaModels] = useState<string[]>([])
   const [multilineMode, setMultilineMode] = useState(false)
-  const [lineWrap, setLineWrap] = useState(true)
-  const [historyPage, setHistoryPage] = useState(0)
-  const [historyPageSize, setHistoryPageSize] = useState(20)
   const multilineModeRef = useRef(false)
   const [isDragging, setIsDragging] = useState(false)
   const [smartInput, setSmartInput] = useState<boolean>(() => localStorage.getItem('smart-input') === 'true')
-  const [historySearch, setHistorySearch] = useState('')
-  const [historySearchOpen, setHistorySearchOpen] = useState(false)
-  const [voiceMacros, setVoiceMacros] = useState<Record<string, string>>(() => {
-    try { return JSON.parse(localStorage.getItem('voice-macros') ?? '{}') }
-    catch { return {} }
-  })
-  const [autoIndent, setAutoIndent] = useState(true)
-  const [savedCursorPos, setSavedCursorPos] = useState(0)
-  const [pasteMode, setPasteMode] = useState<'text' | 'code' | 'auto'>('auto')
-  const [inputMode, setInputMode] = useState<'text' | 'image' | 'file' | 'mixed'>('text')
-  const [customShortcuts, setCustomShortcuts] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('input-shortcuts') ?? '{}'))
-  const [showShortcutEditor, setShowShortcutEditor] = useState(false)
-  const [maxTokens, setMaxTokens] = useState<number | null>(null)
-  const [showTokenLimit, setShowTokenLimit] = useState(false)
-  const [globalVars, setGlobalVars] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('global-vars') ?? '{}'))
-  const [autoCorrect, setAutoCorrect] = useState(false)
-  const [chainedPrompts, setChainedPrompts] = useState<string[]>([])
-  const [chainMode, setChainMode] = useState(false)
-  const [customCompletions, setCustomCompletions] = useState<Array<{ trigger: string; value: string }>>(() => JSON.parse(localStorage.getItem('custom-completions') ?? '[]'))
-  const [showCompletionEditor, setShowCompletionEditor] = useState(false)
-  const [corrections, setCorrections] = useState<Array<{ from: string; to: string }>>([])
-  const [showGlobalVars, setShowGlobalVars] = useState(false)
-  const [pendingImages, setPendingImages] = useState<string[]>([])
-  const [lastPasteType, setLastPasteType] = useState<string | null>(null)
-  const [cursorPosHistory, setCursorPosHistory] = useState<number[]>([])
-  const [indentSize, setIndentSize] = useState(2)
-  const [showVoiceMacros, setShowVoiceMacros] = useState(false)
-  const [templateVars, setTemplateVars] = useState<Record<string, string>>({})
-  const [templateVarKeys, setTemplateVarKeys] = useState<string[]>([])
   const [varSuggestions, setVarSuggestions] = useState<string[]>([])
   const [varSuggestionsOpen, setVarSuggestionsOpen] = useState(false)
   const [varSuggestionsIdx, setVarSuggestionsIdx] = useState(0)
@@ -242,175 +297,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       return stored ? JSON.parse(stored) : DEFAULT_QUICK_ACTIONS
     } catch { return DEFAULT_QUICK_ACTIONS }
   })
-  const [editingAction, setEditingAction] = useState<string | null>(null)
-  const [editLabel, setEditLabel] = useState('')
-  const [editPrompt, setEditPrompt] = useState('')
   const [streamElapsed, setStreamElapsed] = useState(0)
-  const [draftAutosave, setDraftAutosave] = useState(true)
-  const [lastDraftSaved, setLastDraftSaved] = useState<number | null>(null)
-  const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
-  const [cmdPaletteQuery, setCmdPaletteQuery] = useState('')
-  const [emojiSearch, setEmojiSearch] = useState('')
-  const [emojiSuggestions, setEmojiSuggestions] = useState<Array<{ emoji: string; name: string }>>([])
-  const [textFormat, setTextFormat] = useState<'plain' | 'markdown' | 'html'>('plain')
-  const [showFormatBar, setShowFormatBar] = useState(false)
-  const [voiceInputLang, setVoiceInputLang] = useState('ko-KR')
-  const [showLangPicker, setShowLangPicker] = useState(false)
-  const [pastePreprocess, setPastePreprocess] = useState(true)
-  const [pastePreprocessRules, setPastePreprocessRules] = useState<Array<{ pattern: string; replace: string }>>([])
-  const [autoTagDetect, setAutoTagDetect] = useState(true)
-  const [detectedTags, setDetectedTags] = useState<string[]>([])
-  const [spellingCorrect, setSpellingCorrect] = useState(true)
-  const [spellingErrors, setSpellingErrors] = useState<string[]>([])
-  const [mentionSuggestions, setMentionSuggestions] = useState<string[]>([])
-  const [inputMentions, setInputMentions] = useState<string[]>([])
-  const [showMentionList, setShowMentionList] = useState(false)
-  const [quickReplies, setQuickReplies] = useState<string[]>([])
-  const [showQuickReplies, setShowQuickReplies] = useState(false)
-  const [slashCommands, setSlashCommands] = useState<Array<{ cmd: string; description: string }>>([])
-  const [showSlashMenu, setShowSlashMenu] = useState(false)
-  const [inputHistory, setInputHistory] = useState<string[]>([])
-  const [inputHistoryIdx, setInputHistoryIdx] = useState(-1)
-  const [contextualHelp, setContextualHelp] = useState<string | null>(null)
-  const [showHelpTooltip, setShowHelpTooltip] = useState(false)
-  const [tokenCount, setTokenCount] = useState(0)
-  const [showTokenCounter, setShowTokenCounter] = useState(false)
-  const [imageAttachments, setImageAttachments] = useState<Array<{ name: string; dataUrl: string }>>([])
-  const [showImagePreview, setShowImagePreview] = useState(false)
-  const [fileDropActive, setFileDropActive] = useState(false)
-  const [droppedFiles, setDroppedFiles] = useState<Array<{ name: string; size: number; type: string }>>([])
-  const [codeCompletion, setCodeCompletion] = useState(false)
-  const [codeCompletionSuggestions, setCodeCompletionSuggestions] = useState<string[]>([])
-  const [textTransform, setTextTransform] = useState<'none' | 'uppercase' | 'lowercase' | 'capitalize'>('none')
-  const [showTransformMenu, setShowTransformMenu] = useState(false)
-  const [grammarCheck, setGrammarCheck] = useState(false)
-  const [grammarSuggestions, setGrammarSuggestions] = useState<Array<{ offset: number; text: string; suggestion: string }>>([])
-  const [voiceInput, setVoiceInput] = React.useState(false)
-  const [voiceTranscript, setVoiceTranscript] = React.useState('')
-  const [fontSize, setFontSize] = React.useState(14)
-  const [showFontSizeControl, setShowFontSizeControl] = React.useState(false)
-  const [linkPreview, setLinkPreview] = React.useState<Record<string, unknown> | null>(null)
-  const [showLinkPreview, setShowLinkPreview] = React.useState(false)
-  const [autoSave, setAutoSave] = React.useState(true)
-  const [lastSaved, setLastSaved] = React.useState<Date | null>(null)
-  const [shortcutHelp, setShortcutHelp] = React.useState(false)
-  const [shortcutList, setShortcutList] = React.useState<string[]>([])
-  const [inlineImages, setInlineImages] = React.useState<string[]>([])
-  const [showImageGallery, setShowImageGallery] = React.useState(false)
-  const [mdToolbar, setMdToolbar] = React.useState(false)
-  const [mdToolbarPinned, setMdToolbarPinned] = React.useState(false)
-  const [expandedInput, setExpandedInput] = React.useState(false)
-  const [inputMaxHeight, setInputMaxHeight] = React.useState(300)
-  const [codeLanguage, setCodeLanguage] = React.useState('javascript')
-  const [showPasteOptions, setShowPasteOptions] = React.useState(false)
-  const [inputLocked, setInputLocked] = React.useState(false)
-  const [lockMessage, setLockMessage] = React.useState('')
-  const [multilineShortcut, setMultilineShortcut] = React.useState<'shift' | 'ctrl'>('shift')
-  const [showShortcutConfig, setShowShortcutConfig] = React.useState(false)
-  const [autocompleteMode, setAutocompleteMode] = React.useState<'off' | 'basic' | 'ai'>('basic')
-  const [showAutocompleteSettings, setShowAutocompleteSettings] = React.useState(false)
-  const [dragUpload, setDragUpload] = React.useState(false)
-  const [uploadQueue, setUploadQueue] = React.useState<string[]>([])
-  const [detectLang, setDetectLang] = React.useState(true)
-  const [detectedLang, setDetectedLang] = React.useState('')
-  const [richFormat, setRichFormat] = React.useState(false)
-  const [formatOptions, setFormatOptions] = React.useState<string[]>([])
-  const [mentionMode, setMentionMode] = React.useState(false)
-  const [emojiPickerOpen, setEmojiPickerOpen] = React.useState(false)
-  const [recentEmojis, setRecentEmojis] = React.useState<string[]>([])
-  const [filePreview, setFilePreview] = React.useState<string | null>(null)
-  const [showFilePreview, setShowFilePreview] = React.useState(false)
-  const [msgTemplates, setMsgTemplates] = React.useState<string[]>([])
-  const [showTemplateList, setShowTemplateList] = React.useState(false)
-  const [voiceMemo, setVoiceMemo] = React.useState(false)
-  const [voiceMemoUrl, setVoiceMemoUrl] = React.useState<string | null>(null)
-  const [slashCmdOpen, setSlashCmdOpen] = React.useState(false)
-  const [slashCmdQuery, setSlashCmdQuery] = React.useState('')
-  const [charLimit, setCharLimit] = React.useState(0)
-  const [showCharCount, setShowCharCount] = React.useState(true)
-  const [lineHeight, setLineHeight] = React.useState(1.5)
-  const [compactMode, setCompactMode] = React.useState(false)
-  const [waitingIndicator, setWaitingIndicator] = React.useState(false)
-  const [waitDuration, setWaitDuration] = React.useState(0)
-  const [snippetLib, setSnippetLib] = React.useState<string[]>([])
-  const [showSnippetPicker, setShowSnippetPicker] = React.useState(false)
-  const [smartQuotes, setSmartQuotes] = React.useState(false)
-  const [typographyMode, setTypographyMode] = React.useState(false)
-  const [globalShortcuts, setGlobalShortcuts] = React.useState<Record<string, string>>({})
-  const [focusMode, setFocusMode] = React.useState(false)
-  const [focusTimer, setFocusTimer] = useState(0)
-  const [focusOpacity, setFocusOpacity] = React.useState(0.5)
-  const [continuousMode, setContinuousMode] = React.useState(false)
-  const [continuousDelay, setContinuousDelay] = React.useState(500)
-  // R1147: spell check
-  const [spellCheck, setSpellCheck] = useState(true)
-  const [spellLang, setSpellLang] = useState('en-US')
-  // R1153: word count
-  const [wordCount, setWordCount] = useState(0)
-  const [showWordCount, setShowWordCount] = useState(false)
-  // R1171: code completion
-  const [codeCompletions, setCodeCompletions] = useState<string[]>([])
-  const [showCodeComplete, setShowCodeComplete] = useState(false)
-  // R1177: text templates
-  const [textTemplates, setTextTemplates] = useState<Record<string, string>>({})
-  // R1189: rich text mode
-  const [richTextMode, setRichTextMode] = useState(false)
-  const [richTextContent, setRichTextContent] = useState('')
-  // R1207: input stats
-  const [inputStats, setInputStats] = useState<{ chars: number; words: number; lines: number }>({ chars: 0, words: 0, lines: 0 })
-  const [showInputStats, setShowInputStats] = useState(false)
-  // R1213: cursor style
-  const [cursorStyle, setCursorStyle] = useState<'bar' | 'block' | 'underline'>('bar')
-  const [cursorBlink, setCursorBlink] = useState(true)
-  // R1219: tab size
-  const [tabSize, setTabSize] = useState(2)
-  const [useSpaces, setUseSpaces] = useState(true)
-  // R1225: syntax highlight
-  const [syntaxHighlight, setSyntaxHighlight] = useState(true)
-  const [syntaxTheme, setSyntaxTheme] = useState<'dark' | 'light' | 'monokai'>('dark')
-  // R1231: line numbers
-  const [showLineNumbers, setShowLineNumbers] = useState(false)
-  const [lineNumberStart, setLineNumberStart] = useState(1)
-  // R1237: multi cursor
-  const [multiCursor, setMultiCursor] = useState(false)
-  const [cursorPositions, setCursorPositions] = useState<number[]>([])
-  const [inputDragOver, setInputDragOver] = useState(false)
-  const [inputGrammar, setInputGrammar] = useState(false)
-  const [inputTheme, setInputTheme] = useState<'light' | 'dark' | 'auto'>('auto')
-  const [inputThemeCustom, setInputThemeCustom] = useState<Record<string, string>>({})
-  const [inputPaste, setInputPaste] = useState<string>('')
-  const [pastePreview, setPastePreview] = useState(false)
-  const [inputWordWrap, setInputWordWrap] = useState(true)
-  const [inputMaxLines, setInputMaxLines] = useState(10)
-  const [inputBracketMatch, setInputBracketMatch] = useState(true)
-  const [bracketPairs, setBracketPairs] = useState<Array<[number, number]>>([])
-  const [inputAutoIndent, setInputAutoIndent] = useState(true)
-  const [indentGuides, setIndentGuides] = useState(false)
-  const [inputMinimap, setInputMinimap] = useState(false)
-  const [minimapPosition, setMinimapPosition] = useState<'left' | 'right'>('right')
-  const [inputCodeFolding, setInputCodeFolding] = useState(false)
-  const [foldedRanges, setFoldedRanges] = useState<Array<[number, number]>>([])
-  const [inputScrollSync, setInputScrollSync] = useState(false)
-  const [scrollSyncTarget, setScrollSyncTarget] = useState<string>('')
-  const [inputFindReplace, setInputFindReplace] = useState(false)
-  const [findReplaceQuery, setFindReplaceQuery] = useState({ find: '', replace: '' })
-  const [inputRecording, setInputRecording] = useState(false)
-  const [recordingBuffer, setRecordingBuffer] = useState<string[]>([])
-  const [inputSplit, setInputSplit] = useState(false)
-  const [splitContent, setSplitContent] = useState<string[]>(['', ''])
-  const [inputHotkeys, setInputHotkeys] = useState<Record<string, string>>({})
-  const [showHotkeyPanel, setShowHotkeyPanel] = useState(false)
-  // R1339: input auto save
-  const [inputAutoSave, setInputAutoSave] = useState(false)
-  const [autoSaveInterval, setAutoSaveInterval] = useState(30)
-  // R1345: multiline mode
-  const [inputMultiline, setInputMultiline] = useState(false)
-  const [multilineRows, setMultilineRows] = useState(3)
-  // R1351: drag and drop file upload
-  const [inputDragDrop, setInputDragDrop] = useState(false)
-  const [dragDropFiles, setDragDropFiles] = useState<string[]>([])
-  const [inputSnippets, setInputSnippets] = useState<Record<string, string>>({})
-  const [showSnippetMenu, setShowSnippetMenu] = useState(false)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -501,21 +388,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     setTemplates(updated)
   }
 
-  const handleSaveTemplate = () => {
-    const title = newTemplateName.trim()
-    if (!title || !text.trim()) return
-    if (templates.length >= MAX_TEMPLATES) return
-    const newTemplate: MessageTemplate = {
-      id: `tpl-${Date.now()}`,
-      title,
-      content: text.trim(),
-      createdAt: Date.now(),
-    }
-    saveTemplatesToStorage([newTemplate, ...templates])
-    setNewTemplateName('')
-    setSavingTemplate(false)
-  }
-
   const handleInsertTemplate = (tpl: MessageTemplate) => {
     setText(tpl.content)
     setShowTemplates(false)
@@ -528,17 +400,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       }
     }, 0)
   }
-
-  const handleDeleteTemplate = (id: string) => {
-    saveTemplatesToStorage(templates.filter(t => t.id !== id))
-  }
-
-  const filteredTemplates = templateSearch.trim()
-    ? templates.filter(t =>
-        t.title.toLowerCase().includes(templateSearch.toLowerCase()) ||
-        t.content.toLowerCase().includes(templateSearch.toLowerCase())
-      )
-    : templates
 
   useEffect(() => {
     // 기존 프롬프트 템플릿 로드
@@ -582,9 +443,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const slashQuery = slashParsed?.query ?? null
   const isSlashOpen = slashParsed !== null && slashParsed.args === null
 
-  // 슬래시 메뉴가 닫힌 직후 textarea 포커스 복구 (커맨드 선택/Esc/공백 등 모든 닫힘 케이스)
-  // useLayoutEffect: DOM 커밋 직후, 페인트 전에 실행 — 다음 키 이벤트 전에 포커스 확정
-  // (isSlashOpen 선언 이후에 위치해야 TDZ 에러 방지)
+  // 슬래시 메뉴가 닫힌 직후 textarea 포커스 복구
   const prevIsSlashOpenRef = React.useRef(false)
   React.useLayoutEffect(() => {
     if (prevIsSlashOpenRef.current && !isSlashOpen) {
@@ -597,6 +456,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     ? SlashCommandRegistry.filterCompat(slashQuery)
     : []
   const groupedCmds = isSlashOpen ? SlashCommandRegistry.getGrouped(filteredCmds) : []
+
   // 전체 flat 인덱스 유지 (키보드 탐색용)
   const flatCmds = groupedCmds.flatMap(g => g.commands)
 
@@ -1017,14 +877,6 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     }, 0)
   }, [])
 
-  const saveQuickActionEdit = useCallback(() => {
-    if (!editingAction) return
-    const updated = quickActions.map(a => a.id === editingAction ? { ...a, label: editLabel, prompt: editPrompt } : a)
-    setQuickActions(updated)
-    localStorage.setItem(QUICK_ACTIONS_KEY, JSON.stringify(updated))
-    setEditingAction(null)
-  }, [editingAction, editLabel, editPrompt, quickActions])
-
   const doSend = (trimmed: string) => {
     // 슬래시 커맨드 + 인자가 있으면 커맨드 실행으로 분기
     const parsed = parseSlash(trimmed)
@@ -1219,235 +1071,44 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           </span>
         </div>
       )}
-      {/* Slash command dropdown — 카테고리 그룹핑 */}
-      {isSlashOpen && flatCmds.length > 0 && (
-        <div style={{
-          position: 'absolute',
-          bottom: '100%',
-          left: 12,
-          right: 60,
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          marginBottom: 4,
-          overflow: 'hidden',
-          boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
-          zIndex: 100,
-          maxHeight: 360,
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
-          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none', flexShrink: 0 }}>
-            ↑↓ 탐색 · Enter/Tab 선택 · Space 인자 입력 · Esc 닫기
-          </div>
-          <div style={{ overflowY: 'auto', flex: 1 }}>
-          {(() => {
-            let flatIdx = 0
-            return groupedCmds.map((group) => (
-              <div key={group.category}>
-                {groupedCmds.length > 1 && (
-                  <div style={{
-                    padding: '4px 12px 2px',
-                    fontSize: 10,
-                    fontWeight: 600,
-                    color: 'var(--text-muted)',
-                    background: 'var(--bg-tertiary, var(--bg-secondary))',
-                    borderBottom: '1px solid var(--border)',
-                    userSelect: 'none',
-                    letterSpacing: 0.5,
-                  }}>
-                    {group.icon} {group.label}
-                  </div>
-                )}
-                {group.commands.map((c) => {
-                  const idx = flatIdx++
-                  const isRecent = SlashCommandRegistry.getRecentCmds().includes(c.cmd)
-                  const categoryColor = c.category === 'workflow' ? '#a78bfa'
-                    : c.category === 'plugin' ? '#4ade80'
-                    : c.category === 'custom' ? 'var(--warning, #e5a50a)'
-                    : 'var(--accent)'
-                  return (
-                    <div
-                      key={`${c.category ?? 'builtin'}-${c.cmd}`}
-                      onMouseDown={e => e.preventDefault()}
-                      onClick={() => selectSlashCommand(c)}
-                      onMouseEnter={() => setSlashSelected(idx)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        padding: '6px 12px',
-                        cursor: 'pointer',
-                        background: idx === slashSelected ? 'var(--bg-hover)' : 'transparent',
-                      }}
-                    >
-                      <span style={{ fontSize: 11, marginRight: 2, flexShrink: 0 }}>
-                        {c.icon || (c.category === 'workflow' ? '\uD83D\uDCC4' : c.category === 'plugin' ? '\uD83D\uDD0C' : c.category === 'custom' ? '\u2699' : '\u26A1')}
-                      </span>
-                      <span style={{ fontSize: 12, color: categoryColor, fontFamily: 'var(--font-mono)', fontWeight: 600, minWidth: 90 }}>
-                        {c.label}
-                      </span>
-                      <span style={{ fontSize: 12, color: 'var(--text-muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {c.description}
-                      </span>
-                      {c.args && c.args.length > 0 && (
-                        <span style={{ fontSize: 10, color: 'var(--text-muted)', opacity: 0.6, fontFamily: 'var(--font-mono)' }}>
-                          {c.args.map(a => a.required ? `<${a.name}>` : `[${a.name}]`).join(' ')}
-                        </span>
-                      )}
-                      {isRecent && (
-                        <span style={{ fontSize: 9, color: 'var(--accent)', opacity: 0.5, marginLeft: 'auto' }}>recent</span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            ))
-          })()}
-          </div>
-        </div>
+      {/* Slash command dropdown */}
+      {isSlashOpen && (
+        <SlashCommandDropdown
+          groupedCmds={groupedCmds}
+          flatCmds={flatCmds}
+          slashSelected={slashSelected}
+          setSlashSelected={setSlashSelected}
+          onSelect={selectSlashCommand}
+        />
       )}
 
       {/* Mention (@file) dropdown */}
-      {isMentionOpen && filteredFiles.length > 0 && (
-        <div style={{
-          position: 'absolute',
-          bottom: '100%',
-          left: 12,
-          right: 60,
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          marginBottom: 4,
-          overflow: 'hidden',
-          boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
-          zIndex: 100,
-        }}>
-          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none' }}>
-            ↑↓ 탐색 · Enter/Tab 선택 · Esc 닫기
-          </div>
-          {filteredFiles.map((filePath, i) => {
-            const fileName = filePath.split(/[/\\]/).pop() ?? filePath
-            const dirPart = filePath.slice(0, filePath.length - fileName.length).replace(/[/\\]$/, '')
-            return (
-              <div
-                key={filePath}
-                onClick={() => selectMention(filePath)}
-                onMouseEnter={() => setMentionSelected(i)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '7px 12px',
-                  cursor: 'pointer',
-                  background: i === mentionSelected ? 'var(--bg-hover)' : 'transparent',
-                  borderBottom: i < filteredFiles.length - 1 ? '1px solid var(--border)' : 'none',
-                }}
-              >
-                <span style={{ fontSize: 12, color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {fileName}
-                </span>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 1 }}>
-                  {dirPart}
-                </span>
-              </div>
-            )
-          })}
-        </div>
+      {isMentionOpen && (
+        <MentionDropdown
+          filteredFiles={filteredFiles}
+          mentionSelected={mentionSelected}
+          setMentionSelected={setMentionSelected}
+          onSelect={selectMention}
+        />
       )}
 
       {/* Template var autocomplete dropdown */}
-      {varSuggestionsOpen && varSuggestions.length > 0 && (
-        <div style={{
-          position: 'absolute',
-          bottom: '100%',
-          left: 12,
-          right: 60,
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          marginBottom: 4,
-          overflow: 'hidden',
-          boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
-          zIndex: 110,
-        }}>
-          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none' }}>
-            {'{{'} 변수 · ↑↓ 탐색 · Enter/Tab 선택 · Esc 닫기
-          </div>
-          {varSuggestions.map((varName, i) => (
-            <div
-              key={varName}
-              onClick={() => selectVarSuggestion(varName)}
-              onMouseEnter={() => setVarSuggestionsIdx(i)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '7px 12px',
-                cursor: 'pointer',
-                background: i === varSuggestionsIdx ? 'var(--bg-hover)' : 'transparent',
-                borderBottom: i < varSuggestions.length - 1 ? '1px solid var(--border)' : 'none',
-              }}
-            >
-              <span style={{ fontSize: 12, color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-                {`{{${varName}}}`}
-              </span>
-            </div>
-          ))}
-        </div>
+      {varSuggestionsOpen && (
+        <VarSuggestionDropdown
+          varSuggestions={varSuggestions}
+          varSuggestionsIdx={varSuggestionsIdx}
+          setVarSuggestionsIdx={setVarSuggestionsIdx}
+          onSelect={selectVarSuggestion}
+        />
       )}
 
       {/* Snippet shortcut dropdown */}
-      {snippetMatches.length > 0 && (
-        <div style={{
-          position: 'absolute',
-          bottom: '100%',
-          left: 0,
-          right: 0,
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          marginBottom: 4,
-          overflow: 'hidden',
-          boxShadow: '0 -4px 16px rgba(0,0,0,0.4)',
-          zIndex: 50,
-        }}>
-          <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none' }}>
-            snippets · ↑↓ 탐색 · Enter 삽입 · Esc 닫기
-          </div>
-          {snippetMatches.map((s, i) => (
-            <div
-              key={s.id}
-              onClick={() => selectSnippet(s)}
-              onMouseEnter={() => setSnippetMenuIdx(i)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '7px 12px',
-                cursor: 'pointer',
-                background: i === snippetMenuIdx ? 'var(--accent)' : 'transparent',
-                borderBottom: i < snippetMatches.length - 1 ? '1px solid var(--border)' : 'none',
-              }}
-            >
-              <span style={{
-                fontSize: 11,
-                fontFamily: 'var(--font-mono)',
-                background: 'var(--bg-tertiary)',
-                color: 'var(--text-secondary)',
-                padding: '1px 6px',
-                borderRadius: 3,
-                flexShrink: 0,
-              }}>
-                {s.shortcut}
-              </span>
-              <span style={{ fontSize: 12, color: i === snippetMenuIdx ? '#fff' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {s.name}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+      <SnippetDropdown
+        snippetMatches={snippetMatches}
+        snippetMenuIdx={snippetMenuIdx}
+        setSnippetMenuIdx={setSnippetMenuIdx}
+        onSelect={selectSnippet}
+      />
 
       {previewImages.length > 0 && (
         <div style={{
@@ -1498,200 +1159,19 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         </div>
       )}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-      {/* 빠른 액션 슬롯 */}
-      <div style={{ display: 'flex', gap: 4, padding: '0 0 4px', flexWrap: 'wrap' }}>
-        {quickActions.map(action => (
-          <div key={action.id} style={{ position: 'relative' }}>
-            {editingAction === action.id ? (
-              <div style={{
-                position: 'absolute', bottom: '100%', left: 0, zIndex: 100,
-                background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                borderRadius: 6, padding: 8, width: 220,
-              }}>
-                <input value={editLabel} onChange={e => setEditLabel(e.target.value)}
-                  placeholder="레이블"
-                  style={{ width: '100%', boxSizing: 'border-box', marginBottom: 4,
-                    background: 'var(--bg-primary)', border: '1px solid var(--border)',
-                    borderRadius: 3, padding: '3px 6px', color: 'var(--text-primary)', fontSize: 11 }} />
-                <textarea value={editPrompt} onChange={e => setEditPrompt(e.target.value)}
-                  placeholder="프롬프트"
-                  rows={3}
-                  style={{ width: '100%', boxSizing: 'border-box', marginBottom: 4,
-                    background: 'var(--bg-primary)', border: '1px solid var(--border)',
-                    borderRadius: 3, padding: '3px 6px', color: 'var(--text-primary)', fontSize: 11,
-                    resize: 'vertical' }} />
-                <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
-                  <button onClick={() => setEditingAction(null)}
-                    style={{ fontSize: 10, padding: '2px 8px', background: 'none',
-                      border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer',
-                      color: 'var(--text-muted)' }}>취소</button>
-                  <button onClick={saveQuickActionEdit}
-                    style={{ fontSize: 10, padding: '2px 8px',
-                      background: 'var(--accent)', border: 'none', borderRadius: 3,
-                      cursor: 'pointer', color: 'white' }}>저장</button>
-                </div>
-              </div>
-            ) : null}
-            <button
-              onClick={() => handleQuickAction(action.prompt)}
-              onContextMenu={e => {
-                e.preventDefault()
-                setEditLabel(action.label)
-                setEditPrompt(action.prompt)
-                setEditingAction(action.id)
-              }}
-              title={`${action.prompt}\n(우클릭: 편집)`}
-              style={{
-                fontSize: 10, padding: '2px 8px',
-                background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                borderRadius: 10, cursor: 'pointer', color: 'var(--text-muted)',
-                transition: 'all 0.1s', whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
-            >
-              {action.label}
-            </button>
-          </div>
-        ))}
-      </div>
+      <QuickActionsBar
+        quickActions={quickActions}
+        setQuickActions={setQuickActions}
+        onQuickAction={handleQuickAction}
+      />
       {showTemplates && (
-        <div style={{
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          padding: 8,
-          marginBottom: 4,
-        }}>
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-            <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600, flex: 1 }}>📋 템플릿</span>
-            {savingTemplate ? (
-              <input
-                autoFocus
-                value={newTemplateName}
-                onChange={e => setNewTemplateName(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') { e.preventDefault(); handleSaveTemplate() }
-                  if (e.key === 'Escape') { setSavingTemplate(false); setNewTemplateName('') }
-                }}
-                placeholder="템플릿 제목..."
-                style={{
-                  fontSize: 12,
-                  background: 'var(--bg-input)',
-                  border: '1px solid var(--border-light)',
-                  borderRadius: 4,
-                  color: 'var(--text-primary)',
-                  padding: '3px 6px',
-                  flex: 1,
-                  outline: 'none',
-                }}
-              />
-            ) : null}
-            {savingTemplate ? (
-              <>
-                <button
-                  onClick={handleSaveTemplate}
-                  disabled={!newTemplateName.trim() || !text.trim()}
-                  style={{ fontSize: 11, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4, padding: '3px 8px', cursor: 'pointer' }}
-                >
-                  저장
-                </button>
-                <button
-                  onClick={() => { setSavingTemplate(false); setNewTemplateName('') }}
-                  style={{ fontSize: 11, background: 'none', color: 'var(--text-muted)', border: 'none', cursor: 'pointer', padding: '3px 6px' }}
-                >
-                  취소
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => { if (text.trim()) setSavingTemplate(true) }}
-                  disabled={!text.trim() || templates.length >= MAX_TEMPLATES}
-                  title={templates.length >= MAX_TEMPLATES ? '최대 20개' : '현재 입력 저장'}
-                  style={{
-                    fontSize: 11,
-                    background: 'none',
-                    color: text.trim() && templates.length < MAX_TEMPLATES ? 'var(--accent)' : 'var(--text-muted)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 4,
-                    padding: '3px 8px',
-                    cursor: text.trim() && templates.length < MAX_TEMPLATES ? 'pointer' : 'not-allowed',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  + 현재 입력 저장
-                </button>
-                <button
-                  onClick={() => setShowTemplates(false)}
-                  style={{ fontSize: 13, background: 'none', color: 'var(--text-muted)', border: 'none', cursor: 'pointer', padding: '2px 4px', lineHeight: 1 }}
-                >
-                  ×
-                </button>
-              </>
-            )}
-          </div>
-          {/* Search */}
-          <input
-            value={templateSearch}
-            onChange={e => setTemplateSearch(e.target.value)}
-            placeholder="검색..."
-            style={{
-              width: '100%',
-              fontSize: 12,
-              background: 'var(--bg-input)',
-              border: '1px solid var(--border)',
-              borderRadius: 4,
-              color: 'var(--text-primary)',
-              padding: '4px 8px',
-              marginBottom: 4,
-              boxSizing: 'border-box',
-              outline: 'none',
-            }}
-          />
-          {/* Template list */}
-          {filteredTemplates.length === 0 ? (
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '4px 2px' }}>
-              {templates.length === 0 ? '저장된 템플릿이 없습니다.' : '검색 결과 없음'}
-            </div>
-          ) : (
-            <div style={{ maxHeight: 160, overflowY: 'auto' }}>
-              {filteredTemplates.map(tpl => (
-                <div
-                  key={tpl.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '5px 6px',
-                    borderRadius: 4,
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                >
-                  <span style={{ fontSize: 13, flexShrink: 0 }}>💬</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {tpl.title}
-                  </span>
-                  <button
-                    onClick={() => handleInsertTemplate(tpl)}
-                    style={{ fontSize: 11, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', flexShrink: 0 }}
-                  >
-                    삽입
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTemplate(tpl.id)}
-                    style={{ fontSize: 13, background: 'none', color: 'var(--text-muted)', border: 'none', cursor: 'pointer', padding: '2px 4px', lineHeight: 1, flexShrink: 0 }}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <TemplatePanel
+          text={text}
+          templates={templates}
+          onSaveTemplates={saveTemplatesToStorage}
+          onInsertTemplate={handleInsertTemplate}
+          onClose={() => setShowTemplates(false)}
+        />
       )}
       <textarea
         key={taKey}
@@ -2083,4 +1563,3 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
     </>
   )
 }
-

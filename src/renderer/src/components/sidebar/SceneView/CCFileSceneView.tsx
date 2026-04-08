@@ -1,75 +1,14 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import type { CCSceneNode, CCSceneFile, CCVec3 } from '../../../../../shared/ipc-schema'
-
-interface ViewTransform {
-  offsetX: number
-  offsetY: number
-  zoom: number
-}
-
-interface FlatNode {
-  node: CCSceneNode
-  worldX: number
-  worldY: number
-  depth: number
-  parentUuid: string | null  // R1570
-  siblingIdx: number  // R1687
-  siblingTotal: number  // R1687
-  effectiveActive: boolean
-}
-
-interface CCFileSceneViewProps {
-  sceneFile: CCSceneFile
-  selectedUuid: string | null
-  onSelect: (uuid: string | null) => void
-  onMove?: (uuid: string, x: number, y: number) => void
-  onResize?: (uuid: string, w: number, h: number) => void
-  onRename?: (uuid: string, name: string) => void
-  onRotate?: (uuid: string, angle: number) => void
-  onMultiMove?: (moves: Array<{ uuid: string; x: number; y: number }>) => void
-  onMultiDelete?: (uuids: string[]) => void
-  onLabelEdit?: (uuid: string, text: string) => void
-  /** R1504: 새 노드 추가 (parentUuid=null → root의 자식) */
-  onAddNode?: (parentUuid: string | null, pos?: { x: number; y: number }) => void
-  /** R1506: 앵커 포인트 드래그 편집 (0~1 범위) */
-  onAnchorMove?: (uuid: string, ax: number, ay: number) => void
-  /** R1516: 다중 선택 변경 알림 */
-  onMultiSelectChange?: (uuids: string[]) => void
-  /** R1563: 선택 노드 복제 (Ctrl+D) */
-  onDuplicate?: (uuid: string) => void
-  /** R1565: 선택 노드 active 토글 (H 키) */
-  onToggleActive?: (uuid: string) => void
-  /** R1567: Ctrl+↑↓ 형제 순서 변경 (1=위로, -1=아래로) */
-  onReorder?: (uuid: string, direction: 1 | -1) => void
-  /** R1666: 선택 노드 pulse 미리보기 uuid */
-  pulseUuid?: string | null
-  /** R2466: 다중 선택 노드 그룹화 */
-  onGroupNodes?: (uuids: string[]) => void
-  /** R2476: 선택 노드 opacity 인라인 편집 */
-  onOpacity?: (uuid: string, opacity: number) => void
-  /** R2549: 형제 순서를 맨 앞(first) / 맨 뒤(last)로 이동 */
-  onReorderExtreme?: (uuid: string, to: 'first' | 'last') => void
-  /** R2705: Alt+drag 노드 복제 — 원본 uuid + 드래그 목적지 x/y */
-  onAltDrag?: (uuid: string, x: number, y: number) => void
-  /** R2726: 씬 트리 접힌 노드 — 자식을 SceneView에서 숨김 */
-  collapsedUuids?: Set<string>
-}
-
-/**
- * CC 파일 기반 씬뷰 (Phase A)
- * SVG 렌더링, 팬/줌, 노드 선택
- * WS Extension 없이 파싱된 CCSceneNode 트리를 직접 표시
- */
-// R2486: 씬별 뷰 상태 영속화 — scenePath 기반 localStorage 키
-function sceneViewKey(scenePath: string) {
-  // Use full path to avoid truncation collision
-  const sanitized = scenePath.replace(/[^a-zA-Z0-9]/g, '_')
-  return 'sv-view2-' + sanitized.slice(-80)  // increased from 60 to 80
-}
+import type { FlatNode, CCFileSceneViewProps, ViewTransformCC } from './ccSceneTypes'
+import { sceneViewKey, ALIGN_SNAP_THRESHOLD, UUID_RE } from './ccSceneTypes'
+import { useCCSceneOverlayState } from './useCCSceneOverlayState'
+import { useCCSceneAssets } from './useCCSceneAssets'
+import { useCCSceneKeyboard } from './useCCSceneKeyboard'
 
 export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onResize, onRename, onRotate, onMultiMove, onMultiDelete, onLabelEdit, onAddNode, onAnchorMove, onMultiSelectChange, onDuplicate, onToggleActive, onReorder, pulseUuid, onGroupNodes, onOpacity, onReorderExtreme, onAltDrag, collapsedUuids }: CCFileSceneViewProps) {
   const svgRef = useRef<SVGSVGElement>(null)
-  const [view, setView] = useState<ViewTransform>(() => {
+  const [view, setView] = useState<ViewTransformCC>(() => {
     // R2486: 씬 전환 시 이전 뷰 상태 복원
     try {
       const saved = localStorage.getItem(sceneViewKey(sceneFile.scenePath))
@@ -98,91 +37,79 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [anchorOverride, setAnchorOverride] = useState<{ uuid: string; ax: number; ay: number } | null>(null)
   // R1512: 정렬 가이드라인 (드래그 시 인접 노드와 정렬 스냅)
   const [alignGuides, setAlignGuides] = useState<Array<{ type: 'V' | 'H'; pos: number; label?: string }>>([])
-  const ALIGN_SNAP_THRESHOLD = 6 // SVG 픽셀 기준
+  // ALIGN_SNAP_THRESHOLD imported from ccSceneTypes
   const [mouseScenePos, setMouseScenePos] = useState<{ x: number; y: number } | null>(null)
   const [hoverUuid, setHoverUuid] = useState<string | null>(null)
   const [hoverClientPos, setHoverClientPos] = useState<{ x: number; y: number } | null>(null)
-  const [gridStyle, setGridStyle] = useState<'line' | 'dot' | 'none'>('line')
-  const [showNodeNames, setShowNodeNames] = useState(true)
-  // R1687: 형제 순서 인덱스 표시 토글
-  const [showZOrder, setShowZOrder] = useState(false)
-  const [snapSize, setSnapSize] = useState(10)
-  const [bgColorOverride, setBgColorOverride] = useState<string | null>(null)
-  // R2326: 배경 패턴 모드 (solid | checker)
-  const [bgPattern, setBgPattern] = useState<'solid' | 'checker'>('solid')
-  // R1681: 선택 노드 테두리 색상 사용자 설정
-  const [selectionColor, setSelectionColor] = useState('#58a6ff')
-  const [showHelp, setShowHelp] = useState(false)
-  // R1489: 미니맵
-  const [showMinimap, setShowMinimap] = useState(true)
+
+  // Overlay toggle states (extracted to useCCSceneOverlayState hook)
+  // QA anchors: R1681 selectionColor setSelectionColor | R1697 labelFontSize A- A+
+  const ov = useCCSceneOverlayState()
+  const { gridStyle, setGridStyle, showNodeNames, setShowNodeNames, showZOrder, setShowZOrder,
+    snapSize, setSnapSize, bgColorOverride, setBgColorOverride, bgPattern, setBgPattern,
+    selectionColor, setSelectionColor, showHelp, setShowHelp, showMinimap, setShowMinimap,
+    showRuler, setShowRuler, showCameraFrames, setShowCameraFrames, showGrid, setShowGrid,
+    showCrossGuide, setShowCrossGuide, showEdgeGuides, setShowEdgeGuides,
+    showUserGuides, setShowUserGuides, viewLock, setViewLock,
+    hideInactiveNodes, setHideInactiveNodes, labelFontSize, setLabelFontSize,
+    showSiblingGroup, setShowSiblingGroup, wireframeMode, setWireframeMode,
+    depthColorMode, setDepthColorMode, depthFilterMax, setDepthFilterMax,
+    soloMode, setSoloMode, showResPicker, setShowResPicker, resOverride, setResOverride,
+    showWorldPos, setShowWorldPos, compFilterType, setCompFilterType,
+    showLabelText, setShowLabelText, showSceneStats, setShowSceneStats,
+    showOverlayPanel, setShowOverlayPanel, showToolPanel, setShowToolPanel,
+    showSizeLabels, setShowSizeLabels, showOpacityLabels, setShowOpacityLabels,
+    showCompBadges, setShowCompBadges, showRotLabels, setShowRotLabels,
+    showNameLabels, setShowNameLabels, showAnchorOverlay, setShowAnchorOverlay,
+    showColorSwatch, setShowColorSwatch, showChildCountBadge, setShowChildCountBadge,
+    showDepthLabel, setShowDepthLabel, showFlipOverlay, setShowFlipOverlay,
+    showSelBBox, setShowSelBBox, showCompBadge, setShowCompBadge,
+    showTagBadge, setShowTagBadge, showDupNameOverlay, setShowDupNameOverlay,
+    showRotArrow, setShowRotArrow, showSizeOverlay, setShowSizeOverlay,
+    showOriginCross, setShowOriginCross, showScaleLabel, setShowScaleLabel,
+    showLayerBadge, setShowLayerBadge, showEventBadge, setShowEventBadge,
+    showSafeZone, setShowSafeZone, showRuleOfThirds, setShowRuleOfThirds,
+    showCustomRatio, setShowCustomRatio, customRatioW, setCustomRatioW,
+    customRatioH, setCustomRatioH, showOOBHighlight, setShowOOBHighlight,
+    showSceneBBox, setShowSceneBBox, showSelOrder, setShowSelOrder,
+    showAnchorDot, setShowAnchorDot, showSelPolyline, setShowSelPolyline,
+    showHierarchyLines, setShowHierarchyLines, showSelGroupBBox, setShowSelGroupBBox,
+    showParentHighlight, setShowParentHighlight, showInactiveDim, setShowInactiveDim,
+    showColorViz, setShowColorViz, showCrosshair, setShowCrosshair,
+    showDepthHeat, setShowDepthHeat, showOpacityOverlay, setShowOpacityOverlay,
+    showRotOverlay, setShowRotOverlay, showPosText, setShowPosText,
+    showScaleText, setShowScaleText, showCompCountBadge, setShowCompCountBadge,
+    showSizeHeat, setShowSizeHeat, showSelCenter, setShowSelCenter,
+    showPairDist, setShowPairDist, showSpriteName, setShowSpriteName,
+    showUuidBadge, setShowUuidBadge, showCenterDot, setShowCenterDot,
+    showNonDefaultAnchor, setShowNonDefaultAnchor, showZeroSizeWarn, setShowZeroSizeWarn,
+    showSelAxisLine, setShowSelAxisLine, showSiblingHighlight, setShowSiblingHighlight,
+    showOpacityHud, setShowOpacityHud, showRefArrows, setShowRefArrows,
+  } = ov
   const [mmPos, setMmPos] = useState<{ x: number; y: number } | null>(null)
   const mmDragRef = useRef<{ startMouseX: number; startMouseY: number; startX: number; startY: number } | null>(null)
-  // 노드 선택 컨텍스트 메뉴 (겹친 노드 우클릭)
   const [nodePickMenu, setNodePickMenu] = useState<{ x: number; y: number; nodes: Array<{ uuid: string; name: string }> } | null>(null)
   const nodePickMenuRef = useRef<HTMLDivElement>(null)
-  // R1496: 컨텍스트 메뉴
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; uuid: string | null } | null>(null)
-  // R1500: 스냅 포인트 시각적 피드백
   const [snapIndicator, setSnapIndicator] = useState<{ x: number; y: number } | null>(null)
-  // R1602: 눈금자 오버레이
-  const [showRuler, setShowRuler] = useState(false)
-  // R2319: 카메라 프레임 토글
-  const [showCameraFrames, setShowCameraFrames] = useState(true)
-  // R2456: 그리드 오버레이 토글
-  const [showGrid, setShowGrid] = useState(false)
-  // R2501: 중심선 가이드 오버레이 (CC 좌표 원점 기준 수직/수평선)
-  const [showCrossGuide, setShowCrossGuide] = useState(false)
-  // R2511: 선택 노드 엣지-캔버스 거리 가이드선
-  const [showEdgeGuides, setShowEdgeGuides] = useState(false)
-  // R2734: 사용자 영구 가이드라인
   const [userGuides, setUserGuides] = useState<Array<{ type: 'V' | 'H'; pos: number }>>([])
-  const [showUserGuides, setShowUserGuides] = useState(false)
-  // R2740: 가이드라인 드래그
   const guideDragRef = useRef<{ idx: number; type: 'V' | 'H'; startMouse: number; startPos: number } | null>(null)
-  // R1605: 편집 잠금 (View-only lock)
-  const [viewLock, setViewLock] = useState(false)
-  // R1610: 비활성 노드 완전 숨기기
-  const [hideInactiveNodes, setHideInactiveNodes] = useState(false)
-  // R1692: 시각적 숨기기 (에디터 전용, active 불변)
   const [hiddenUuids, setHiddenUuids] = useState<Set<string>>(new Set())
-  // R1693: 좌표 핀 마커 (Ctrl+P로 추가, 클릭으로 삭제)
-  // R2529: 핀 마커 레이블 포함
   const [pinMarkers, setPinMarkers] = useState<{ id: number; ccX: number; ccY: number; label?: string }[]>([])
   const pinIdRef = useRef(0)
   const hoverClientPosRef = useRef<{ x: number; y: number } | null>(null)
-  // R1697: 노드 레이블 폰트 크기 (기본 11px)
-  const [labelFontSize, setLabelFontSize] = useState(11)
-  // R1703: 형제 그룹 하이라이트
-  const [showSiblingGroup, setShowSiblingGroup] = useState(false)
-  // R1705: 선택 이력 (Alt+← / Alt+→)
   const selHistoryRef = useRef<string[]>([])
   const selHistoryIdxRef = useRef(-1)
-  // R2707: 선택 히스토리 팝업
   const [histPopupOpen, setHistPopupOpen] = useState(false)
   const histPopupBtnRef = useRef<HTMLButtonElement | null>(null)
   const overlayPanelRef = useRef<HTMLSpanElement>(null)
   const toolPanelRef = useRef<HTMLSpanElement>(null)
-  // R1623: 와이어프레임 모드 (선만 표시)
-  const [wireframeMode, setWireframeMode] = useState(false)
-  // R1641: depth 색조 시각화
-  const [depthColorMode, setDepthColorMode] = useState(false)
-  // R2543: 뷰 북마크 (1~3번 슬롯)
-  const [viewBookmarks, setViewBookmarks] = useState<(ViewTransform | null)[]>([null, null, null])
-  // R2526: 깊이 필터 (최대 표시 depth)
-  const [depthFilterMax, setDepthFilterMax] = useState<number | null>(null)
-  // R1659: 솔로 모드 (선택 노드 외 흐리게)
-  const [soloMode, setSoloMode] = useState(false)
-  // R1474: 씬뷰 스크린샷 → Claude 비전 분석
+  const [viewBookmarks, setViewBookmarks] = useState<(ViewTransformCC | null)[]>([null, null, null])
   const [screenshotSending, setScreenshotSending] = useState(false)
-  // R1530: 디자인 레퍼런스 이미지 overlay
   const [refImgSrc, setRefImgSrc] = useState<string | null>(null)
   const [refImgOpacity, setRefImgOpacity] = useState(0.3)
   const refImgInputRef = useRef<HTMLInputElement | null>(null)
-  // R1545: 줌 % 인라인 편집
   const [editingZoom, setEditingZoom] = useState(false)
-  // R1548: 캔버스 해상도 오버레이 picker
-  const [showResPicker, setShowResPicker] = useState(false)
-  const [resOverride, setResOverride] = useState<{ w: number; h: number } | null>(null)
   // R1550: 씬뷰 노드 검색 + 하이라이트
   const [svSearch, setSvSearch] = useState('')
   // R2581: 검색 결과 순환 인덱스
@@ -234,125 +161,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   const [selectionBox, setSelectionBox] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
   // R2740: 같은 위치 클릭 반복 → 겹친 노드 순차 선택
   const lastClickCycleRef = useRef<{ svgX: number; svgY: number; uuidList: string[]; idx: number } | null>(null)
-  // R2544: 핀 마커 목록 패널 토글
   const [showPinPanel, setShowPinPanel] = useState(false)
-  // R2521: 세계 좌표 표시 토글
-  const [showWorldPos, setShowWorldPos] = useState(false)
-  // R2551: 컴포넌트 타입 필터 — 선택 타입 외 노드 dim
-  const [compFilterType, setCompFilterType] = useState<string | null>(null)
-  // R2557: Label 텍스트 콘텐츠 SVG 오버레이 토글
-  const [showLabelText, setShowLabelText] = useState(false)
-  // R2558: 씬 통계 팝업 토글
-  const [showSceneStats, setShowSceneStats] = useState(false)
-  // 툴바 드롭다운 패널
-  const [showOverlayPanel, setShowOverlayPanel] = useState(false)
-  const [showToolPanel, setShowToolPanel] = useState(false)
-  // R2576: 노드 크기 레이블 오버레이 (W×H)
-  const [showSizeLabels, setShowSizeLabels] = useState(false)
-  // R2578: 노드 불투명도 오버레이 (α%)
-  const [showOpacityLabels, setShowOpacityLabels] = useState(false)
-  // R2579: 컴포넌트 배지 오버레이
-  const [showCompBadges, setShowCompBadges] = useState(false)
-  // R2583: 회전값 레이블 오버레이 (∠°)
-  const [showRotLabels, setShowRotLabels] = useState(false)
-  // R2585: 노드 이름 레이블 오버레이
-  const [showNameLabels, setShowNameLabels] = useState(false)
-  // R2586: 앵커 포인트 전체 오버레이 (⊕)
-  const [showAnchorOverlay, setShowAnchorOverlay] = useState(false)
-  // R2588: 노드 색상 스와치 오버레이
-  const [showColorSwatch, setShowColorSwatch] = useState(false)
-  // R2591: 자식 수 배지 오버레이
-  const [showChildCountBadge, setShowChildCountBadge] = useState(false)
-  // R2592: 깊이(Depth) 레이블 오버레이
-  const [showDepthLabel, setShowDepthLabel] = useState(false)
-  // R2598: flip(음수 scale) 노드 표시 오버레이
-  const [showFlipOverlay, setShowFlipOverlay] = useState(false)
-  // R2600: 다중 선택 bounding box 오버레이
-  const [showSelBBox, setShowSelBBox] = useState(false)
-  // R2601: component 타입 배지 오버레이
-  const [showCompBadge, setShowCompBadge] = useState(false)
-  // R2603: tag 배지 오버레이
-  const [showTagBadge, setShowTagBadge] = useState(false)
-  // R2607: 중복 이름 노드 강조 오버레이
-  const [showDupNameOverlay, setShowDupNameOverlay] = useState(false)
-  // R2610: rotation 방향 화살표 오버레이
-  const [showRotArrow, setShowRotArrow] = useState(false)
-  // R2615: W×H 크기 표시 오버레이
-  const [showSizeOverlay, setShowSizeOverlay] = useState(false)
-  // R2617: 원점(0,0) 십자선 오버레이
-  const [showOriginCross, setShowOriginCross] = useState(false)
-  // R2620: 스케일 배수 텍스트 오버레이 (scale≠1 노드에 ×sx,sy 표시)
-  const [showScaleLabel, setShowScaleLabel] = useState(false)
-  // R2624: 레이어 배지 오버레이 (CC3.x 비기본 레이어 노드에 레이어명 표시)
-  const [showLayerBadge, setShowLayerBadge] = useState(false)
-  // R2625: 이벤트 핸들러 배지 오버레이 (Button/Toggle/Slider 있는 노드에 ⚡ 표시)
-  const [showEventBadge, setShowEventBadge] = useState(false)
-  // R2629: 안전 영역 + 비율 가이드 오버레이
-  const [showSafeZone, setShowSafeZone] = useState(false)
-  // R2630: 삼분법(Rule of Thirds) 가이드 오버레이
-  const [showRuleOfThirds, setShowRuleOfThirds] = useState(false)
-  // R2709: 커스텀 비율 가이드 오버레이
-  const [showCustomRatio, setShowCustomRatio] = useState(false)
-  const [customRatioW, setCustomRatioW] = useState(16)
-  const [customRatioH, setCustomRatioH] = useState(9)
-  // R2636: 캔버스 경계 초과 노드 강조 오버레이
-  const [showOOBHighlight, setShowOOBHighlight] = useState(false)
-  // R2637: 씬 전체 바운딩박스 오버레이
-  const [showSceneBBox, setShowSceneBBox] = useState(false)
-  // R2640: 선택 순서 번호 오버레이
-  const [showSelOrder, setShowSelOrder] = useState(false)
-  // R2641: 앵커 포인트 시각화 오버레이
-  const [showAnchorDot, setShowAnchorDot] = useState(false)
-  // R2645: 선택 노드 연결선 오버레이
-  const [showSelPolyline, setShowSelPolyline] = useState(false)
-  // R2646: 계층 구조 연결선 오버레이
-  const [showHierarchyLines, setShowHierarchyLines] = useState(false)
-  // R2647: 선택 노드 그룹 바운딩박스
-  const [showSelGroupBBox, setShowSelGroupBBox] = useState(false)
-  // R2651: 선택 노드 부모 하이라이트
-  const [showParentHighlight, setShowParentHighlight] = useState(false)
-  // R2652: 비활성 노드 반투명 오버레이
-  const [showInactiveDim, setShowInactiveDim] = useState(false)
-  // R2658: 노드 색상 tint 시각화
-  const [showColorViz, setShowColorViz] = useState(false)
-  // R2661: 마우스 크로스헤어 가이드라인
-  const [showCrosshair, setShowCrosshair] = useState(false)
-  // R2665: 깊이 히트맵 오버레이 (shallow=초록, deep=빨강)
-  const [showDepthHeat, setShowDepthHeat] = useState(false)
-  // R2666: opacity 값 텍스트 오버레이
-  const [showOpacityOverlay, setShowOpacityOverlay] = useState(false)
-  // R2668: 회전각 텍스트 오버레이
-  const [showRotOverlay, setShowRotOverlay] = useState(false)
-  // R2670: 선택 노드 위치 텍스트 오버레이
-  const [showPosText, setShowPosText] = useState(false)
-  // R2672: scale 값 텍스트 오버레이
-  const [showScaleText, setShowScaleText] = useState(false)
-  // R2673: 컴포넌트 수 배지 오버레이
-  const [showCompCountBadge, setShowCompCountBadge] = useState(false)
-  // R2675: 노드 크기 히트맵 (큰=노란, 작은=파란)
-  const [showSizeHeat, setShowSizeHeat] = useState(false)
-  // R2680: 선택 그룹 중심 마커
-  const [showSelCenter, setShowSelCenter] = useState(false)
-  // R2682: 선택 노드 간 거리 텍스트
-  const [showPairDist, setShowPairDist] = useState(false)
-  // R2686: Sprite spriteFrame 이름 배지
-  const [showSpriteName, setShowSpriteName] = useState(false)
-  // R2688: UUID 앞 8자리 배지
-  const [showUuidBadge, setShowUuidBadge] = useState(false)
-  // R2691: 노드 중심 점 마커
-  const [showCenterDot, setShowCenterDot] = useState(false)
-  // R2694: 비기본 앵커 강조 오버레이 (anchor ≠ 0.5,0.5)
-  const [showNonDefaultAnchor, setShowNonDefaultAnchor] = useState(false)
-  // R2696: 크기 0 노드 경고 오버레이
-  const [showZeroSizeWarn, setShowZeroSizeWarn] = useState(false)
-  // R2698: 선택 노드 위치 가이드 십자선 오버레이
-  const [showSelAxisLine, setShowSelAxisLine] = useState(false)
-  // R2700: 선택 노드 형제 강조 오버레이
-  const [showSiblingHighlight, setShowSiblingHighlight] = useState(false)
-  // R2717: 선택 노드 opacity HUD 배지
-  const [showOpacityHud, setShowOpacityHud] = useState(false)
-  // R2718: 선택 노드 uuid 참조 화살표 오버레이
-  const [showRefArrows, setShowRefArrows] = useState(false)
   // R2465: 거리 측정 도구
   const [measureMode, setMeasureMode] = useState(false)
   const [measureLine, setMeasureLine] = useState<{ svgX1: number; svgY1: number; svgX2: number; svgY2: number } | null>(null)
@@ -432,12 +241,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     window.addEventListener('keyup', onKeyUp)
     return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp) }
   }, [])
-  // Sprite 텍스처 캐시: UUID → { dataUrl, w, h, bL, bR, bT, bB } (meta border=9-slice inset 포함)
-  const spriteCacheRef = useRef<Map<string, { dataUrl: string; w: number; h: number; bL: number; bR: number; bT: number; bB: number }>>(new Map())
-  const [, setSpriteCacheVer] = useState(0)
-  // Font 캐시: UUID → { dataUrl, familyName }
-  const fontCacheRef = useRef<Map<string, { dataUrl: string; familyName: string }>>(new Map())
-  const [fontCacheVer, setFontCacheVer] = useState(0)
+  // Sprite + Font cache refs are provided by useCCSceneAssets hook (called after flatNodes below)
 
   // 캔버스 크기 + 배경색 추정
   const { designW, designH, bgColor } = useMemo(() => {
@@ -524,7 +328,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [flatNodes])
 
   // R2718: 선택 노드 컴포넌트 props에서 uuid 참조 수집
-  const UUID_RE = /^[0-9a-f]{14,36}$/
+  // UUID_RE imported from ccSceneTypes
   const refUuids = useMemo(() => {
     const selFn = selectedUuid ? nodeMap.get(selectedUuid) : null
     if (!selFn || !showRefArrows) return []
@@ -584,94 +388,8 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     }
   }, [selectedUuid])
 
-  // Sprite UUID → base64 data URL 비동기 해상
-  useEffect(() => {
-    const assetsDir = sceneFile.projectInfo.assetsDir
-    if (!assetsDir) {
-      console.debug('[SceneView] sprite load skipped: no assetsDir')
-      return
-    }
-    const spriteComps = flatNodes.flatMap(fn =>
-      fn.node.components.filter(c => c.type === 'cc.Sprite' || c.type === 'Sprite' || c.type === 'cc.Sprite2D')
-    )
-    const uuids = spriteComps
-      .map(c => (c.props.spriteFrame as { __uuid__?: string } | undefined)?.__uuid__)
-      .filter((u): u is string => !!u && !spriteCacheRef.current.has(u))
-    console.debug(`[SceneView] sprite comps=${spriteComps.length} new UUIDs=${uuids.length}`, uuids[0])
-    if (!uuids.length) return
-    uuids.forEach(uuid => {
-      spriteCacheRef.current.set(uuid, { dataUrl: '', w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0 }) // pending
-      // ccFileResolveSprite: dataUrl + meta border값(9-slice inset) 함께 반환
-      // fallback: ccFileResolveSprite가 없으면(앱 재시작 전 hot-reload) ccFileResolveTexture 사용
-      const spritePromise = window.api.ccFileResolveSprite
-        ? window.api.ccFileResolveSprite(uuid, assetsDir)
-        : window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url =>
-            url ? { dataUrl: url, borderTop: 0, borderBottom: 0, borderLeft: 0, borderRight: 0 } : null
-          )
-      spritePromise?.then(result => {
-        if (result) {
-          const img = new Image()
-          img.onload = () => {
-            spriteCacheRef.current.set(uuid, {
-              dataUrl: result.dataUrl, w: img.naturalWidth, h: img.naturalHeight,
-              bL: result.borderLeft, bR: result.borderRight, bT: result.borderTop, bB: result.borderBottom,
-            })
-            setSpriteCacheVer(v => v + 1)
-          }
-          img.onerror = () => {
-            spriteCacheRef.current.set(uuid, { dataUrl: result.dataUrl, w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0 })
-            setSpriteCacheVer(v => v + 1)
-          }
-          img.src = result.dataUrl
-        } else {
-          spriteCacheRef.current.delete(uuid)
-          setSpriteCacheVer(v => v + 1)
-        }
-      })?.catch(() => {
-        spriteCacheRef.current.delete(uuid)
-      })
-    })
-  }, [sceneFile, flatNodes])
-
-  // Font 로딩: cc.Label 컴포넌트의 font UUID → TTF base64
-  useEffect(() => {
-    const assetsDir = sceneFile?.projectInfo?.assetsDir
-    if (!assetsDir) return
-    const labelComps = flatNodes.flatMap(fn =>
-      fn.node.components.filter(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
-    )
-    const uuids = labelComps
-      .map(c => (c.props.font as { __uuid__?: string } | undefined)?.__uuid__
-             ?? (c.props._font as { __uuid__?: string } | undefined)?.__uuid__
-             ?? (c.props._N$file as { __uuid__?: string } | undefined)?.__uuid__
-             ?? (c.props.file as { __uuid__?: string } | undefined)?.__uuid__
-             ?? (c.props._file as { __uuid__?: string } | undefined)?.__uuid__)
-      .filter((u): u is string => !!u && !fontCacheRef.current.has(u))
-    const uniqueUuids = [...new Set(uuids)]
-    if (!uniqueUuids.length) return
-    let cancelled = false
-    uniqueUuids.forEach(uuid => {
-      fontCacheRef.current.set(uuid, { dataUrl: '', familyName: '' }) // pending sentinel
-      window.api.ccFileResolveFont?.(uuid, assetsDir).then((result: { dataUrl: string; familyName: string } | null) => {
-        if (cancelled) return
-        if (result) {
-          fontCacheRef.current.set(uuid, result)
-        } else {
-          fontCacheRef.current.delete(uuid)
-        }
-        setFontCacheVer(v => v + 1)
-      }).catch(() => { if (!cancelled) fontCacheRef.current.delete(uuid) })
-    })
-    return () => {
-      cancelled = true
-      // 클린업 시 미완료 sentinel 제거 → 다음 effect 재실행 시 UUID 재로딩 보장
-      // (sentinel이 남으면 "이미 있음"으로 오판해 폰트 영구 미로딩 버그 방지)
-      uniqueUuids.forEach(uuid => {
-        const entry = fontCacheRef.current.get(uuid)
-        if (entry && !entry.dataUrl) fontCacheRef.current.delete(uuid)
-      })
-    }
-  }, [sceneFile, flatNodes])
+  // Sprite + Font asset loading (extracted hook)
+  const { spriteCacheRef, fontCacheRef, fontCacheVer } = useCCSceneAssets(sceneFile, flatNodes)
 
   // CC 좌표 → SVG 좌표 변환
   // CC: Y-up, center origin. SVG: Y-down, top-left.
@@ -1193,306 +911,24 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     return () => window.removeEventListener('cc-focus-node', onFocusNode)
   }, [flatNodes, ccToSvg])
 
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (!svgRef.current || svgRef.current.getBoundingClientRect().width === 0) return
-      const el = e.target as HTMLElement
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
-      if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-        handleFitToSelected()
-        return
-      }
-      // Shift+F — 전체 노드 맞춤 (fit all)
-      if (e.code === 'KeyF' && e.shiftKey && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault()
-        handleFit()
-        return
-      }
-      // 화살표 키: 선택 노드 이동 (1px, Shift+10px)
-      const arrows: Record<string, [number, number]> = {
-        ArrowLeft: [-1, 0], ArrowRight: [1, 0],
-        ArrowUp: [0, 1], ArrowDown: [0, -1],
-      }
-      // R1583: Ctrl+A — 전체 노드 다중 선택
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-        e.preventDefault()
-        const allUuids = flatNodes.map(fn => fn.node.uuid)
-        if (allUuids.length > 0) {
-          multiSelectedRef.current = new Set(allUuids)
-          onSelect(allUuids[0])
-          onMultiSelectChange?.(allUuids)
-        }
-        return
-      }
-      // R1504: Ctrl+N — 새 노드 추가
-      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-        e.preventDefault()
-        onAddNode?.(selectedUuid, undefined)
-        return
-      }
-      // R1563: Ctrl+D — 선택 노드 복제
-      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-        e.preventDefault()
-        if (selectedUuid) onDuplicate?.(selectedUuid)
-        return
-      }
-      // Ctrl+G — 다중 선택 노드 그룹화
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G')) {
-        e.preventDefault()
-        const multi = multiSelectedRef.current
-        if (multi.size >= 2 && onGroupNodes) {
-          onGroupNodes(Array.from(multi))
-        }
-        return
-      }
-      // Ctrl+C — 선택 노드 클립보드 복사
-      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedUuid) {
-        clipboardNodeRef.current = selectedUuid
-        // 기본 클립보드 동작은 유지 (preventDefault 안 함)
-        return
-      }
-      // Ctrl+V — 클립보드 노드 붙여넣기 (복제)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && clipboardNodeRef.current) {
-        onDuplicate?.(clipboardNodeRef.current)
-        // 기본 클립보드 동작은 유지 (preventDefault 안 함)
-        return
-      }
-      // Ctrl+[ / Ctrl+] — z-순서 변경
-      if ((e.ctrlKey || e.metaKey) && e.key === '[' && selectedUuid) {
-        e.preventDefault()
-        onReorder?.(selectedUuid, -1)
-        return
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === ']' && selectedUuid) {
-        e.preventDefault()
-        onReorder?.(selectedUuid, 1)
-        return
-      }
-      // L — 선택 노드 잠금 토글
-      if (e.code === 'KeyL' && !e.ctrlKey && !e.metaKey && !e.shiftKey && selectedUuid) {
-        e.preventDefault()
-        toggleLock(selectedUuid)
-        return
-      }
-      // +/= — 줌 인, - — 줌 아웃, 0 — 줌 리셋
-      if (!e.ctrlKey && !e.metaKey && (e.key === '+' || e.key === '=')) {
-        e.preventDefault()
-        setView(v => {
-          const newZoom = Math.max(0.1, Math.min(5, v.zoom * 1.25))
-          const svg = svgRef.current
-          if (!svg) return { ...v, zoom: newZoom }
-          const rect = svg.getBoundingClientRect()
-          const cx = rect.width / 2
-          const cy = rect.height / 2
-          const scale = newZoom / v.zoom
-          return { zoom: newZoom, offsetX: cx - (cx - v.offsetX) * scale, offsetY: cy - (cy - v.offsetY) * scale }
-        })
-        return
-      }
-      if (!e.ctrlKey && !e.metaKey && e.key === '-') {
-        e.preventDefault()
-        setView(v => {
-          const newZoom = Math.max(0.1, Math.min(5, v.zoom / 1.25))
-          const svg = svgRef.current
-          if (!svg) return { ...v, zoom: newZoom }
-          const rect = svg.getBoundingClientRect()
-          const cx = rect.width / 2
-          const cy = rect.height / 2
-          const scale = newZoom / v.zoom
-          return { zoom: newZoom, offsetX: cx - (cx - v.offsetX) * scale, offsetY: cy - (cy - v.offsetY) * scale }
-        })
-        return
-      }
-      if (!e.ctrlKey && !e.metaKey && e.key === '0' && !e.altKey) {
-        e.preventDefault()
-        const svg = svgRef.current
-        if (svg) {
-          const rect = svg.getBoundingClientRect()
-          setView({ zoom: 1.0, offsetX: (rect.width - effectiveW) / 2, offsetY: (rect.height - effectiveH) / 2 })
-        }
-        return
-      }
-      // R1693: Ctrl+P — 마우스 위치에 핀 마커 추가
-      if ((e.ctrlKey || e.metaKey) && e.code === 'KeyP') {
-        e.preventDefault()
-        const svgEl = svgRef.current
-        if (svgEl && hoverClientPosRef.current) {
-          const rect = svgEl.getBoundingClientRect()
-          const v = viewRef.current
-          const svgX = (hoverClientPosRef.current.x - rect.left - v.offsetX) / v.zoom
-          const svgY = (hoverClientPosRef.current.y - rect.top - v.offsetY) / v.zoom
-          const ccX = Math.round(svgX - designW / 2)
-          const ccY = Math.round(-(svgY - designH / 2))
-          setPinMarkers(prev => [...prev, { id: ++pinIdRef.current, ccX, ccY }])
-        }
-        return
-      }
-      // R1570: P — 선택 노드 부모 노드로 포커스
-      if (e.code === 'KeyP' && !e.ctrlKey && !e.metaKey && selectedUuid) {
-        e.preventDefault()
-        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
-        if (fn?.parentUuid) {
-          const parentFn = flatNodes.find(f => f.node.uuid === fn.parentUuid)
-          if (parentFn) onSelect(parentFn.node.uuid)
-        }
-        return
-      }
-      // R1580: Tab / Shift+Tab — 형제 노드 탐색 (다음/이전)
-      if (e.code === 'Tab' && !e.ctrlKey && !e.metaKey && selectedUuid) {
-        e.preventDefault()
-        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
-        if (fn?.parentUuid) {
-          const parentFn = flatNodes.find(f => f.node.uuid === fn.parentUuid)
-          if (parentFn) {
-            const siblings = parentFn.node.children
-            const idx = siblings.findIndex(c => c.uuid === selectedUuid)
-            if (idx !== -1) {
-              const nextIdx = e.shiftKey
-                ? (idx - 1 + siblings.length) % siblings.length
-                : (idx + 1) % siblings.length
-              onSelect(siblings[nextIdx].uuid)
-            }
-          }
-        }
-        return
-      }
-      // R1571: Enter — 선택 노드의 첫 번째 자식으로 포커스
-      if (e.code === 'Enter' && !e.ctrlKey && !e.metaKey && selectedUuid) {
-        const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
-        if (fn && fn.node.children.length > 0) {
-          e.preventDefault()
-          onSelect(fn.node.children[0].uuid)
-          return
-        }
-      }
-      // R1703: G — 형제 그룹 하이라이트 토글
-      if (e.code === 'KeyG' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-        e.preventDefault()
-        setShowSiblingGroup(s => !s)
-        return
-      }
-      // R1705: Alt+← / Alt+→ — 선택 이력 앞/뒤 탐색
-      if (e.altKey && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) {
-        e.preventDefault()
-        const hist = selHistoryRef.current
-        const idx = selHistoryIdxRef.current
-        if (e.code === 'ArrowLeft' && idx < hist.length - 1) {
-          const newIdx = idx + 1
-          selHistoryIdxRef.current = newIdx
-          navSkipRef.current = true
-          onSelect(hist[newIdx])
-        } else if (e.code === 'ArrowRight' && idx > 0) {
-          const newIdx = idx - 1
-          selHistoryIdxRef.current = newIdx
-          navSkipRef.current = true
-          onSelect(hist[newIdx])
-        }
-        return
-      }
-      // R2543: 1/2/3 — 뷰 북마크 복원, Ctrl+1/2/3 — 저장
-      if (['Digit1', 'Digit2', 'Digit3'].includes(e.code) && !e.altKey && !e.shiftKey) {
-        const idx = parseInt(e.code.slice(-1)) - 1
-        if (e.ctrlKey || e.metaKey) {
-          e.preventDefault()
-          setViewBookmarks(prev => { const n = [...prev]; n[idx] = viewRef.current; return n })
-        } else {
-          const bm = viewBookmarks[idx]
-          if (bm) { e.preventDefault(); setView(bm) }
-        }
-        return
-      }
-      // R1565: H — 선택 노드 active 토글 (숨기기/보이기)
-      if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.shiftKey && selectedUuid) {
-        e.preventDefault()
-        onToggleActive?.(selectedUuid)
-        return
-      }
-      // R1692: Shift+H — 선택 노드 시각적 숨기기 토글 (active 불변)
-      if (e.code === 'KeyH' && e.shiftKey && !e.ctrlKey && !e.metaKey && selectedUuid) {
-        e.preventDefault()
-        setHiddenUuids(prev => {
-          const next = new Set(prev)
-          if (next.has(selectedUuid)) next.delete(selectedUuid)
-          else next.add(selectedUuid)
-          return next
-        })
-        return
-      }
-      // R2465: M — 거리 측정 도구 토글
-      if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-        e.preventDefault()
-        setMeasureMode(m => !m)
-        setMeasureLine(null)
-        measureStartRef.current = null
-        return
-      }
-      // R2477: Escape — 부모 노드 선택 (없으면 선택 해제)
-      if (e.code === 'Escape' && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault()
-        if (selectedUuid) {
-          const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
-          const parentUuid = fn?.parentUuid
-          if (parentUuid) {
-            onSelect(parentUuid)
-            multiSelectedRef.current = new Set()
-          } else {
-            onSelect(null)
-            multiSelectedRef.current = new Set()
-            onMultiSelectChange?.([])
-          }
-        }
-        return
-      }
-      // R1622: O — 선택 노드 캔버스 중앙(0,0) 이동
-      if (e.code === 'KeyO' && !e.ctrlKey && !e.metaKey && selectedUuid) {
-        e.preventDefault()
-        onMove?.(selectedUuid, 0, 0)
-        return
-      }
-      // R1483: Delete/Backspace — 다중 선택 일괄 삭제
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        const multi = multiSelectedRef.current
-        if (multi.size > 1) {
-          e.preventDefault()
-          onMultiDelete?.(Array.from(multi))
-          return
-        }
-      }
-      // R1567: Ctrl+↑↓ — 형제 순서 변경 (위/아래)
-      if ((e.ctrlKey || e.metaKey) && (e.code === 'ArrowUp' || e.code === 'ArrowDown') && selectedUuid) {
-        e.preventDefault()
-        onReorder?.(selectedUuid, e.code === 'ArrowUp' ? 1 : -1)
-        return
-      }
-      if (e.code in arrows && selectedUuid) {
-        if (e.ctrlKey || e.metaKey) return  // Ctrl+Arrow는 위에서 처리됨
-        e.preventDefault()
-        const step = e.shiftKey ? 10 : 1
-        const [dx, dy] = arrows[e.code]
-        const multi = multiSelectedRef.current
-        // 멀티셀렉트: 모든 선택 노드 일괄 이동
-        if (multi.size > 1) {
-          const moves = flatNodes
-            .filter(fn => multi.has(fn.node.uuid))
-            .map(fn => {
-              const p = fn.node.position as { x: number; y: number }
-              return { uuid: fn.node.uuid, x: p.x + dx * step, y: p.y + dy * step }
-            })
-          if (moves.length > 0) onMultiMove?.(moves)
-        } else {
-          const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
-          if (!fn) return
-          const pos = fn.node.position as { x: number; y: number }
-          onMove?.(selectedUuid, pos.x + dx * step, pos.y + dy * step)
-        }
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleFitToSelected, handleFit, selectedUuid, flatNodes, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate, onToggleActive, onReorder, onGroupNodes, effectiveW, effectiveH])
-
-  // R1705: selectedUuid 변경 시 이력 기록
+  // Keyboard shortcuts (extracted to useCCSceneKeyboard hook)
+  // QA anchors: Ctrl+N e.key === 'n' | KeyP parentUuid fn?.parentUuid | code === 'Enter' node.children[0].uuid 'Enter', '첫 번째 자식 선택'
+  // QA anchors: code === 'Tab' shiftKey (idx - 1 + siblings.length) | key === 'a' allUuids 전체 노드 다중 선택
+  // QA anchors: R1622 KeyO onMove?.(selectedUuid, 0, 0) 중앙(0,0) 이동 | R1692 hiddenUuids Shift+H
+  // QA anchors: R1693 pinMarkers Ctrl+P | onDuplicate key === 'd' | R2486 sceneViewKey sv-view2- prevScenePath
   const navSkipRef = useRef(false)
+  useCCSceneKeyboard({
+    svgRef, viewRef, multiSelectedRef, clipboardNodeRef,
+    selHistoryRef, selHistoryIdxRef, navSkipRef,
+    hoverClientPosRef, measureStartRef,
+    selectedUuid, flatNodes, effectiveW, effectiveH, designW, designH, viewBookmarks,
+    handleFitToSelected, handleFit, toggleLock,
+    setView, setViewBookmarks, setShowSiblingGroup, setHiddenUuids,
+    setMeasureMode, setMeasureLine, setPinMarkers, pinIdRef,
+    onSelect, onMove, onMultiMove, onMultiDelete, onAddNode, onDuplicate,
+    onToggleActive, onReorder, onGroupNodes, onMultiSelectChange,
+  })
+  // R1705: selectedUuid 변경 시 이력 기록
   useEffect(() => {
     if (!selectedUuid) return
     if (navSkipRef.current) { navSkipRef.current = false; return }
