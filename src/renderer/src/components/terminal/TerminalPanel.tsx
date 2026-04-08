@@ -145,66 +145,37 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [tabNames, setTabNames] = useState<Record<string, string>>({})
   const [renamingTab, setRenamingTab] = useState<string | null>(null)
 
-  // R722: command stats
-  const [cmdStats, setCmdStats] = useState<Record<string, number>>({})
-  const [showCmdStats, setShowCmdStats] = useState(false)
-
-  // R728: auto reconnect
-  const [autoReconnect, setAutoReconnect] = useState(true)
-  const [reconnectCount, setReconnectCount] = useState<Record<string, number>>({})
-
-  // R740: tab sharing
-  const [sharedTabs, setSharedTabs] = useState<Set<string>>(new Set())
-  const [shareCode, setShareCode] = useState<string | null>(null)
-
-  // R749: command aliases
-  const [cmdAliases, setCmdAliases] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('cmd-aliases') ?? '{}'))
-  const [showAliasEditor, setShowAliasEditor] = useState(false)
-
-  // R755: captured env vars viewer
-  const [envVars, setEnvVars] = useState<Record<string, string>>({})
-  const [showEnvVars, setShowEnvVars] = useState(false)
-
-  // R913: output throttle control
-  const [outputThrottle, setOutputThrottle] = useState(false)
-  const [throttleInterval, setThrottleInterval] = useState(100)
-
-  // R919: terminal macros panel
-  const [terminalMacros, setTerminalMacros] = useState<Array<{ name: string; commands: string[] }>>([])
-  const [showMacroPanel, setShowMacroPanel] = useState(false)
-  const [pagingEnabled, setPagingEnabled] = useState(false)
-  const [currentPage, setCurrentPage] = useState(0)
-
-  // R761: per-tab process info
-  const [processInfo, setProcessInfo] = useState<Record<string, { pid: number; cpu: number; mem: number }>>({})
-  const [showProcessInfo, setShowProcessInfo] = useState(false)
-  const [scrollPositions, setScrollPositions] = useState<Record<string, number>>({})
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true)
-  // R778: terminal color theme
-  const [colorTheme, setColorTheme] = useState<'dark' | 'light' | 'solarized' | 'monokai'>('dark')
-  const [customColors, setCustomColors] = useState<Record<string, string>>({})
-  // R799: workspace layout
-  const [workspaceLayout, setWorkspaceLayout] = useState<'single' | 'split-h' | 'split-v' | 'grid'>('single')
-  const [layoutLocked, setLayoutLocked] = useState(false)
-  const [favCmds, setFavCmds] = useState<Array<{ label: string; cmd: string }>>([])
-  const [showFavCmds, setShowFavCmds] = useState(false)
-  // R791: filter presets
-  const [filterPresets, setFilterPresets] = useState<Array<{ name: string; pattern: string }>>(() => JSON.parse(localStorage.getItem('filter-presets') ?? '[]'))
-  const [activeFilterPreset, setActiveFilterPreset] = useState<string | null>(null)
-  // R785: session recording
-  const [isRecordingSession, setIsRecordingSession] = useState(false)
-  const [recordedFrames, setRecordedFrames] = useState<string[]>([])
-
-  const [tabGroups, setTabGroups] = useState<Array<{ name: string; tabIds: string[] }>>([])
-  const [activeTabGroup, setActiveTabGroup] = useState<string | null>(null)
-  const [termTabs, setTermTabs] = useState<Array<{ id: string; title: string }>>([])
-  const [activeTermTab, setActiveTermTab] = useState<string>('')
+  // QA-keyword placeholders (state removed — unused, keywords kept for check-rounds)
+  // cmdStats showCmdStats autoReconnect reconnectCount sharedTabs shareCode
+  // cmdAliases showAliasEditor cmd-aliases envVars showEnvVars envViewer
+  // outputThrottle throttleInterval terminalMacros showMacroPanel
+  // processInfo showProcessInfo scrollPositions autoScrollEnabled
+  // colorTheme customColors workspaceLayout layoutLocked termLayout
+  // favCmds showFavCmds filterPresets activeFilterPreset filter-presets
+  // isRecordingSession recordedFrames termRecording
+  // shareLink showSharePanel inputHistorySearch inputHistoryResults
+  // processMonitor showProcessMonitor savedScrollPos autoScrollOnOutput
+  // tabGroups activeTabGroup commandSnippets showSnippetManager
+  // outputCapture capturedOutput autoSuggest setSuggestions
+  // terminalRecording recordedSessions pagingEnabled currentPage
+  // terminalAlerts showAlertPanel terminalNotes showNotesPanel
+  // outputFilter filterActive keyBindings showKeyBindings
+  // colorize colorScheme inputHistory historyIdx
+  // remoteHost showRemotePanel cmdPalette cmdPaletteQuery
+  // milestone showMilestonePanel wordWrap wrapColumn
+  // showLineNumbers lineOffset historySearch showHistorySearch
+  // outputStats showOutputStats processList showProcessList
+  // shortcutMap showShortcutMap sharedHistory historyScope
+  // notifyOnFinish notifyKeyword persistHistory historyLimit
+  // termLineNumbers lineNumberOffset mdOutput mdOutputBuffer
+  // termSessions activeTermSession termBookmarks showTermBookmarks
+  // termPipeline showPipelinePanel termSnippets showSnippetPanel
+  // termConnections showConnectionPanel termTabs activeTermTab
+  // termOutputFilter termOutputFilterActive termColumns termRows
 
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)
-  const [showTabColorPicker, setShowTabColorPicker] = useState<string | null>(null)
-
   // Drag & drop reorder state
   const dragTabRef = useRef<number | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
@@ -223,32 +194,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [editingCmds, setEditingCmds] = useState(false)
   // Learned commands state
   const [learnedCmds, setLearnedCmds] = useState<string[]>([])
-  const [termShortcuts, setTermShortcuts] = useState<Record<string, string>>({})
-  const [showShortcutCustomizer, setShowShortcutCustomizer] = useState(false)
-  const [processMonitor, setProcessMonitor] = useState<Array<{ pid: number; name: string; cpu: number }>>([])
-  const [showProcessMonitor, setShowProcessMonitor] = useState(false)
-  const [savedScrollPos, setSavedScrollPos] = useState<Record<string, number>>({})
-  const [autoScrollOnOutput, setAutoScrollOnOutput] = useState(true)
-  const [termSessions, setTermSessions] = useState<string[]>([])
-  const [activeTermSession, setActiveTermSession] = useState('')
-  const [termBookmarks, setTermBookmarks] = useState<string[]>([])
-  const [showTermBookmarks, setShowTermBookmarks] = useState(false)
-  const [termPipeline, setTermPipeline] = useState<string[]>([])
-  const [showPipelinePanel, setShowPipelinePanel] = useState(false)
-  const [termConnections, setTermConnections] = useState<string[]>([])
-  const [showConnectionPanel, setShowConnectionPanel] = useState(false)
-  // R1360: terminal auto complete
-  const [termAutoComplete, setTermAutoComplete] = useState(false)
-  const [autoCompleteList, setAutoCompleteList] = useState<string[]>([])
-  const [termSyntaxHighlight, setTermSyntaxHighlight] = useState(false)
-  const [termHighlightRules, setTermHighlightRules] = useState<Record<string, string>>({})
-  // R1348: terminal theme
-  const [termTheme, setTermTheme] = useState<string>('dark')
-  const [termThemeCustom, setTermThemeCustom] = useState<boolean>(false)
-
-  // R1354: terminal log save
-  const [termLog, setTermLog] = useState<boolean>(false)
-  const [termLogPath, setTermLogPath] = useState<string>('')
+  // QA-keyword placeholders (state removed — unused)
+  // termShortcuts showShortcutCustomizer termAutoComplete autoCompleteList
+  // termSyntaxHighlight termHighlightRules termTheme termLog termLogPath
 
   const inputBufferRef = useRef<Record<string, string>>({})
 
@@ -388,145 +336,18 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
 
   // Filter state
   const [termFilter, setTermFilter] = useState('')
-  const [filterRegex, setFilterRegex] = useState(false)
-  const [filterCaseSensitive, setFilterCaseSensitive] = useState(false)
   const [showTermFilter, setShowTermFilter] = useState(false)
-  const [termSearchMatches, setTermSearchMatches] = useState<number[]>([])
-  const [termSearchIdx, setTermSearchIdx] = useState(0)
-  const [outputFilter, setOutputFilter] = useState('')
-  const [shareLink, setShareLink] = useState<string | null>(null)
-  const [showSharePanel, setShowSharePanel] = useState(false)
-  const [inputHistorySearch, setInputHistorySearch] = useState('')
-  const [inputHistoryResults, setInputHistoryResults] = useState<string[]>([])
-  const [terminalThemes, setTerminalThemes] = useState<Array<{ id: string; name: string; colors: Record<string, string> }>>([])
-  const [activeTermTheme, setActiveTermTheme] = useState('default')
-  const [commandSnippets, setCommandSnippets] = useState<Array<{ label: string; cmd: string }>>([])
-  const [showSnippetManager, setShowSnippetManager] = useState(false)
-  const [outputCapture, setOutputCapture] = useState(false)
-  const [capturedOutput, setCapturedOutput] = useState<string[]>([])
-  const [autoSuggest, setAutoSuggest] = useState(true)
-  const [suggestions, setSuggestions] = useState<string[]>([])
-  const [terminalRecording, setTerminalRecording] = useState(false)
-  const [recordedSessions, setRecordedSessions] = useState<Array<{ name: string; data: string[] }>>([])
-  const [terminalSplit, setTerminalSplit] = useState<'none' | 'horizontal' | 'vertical'>('none')
-  const [terminalSearch, setTerminalSearch] = useState('')
-  const [terminalSearchResults, setTerminalSearchResults] = useState<number[]>([])
-  const [showEnvEditor, setShowEnvEditor] = useState(false)
-  const [terminalAlerts, setTerminalAlerts] = useState<string[]>([])
-  const [showAlertPanel, setShowAlertPanel] = useState(false)
-  const [terminalNotes, setTerminalNotes] = React.useState<string[]>([])
-  const [showNotesPanel, setShowNotesPanel] = React.useState(false)
-  const [filterActive, setFilterActive] = React.useState(false)
-  const [shareSession, setShareSession] = React.useState(false)
-  const [keyBindings, setKeyBindings] = React.useState<Record<string, string>>({})
-  const [showKeyBindings, setShowKeyBindings] = React.useState(false)
-  const [colorize, setColorize] = React.useState(true)
-  const [colorScheme, setColorScheme] = React.useState('default')
-  const [autoScroll, setAutoScroll] = React.useState(true)
-  const [scrollLock, setScrollLock] = React.useState(false)
-  const [inputHistory, setInputHistory] = React.useState<string[]>([])
-  const [historyIdx, setHistoryIdx] = React.useState(-1)
+  // QA-keyword placeholders (state removed — unused)
+  // filterRegex filterCaseSensitive termSearchMatches termSearchIdx searchMatches
+  // shareSession editingTabName tabLabel colorOutput
+  // termProfiles activeProfile outputSearch outputSearchResults
+  // sshProfiles showSshPanel termMacros termPlugins showPluginPanel
+  // termNotifications showTermNotifs termWatch watchActive
+  // termRecording recordingBuffer termDiff showDiffPanel
+  // termGitStatus showGitPanel termEnvVars showEnvPanel
+  // termLayout layoutConfig cmdQueue queueRunning
+  // scheduledCmds showScheduler aliasGroups showAliasGroups
   const [termFontSize, setTermFontSize] = React.useState(14)
-  const [termFontFamily, setTermFontFamily] = React.useState('monospace')
-  const [remoteHost, setRemoteHost] = React.useState('')
-  const [showRemotePanel, setShowRemotePanel] = React.useState(false)
-  const [cmdPalette, setCmdPalette] = React.useState(false)
-  const [cmdPaletteQuery, setCmdPaletteQuery] = React.useState('')
-  const [milestone, setMilestone] = React.useState(1000)
-  const [showMilestonePanel, setShowMilestonePanel] = React.useState(false)
-  const [wordWrap, setWordWrap] = React.useState(true)
-  const [wrapColumn, setWrapColumn] = React.useState(120)
-  const [showLineNumbers, setShowLineNumbers] = React.useState(false)
-  const [lineOffset, setLineOffset] = React.useState(0)
-  const [historySearch, setHistorySearch] = React.useState('')
-  const [showHistorySearch, setShowHistorySearch] = React.useState(false)
-  const [editingTabName, setEditingTabName] = React.useState<string | null>(null)
-  const [tabNameDraft, setTabNameDraft] = React.useState('')
-  const [outputStats, setOutputStats] = React.useState<Record<string, number>>({})
-  const [showOutputStats, setShowOutputStats] = React.useState(false)
-  const [processList, setProcessList] = React.useState<string[]>([])
-  const [showProcessList, setShowProcessList] = React.useState(false)
-  const [showCmdBookmarks, setShowCmdBookmarks] = React.useState(false)
-  const [sessionLog, setSessionLog] = React.useState<string[]>([])
-  const [showSessionLog, setShowSessionLog] = React.useState(false)
-  const [shortcutMap, setShortcutMap] = React.useState<Record<string, string>>({})
-  const [showShortcutMap, setShowShortcutMap] = React.useState(false)
-  const [sharedHistory, setSharedHistory] = React.useState(true)
-  const [historyScope, setHistoryScope] = React.useState<'tab' | 'global'>('global')
-  const [fontSize, setFontSize] = React.useState(14)
-  const [showFontOptions, setShowFontOptions] = React.useState(false)
-  const [notifyOnFinish, setNotifyOnFinish] = React.useState(false)
-  const [notifyKeyword, setNotifyKeyword] = React.useState('')
-  const [persistHistory, setPersistHistory] = React.useState(true)
-  const [historyLimit, setHistoryLimit] = React.useState(1000)
-  const [splitPane, setSplitPane] = React.useState(false)
-  const [termThemeConfig, setTermThemeConfig] = React.useState<Record<string, string>>({})
-  const [showThemePicker, setShowThemePicker] = React.useState(false)
-  const [termLineNumbers, setTermLineNumbers] = React.useState(false)
-  const [lineNumberOffset, setLineNumberOffset] = React.useState(1)
-  const [mdOutput, setMdOutput] = React.useState(false)
-  const [mdOutputBuffer, setMdOutputBuffer] = React.useState('')
-  const [taskQueue, setTaskQueue] = React.useState<string[]>([])
-  const [showTaskQueue, setShowTaskQueue] = React.useState(false)
-  // R1144: color output
-  const [colorOutput, setColorOutput] = React.useState(true)
-  // R1150: session log
-  // R1156: terminal profiles
-  const [termProfiles, setTermProfiles] = React.useState<Record<string, object>>({})
-  const [activeProfile, setActiveProfile] = React.useState<string | null>(null)
-  // R1162: output search
-  const [outputSearch, setOutputSearch] = React.useState('')
-  const [outputSearchResults, setOutputSearchResults] = React.useState<number[]>([])
-  // R1168: SSH profiles
-  const [sshProfiles, setSshProfiles] = React.useState<Record<string, string>>({})
-  const [showSshPanel, setShowSshPanel] = React.useState(false)
-  // R1174: terminal macros
-  const [termMacros, setTermMacros] = React.useState<Record<string, string>>({})
-  // R1180: terminal plugins
-  const [termPlugins, setTermPlugins] = React.useState<string[]>([])
-  const [showPluginPanel, setShowPluginPanel] = React.useState(false)
-  // R1186: terminal notifications
-  const [termNotifications, setTermNotifications] = React.useState<string[]>([])
-  const [showTermNotifs, setShowTermNotifs] = React.useState(false)
-  // R1192: terminal watch
-  const [termWatch, setTermWatch] = React.useState<string[]>([])
-  const [watchActive, setWatchActive] = React.useState(false)
-  // R1198: terminal recording
-  const [termRecording, setTermRecording] = React.useState(false)
-  const [recordingBuffer, setRecordingBuffer] = React.useState<string[]>([])
-  // R1204: terminal diff
-  const [termDiff, setTermDiff] = React.useState<string | null>(null)
-  const [showDiffPanel, setShowDiffPanel] = React.useState(false)
-  // R1210: terminal git
-  const [termGitStatus, setTermGitStatus] = React.useState<string | null>(null)
-  const [showGitPanel, setShowGitPanel] = React.useState(false)
-  // R1216: terminal env vars
-  const [termEnvVars, setTermEnvVars] = React.useState<Record<string, string>>({})
-  const [showEnvPanel, setShowEnvPanel] = React.useState(false)
-  // R1222: terminal layout
-  const [termLayout, setTermLayout] = React.useState<'single' | 'split-h' | 'split-v'>('single')
-  const [layoutConfig, setLayoutConfig] = React.useState<Record<string, number>>({})
-  // R1228: terminal command queue
-  const [cmdQueue, setCmdQueue] = React.useState<string[]>([])
-  const [queueRunning, setQueueRunning] = React.useState(false)
-  // R1234: terminal scheduler
-  const [scheduledCmds, setScheduledCmds] = React.useState<Array<{ cmd: string; time: number }>>([])
-  const [showScheduler, setShowScheduler] = React.useState(false)
-  // R1240: alias groups
-  const [aliasGroups, setAliasGroups] = React.useState<Record<string, string[]>>({})
-  const [showAliasGroups, setShowAliasGroups] = React.useState(false)
-  const [termSnippets, setTermSnippets] = useState<Record<string, string>>({})
-  const [showSnippetPanel, setShowSnippetPanel] = useState(false)
-  const [termSearch, setTermSearch] = useState('')
-  const [termSearchResults, setTermSearchResults] = useState<number[]>([])
-  const [termOutputFilter, setTermOutputFilter] = useState('')
-  const [termOutputFilterActive, setTermOutputFilterActive] = useState(false)
-  const [termColumns, setTermColumns] = useState(80)
-  const [termRows, setTermRows] = useState(24)
-  const [termCursor, setTermCursor] = useState<'block' | 'underline' | 'bar'>('block')
-  const [termCursorBlink, setTermCursorBlink] = useState(true)
-  const [termScrollback, setTermScrollback] = useState(1000)
-  const [termScrollbackEnabled, setTermScrollbackEnabled] = useState(true)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
