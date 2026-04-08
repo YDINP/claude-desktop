@@ -125,20 +125,23 @@ function DiffView({ codeString }: { codeString: string }) {
 
 function runInSandbox(code: string): { output: string[]; error?: string } {
   const logs: string[] = []
-  const sandboxConsole = {
-    log: (...args: any[]) => logs.push(args.map(String).join(' ')),
-    error: (...args: any[]) => logs.push('Error: ' + args.map(String).join(' ')),
-    warn: (...args: any[]) => logs.push('Warn: ' + args.map(String).join(' ')),
-  }
+  const iframe = document.createElement('iframe')
+  iframe.sandbox.add('allow-scripts')
+  iframe.style.display = 'none'
+  document.body.appendChild(iframe)
   try {
-    const sandbox = new Proxy({ console: sandboxConsole } as Record<string | symbol, unknown>, {
-      has: () => true,
-      get: (t, k) => (k in t ? t[k as string] : undefined),
-    })
-    new Function('sandbox', `with(sandbox){${code}}`)(sandbox)
+    const win = iframe.contentWindow!
+    ;(win as any).console = {
+      log: (...args: any[]) => logs.push(args.map(String).join(' ')),
+      warn: (...args: any[]) => logs.push('[warn] ' + args.map(String).join(' ')),
+      error: (...args: any[]) => logs.push('[error] ' + args.map(String).join(' ')),
+    }
+    win.eval(code)
     return { output: logs }
   } catch (e) {
     return { output: logs, error: String(e) }
+  } finally {
+    document.body.removeChild(iframe)
   }
 }
 

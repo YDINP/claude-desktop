@@ -280,31 +280,47 @@ export function registerFsHandlers(_win: unknown) {
   })
 
   ipcMain.handle('shell:exec', async (_, code: string) => {
-    // R2316: ISSUE-001 — 위험 패턴 블록리스트 (shell:true 입력검증)
-    const DANGEROUS = [
-      /\brm\s+-[^a-z]*r[^a-z]*f\b/i,   // rm -rf
-      /\bdel\s+\/[sqf]/i,               // del /s /q /f
-      /\brd\s+\/s\b/i,                  // rd /s
-      /\brmdir\s+\/s\b/i,               // rmdir /s
-      /\bformat\s+[a-z]:/i,             // format C:
-      /\bdd\s+if=/i,                    // dd if=
-      /:\(\)\{.*:\|:/,                  // fork bomb
-      />\s*\/dev\/sd[a-z]/i,            // disk overwrite
-      /\b(shutdown|reboot)\b/i,         // shutdown/reboot
-      /python3?\s+-c/i,                 // python -c inline exec
-      /node\s+-e\b/i,                   // node -e inline exec
-      /\beval\s*\(/i,                   // eval(...)
-      /\bexec\s*\(/i,                   // exec(...)
-      /\bos\.system\s*\(/i,             // os.system(...)
+    // R2316: ISSUE-001 — 화이트리스트 기반 execFile (shell:false) 보안 강화
+    // shell:true → shell:false 전환으로 쉘 인젝션 우회 불가
+    const SHELL_EXEC_ALLOWLIST = [
+      'git', 'node', 'npm', 'npx', 'bun', 'deno',
+      'python', 'python3', 'tsc', 'rg', 'grep',
     ]
-    if (DANGEROUS.some(p => p.test(code))) {
+
+    // 명령어를 실행파일과 인자로 파싱 (간단한 공백 분리, 따옴표 그룹핑)
+    function parseCommand(cmd: string): string[] {
+      const tokens: string[] = []
+      let current = ''
+      let inSingle = false
+      let inDouble = false
+      for (let i = 0; i < cmd.length; i++) {
+        const ch = cmd[i]
+        if (ch === "'" && !inDouble) { inSingle = !inSingle }
+        else if (ch === '"' && !inSingle) { inDouble = !inDouble }
+        else if (ch === ' ' && !inSingle && !inDouble) {
+          if (current) { tokens.push(current); current = '' }
+        } else {
+          current += ch
+        }
+      }
+      if (current) tokens.push(current)
+      return tokens
+    }
+
+    const tokens = parseCommand(code.trim())
+    if (tokens.length === 0) return { ok: false, output: '빈 명령어입니다.' }
+
+    const [executable, ...args] = tokens
+    const baseExe = executable.replace(/^.*[/\\]/, '').replace(/\.exe$/i, '').toLowerCase()
+    if (!SHELL_EXEC_ALLOWLIST.includes(baseExe)) {
       return { ok: false, output: '보안 정책으로 차단된 명령어입니다.' }
     }
+
     try {
-      const { stdout } = await execFileAsync(code, [], {
+      const { stdout } = await execFileAsync(executable, args, {
         timeout: 10000,
         encoding: 'utf8',
-        shell: true,
+        shell: false,
         maxBuffer: 1024 * 1024,
       })
       return { ok: true, output: String(stdout).slice(0, 4000) }

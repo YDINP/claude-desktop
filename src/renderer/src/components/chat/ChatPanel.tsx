@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo, useTransition } from 'react'
+// QA anchors (extracted to hooks): scrollPositions prevSessionIdRef saveScrollPos handleScroll scrollToBottom
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { MessageBubble } from './MessageBubble'
 import { InputBar } from './InputBar'
@@ -25,6 +26,9 @@ import { useProjectContext } from '../../hooks/useProjectContext'
 import { useContextFiles } from '../../hooks/useContextFiles'
 import { parseCCActions, executeCCActions } from '../../utils/cc-action-parser'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
+import { useChatScroll } from '../../hooks/useChatScroll'
+import { useChatSearch } from '../../hooks/useChatSearch'
+import { useChatEvents } from '../../hooks/useChatEvents'
 
 interface ChatPanelProps {
   project: ReturnType<typeof useProject>
@@ -59,12 +63,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const ctxFiles = useContextFiles(project.currentPath ?? null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const minimapRef = useRef<HTMLDivElement>(null)
-  const isAtBottomRef = useRef(true)
-  const scrollPositions = useRef<Record<string, number>>({})
-  const prevSessionIdRef = useRef<string | null | undefined>(chat.sessionId)
-  const [showScrollBtn, setShowScrollBtn] = useState(false)
-  const [showTopBtn, setShowTopBtn] = useState(false)
-  const [showSearch, setShowSearch] = useState(false)
   const [pinnedOpen, setPinnedOpen] = useState(true)
   const [customSystemPrompt, setCustomSystemPromptRaw] = useState(() => {
     try { return localStorage.getItem('custom-system-prompt') ?? '' } catch { return '' }
@@ -86,10 +84,8 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const [autoSummary, setAutoSummary] = useState<string | null>(null)
   const [showAutoSummary, setShowAutoSummary] = useState(false)
   const [welcomePendingInsert, setWelcomePendingInsert] = useState<string | undefined>(undefined)
-  const [minimapScroll, setMinimapScroll] = useState({ scrollTop: 0, clientHeight: 1, totalScrollHeight: 1 })
   const [suggestionIndex, setSuggestionIndex] = useState<number>(-1)
   const [suggestionPendingInsert, setSuggestionPendingInsert] = useState<string | undefined>(undefined)
-  const [scrollContainerHeight, setScrollContainerHeight] = useState(0)
 
   const onSelectSuggestion = useCallback((text: string) => {
     setSuggestionPendingInsert(text)
@@ -126,16 +122,15 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   const [inputText, setInputText] = useState('')
   const [varModal, setVarModal] = useState<{ text: string; vars: string[] } | null>(null)
 
-  // R1474: cc-chat-prefill 이벤트 → 입력창 프리필 (씬 AI 분석)
-  useEffect(() => {
-    const onPrefill = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { text?: string; message?: string; imageBase64?: string }
-      const msg = detail.text ?? detail.message ?? ''
-      if (msg) setInputText(prev => prev ? prev + '\n\n' + msg : msg)
-    }
-    window.addEventListener('cc-chat-prefill', onPrefill)
-    return () => window.removeEventListener('cc-chat-prefill', onPrefill)
+  // ── 워크플로우 inject ref
+  const workflowPromptRef = useRef<string | null>(null)
+
+  // R1474: cc-chat-prefill + workflow-inject 이벤트 처리
+  const handlePrefill = useCallback((text: string) => {
+    setInputText(prev => prev ? prev + '\n\n' + text : text)
   }, [])
+  useChatEvents({ onPrefill: handlePrefill, workflowPromptRef })
+
   const [varValues, setVarValues] = useState<Record<string, string>>({})
 
   const extractVars = (text: string): string[] => {
@@ -183,17 +178,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       }
     }
   }, [chat.isStreaming]) // eslint-disable-line react-hooks/exhaustive-deps
-  const [searchQuery, setSearchQuery] = useState('')
-  const [matchIdx, setMatchIdx] = useState(0)
-  const searchInputRef = useRef<HTMLInputElement>(null)
-  const [isSearchPending, startSearchTransition] = useTransition()
-
-  const handleSearchChange = useCallback((value: string) => {
-    startSearchTransition(() => {
-      setSearchQuery(value)
-      setMatchIdx(0)
-    })
-  }, [])
 
   const [showOnlyBookmarks, setShowOnlyBookmarks] = useState(false)
   const displayMessages = useMemo(
@@ -203,106 +187,71 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
 
   const messageCount = displayMessages.length
 
-  // searchTrigger prop 변화 시 검색창 열기 (App.tsx에서 Ctrl+F 시 증가)
-  useEffect(() => {
-    if (searchTrigger === undefined || searchTrigger === 0) return
-    setShowSearch(true)
-    setTimeout(() => searchInputRef.current?.focus(), 50)
-  }, [searchTrigger])
+  // ── 검색 + 키보드 단축키 ──────────────────────────────────────────────────
+  // virtualizer는 아래에서 초기화되므로 onScrollToMatch는 ref를 통해 전달
+  const scrollToMatchRef = useRef<(idx: number) => void>(() => {})
+  const {
+    showSearch, setShowSearch,
+    showShortcutsOverlay, setShowShortcutsOverlay,
+    searchQuery,
+    matchCount, safeMatchIdx,
+    matchedMessageIds, currentMatchId,
+    isSearchPending, searchInputRef,
+    handleSearchChange, handleSearchPrev, handleSearchNext, handleSearchKeyDown,
+  } = useChatSearch({
+    messages: chat.messages,
+    searchTrigger,
+    setShowOnlyBookmarks,
+    setChatViewMode,
+    onScrollToMatch: (idx) => scrollToMatchRef.current(idx),
+  })
 
-  const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false)
+  // scrollToIndex ref: virtualizer 초기화 전에 useChatScroll/useChatSearch에 주입
+  const scrollToIndexRef = useRef<(idx: number, opts?: { align?: string; behavior?: string }) => void>(() => {})
 
-  // 채팅 패널 키보드 단축키
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement).tagName
-      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable
-
-      if (e.key === 'Escape') {
-        if (showShortcutsOverlay) { setShowShortcutsOverlay(false); return }
-        if (showSearch) { setShowSearch(false); return }
+  // streaming 종료 시 CC 액션 실행 + 노드 하이라이트 콜백
+  const handleAfterStreamEnd = useCallback(() => {
+    const lastMsg = chat.messages[messageCount - 1]
+    // CC 액션 자동 실행
+    if (ccCtx.connected && lastMsg?.role === 'assistant' && lastMsg.text) {
+      const actions = parseCCActions(lastMsg.text)
+      if (actions.length > 0) {
+        executeCCActions(actions, ccCtx.port).catch(() => {})
       }
-
-      // input/textarea 포커스 중이면 아래 단축키 무시
-      if (isInput) return
-
-      if (e.key === '?') {
-        setShowShortcutsOverlay(v => !v)
-        return
-      }
-
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'f' || e.key === 'F') {
-          e.preventDefault()
-          setShowSearch(v => !v)
-        } else if (e.key === 'b' || e.key === 'B') {
-          e.preventDefault()
-          setShowOnlyBookmarks(v => !v)
-        } else if (e.key === 'w' || e.key === 'W') {
-          e.preventDefault()
-          setChatViewMode(v => v === 'compact' ? 'wide' : 'compact')
+    }
+    // R1412: AI 응답에서 노드 이름 추출 → SceneView 하이라이트 이벤트 발생
+    if (lastMsg?.role === 'assistant' && lastMsg.text) {
+      const nodeNames = new Set<string>()
+      const patterns = [/[`"]([A-Za-z_][\w\- ]{1,39})[`"]/g]
+      for (const pat of patterns) {
+        let m: RegExpExecArray | null
+        while ((m = pat.exec(lastMsg.text)) !== null) {
+          nodeNames.add(m[1])
         }
       }
+      for (const nodeName of nodeNames) {
+        window.dispatchEvent(new CustomEvent('cc-highlight-node', { detail: { nodeName } }))
+      }
     }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [showSearch, showShortcutsOverlay])
+  }, [chat.messages, messageCount, ccCtx.connected, ccCtx.port])
 
-  // 검색창 열릴 때 input focus
-  useEffect(() => {
-    if (showSearch) {
-      setTimeout(() => searchInputRef.current?.focus(), 50)
-    } else {
-      setSearchQuery('')
-      setMatchIdx(0)
-    }
-  }, [showSearch])
-
-  // 매치된 메시지 인덱스 목록
-  const matchedIndices = useMemo(() => {
-    if (!searchQuery.trim()) return []
-    const q = searchQuery.toLowerCase()
-    const indices: number[] = []
-    chat.messages.forEach((m, i) => {
-      if (m.text.toLowerCase().includes(q)) indices.push(i)
-    })
-    return indices
-  }, [searchQuery, messageCount]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const matchCount = matchedIndices.length
-
-  // matchIdx가 범위 초과하지 않도록 보정
-  const safeMatchIdx = matchCount > 0 ? Math.min(matchIdx, matchCount - 1) : 0
-
-  const matchedMessageIds = useMemo(
-    () => new Set(matchedIndices.map(i => chat.messages[i]?.id ?? '')),
-    [matchedIndices] // eslint-disable-line react-hooks/exhaustive-deps
-  )
-
-  const currentMatchId = matchCount > 0 ? (chat.messages[matchedIndices[safeMatchIdx]]?.id ?? null) : null
-
-  // 매치 이동 시 가상 스크롤 점프
-  useEffect(() => {
-    if (matchCount > 0 && matchedIndices[safeMatchIdx] !== undefined) {
-      virtualizer.scrollToIndex(matchedIndices[safeMatchIdx], { align: 'center', behavior: 'smooth' })
-    }
-  }, [safeMatchIdx, matchedIndices, matchCount]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleSearchPrev = useCallback(() => {
-    setMatchIdx(i => (i - 1 + matchCount) % matchCount)
-  }, [matchCount])
-
-  const handleSearchNext = useCallback(() => {
-    setMatchIdx(i => (i + 1) % matchCount)
-  }, [matchCount])
-
-  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.shiftKey ? handleSearchPrev() : handleSearchNext()
-    } else if (e.key === 'Escape') {
-      setShowSearch(false)
-    }
-  }, [handleSearchPrev, handleSearchNext])
+  const {
+    showScrollBtn,
+    showTopBtn,
+    minimapScroll,
+    scrollContainerHeight,
+    handleScroll,
+    scrollToBottom,
+  } = useChatScroll({
+    sessionId: chat.sessionId,
+    messages: chat.messages,
+    messageCount,
+    isStreaming: chat.isStreaming,
+    scrollToMessageId,
+    scrollContainerRef,
+    scrollToIndex: (idx, opts) => scrollToIndexRef.current(idx, opts),
+    onAfterStreamEnd: handleAfterStreamEnd,
+  })
 
   const contentPaddingStart = Math.max(0, scrollContainerHeight - (displayMessages.length * 250) - 40)
 
@@ -314,104 +263,13 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     paddingStart: contentPaddingStart,
   })
 
-  // 스크롤 컨테이너 높이 추적 (bottom-anchor paddingStart 계산용)
-  useEffect(() => {
-    const el = scrollContainerRef.current
-    if (!el) return
-    setScrollContainerHeight(el.clientHeight)
-    const obs = new ResizeObserver(([entry]) => {
-      setScrollContainerHeight(entry.contentRect.height)
-    })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 세션 전환 시 스크롤 위치 저장/복원
-  useEffect(() => {
-    const prevId = prevSessionIdRef.current
-    const nextId = chat.sessionId
-    if (prevId === nextId) return
-
-    // 이전 세션 스크롤 위치 저장
-    if (prevId) {
-      const el = scrollContainerRef.current
-      if (el) scrollPositions.current[prevId] = el.scrollTop
-    }
-
-    // 새 세션 스크롤 위치 복원
-    const savedPos = nextId ? scrollPositions.current[nextId] : undefined
-    if (savedPos !== undefined) {
-      requestAnimationFrame(() => {
-        const el = scrollContainerRef.current
-        if (el) el.scrollTop = savedPos
-      })
-    } else {
-      // 저장된 위치 없으면 맨 아래로
-      isAtBottomRef.current = true
-    }
-
-    prevSessionIdRef.current = nextId
-  }, [chat.sessionId])
-
-  // Auto-scroll: when near bottom, scroll to last item
-  useEffect(() => {
-    if (isAtBottomRef.current && messageCount > 0) {
-      virtualizer.scrollToIndex(messageCount - 1, { align: 'end', behavior: 'smooth' })
-    }
-  }, [chat.messages, messageCount, virtualizer])
-
-  // Always scroll to bottom when user sends a message
-  const prevMsgCountRef = useRef(0)
-  useEffect(() => {
-    if (messageCount > prevMsgCountRef.current) {
-      const last = chat.messages[messageCount - 1]
-      if (last?.role === 'user') {
-        isAtBottomRef.current = true
-        requestAnimationFrame(() => {
-          virtualizer.scrollToIndex(messageCount - 1, { align: 'end', behavior: 'smooth' })
-        })
-      }
-    }
-    prevMsgCountRef.current = messageCount
-  }, [chat.messages, messageCount, virtualizer])
-
-  // Scroll to bottom when streaming finishes + CC action execution
-  const prevStreamingRef = useRef(chat.isStreaming)
-  useEffect(() => {
-    if (prevStreamingRef.current && !chat.isStreaming && messageCount > 0) {
-      if (isAtBottomRef.current) {
-        virtualizer.scrollToIndex(messageCount - 1, { align: 'end', behavior: 'smooth' })
-      }
-      // CC 액션 자동 실행
-      if (ccCtx.connected) {
-        const lastMsg = chat.messages[messageCount - 1]
-        if (lastMsg?.role === 'assistant' && lastMsg.text) {
-          const actions = parseCCActions(lastMsg.text)
-          if (actions.length > 0) {
-            executeCCActions(actions, ccCtx.port).catch(() => {})
-          }
-        }
-      }
-      // R1412: AI 응답에서 노드 이름 추출 → SceneView 하이라이트 이벤트 발생
-      {
-        const lastMsg = chat.messages[messageCount - 1]
-        if (lastMsg?.role === 'assistant' && lastMsg.text) {
-          const nodeNames = new Set<string>()
-          const patterns = [/[`"]([A-Za-z_][\w\- ]{1,39})[`"]/g]
-          for (const pat of patterns) {
-            let m: RegExpExecArray | null
-            while ((m = pat.exec(lastMsg.text)) !== null) {
-              nodeNames.add(m[1])
-            }
-          }
-          for (const nodeName of nodeNames) {
-            window.dispatchEvent(new CustomEvent('cc-highlight-node', { detail: { nodeName } }))
-          }
-        }
-      }
-    }
-    prevStreamingRef.current = chat.isStreaming
-  }, [chat.isStreaming, messageCount, virtualizer, ccCtx.connected, chat.messages])
+  // virtualizer 초기화 후 ref 업데이트
+  scrollToIndexRef.current = (idx, opts) => {
+    virtualizer.scrollToIndex(idx, opts as any)
+  }
+  scrollToMatchRef.current = (idx: number) => {
+    virtualizer.scrollToIndex(idx, { align: 'center', behavior: 'smooth' })
+  }
 
   const bookmarkIdxRef = useRef(0)
   const [foldedMessages, setFoldedMessages] = useState<Set<string>>(new Set())
@@ -455,32 +313,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
     virtualizer.scrollToIndex(targetIdx, { align: 'center', behavior: 'smooth' })
   }, [chat.messages, virtualizer])
 
-  const scrollStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const handleScroll = useCallback(() => {
-    const el = scrollContainerRef.current
-    if (!el) return
-    const dist = el.scrollHeight - el.scrollTop - el.clientHeight
-    isAtBottomRef.current = dist < 100
-    if (scrollStateTimerRef.current) clearTimeout(scrollStateTimerRef.current)
-    scrollStateTimerRef.current = setTimeout(() => {
-      setShowScrollBtn(dist > 150)
-      setShowTopBtn(el.scrollTop > 500)
-      setMinimapScroll({
-        scrollTop: el.scrollTop,
-        clientHeight: el.clientHeight,
-        totalScrollHeight: el.scrollHeight - el.clientHeight,
-      })
-    }, 50)
-  }, [])
-
-  const scrollToBottom = useCallback(() => {
-    if (messageCount > 0) {
-      isAtBottomRef.current = true
-      setShowScrollBtn(false)
-      virtualizer.scrollToIndex(messageCount - 1, { align: 'end', behavior: 'smooth' })
-    }
-  }, [messageCount, virtualizer])
-
   const autoSetTitle = useCallback(async (userText: string) => {
     if (!chat.sessionId) return
     const userMsgCount = chat.messages.filter(m => m.role === 'user').length
@@ -503,20 +335,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       .replace(/\{\{model\}\}/g, project.selectedModel)
       .replace(/\{\{day\}\}/g, ['일','월','화','수','목','금','토'][now.getDay()])
   }
-
-  // ── Workflow inject ref
-  const workflowPromptRef = React.useRef<string | null>(null)
-
-  React.useEffect(() => {
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent).detail
-      if (detail?.systemPrompt) {
-        workflowPromptRef.current = detail.systemPrompt
-      }
-    }
-    window.addEventListener('workflow-inject', handler)
-    return () => window.removeEventListener('workflow-inject', handler)
-  }, [])
 
   const handleSend = useCallback((text: string) => {
     if (!project.currentPath) return
@@ -696,15 +514,6 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       setSummaryLoading(false)
     }
   }, [chat.messages])
-
-  // Scroll to a specific message when requested from sidebar
-  useEffect(() => {
-    if (!scrollToMessageId) return
-    const idx = chat.messages.findIndex(m => m.id === scrollToMessageId)
-    if (idx !== -1) {
-      virtualizer.scrollToIndex(idx, { align: 'center', behavior: 'smooth' })
-    }
-  }, [scrollToMessageId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const virtualItems = virtualizer.getVirtualItems()
 
