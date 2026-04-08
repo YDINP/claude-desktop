@@ -961,3 +961,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2761 | store 이중 구현 통합 — chat-store/terminal-store 삭제, domains로 이관 | ✅ |
 | R2762 | 보안 강화 — CodeBlock Proxy 샌드박스, XSS 이스케이프, shell:exec 블록리스트 확장 | ✅ |
 | R2763 | 에러 핸들링 — StatsPanel/FileViewer/AppLayout catch 추가, phantom useState 주석 전환 | ✅ |
+| R2764 | 이중 IPC 구독 제거 — ipcBridge 9개 이벤트 구독 제거, terminal:data만 유지 | ✅ |
+| R2765 | 보안 강화 2차 — Mermaid strict, bypassCSP false, richToHtml hex-only 검증 | ✅ |
+| R2766 | session 도메인 dead code 삭제 + Sidebar 7탭 UI 버튼 추가 | ✅ |
