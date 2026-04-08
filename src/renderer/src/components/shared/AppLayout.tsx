@@ -3,6 +3,7 @@
  * AppContent는 훅/상태 선언만 담고, 렌더링은 여기서 담당.
  */
 import type React from 'react'
+import { useRef, useCallback } from 'react'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 import { AgentBay } from '../hq/AgentBay'
 import { ResourceBar } from '../hq/ResourceBar'
@@ -31,8 +32,7 @@ import type { SettingsSync } from '../../hooks/useSettingsSync'
 import type { ResizeHandlers } from '../../hooks/useResizeHandlers'
 import type { ChatMessage } from '../../domains/chat/domain'
 import { useUIStore } from '../../stores/ui-store'
-
-type CCLayoutMode = 'tab' | 'split' | 'detach'
+import { useCocosStore } from '../../domains/cocos/store'
 
 const PANEL_TAB_INFO: Partial<Record<SidebarTab, { icon: string; title: string }>> = {
   bookmarks: { icon: '★', title: '북마크' },
@@ -64,21 +64,6 @@ export interface AppLayoutProps {
   suggestions: string[]
   setSuggestions: React.Dispatch<React.SetStateAction<string[]>>
 
-  // CC layout
-  ccLayout: CCLayoutMode
-  ccTab: 'claude' | 'editor'
-  ccSplitRatio: number
-  setCCTab: React.Dispatch<React.SetStateAction<'claude' | 'editor'>>
-  setCCLayoutMode: (mode: CCLayoutMode) => void
-  openCCEditorWindow: () => Promise<void>
-  handleCCSplitDragStart: (e: React.MouseEvent) => void
-
-  // Chat UI triggers
-  chatFocusTrigger: number
-  chatSearchTrigger: number
-  scrollToMessageId: string | null
-  setScrollToMessageId: React.Dispatch<React.SetStateAction<string | null>>
-
   // File panels
   splitFilePath: string | null
   setSplitFilePath: React.Dispatch<React.SetStateAction<string | null>>
@@ -88,11 +73,7 @@ export interface AppLayoutProps {
   setChangedFiles: React.Dispatch<React.SetStateAction<ChangedFile[]>>
 
   // Sidebar
-  activeSidebarIconTab: SidebarTab | null
-  setActiveSidebarIconTab: React.Dispatch<React.SetStateAction<SidebarTab | null>>
   sidebarSwitchTabRef: React.MutableRefObject<((tab: SidebarTab) => void) | null>
-  mainPanelTab: SidebarTab | null
-  setMainPanelTab: React.Dispatch<React.SetStateAction<SidebarTab | null>>
 
   // Handlers
   handleToggleHQ: () => void
@@ -112,24 +93,61 @@ export function AppLayout({
   workspace, settings, resize, project, chat,
   sessionTitle, setSessionTitle, sessionCreatedAt, setSessionCreatedAt,
   suggestions, setSuggestions,
-  ccLayout, ccTab, ccSplitRatio, setCCTab, setCCLayoutMode, openCCEditorWindow, handleCCSplitDragStart,
-  chatFocusTrigger, chatSearchTrigger, scrollToMessageId, setScrollToMessageId,
   splitFilePath, setSplitFilePath, dirtyTabs, setTabDirty, changedFiles, setChangedFiles,
-  activeSidebarIconTab, setActiveSidebarIconTab, sidebarSwitchTabRef,
-  mainPanelTab, setMainPanelTab,
+  sidebarSwitchTabRef,
   handleToggleHQ, openFile, switchToChat, closeFileTab,
   handleExportMarkdown, handleEditResend, handleFork, handleCompressContext, handleReplyToMessage,
 }: AppLayoutProps) {
   const { features } = useFeatureFlags()
 
-  // ── UI overlay state from store ──────────────────────────────────────────
+  // ── UI state from stores ────────────────────────────────────────────────
   const {
     paletteOpen, setPaletteOpen,
     shortcutsOpen, setShortcutsOpen,
     settingsOpen, setSettingsOpen,
     lightbox, setLightbox,
     pendingInsert, setPendingInsert,
+    ccTab, setCCTab,
+    ccSplitRatio, setCCSplitRatio,
+    mainPanelTab, setMainPanelTab,
+    activeSidebarIconTab, setActiveSidebarIconTab,
+    chatFocusTrigger, chatSearchTrigger,
+    scrollToMessageId, setScrollToMessageId,
   } = useUIStore()
+
+  // CC layout from cocos store (single source of truth)
+  const ccLayout = useCocosStore(s => s.layoutMode)
+  const setCCLayoutMode = useCocosStore(s => s.setLayoutMode)
+
+  // CC editor detach window
+  const openCCEditorWindow = useCallback(async () => {
+    await window.api.openCCEditorWindow?.()
+    useCocosStore.getState().setLayoutMode('detach')
+  }, [])
+
+  // CC split drag handler
+  const ccSplitRatioRef = useRef(ccSplitRatio)
+  ccSplitRatioRef.current = ccSplitRatio
+  const handleCCSplitDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    const container = e.currentTarget.parentElement!
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'col-resize'
+    const onMove = (me: MouseEvent) => {
+      const rect = container.getBoundingClientRect()
+      const ratio = Math.min(0.8, Math.max(0.2, (me.clientX - rect.left) / rect.width))
+      ccSplitRatioRef.current = ratio
+      setCCSplitRatio(ratio)
+    }
+    const onUp = () => {
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }, [setCCSplitRatio])
 
   // ── Destructure domain hooks for convenient local-name access ─────────────
   const {

@@ -146,10 +146,7 @@ export function RemotePanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontSize: 12 }}>
       {/* 헤더 */}
-      <div style={{
-        padding: '8px 10px', borderBottom: '1px solid var(--border)',
-        display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
-      }}>
+      <div className="panel-header" style={{ padding: '8px 10px', gap: 6, flexShrink: 0 }}>
         <span style={{ fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>원격 호스트</span>
         {/* 호스트 수 배지 */}
         <span style={{
@@ -177,11 +174,8 @@ export function RemotePanel() {
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setQuery('')}
           placeholder="호스트 검색..."
-          style={{
-            width: '100%', padding: '4px 8px', boxSizing: 'border-box',
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            borderRadius: 4, color: 'var(--text-primary)', fontSize: 11, outline: 'none',
-          }}
+          className="panel-search"
+          style={{ background: 'var(--bg-secondary)', boxSizing: 'border-box' }}
         />
       </div>
 
@@ -219,13 +213,13 @@ export function RemotePanel() {
       {/* 호스트 목록 */}
       <div style={{ flex: 1, overflow: 'auto' }}>
         {loading && (
-          <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
+          <div className="panel-empty">
             SSH 설정 로딩 중...
           </div>
         )}
 
         {!loading && sshHosts.length === 0 && savedHosts.length === 0 && (
-          <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
+          <div className="panel-empty">
             등록된 호스트가 없습니다
           </div>
         )}

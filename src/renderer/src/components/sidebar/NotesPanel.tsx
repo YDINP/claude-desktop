@@ -248,8 +248,8 @@ export function NotesPanel() {
   // list view
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', flex: 1 }}>
+      <div className="panel-header" style={{ gap: 4 }}>
+        <span className="panel-header-label" style={{ flex: 1 }}>
           노트 {sortedNotes.length}개
         </span>
         <button onClick={cycleSortOrder} title={`정렬: ${SORT_LABELS[sortOrder]}`}
@@ -299,17 +299,14 @@ export function NotesPanel() {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setSearchQuery('')}
-          style={{
-            width: '100%', padding: '5px 8px', boxSizing: 'border-box',
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            borderRadius: 4, color: 'var(--text-primary)', fontSize: 11, outline: 'none',
-          }}
+          className="panel-search"
+          style={{ background: 'var(--bg-secondary)', boxSizing: 'border-box' }}
         />
       </div>
 
       <div style={{ overflowY: 'auto', flex: 1 }}>
         {sortedNotes.length === 0 ? (
-          <div style={{ padding: '16px 12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
+          <div className="panel-empty">
             {notes.length === 0 ? '노트가 없습니다. + 버튼으로 추가하세요.' : '검색 결과 없음'}
           </div>
         ) : sortedNotes.map(n => {

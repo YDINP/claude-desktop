@@ -202,10 +202,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Header: month nav */}
-      <div style={{
-        padding: '6px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0,
-        display: 'flex', alignItems: 'center', gap: 4,
-      }}>
+      <div className="panel-header" style={{ gap: 4, flexShrink: 0 }}>
         <button onClick={prevMonth} style={navBtnStyle} title="이전 달">&lt;</button>
         <span
           style={{ flex: 1, textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', cursor: 'pointer' }}
@@ -406,11 +403,8 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
 
       {/* Upcoming events */}
       <div style={{ flex: 1, overflow: 'auto', borderTop: '1px solid var(--border)' }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', padding: '6px 8px',
-          borderBottom: '1px solid var(--border)',
-        }}>
-          <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>
+        <div className="panel-header">
+          <span className="panel-header-label" style={{ flex: 1 }}>
             다음 이벤트 ({upcomingEvents.length})
           </span>
           <button
@@ -426,7 +420,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
           </button>
         </div>
         {upcomingEvents.length === 0 ? (
-          <div style={{ padding: '16px 12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
+          <div className="panel-empty">
             예정된 이벤트 없음
           </div>
         ) : (

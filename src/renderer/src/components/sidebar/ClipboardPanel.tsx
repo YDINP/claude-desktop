@@ -127,20 +127,14 @@ export function ClipboardPanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Search bar */}
-      <div style={{
-        padding: '6px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0,
-        display: 'flex', gap: 4, alignItems: 'center',
-      }}>
+      <div className="panel-header" style={{ gap: 4, flexShrink: 0 }}>
         <input
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setQuery('')}
           placeholder="클립보드 검색..."
-          style={{
-            flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
-            border: '1px solid var(--border)', borderRadius: 4,
-            padding: '3px 8px', fontSize: 11, outline: 'none', boxSizing: 'border-box',
-          }}
+          className="panel-search"
+          style={{ flex: 1, background: 'var(--bg-input)', boxSizing: 'border-box' }}
         />
         <button
           onClick={clearUnpinned}
@@ -170,7 +164,7 @@ export function ClipboardPanel() {
       {/* Entry list */}
       <div style={{ flex: 1, overflow: 'auto' }}>
         {filtered.length === 0 ? (
-          <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
+          <div className="panel-empty">
             {entries.length === 0 ? '클립보드 기록 없음' : '검색 결과 없음'}
           </div>
         ) : filtered.map(entry => {

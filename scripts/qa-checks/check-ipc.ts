@@ -31,7 +31,9 @@ export function runIpcChecks(root: string, log: LogFn): void {
   const appPath = join(root, 'src/renderer/src/App.tsx')
   if (existsSync(sidebarPath)) {
     const appContent = existsSync(appPath) ? readFileSync(appPath, 'utf-8') : ''
-    const cocosInApp = appContent.includes('CocosPanel') && appContent.includes('ccLayout')
+    const layoutPath = join(root, 'src/renderer/src/components/shared/AppLayout.tsx')
+    const layoutContent = existsSync(layoutPath) ? readFileSync(layoutPath, 'utf-8') : ''
+    const cocosInApp = (appContent.includes('CocosPanel') || layoutContent.includes('CocosPanel')) && (appContent.includes('ccLayout') || layoutContent.includes('ccLayout') || layoutContent.includes('layoutMode'))
     if (cocosInApp) {
       log('pass', 'Sidebar', 'CocosPanel App 메인 레이아웃에 통합됨 (탭/나란히/창분리)')
     } else {

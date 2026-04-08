@@ -17,7 +17,7 @@ interface KeyboardShortcutDeps {
   // chat
   chatClearMessages: () => void
   switchToChat: (clearChanges?: boolean) => void
-  setChatSearchTrigger: (updater: (n: number) => number) => void
+  bumpChatSearchTrigger: () => void
   // workspace
   openTabs: string[]
   activeTabRef: React.MutableRefObject<string>
@@ -36,7 +36,7 @@ export function useKeyboardShortcuts(deps: KeyboardShortcutDeps): void {
     setTerminalOpen,
     setFocusMode,
     handleToggleHQ,
-    chatClearMessages, switchToChat, setChatSearchTrigger,
+    chatClearMessages, switchToChat, bumpChatSearchTrigger,
     openTabs, activeTabRef, setActiveTab,
     switchWorkspace, closeWorkspace, workspaces, activeWsId,
     setProjectModel,
@@ -123,7 +123,7 @@ export function useKeyboardShortcuts(deps: KeyboardShortcutDeps): void {
       } else if (e.ctrlKey && e.key === 'f') {
         e.preventDefault()
         if (activeTabRef.current === 'chat') {
-          setChatSearchTrigger(n => n + 1)
+          bumpChatSearchTrigger()
         }
       } else if (e.ctrlKey && e.key === ',') {
         e.preventDefault()

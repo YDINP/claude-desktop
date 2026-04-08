@@ -9,6 +9,31 @@
 
 ---
 
+## 최근 주요 작업 (2026-04-08 안정화 루프) — copy/paste saveScene 수정
+
+### SceneViewPanel copy/paste 낙관적 업데이트 → localStorage 저장 연동
+
+`useSceneViewActions`에 `saveScene` 파라미터가 있었지만 SceneViewPanel 호출부에서 누락되어
+paste/duplicate 후 nodeMap 업데이트만 되고 localStorage 슬롯에 저장되지 않던 문제 수정.
+
+**변경 파일**: `SceneView/SceneViewPanel.tsx`
+- `saveSceneAsync` 콜백 추가 (`saveToSlot(activeSlot)` 래퍼)
+- `useSceneViewActions` 호출에 `saveScene: saveSceneAsync` 추가
+
+### CCFileSceneView.tsx (4,961줄) — 분리 분석 완료
+
+추가 분리 후보 (구현은 미착수):
+| 파일명 | 라인 범위 | 분량 | 내용 |
+|--------|----------|------|------|
+| `useCCSceneMouseHandlers.ts` | 429–839 | ~410줄 | handleMouseDown/Move/Up |
+| `CCSceneToolbar.tsx` | 1038–1836 | ~799줄 | 도구 패널, 오버레이 패널, 검색 |
+| `CCSceneSvgLayer.tsx` | 1865–4372 | ~2508줄 | SVG 렌더링 전체 |
+| `CCSceneOverlays.tsx` | 4433–4958 | ~525줄 | hover 정보, 팝업 패널 |
+
+→ SVG 레이어(2,508줄)가 최우선 분리 후보. 단 props 전달 범위가 크므로 신중히 접근 필요.
+
+---
+
 ## 최근 주요 작업 (2026-04-08 후속) — 미사용 IPC 정리
 
 ### 미사용 IPC 채널 `/** @unused */` 주석 추가

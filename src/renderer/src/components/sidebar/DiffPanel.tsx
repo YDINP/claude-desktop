@@ -195,10 +195,7 @@ export function DiffPanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontSize: 12 }}>
       {/* 헤더 */}
-      <div style={{
-        padding: '8px 10px', borderBottom: '1px solid var(--border)',
-        display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
-      }}>
+      <div className="panel-header" style={{ padding: '8px 10px', gap: 6, flexShrink: 0 }}>
         <span style={{ fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>Diff 비교</span>
         <button
           onClick={() => setShowHistory(v => !v)}
@@ -218,7 +215,7 @@ export function DiffPanel() {
       {showHistory && (
         <div style={{ borderBottom: '1px solid var(--border)', maxHeight: 200, overflowY: 'auto', flexShrink: 0 }}>
           {diffHistory.length === 0 ? (
-            <div style={{ padding: 12, textAlign: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
+            <div className="panel-empty">
               비교 히스토리가 없습니다
             </div>
           ) : diffHistory.map(entry => (
@@ -350,7 +347,7 @@ export function DiffPanel() {
       {/* diff 결과 */}
       <div style={{ flex: 1, overflow: 'auto', fontFamily: 'monospace', fontSize: 11 }}>
         {diffLines.length === 0 && !error && (
-          <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
+          <div className="panel-empty" style={{ padding: 20 }}>
             파일 경로를 입력하고 비교 버튼을 클릭하세요
           </div>
         )}

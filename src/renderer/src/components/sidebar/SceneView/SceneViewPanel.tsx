@@ -623,7 +623,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     DESIGN_W, DESIGN_H, clipboard, svgRef, pngExportScale, pngExportBg,
     setSelectedUuid, setSelectedUuidsReplace: setSelectedUuids as unknown as (s: Set<string>) => void,
     setClipboard, setCopiedNode, setScreenshotDone,
-    updateNode, refresh,
+    updateNode, refresh, saveScene: saveSceneAsync,
   })
 
   // ── Keyboard hook (단축키 + Space패닝 + Ctrl+1~5 뷰북마크 + 전체선택 + 방향키) ──
@@ -921,6 +921,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [updateNode])
 
   const handleSaveScene = useCallback(() => saveToSlot(activeSlot), [saveToSlot, activeSlot])
+  const saveSceneAsync = useCallback(async () => { saveToSlot(activeSlot) }, [saveToSlot, activeSlot])
   const handleLoadScene = useCallback(() => loadFromSlot(activeSlot), [loadFromSlot, activeSlot])
 
   const handleSlotChange = useCallback((newSlot: number) => {

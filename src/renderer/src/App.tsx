@@ -27,11 +27,6 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { WelcomeScreen } from './components/shared/WelcomeScreen'
 import { AppLayout } from './components/shared/AppLayout'
 import { CocosPanel } from './components/sidebar/CocosPanel'
-import { useCocosStore } from './domains/cocos/store'
-
-// ── Types ────────────────────────────────────────────────────────────────────
-
-type CCLayoutMode = 'tab' | 'split' | 'detach'
 
 // ── CC Editor Detached Window ─────────────────────────────────────────────
 
@@ -85,18 +80,9 @@ function AppContent() {
   // handleToggleHQ wrapper (needs setActiveTab from workspace)
   const handleToggleHQ = useCallback(() => _toggleHQ(() => setActiveTab('chat')), [_toggleHQ, setActiveTab])
 
-  // ── CC Layout mode (from cocosStore — single source of truth) ──
-  const ccLayout = useCocosStore(s => s.layoutMode)
-  const setCCLayout = useCocosStore(s => s.setLayoutMode)
-  const [ccTab, setCCTab] = useState<'claude' | 'editor'>('claude')
-  const [mainPanelTab, setMainPanelTab] = useState<SidebarTab | null>(null)
-  const [ccSplitRatio, setCCSplitRatio] = useState(0.5)
-  const ccSplitRatioRef = useRef(0.5)
-
-  // ── Chat UI triggers ──
-  const [chatFocusTrigger, setChatFocusTrigger] = useState(0)
-  const [chatSearchTrigger, setChatSearchTrigger] = useState(0)
-  const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null)
+  // ── UI store (Phase 2 — chat triggers etc.) ──
+  const bumpChatFocusTrigger = useUIStore(s => s.bumpChatFocusTrigger)
+  const bumpChatSearchTrigger = useUIStore(s => s.bumpChatSearchTrigger)
   const [splitFilePath, setSplitFilePath] = useState<string | null>(null)
   // ── File dirty tracking ──
   const [dirtyTabs, setDirtyTabs] = useState<Set<string>>(new Set())
@@ -137,7 +123,6 @@ function AppContent() {
 
   // ── Sidebar ──
   const sidebarSwitchTabRef = useRef<((tab: SidebarTab) => void) | null>(null)
-  const [activeSidebarIconTab, setActiveSidebarIconTab] = useState<SidebarTab | null>(null)
 
   // ── Project ref (stable reference for event handlers) ──
   const projectRef = useRef(project)
@@ -157,7 +142,7 @@ function AppContent() {
   const switchToChat = (clearChanges = false) => {
     activeTabRef.current = 'chat'
     setActiveTab('chat')
-    setChatFocusTrigger(n => n + 1)
+    bumpChatFocusTrigger()
     if (clearChanges) setChangedFiles([])
   }
 
@@ -180,36 +165,7 @@ function AppContent() {
     if (cur !== 'chat' && cur !== 'scene' && cur !== 'preview') closeFileTab(cur)
   }, [])
 
-  // ── CC layout helpers ──
-  const handleCCSplitDragStart = (e: React.MouseEvent) => {
-    e.preventDefault()
-    const container = e.currentTarget.parentElement!
-    document.body.style.userSelect = 'none'
-    document.body.style.cursor = 'col-resize'
-    const onMove = (me: MouseEvent) => {
-      const rect = container.getBoundingClientRect()
-      const ratio = Math.min(0.8, Math.max(0.2, (me.clientX - rect.left) / rect.width))
-      ccSplitRatioRef.current = ratio
-      setCCSplitRatio(ratio)
-    }
-    const onUp = () => {
-      document.body.style.userSelect = ''
-      document.body.style.cursor = ''
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
-    }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-  }
-
-  const openCCEditorWindow = async () => {
-    await window.api.openCCEditorWindow?.()
-    setCCLayout('detach')
-  }
-
-  const setCCLayoutMode = (mode: CCLayoutMode) => {
-    setCCLayout(mode)
-  }
+  // (CC layout helpers moved to AppLayout — reads directly from cocosStore + ui-store)
 
   // ── Export current session as markdown ──
   const handleExportMarkdown = async () => {
@@ -227,7 +183,7 @@ function AppContent() {
     handleToggleHQ,
     chatClearMessages: chat.clearMessages,
     switchToChat,
-    setChatSearchTrigger,
+    bumpChatSearchTrigger,
     openTabs,
     activeTabRef,
     setActiveTab,
@@ -409,27 +365,12 @@ function AppContent() {
       setSessionCreatedAt={setSessionCreatedAt}
       suggestions={suggestions}
       setSuggestions={setSuggestions}
-      ccLayout={ccLayout}
-      ccTab={ccTab}
-      ccSplitRatio={ccSplitRatio}
-      setCCTab={setCCTab}
-      setCCLayoutMode={setCCLayoutMode}
-      openCCEditorWindow={openCCEditorWindow}
-      handleCCSplitDragStart={handleCCSplitDragStart}
-      chatFocusTrigger={chatFocusTrigger}
-      chatSearchTrigger={chatSearchTrigger}
-      scrollToMessageId={scrollToMessageId}
-      setScrollToMessageId={setScrollToMessageId}
       splitFilePath={splitFilePath}
       setSplitFilePath={setSplitFilePath}
       dirtyTabs={dirtyTabs}
       setTabDirty={setTabDirty}
       changedFiles={changedFiles}
       setChangedFiles={setChangedFiles}
-      activeSidebarIconTab={activeSidebarIconTab}
-      setActiveSidebarIconTab={setActiveSidebarIconTab}
-      mainPanelTab={mainPanelTab}
-      setMainPanelTab={setMainPanelTab}
       sidebarSwitchTabRef={sidebarSwitchTabRef}
       handleToggleHQ={handleToggleHQ}
       openFile={openFile}

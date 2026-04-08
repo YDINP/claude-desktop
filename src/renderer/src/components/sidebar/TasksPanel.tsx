@@ -201,8 +201,8 @@ export function TasksPanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* header */}
-      <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', flex: 1 }}>
+      <div className="panel-header" style={{ gap: 4 }}>
+        <span className="panel-header-label" style={{ flex: 1 }}>
           태스크 {tasks.length}개
         </span>
         {tasks.filter(t => !t.done).length > 0 && (
@@ -262,11 +262,8 @@ export function TasksPanel() {
           value={taskSearch}
           onChange={e => setTaskSearch(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setTaskSearch('')}
-          style={{
-            width: '100%', padding: '5px 8px', boxSizing: 'border-box',
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            borderRadius: 4, color: 'var(--text-primary)', fontSize: 11, outline: 'none',
-          }}
+          className="panel-search"
+          style={{ background: 'var(--bg-secondary)', boxSizing: 'border-box' }}
         />
       </div>
 
@@ -279,11 +276,8 @@ export function TasksPanel() {
             value={newTaskText}
             onChange={e => setNewTaskText(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addTask()}
-            style={{
-              flex: 1, padding: '5px 8px', boxSizing: 'border-box',
-              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 4, color: 'var(--text-primary)', fontSize: 11, outline: 'none',
-            }}
+            className="panel-search"
+            style={{ flex: 1, background: 'var(--bg-secondary)', boxSizing: 'border-box' }}
           />
           <button onClick={addTask} title="추가"
             style={{ padding: '4px 10px', background: 'var(--accent)', color: '#fff', borderRadius: 4, fontSize: 11, cursor: 'pointer', border: 'none' }}>
@@ -316,7 +310,7 @@ export function TasksPanel() {
       {/* task list */}
       <div style={{ overflowY: 'auto', flex: 1 }}>
         {sortedTasks.length === 0 ? (
-          <div style={{ padding: '16px 12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
+          <div className="panel-empty">
             {tasks.length === 0 ? '태스크가 없습니다.' : '검색 결과 없음'}
           </div>
         ) : sortedTasks.map(t => {
