@@ -3,7 +3,7 @@ import { Terminal, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
 import '@xterm/xterm/css/xterm.css'
-import { setActiveTerminalId } from '../../stores/terminal-store'
+import { setActiveTerminalId } from '../../domains/terminal/store'
 import { recordCommand, getTopCommands } from '../../utils/command-learner'
 
 const QUICK_CMDS_KEY = 'terminalQuickCmds'

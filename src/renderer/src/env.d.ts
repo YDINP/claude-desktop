@@ -39,7 +39,7 @@ interface Window {
     gitLog: (repoPath: string, limit?: number) => Promise<{ commits: Array<{ hash?: string; subject?: string; author?: string; date?: string }>; error?: string }>
     sessionSave: (session: unknown) => Promise<boolean>
     sessionList: () => Promise<unknown[]>
-    sessionLoad: (id: string) => Promise<unknown>
+    sessionLoad: (id: string) => Promise<{ id: string; title: string; cwd: string; model: string; messages: unknown[]; createdAt: number; updatedAt: number } | null>
     sessionDelete: (id: string) => Promise<boolean>
     sessionRename: (id: string, title: string) => Promise<boolean>
     onCloseTab: (cb: () => void) => () => void
@@ -47,10 +47,10 @@ interface Window {
     ccConnect: (port?: number) => Promise<boolean>
     ccDisconnect: () => Promise<boolean>
     ccStatus: () => Promise<import('../../shared/ipc-schema').CCStatus>
-    ccGetTree: () => Promise<unknown>
-    ccGetNode: (uuid: string) => Promise<unknown>
-    ccSetProperty: (uuid: string, key: string, value: unknown) => Promise<unknown>
-    ccMoveNode: (uuid: string, x: number, y: number) => Promise<unknown>
+    ccGetTree: (port: number) => Promise<import('../../shared/ipc-schema').CCNode>
+    ccGetNode: (port: number, uuid: string) => Promise<import('../../shared/ipc-schema').CCNode>
+    ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => Promise<{ ok: boolean }>
+    ccMoveNode: (port: number, uuid: string, x: number, y: number) => Promise<{ ok: boolean }>
     onCCEvent: (cb: (event: import('../../shared/ipc-schema').CCEvent) => void) => () => void
     onCCStatusChange: (cb: (status: { connected: boolean }) => void) => () => void
     // Ollama

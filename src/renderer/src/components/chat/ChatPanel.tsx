@@ -17,7 +17,7 @@ import {
 import { useChatStore } from '../../domains/chat/store'
 import type { useProject } from '../../stores/project-store'
 import type { ChatMessage } from '../../domains/chat/domain'
-import { getActiveTerminalId } from '../../stores/terminal-store'
+import { getActiveTerminalId } from '../../domains/terminal/store'
 import { WelcomeScreen } from '../shared/WelcomeScreen'
 import { useCCContext } from '../../hooks/useCCContext'
 import { useCCFileContext } from '../../hooks/useCCFileContext'

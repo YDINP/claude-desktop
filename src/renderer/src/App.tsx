@@ -6,6 +6,9 @@ import { useChatStore } from './domains/chat/store'
 import type { ChatMessage } from './domains/chat/domain'
 import { initChatAdapter } from './domains/chat/adapter'
 import { registerChatCommands } from './domains/chat/commands'
+import { initIpcBridge, destroyIpcBridge } from './kernel/ipcBridge'
+import { initTerminalAdapter } from './domains/terminal/adapter'
+import { initCocosAdapter } from './domains/cocos/adapter'
 import type { SidebarTab } from './components/sidebar/Sidebar'
 import type { ChangedFile } from './components/sidebar/ChangedFilesPanel'
 import { playCompletionSound } from './utils/sound'
@@ -260,6 +263,18 @@ function AppContent() {
     }
     window.addEventListener('cc:open-file', handler)
     return () => window.removeEventListener('cc:open-file', handler)
+  }, [])
+
+  // ── Kernel IPC bridge + domain adapters ──
+  useEffect(() => {
+    initIpcBridge()
+    const cleanupTerminal = initTerminalAdapter()
+    const cleanupCocos = initCocosAdapter()
+    return () => {
+      cleanupTerminal()
+      cleanupCocos()
+      destroyIpcBridge()
+    }
   }, [])
 
   // ── Chat adapter ──

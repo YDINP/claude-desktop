@@ -12,20 +12,24 @@ export function registerChatCommands(): void {
     return window.api?.claudeSend?.({ text, cwd, model, extraSystemPrompt, sessionId })
   })
 
-  commandBus.register('chat:interrupt', ({ sessionId }) => {
-    return window.api?.claudeInterrupt?.(sessionId)
+  // preload 시그니처: claudeInterrupt() — 인자 없음
+  commandBus.register('chat:interrupt', () => {
+    return window.api?.claudeInterrupt?.()
   })
 
-  commandBus.register('chat:close', ({ sessionId }) => {
-    return window.api?.claudeClose?.(sessionId)
+  // preload 시그니처: claudeClose() — 인자 없음
+  commandBus.register('chat:close', () => {
+    return window.api?.claudeClose?.()
   })
 
-  commandBus.register('chat:resume', ({ sessionId, cwd }) => {
-    return window.api?.claudeResume?.(sessionId, cwd)
+  // preload 시그니처: claudeResume(sessionId)
+  commandBus.register('chat:resume', ({ sessionId }) => {
+    return window.api?.claudeResume?.(sessionId)
   })
 
-  commandBus.register('chat:permissionReply', ({ requestId, allow, sessionId }) => {
+  // preload 시그니처: claudePermissionReply(requestId, allow, allowSession?)
+  commandBus.register('chat:permissionReply', ({ requestId, allow }) => {
     useChatStore.getState().setPendingPermission(null)
-    return window.api?.claudePermissionReply?.({ requestId, allow, sessionId })
+    return window.api?.claudePermissionReply?.(requestId, allow)
   })
 }

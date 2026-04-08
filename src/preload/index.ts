@@ -413,7 +413,7 @@ declare global {
       setProjectSystemPrompt: (projectPath: string, prompt: string) => Promise<boolean>
       sessionSave: (session: unknown) => Promise<boolean>
       sessionList: () => Promise<unknown[]>
-      sessionLoad: (id: string) => Promise<unknown>
+      sessionLoad: (id: string) => Promise<{ id: string; title: string; cwd: string; model: string; messages: unknown[]; createdAt: number; updatedAt: number } | null>
       sessionDelete: (id: string) => Promise<boolean>
       sessionRename: (id: string, title: string) => Promise<boolean>
       sessionPin: (id: string, pinned: boolean) => Promise<boolean>
@@ -488,6 +488,8 @@ declare global {
       onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => () => void
       settingsGet: () => Promise<{ theme: string; fontSize: number; maxTokensPerRequest: number; temperature: number; showTimestamps: boolean; selectedModel: string; accentColor: string; compactMode: boolean; soundEnabled: boolean; customCSS: string }>
       settingsSet: (patch: Record<string, unknown>) => Promise<boolean>
+      featuresGet: () => Promise<Record<string, boolean>>
+      featuresSet: (key: string, enabled: boolean) => Promise<void>
       getMemoryUsage: () => Promise<{ rss: number; heapUsed: number; heapTotal: number }>
       onMemoryUpdate: (cb: (data: { rss: number; heapUsed: number }) => void) => () => void
       getNativeTheme: () => Promise<{ isDark: boolean }>
@@ -518,15 +520,15 @@ declare global {
       ccConnect: (port?: number) => Promise<boolean>
       ccDisconnect: (port?: number) => Promise<boolean>
       ccStatus: () => Promise<import('../shared/ipc-schema').CCStatus>
-      ccGetTree: (port: number) => Promise<unknown>
+      ccGetTree: (port: number) => Promise<import('../shared/ipc-schema').CCNode>
       ccGetCanvasSize: (port: number) => Promise<import('../shared/ipc-schema').CanvasSize | null>
-      ccGetNode: (port: number, uuid: string) => Promise<unknown>
-      ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => Promise<unknown>
+      ccGetNode: (port: number, uuid: string) => Promise<import('../shared/ipc-schema').CCNode>
+      ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => Promise<{ ok: boolean }>
       ccSetZOrder: (port: number, uuid: string, direction: string) => Promise<void>
       ccCreateNode?: (port: number, name: string, parentUuid?: string) => Promise<string>
       ccDeleteNode?: (port: number, uuid: string) => Promise<void>
       ccSetComponentProp?: (port: number, uuid: string, compType: string, key: string, value: unknown) => Promise<unknown>
-      ccMoveNode: (port: number, uuid: string, x: number, y: number) => Promise<unknown>
+      ccMoveNode: (port: number, uuid: string, x: number, y: number) => Promise<{ ok: boolean }>
       ccReloadScene?: (port: number) => Promise<{ ok: boolean }>
       onCCEvent: (cb: (event: import('../shared/ipc-schema').CCEvent) => void) => () => void
       onCCStatusChange: (cb: (status: { connected: boolean; port?: number }) => void) => () => void

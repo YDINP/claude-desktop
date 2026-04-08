@@ -2,8 +2,7 @@
  * Terminal 전역 zustand store
  * useTerminalStore() — TerminalPanel 등에서 구독
  *
- * 기존 stores/terminal-store.ts의 단순 activeTerminalId를 확장.
- * 현재는 도메인 파일만 생성 — 기존 코드는 그대로 유지.
+ * stores/terminal-store.ts를 대체. setActiveTabId/getState().activeTabId 사용.
  */
 import { create } from 'zustand'
 import type { TerminalTab } from './domain'
@@ -84,3 +83,13 @@ export const useTerminalStore = create<TerminalState>()((set) => ({
 
   reset: () => set(initialState),
 }))
+
+/** ChatPanel 등에서 비반응형으로 현재 활성 탭 ID를 읽을 때 사용 */
+export function getActiveTerminalId(): string | null {
+  return useTerminalStore.getState().activeTabId
+}
+
+/** TerminalPanel 등에서 비반응형으로 활성 탭 ID를 설정할 때 사용 */
+export function setActiveTerminalId(id: string | null): void {
+  useTerminalStore.getState().setActiveTabId(id)
+}

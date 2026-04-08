@@ -56,28 +56,28 @@ export function initIpcBridge(): void {
     if (typeof unsub === 'function') cleanups.push(unsub)
   }
 
-  // CC file watcher
+  // CC file watcher — preload 시그니처: cb({ type, path, timestamp })
   if (api.onCCFileChanged) {
-    const unsub = api.onCCFileChanged((path: unknown) => {
-      eventBus.emit({ type: 'cc:fileChanged', payload: { path: path as string } })
+    const unsub = api.onCCFileChanged((event: unknown) => {
+      const e = event as { type: string; path: string; timestamp: number }
+      eventBus.emit({ type: 'cc:fileChanged', payload: { path: e.path } })
     })
     if (typeof unsub === 'function') cleanups.push(unsub)
   }
 
-  // Terminal
+  // Terminal — preload 시그니처: cb(id: string, data: string)
   if (api.onTerminalData) {
-    const unsub = api.onTerminalData((data: unknown) => {
-      const d = data as { id: string; data: string }
-      eventBus.emit({ type: 'terminal:data', payload: d })
+    const unsub = api.onTerminalData((id: string, data: string) => {
+      eventBus.emit({ type: 'terminal:data', payload: { id, data } })
     })
     if (typeof unsub === 'function') cleanups.push(unsub)
   }
 
-  // Filesystem watcher
+  // Filesystem watcher — preload 시그니처: cb({ dirPath, eventType, filename })
   if (api.onDirChanged) {
     const unsub = api.onDirChanged((info: unknown) => {
-      const i = info as { path: string; type: string }
-      eventBus.emit({ type: 'fs:change', payload: i })
+      const i = info as { dirPath: string; eventType: string; filename: string }
+      eventBus.emit({ type: 'fs:change', payload: { path: i.dirPath, type: i.eventType } })
     })
     if (typeof unsub === 'function') cleanups.push(unsub)
   }
@@ -106,26 +106,18 @@ export function initIpcBridge(): void {
 
   // ── CommandBus → window.api 핸들러 ───────────────────────────────────────
 
-  // chat
-  commandBus.register('chat:interrupt', ({ sessionId }) =>
-    api.claudeInterrupt?.(sessionId)
-  )
-  commandBus.register('chat:close', ({ sessionId }) =>
-    api.claudeClose?.(sessionId)
-  )
-  commandBus.register('chat:permissionReply', ({ requestId, allow, sessionId }) =>
-    api.claudePermissionReply?.({ requestId, allow, sessionId })
-  )
+  // chat 커맨드는 chat/commands.ts에서 등록 (store 연동 로직 포함)
+  // 여기서 중복 등록하면 commandBus가 덮어써서 store 로직이 누락됨
 
-  // terminal
+  // terminal — preload 시그니처: (id, cwd), (id, data), (id, cols, rows), (id)
   commandBus.register('terminal:create', ({ id, cwd }) =>
-    api.terminalCreate?.({ id, cwd })
+    api.terminalCreate?.(id, cwd)
   )
   commandBus.register('terminal:write', ({ id, data }) =>
-    api.terminalWrite?.({ id, data })
+    api.terminalWrite?.(id, data)
   )
   commandBus.register('terminal:resize', ({ id, cols, rows }) =>
-    api.terminalResize?.({ id, cols, rows })
+    api.terminalResize?.(id, cols, rows)
   )
   commandBus.register('terminal:close', ({ id }) =>
     api.terminalClose?.(id)
@@ -138,8 +130,9 @@ export function initIpcBridge(): void {
   commandBus.register('fs:readDir', ({ path }) =>
     api.readDir?.(path)
   )
+  // preload saveFile 시그니처: (content, defaultName) — 다이얼로그 기반 저장
   commandBus.register('fs:saveFile', ({ path, content }) =>
-    api.saveFile?.({ path, content })
+    api.saveFile?.(content, path)
   )
   commandBus.register('fs:watchDir', ({ path }) =>
     api.watchDir?.(path)
@@ -156,9 +149,9 @@ export function initIpcBridge(): void {
     api.sessionDelete?.(sessionId)
   )
 
-  // cocos file
+  // cocos file — preload 시그니처: (sceneFile, modifiedRoot) — 순서 역전 주의
   commandBus.register('cocos:saveScene', ({ root, sceneFile }) =>
-    api.ccFileSaveScene?.({ root, sceneFile })
+    api.ccFileSaveScene?.(sceneFile, root)
   )
 }
 
