@@ -129,14 +129,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
   }, [svSearch, sceneFile])
   // R1543: 노드 잠금 (locked nodes: drag/resize 방지)
   const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('sv-locked-uuids') ?? '[]')) }
+    try { return new Set(JSON.parse(localStorage.getItem('cd-sv-locked-nodes') ?? '[]')) }
     catch { return new Set() }
   })
   const toggleLock = (uuid: string) => {
     setLockedUuids(prev => {
       const next = new Set(prev)
       if (next.has(uuid)) next.delete(uuid); else next.add(uuid)
-      localStorage.setItem('sv-locked-uuids', JSON.stringify([...next]))
+      localStorage.setItem('cd-sv-locked-nodes', JSON.stringify([...next]))
       return next
     })
   }
@@ -1749,7 +1749,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const next = new Set(prev)
                   if (anyLocked) [...multiSelected].forEach(u => next.delete(u))
                   else [...multiSelected].forEach(u => next.add(u))
-                  localStorage.setItem('sv-locked-uuids', JSON.stringify([...next]))
+                  localStorage.setItem('cd-sv-locked-nodes', JSON.stringify([...next]))
                   return next
                 })
               }}

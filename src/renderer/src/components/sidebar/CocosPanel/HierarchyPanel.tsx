@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
-import { CCFileSceneTree } from './SceneTree'
+import { VirtualSceneTree } from './SceneTree'
 import { TreeSearch } from './TreeSearch'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
 
@@ -11,6 +11,7 @@ interface HierarchyPanelProps {
 }
 
 export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPanelProps) {
+  const treeScrollRef = useRef<HTMLDivElement>(null)
   const {
     sceneFile, projectInfo,
     prefabPickerOpen, setPrefabPickerOpen,
@@ -407,10 +408,10 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
               </div>
             )}
             {/* 씬 트리 */}
-            <div style={{ flex: 1, overflow: 'auto' }}>
-              <CCFileSceneTree
-                node={filteredRoot ?? sceneFile.root}
-                depth={0}
+            <div ref={treeScrollRef} style={{ flex: 1, overflow: 'auto' }}>
+              <VirtualSceneTree
+                root={filteredRoot ?? sceneFile.root}
+                scrollContainerRef={treeScrollRef}
                 selected={selectedNode}
                 onSelect={onSelectNode}
                 onReparent={handleReparent}

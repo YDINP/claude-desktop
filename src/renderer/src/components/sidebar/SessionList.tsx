@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { toast } from '../../utils/toast'
 import { downloadFile } from '../../utils/download'
 import { TagDot } from './TagDot'
@@ -419,6 +420,115 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
   const unpinnedFiltered = activeSessions.filter(s => !s.pinned && !s.collection && !forkedIds.has(s.id))
   const groups = groupSessions(unpinnedFiltered)
 
+  // --- Virtual scroll setup ---
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  type VirtualRow =
+    | { type: 'collection-header'; label: string; count: number }
+    | { type: 'session'; session: SessionMeta; depth: number }
+    | { type: 'pinned-header' }
+    | { type: 'group-header'; label: string; showLabel: boolean }
+    | { type: 'timeline-group-header'; label: string; dateStr?: string }
+    | { type: 'timeline-session'; session: SessionMeta }
+    | { type: 'archive-header'; count: number }
+    | { type: 'auto-archive-header'; count: number }
+    | { type: 'empty-search' }
+    | { type: 'empty-tag'; tag: string }
+    | { type: 'empty-custom-tag'; tag: string }
+
+  const addSessionWithForks = (rows: VirtualRow[], s: SessionMeta, depth: number) => {
+    rows.push({ type: 'session', session: s, depth })
+    if (depth < 10) {
+      const forks = forkMap.get(s.id) ?? []
+      for (const child of forks) addSessionWithForks(rows, child, depth + 1)
+    }
+  }
+
+  const virtualRows = useMemo((): VirtualRow[] => {
+    const rows: VirtualRow[] = []
+    const showGroupLabels = !search && !filterTag && !filterCustomTag && filterCustomTags.size === 0
+
+    // Collections
+    for (const [cn, cs] of collections.entries()) {
+      rows.push({ type: 'collection-header', label: cn, count: cs.length })
+      if (openCollections.has(cn)) {
+        for (const s of cs) addSessionWithForks(rows, s, 0)
+      }
+    }
+
+    // Pinned
+    if (pinnedFiltered.length > 0) {
+      rows.push({ type: 'pinned-header' })
+      for (const s of pinnedFiltered) addSessionWithForks(rows, s, 0)
+    }
+
+    // Main list
+    if (viewMode === 'timeline') {
+      for (const group of groupSessionsByDate(unpinnedFiltered)) {
+        rows.push({ type: 'timeline-group-header', label: group.label, dateStr: group.dateStr })
+        for (const s of group.sessions) rows.push({ type: 'timeline-session', session: s })
+      }
+    } else {
+      for (const group of groups) {
+        rows.push({ type: 'group-header', label: group.label, showLabel: showGroupLabels })
+        for (const s of group.items) addSessionWithForks(rows, s, 0)
+      }
+    }
+
+    // Manual archive
+    if (archivedSessions.size > 0) {
+      rows.push({ type: 'archive-header', count: archivedSessions.size })
+      if (showArchived) {
+        for (const s of sessions.filter(s => archivedSessions.has(s.id))) addSessionWithForks(rows, s, 0)
+      }
+    }
+
+    // Auto archive
+    if (autoArchivedSessions.length > 0) {
+      rows.push({ type: 'auto-archive-header', count: autoArchivedSessions.length })
+      for (const s of autoArchivedSessions) addSessionWithForks(rows, s, 0)
+    }
+
+    // Empty states
+    if (filtered.length === 0 && search) rows.push({ type: 'empty-search' })
+    if (filtered.length === 0 && filterTag && !search) rows.push({ type: 'empty-tag', tag: filterTag })
+    if (filtered.length === 0 && filterCustomTag && !search && !filterTag) rows.push({ type: 'empty-custom-tag', tag: filterCustomTag })
+
+    return rows
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collections, openCollections, pinnedFiltered, unpinnedFiltered, groups, viewMode, archivedSessions, showArchived, autoArchivedSessions, filtered.length, search, filterTag, filterCustomTag, filterCustomTags.size, sessions, forkMap])
+
+  const virtualizer = useVirtualizer({
+    count: virtualRows.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: (index) => {
+      const row = virtualRows[index]
+      if (!row) return 60
+      switch (row.type) {
+        case 'collection-header':
+        case 'pinned-header':
+        case 'archive-header':
+        case 'auto-archive-header':
+          return 28
+        case 'group-header':
+          return row.showLabel ? 24 : 0
+        case 'timeline-group-header':
+          return 28
+        case 'timeline-session':
+          return 48
+        case 'empty-search':
+        case 'empty-tag':
+        case 'empty-custom-tag':
+          return 40
+        case 'session':
+          return 60
+        default:
+          return 60
+      }
+    },
+    overscan: 8,
+  })
+
   const renderSessionItem = (s: SessionMeta, depth: number = 0) => {
     const isActive = s.id === activeSessionId
     const isSelected = selectedIds.has(s.id)
@@ -510,14 +620,44 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
             style={{ flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--accent)', borderRadius: 3, padding: '2px 6px', fontSize: 11, outline: 'none' }} />
         </div>
       )}
-      {depth < 10 && (forkMap.get(s.id) ?? []).map(child => renderSessionItem(child, depth + 1))}
       </div>
     )
   }
 
+  const renderVirtualRow = (row: VirtualRow) => {
+    switch (row.type) {
+      case 'collection-header':
+        return <div onClick={() => toggleCollection(row.label)} style={{ padding: '4px 8px', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>{'\uD83D\uDCC1'} {row.label} ({row.count}) {openCollections.has(row.label) ? '\u25B4' : '\u25BE'}</div>
+      case 'pinned-header':
+        return <div style={{ padding: '4px 12px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid var(--border)', marginTop: 4, userSelect: 'none' }}>고정됨</div>
+      case 'group-header':
+        return row.showLabel ? <div style={{ fontSize: 9, color: 'var(--text-muted)', padding: '6px 8px 2px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{row.label}</div> : null
+      case 'timeline-group-header':
+        return <div style={{ padding: '5px 12px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', letterSpacing: '0.3px' }}>{row.dateStr ? `${row.label} · ${row.dateStr}` : row.label}</div>
+      case 'timeline-session': {
+        const s = row.session; const act = s.id === activeSessionId
+        return <div style={{ paddingLeft: 20, position: 'relative' }}><div style={{ position: 'absolute', left: 20, top: 0, bottom: 0, width: 1, background: 'var(--border)' }} /><div onClick={() => onSelect(s.id)} style={{ position: 'relative', padding: '6px 10px 6px 16px', cursor: 'pointer', borderBottom: '1px solid var(--border)', background: act ? 'var(--bg-hover)' : 'transparent' }} onMouseEnter={e => { if (!act) (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }} onMouseLeave={e => { if (!act) (e.currentTarget as HTMLElement).style.background = 'transparent' }}><div style={{ position: 'absolute', left: -4, top: '50%', transform: 'translateY(-50%)', width: 8, height: 8, borderRadius: '50%', background: act ? 'var(--accent)' : 'var(--border)', border: act ? '2px solid var(--accent)' : '2px solid var(--bg-secondary)', zIndex: 1 }} /><div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title || 'Untitled'}</div><div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2, display: 'flex', gap: 6 }}><span>{s.messageCount} msgs</span><span>{formatHHMM(s.updatedAt ?? s.createdAt)}</span></div></div></div>
+      }
+      case 'archive-header':
+        return <div onClick={() => setShowArchived(a => !a)} style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', display: 'flex', alignItems: 'center', gap: 6, borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>{'\uD83D\uDCE6'} 아카이브 ({row.count}) {showArchived ? '\u25B4' : '\u25BE'}</div>
+      case 'auto-archive-header':
+        return <div style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', userSelect: 'none', display: 'flex', alignItems: 'center', gap: 6, borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>{'\uD83D\uDCC5'} 오래된 세션 ({row.count})</div>
+      case 'session':
+        return renderSessionItem(row.session, row.depth)
+      case 'empty-search':
+        return <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>검색 결과 없음</div>
+      case 'empty-tag':
+        return <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{`'${row.tag}' 태그가 있는 세션이 없습니다`}</div>
+      case 'empty-custom-tag':
+        return <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{`'#${row.tag}' 태그가 있는 세션이 없습니다`}</div>
+      default:
+        return null
+    }
+  }
+
   return (
-    <div role="listbox" aria-label="세션 목록">
-      <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)' }}>
+    <div role="listbox" aria-label="세션 목록" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <span style={{ position: 'absolute', left: 7, fontSize: 11, color: 'var(--text-muted)', pointerEvents: 'none', lineHeight: 1 }}>🔍</span>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="세션 검색..." style={{ width: '100%', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 4, padding: '4px 24px', fontSize: 11, outline: 'none', boxSizing: 'border-box' }} />
@@ -525,14 +665,14 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
         </div>
         {search && <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, paddingLeft: 2 }}>{filtered.length}개</div>}
       </div>
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', padding: '0 8px' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', padding: '0 8px', flexShrink: 0 }}>
         {(['all', 'pinned', 'archived', 'recent'] as const).map(tab => {
           const labels: Record<typeof tab, string> = { all: '전체', pinned: '고정', archived: '아카이브', recent: '최근' }
           const act = filterType === tab
           return <button key={tab} onClick={() => setFilterType(tab)} style={{ flex: 1, background: 'none', border: 'none', borderBottom: act ? '2px solid var(--accent)' : '2px solid transparent', color: act ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer', fontSize: 10, padding: '5px 2px', fontWeight: act ? 600 : 400 }}>{labels[tab]}</button>
         })}
       </div>
-      <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
         <span style={{ fontSize: 10, color: 'var(--text-muted)', marginRight: 2 }}>Tags:</span>
         <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{sessions.length}개 세션</span>
         {TAG_COLORS.map(c => <div key={c} onClick={() => setFilterTag(prev => prev === c ? null : c)} style={{ width: 14, height: 14, borderRadius: '50%', background: TAG_CSS[c], cursor: 'pointer', border: filterTag === c ? '2px solid var(--text-primary)' : '2px solid transparent', boxSizing: 'border-box', opacity: filterTag && filterTag !== c ? 0.4 : 1 }} title={`Filter by ${c}`} />)}
@@ -550,29 +690,45 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           <button onClick={async () => { const r = await window.api.sessionImportBackup(); if (r.ok) { toast(`${r.imported}개 가져옴`, 'success'); await refresh(); onImportComplete?.() } else if (!r.canceled && r.error) toast('실패: ' + r.error, 'error') }} title="복원" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '2px 4px' }}>&#8595; 복원</button>
         </div>
       </div>
-      {mergeMode && (<div style={{ padding: '6px 12px', background: 'var(--accent)', color: '#fff', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}><span>병합 모드 ({mergeTargets.size}개)</span><div style={{ display: 'flex', gap: 6 }}>{mergeTargets.size >= 2 && <button onClick={() => { console.log('merge:', [...mergeTargets]); setMergeMode(false); setMergeTargets(new Set()) }} style={{ background: '#fff', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>병합</button>}<button onClick={() => { setMergeMode(false); setMergeTargets(new Set()) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 12, padding: '0 2px', lineHeight: 1 }}>&#x2715;</button></div></div>)}
-      {Array.from(collections.entries()).map(([cn, cs]) => (<div key={cn}><div onClick={() => toggleCollection(cn)} style={{ padding: '4px 8px', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>{'\uD83D\uDCC1'} {cn} ({cs.length}) {openCollections.has(cn) ? '\u25B4' : '\u25BE'}</div>{openCollections.has(cn) && cs.map(s => renderSessionItem(s))}</div>))}
-      {pinnedFiltered.length > 0 && (<div><div style={{ padding: '4px 12px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid var(--border)', marginTop: 4, userSelect: 'none' }}>고정됨</div>{pinnedFiltered.map(s => renderSessionItem(s))}</div>)}
-      {viewMode === 'timeline' ? (
-        groupSessionsByDate(unpinnedFiltered).map(group => (<div key={group.label}><div style={{ position: 'sticky', top: 0, zIndex: 5, padding: '5px 12px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', letterSpacing: '0.3px' }}>{group.dateStr ? `${group.label} · ${group.dateStr}` : group.label}</div><div style={{ paddingLeft: 20, position: 'relative' }}><div style={{ position: 'absolute', left: 20, top: 0, bottom: 0, width: 1, background: 'var(--border)' }} />{group.sessions.map(s => { const act = s.id === activeSessionId; return (<div key={s.id} onClick={() => onSelect(s.id)} style={{ position: 'relative', padding: '6px 10px 6px 16px', cursor: 'pointer', borderBottom: '1px solid var(--border)', background: act ? 'var(--bg-hover)' : 'transparent' }} onMouseEnter={e => { if (!act) (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }} onMouseLeave={e => { if (!act) (e.currentTarget as HTMLElement).style.background = 'transparent' }}><div style={{ position: 'absolute', left: -4, top: '50%', transform: 'translateY(-50%)', width: 8, height: 8, borderRadius: '50%', background: act ? 'var(--accent)' : 'var(--border)', border: act ? '2px solid var(--accent)' : '2px solid var(--bg-secondary)', zIndex: 1 }} /><div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title || 'Untitled'}</div><div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2, display: 'flex', gap: 6 }}><span>{s.messageCount} msgs</span><span>{formatHHMM(s.updatedAt ?? s.createdAt)}</span></div></div>) })}</div></div>))
-      ) : (
-        groups.map(group => (<div key={group.label}>{!search && !filterTag && !filterCustomTag && filterCustomTags.size === 0 && <div style={{ fontSize: 9, color: 'var(--text-muted)', padding: '6px 8px 2px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{group.label}</div>}{group.items.map(s => renderSessionItem(s))}</div>))
-      )}
-      {archivedSessions.size > 0 && (<div><div onClick={() => setShowArchived(a => !a)} style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', display: 'flex', alignItems: 'center', gap: 6, borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>📦 아카이브 ({archivedSessions.size}) {showArchived ? '▴' : '▾'}</div>{showArchived && sessions.filter(s => archivedSessions.has(s.id)).map(s => renderSessionItem(s))}</div>)}
-      {autoArchivedSessions.length > 0 && (<div><div style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', userSelect: 'none', display: 'flex', alignItems: 'center', gap: 6, borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>📅 오래된 세션 ({autoArchivedSessions.length})</div>{autoArchivedSessions.map(s => renderSessionItem(s))}</div>)}
-      {filtered.length === 0 && search && <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>검색 결과 없음</div>}
-      {filtered.length === 0 && filterTag && !search && <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{`'${filterTag}' 태그가 있는 세션이 없습니다`}</div>}
-      {filtered.length === 0 && filterCustomTag && !search && !filterTag && <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{`'#${filterCustomTag}' 태그가 있는 세션이 없습니다`}</div>}
-      {selectionMode && selectedIds.size > 0 && (
-        <div style={{ position: 'sticky', bottom: 0, padding: '6px 12px', background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, zIndex: 10 }}>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{selectedIds.size}개 선택</span>
-          <div style={{ display: 'flex', gap: 4 }}>
-            <button onClick={() => setSelectedIds(new Set(filtered.map(s => s.id)))} style={{ fontSize: 10, padding: '2px 6px', background: 'var(--bg-tertiary)', color: 'var(--text-muted)', border: 'none', borderRadius: 3, cursor: 'pointer' }}>전체</button>
-            {selectedIds.size >= 2 && <button onClick={async () => { const ids = Array.from(selectedIds); const t = sessions.find(s => s.id === ids[0]); if (!window.confirm(`${ids.length}개 세션을 '${t?.title ?? ids[0]}'으로 병합?`)) return; let ok = true; for (const src of ids.slice(1)) { const r = await window.api.sessionMerge(src, ids[0]); if (!r.ok) { toast('병합 실패', 'error'); ok = false; break } } if (ok) { await refresh(); setSelectedIds(new Set()); setSelectionMode(false); toast('병합 완료', 'success') } }} style={{ fontSize: 10, padding: '2px 8px', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 3, cursor: 'pointer' }}>병합</button>}
-            <button onClick={async () => { if (!window.confirm(`${selectedIds.size}개 삭제?`)) return; for (const id of selectedIds) await window.api.sessionDelete(id); setSessions(prev => prev.filter(s => !selectedIds.has(s.id))); setSelectedIds(new Set()); setSelectionMode(false) }} style={{ fontSize: 10, padding: '2px 8px', background: 'var(--error)', color: '#fff', border: 'none', borderRadius: 3, cursor: 'pointer' }}>삭제</button>
-          </div>
+      {mergeMode && (<div style={{ padding: '6px 12px', background: 'var(--accent)', color: '#fff', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexShrink: 0 }}><span>병합 모드 ({mergeTargets.size}개)</span><div style={{ display: 'flex', gap: 6 }}>{mergeTargets.size >= 2 && <button onClick={() => { console.log('merge:', [...mergeTargets]); setMergeMode(false); setMergeTargets(new Set()) }} style={{ background: '#fff', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>병합</button>}<button onClick={() => { setMergeMode(false); setMergeTargets(new Set()) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 12, padding: '0 2px', lineHeight: 1 }}>&#x2715;</button></div></div>)}
+      <div ref={scrollContainerRef} style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
+        <div style={{ height: virtualizer.getTotalSize(), width: '100%', position: 'relative' }}>
+          {virtualizer.getVirtualItems().map(virtualRow => {
+            const row = virtualRows[virtualRow.index]
+            if (!row) return null
+            return (
+              <div
+                key={virtualRow.key}
+                data-index={virtualRow.index}
+                ref={virtualizer.measureElement}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+              >
+                {renderVirtualRow(row)}
+              </div>
+            )
+          })}
         </div>
-      )}
+        {selectionMode && selectedIds.size > 0 && (
+          <div style={{ position: 'sticky', bottom: 0, padding: '6px 12px', background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, zIndex: 10 }}>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{selectedIds.size}개 선택</span>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <button onClick={() => setSelectedIds(new Set(filtered.map(s => s.id)))} style={{ fontSize: 10, padding: '2px 6px', background: 'var(--bg-tertiary)', color: 'var(--text-muted)', border: 'none', borderRadius: 3, cursor: 'pointer' }}>전체</button>
+              {selectedIds.size >= 2 && <button onClick={async () => { const ids = Array.from(selectedIds); const t = sessions.find(s => s.id === ids[0]); if (!window.confirm(`${ids.length}개 세션을 '${t?.title ?? ids[0]}'으로 병합?`)) return; let ok = true; for (const src of ids.slice(1)) { const r = await window.api.sessionMerge(src, ids[0]); if (!r.ok) { toast('병합 실패', 'error'); ok = false; break } } if (ok) { await refresh(); setSelectedIds(new Set()); setSelectionMode(false); toast('병합 완료', 'success') } }} style={{ fontSize: 10, padding: '2px 8px', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 3, cursor: 'pointer' }}>병합</button>}
+              <button onClick={async () => { if (!window.confirm(`${selectedIds.size}개 삭제?`)) return; for (const id of selectedIds) await window.api.sessionDelete(id); setSessions(prev => prev.filter(s => !selectedIds.has(s.id))); setSelectedIds(new Set()); setSelectionMode(false) }} style={{ fontSize: 10, padding: '2px 8px', background: 'var(--error)', color: '#fff', border: 'none', borderRadius: 3, cursor: 'pointer' }}>삭제</button>
+            </div>
+          </div>
+        )}
+        <div>
+          <div onClick={() => setTemplateOpen(o => !o)} style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', display: 'flex', alignItems: 'center', gap: 6, borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>📄 템플릿 ({templates.length}) {templateOpen ? '▴' : '▾'}</div>
+          {templateOpen && (<div>{templates.length === 0 ? <div style={{ padding: '8px 16px', fontSize: 11, color: 'var(--text-muted)' }}>템플릿 없음</div> : templates.map(tpl => (<div key={tpl.id} onClick={async () => { const r = await window.api.createSessionFromTemplate(tpl.id); if (r.sessionId) { await refresh(); onSelect(r.sessionId); toast('세션 생성됨', 'success') } else if (r.error) toast('실패: ' + r.error, 'error') }} onContextMenu={async (e) => { e.preventDefault(); if (window.confirm(`"${tpl.name}" 삭제?`)) { await window.api.deleteTemplate(tpl.id); await refreshTemplates(); toast('삭제됨', 'success') } }} className="session-item" style={{ padding: '6px 12px 6px 20px', cursor: 'pointer', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }} onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}><div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tpl.name}</div><div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{tpl.messageCount} msgs</div></div></div>))}</div>)}
+        </div>
+      </div>
       {contextMenu && (
         <div ref={contextMenuRef} style={{ position: 'fixed', top: contextMenu.y, left: contextMenu.x, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 6, padding: '4px 0', zIndex: 9999, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', minWidth: 160 }}>
           <div onClick={async () => { const id = contextMenu.sessionId; const sm = sessions.find(s => s.id === id); setContextMenu(null); setSummarizingId(id); toast('요약 생성 중...', 'info'); try { const data = await window.api.sessionLoad(id) as any; if (!data?.messages) { toast('데이터 없음', 'error'); return }; const msgs = data.messages.slice(-20).map((m: any) => ({ role: m.role ?? 'user', content: (m.content ?? m.text ?? '') as string })).filter((m: any) => m.content.length > 0); const r = await window.api.summarizeSession({ messages: msgs }); if (r.error) { toast('요약 실패', 'error'); return }; setSummaryModal({ sessionTitle: sm?.title ?? id, summary: r.summary }) } finally { setSummarizingId(null) } }} style={{ padding: '6px 12px', fontSize: 12, cursor: 'pointer', color: 'var(--text-primary)' }} onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>{summarizingId === contextMenu.sessionId ? '...' : '📝'} 요약 생성</div>
@@ -592,10 +748,6 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           </div>
         </div>
       )}
-      <div>
-        <div onClick={() => setTemplateOpen(o => !o)} style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', display: 'flex', alignItems: 'center', gap: 6, borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>📄 템플릿 ({templates.length}) {templateOpen ? '▴' : '▾'}</div>
-        {templateOpen && (<div>{templates.length === 0 ? <div style={{ padding: '8px 16px', fontSize: 11, color: 'var(--text-muted)' }}>템플릿 없음</div> : templates.map(tpl => (<div key={tpl.id} onClick={async () => { const r = await window.api.createSessionFromTemplate(tpl.id); if (r.sessionId) { await refresh(); onSelect(r.sessionId); toast('세션 생성됨', 'success') } else if (r.error) toast('실패: ' + r.error, 'error') }} onContextMenu={async (e) => { e.preventDefault(); if (window.confirm(`"${tpl.name}" 삭제?`)) { await window.api.deleteTemplate(tpl.id); await refreshTemplates(); toast('삭제됨', 'success') } }} className="session-item" style={{ padding: '6px 12px 6px 20px', cursor: 'pointer', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }} onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}><div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 12, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tpl.name}</div><div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{tpl.messageCount} msgs</div></div></div>))}</div>)}
-      </div>
       {tagPickerFor && tagPickerPos && (
         <div ref={tagPickerRef} style={{ position: 'fixed', top: tagPickerPos.y, left: tagPickerPos.x, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 8px', display: 'flex', flexDirection: 'column', gap: 4, zIndex: 9999, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', minWidth: 160 }}>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>

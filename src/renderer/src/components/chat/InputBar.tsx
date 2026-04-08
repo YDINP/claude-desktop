@@ -286,7 +286,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [multilineMode, setMultilineMode] = useState(false)
   const multilineModeRef = useRef(false)
   const [isDragging, setIsDragging] = useState(false)
-  const [smartInput, setSmartInput] = useState<boolean>(() => localStorage.getItem('smart-input') === 'true')
+  const [smartInput, setSmartInput] = useState<boolean>(() => localStorage.getItem('cd-smart-input') === 'true')
   const [varSuggestions, setVarSuggestions] = useState<string[]>([])
   const [varSuggestionsOpen, setVarSuggestionsOpen] = useState(false)
   const [varSuggestionsIdx, setVarSuggestionsIdx] = useState(0)
@@ -1397,7 +1397,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         onClick={() => {
           const next = !smartInput
           setSmartInput(next)
-          localStorage.setItem('smart-input', String(next))
+          localStorage.setItem('cd-smart-input', String(next))
         }}
         title={smartInput ? '스마트 입력 끄기 (선택 후 " 또는 ( 입력 시 자동 감싸기)' : '스마트 입력 켜기 (선택 후 " 또는 ( 입력 시 자동 감싸기)'}
         style={{

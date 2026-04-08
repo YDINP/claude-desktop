@@ -163,7 +163,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
     window.api?.getSystemPromptProfiles().then(setProfiles)
     setGlobalSystemPrompt(localStorage.getItem('custom-system-prompt') ?? '')
     setPreferredLanguage(localStorage.getItem('preferred-language') ?? 'auto')
-    setOpenaiApiKey(localStorage.getItem('settings:openaiApiKey') ?? '')
+    setOpenaiApiKey(localStorage.getItem('cd-settings-openai-key') ?? '')
     setTimeout(() => modalRef.current?.querySelector<HTMLElement>('button, input')?.focus(), 50)
   }, [open, currentProject])
 
@@ -216,10 +216,10 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
     localStorage.setItem('preferred-language', preferredLanguage)
     // Save OpenAI API key
     if (openaiApiKey) {
-      localStorage.setItem('settings:openaiApiKey', openaiApiKey)
+      localStorage.setItem('cd-settings-openai-key', openaiApiKey)
       await window.api?.settingsSet({ openaiApiKey })
     } else {
-      localStorage.removeItem('settings:openaiApiKey')
+      localStorage.removeItem('cd-settings-openai-key')
       await window.api?.settingsSet({ openaiApiKey: '' })
     }
     // Save Anthropic API key

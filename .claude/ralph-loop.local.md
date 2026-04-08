@@ -1,6 +1,6 @@
 ---
 active: true
-iteration: 1
+iteration: 2
 max_iterations: 50
 completion_promise: 코드 품질 완벽 — 더 이상 개선할 것 없을 때까지
 started_at: "2026-04-08T09:00:00Z"

@@ -39,25 +39,25 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
   }
 
   const [history, setHistory] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('searchHistory') ?? '[]') } catch { return [] }
+    try { return JSON.parse(localStorage.getItem('cd-search-history') ?? '[]') } catch { return [] }
   })
   const [showHistory, setShowHistory] = useState(false)
 
   const saveHistory = (q: string) => {
     const next = [q, ...history.filter(h => h !== q)].slice(0, 20)
     setHistory(next)
-    localStorage.setItem('searchHistory', JSON.stringify(next))
+    localStorage.setItem('cd-search-history', JSON.stringify(next))
   }
 
   const removeHistoryItem = (item: string) => {
     const next = history.filter(h => h !== item)
     setHistory(next)
-    localStorage.setItem('searchHistory', JSON.stringify(next))
+    localStorage.setItem('cd-search-history', JSON.stringify(next))
   }
 
   const clearHistory = () => {
     setHistory([])
-    localStorage.removeItem('searchHistory')
+    localStorage.removeItem('cd-search-history')
   }
 
   const doSearch = useCallback(async (q: string) => {

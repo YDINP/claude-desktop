@@ -111,11 +111,11 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   })
   const [showBookmarkList, setShowBookmarkList] = useState(false)
   const [pinnedUuids, setPinnedUuids] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('scene-pinned') ?? '[]')) }
+    try { return new Set(JSON.parse(localStorage.getItem('cd-scene-pinned') ?? '[]')) }
     catch { return new Set() }
   })
   const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('scene-locked') ?? '[]')) }
+    try { return new Set(JSON.parse(localStorage.getItem('cd-scene-locked') ?? '[]')) }
     catch { return new Set() }
   })
   const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
@@ -736,7 +736,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       const next = new Set(prev)
       if (next.has(uuid)) next.delete(uuid)
       else next.add(uuid)
-      localStorage.setItem('scene-pinned', JSON.stringify([...next]))
+      localStorage.setItem('cd-scene-pinned', JSON.stringify([...next]))
       return next
     })
   }, [])
@@ -746,7 +746,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       const next = new Set(prev)
       if (next.has(uuid)) next.delete(uuid)
       else next.add(uuid)
-      localStorage.setItem('scene-locked', JSON.stringify([...next]))
+      localStorage.setItem('cd-scene-locked', JSON.stringify([...next]))
       return next
     })
   }, [])
@@ -1913,7 +1913,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               const next = new Set(prev)
               if (locked) next.add(uuid)
               else next.delete(uuid)
-              localStorage.setItem('scene-locked', JSON.stringify([...next]))
+              localStorage.setItem('cd-scene-locked', JSON.stringify([...next]))
               return next
             })
           }}
@@ -3875,7 +3875,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                     setLockedUuids(prev => {
                       const next = new Set(prev)
                       if (isLocked) next.delete(n.uuid); else next.add(n.uuid)
-                      localStorage.setItem('scene-locked', JSON.stringify([...next]))
+                      localStorage.setItem('cd-scene-locked', JSON.stringify([...next]))
                       return next
                     })
                     updateNode(n.uuid, { locked: !isLocked })

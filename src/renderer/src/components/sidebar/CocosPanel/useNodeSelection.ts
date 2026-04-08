@@ -22,7 +22,7 @@ export function useNodeSelection({ sceneFile, nodeColors: externalNodeColors }: 
     })
   }, [])
   const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('scene-locked') ?? '[]')) }
+    try { return new Set(JSON.parse(localStorage.getItem('cd-scene-locked') ?? '[]')) }
     catch { return new Set() }
   })
   const toggleLocked = useCallback((uuid: string) => {
@@ -30,7 +30,7 @@ export function useNodeSelection({ sceneFile, nodeColors: externalNodeColors }: 
       const next = new Set(prev)
       if (next.has(uuid)) next.delete(uuid)
       else next.add(uuid)
-      localStorage.setItem('scene-locked', JSON.stringify([...next]))
+      localStorage.setItem('cd-scene-locked', JSON.stringify([...next]))
       return next
     })
   }, [])
@@ -39,13 +39,13 @@ export function useNodeSelection({ sceneFile, nodeColors: externalNodeColors }: 
   })
   // R2474: 핀 노드 — 빠른 선택을 위한 노드 고정 목록 (localStorage 영속화)
   const [pinnedNodes, setPinnedNodes] = useState<Array<{ uuid: string; name: string }>>(() => {
-    try { return JSON.parse(localStorage.getItem('cc-pinned-nodes') ?? '[]') } catch { return [] }
+    try { return JSON.parse(localStorage.getItem('cd-cc-pinned') ?? '[]') } catch { return [] }
   })
   const togglePinNode = useCallback((uuid: string, name: string) => {
     setPinnedNodes(prev => {
       const exists = prev.some(p => p.uuid === uuid)
       const next = exists ? prev.filter(p => p.uuid !== uuid) : [...prev, { uuid, name }]
-      localStorage.setItem('cc-pinned-nodes', JSON.stringify(next))
+      localStorage.setItem('cd-cc-pinned', JSON.stringify(next))
       return next
     })
   }, [])
