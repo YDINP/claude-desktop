@@ -950,3 +950,8 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2750 | ChatPanel 리팩토링 — 2,498→1,497줄 + 7개 분리(ModelSelector/ExportButtons/chatUtils 등), 데드코드 350줄 제거 | ✅ |
 | R2751 | SessionList 리팩토링 — 2,402→618줄 + 3개 분리(sessionUtils/TagDot/SessionItem), 데드코드 1,800줄 제거 | ✅ |
 | R2752 | 중복 제거 — useCopyToClipboard(9패널)/useLocalStorage/useExpandedId/download.ts 공통 훅·유틸 추출 | ✅ |
+| R2753 | CCFileSceneView 리팩토링 — 5,525→4,961줄 (ccSceneTypes/useCCSceneOverlayState/useCCSceneAssets/useCCSceneKeyboard 추출) | ✅ |
+| R2754 | InputBar 2,086→1,565줄 (SlashCommandDropdown/SuggestionDropdown/QuickActionsBar 추출, phantom useState 180개 제거) | ✅ |
+| R2755 | MessageBubble 2,070→1,272줄 (CodeBlock 848줄 추출) | ✅ |
+| R2756 | SceneInspector 1,869→1,227줄 (InspectorComponents 추출), TerminalPanel 1,621→1,442줄, misc 1,523→1,238줄 | ✅ |
+| R2757 | UX/UI 일관성 — --success-bright CSS변수, 색상 하드코딩 제거, empty state/borderRadius 통일 | ✅ |
