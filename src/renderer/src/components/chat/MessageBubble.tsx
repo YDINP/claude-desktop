@@ -1,6 +1,6 @@
 import { useState, useRef, memo, useMemo, useEffect, useCallback, useDeferredValue } from 'react'
 import React from 'react'
-import type { ChatMessage } from '../../stores/chat-store'
+import type { ChatMessage } from '../../domains/chat'
 import { ToolUseIndicator } from './ToolUseIndicator'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'

@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from 'react'
-import type { ToolUseItem } from '../../stores/chat-store'
+import type { ToolUseItem } from '../../domains/chat'
 
 function formatToolInput(name: string, input: unknown): string {
   if (!input || typeof input !== 'object') return String(input ?? '')

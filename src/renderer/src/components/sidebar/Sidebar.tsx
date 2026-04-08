@@ -19,7 +19,7 @@ import { ClipboardPanel } from './ClipboardPanel'
 import { DiffPanel } from './DiffPanel'
 import { RemotePanel } from './RemotePanel'
 import type { ChangedFile } from './ChangedFilesPanel'
-import type { ChatMessage } from '../../stores/chat-store'
+import type { ChatMessage } from '../../domains/chat'
 import { useProject } from '../../stores/project-store'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 

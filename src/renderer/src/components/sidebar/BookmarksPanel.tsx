@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import type { ChatMessage } from '../../stores/chat-store'
+import type { ChatMessage } from '../../domains/chat'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 import { useExpandedId } from '../../hooks/useExpandedId'
 import { downloadFile } from '../../utils/download'

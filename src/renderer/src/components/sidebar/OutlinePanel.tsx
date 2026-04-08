@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
-import type { ChatMessage } from '../../stores/chat-store'
+import type { ChatMessage } from '../../domains/chat'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 
 type OutlineItem = {
