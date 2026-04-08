@@ -1,6 +1,6 @@
 ---
 active: true
-iteration: 1
+iteration: 2
 max_iterations: 100
 completion_promise: 모든 대형 파일 1,500줄 이하 + UX/UI 일관성 + 아키텍처 정리
 started_at: "2026-04-08T05:00:00Z"

@@ -1,0 +1,5 @@
+export { useTerminalStore } from './store'
+export type { TerminalTab, TerminalOutput } from './domain'
+export { initTerminalAdapter } from './adapter'
+export type { TerminalAdapterCallbacks } from './adapter'
+export { registerTerminalCommands, createTerminalTab, closeTerminalTab } from './commands'
