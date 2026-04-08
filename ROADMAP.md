@@ -970,3 +970,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2770 | ui-store 생성 — AppLayout props 10개 제거, 모달 상태 zustand 중앙 관리 | ✅ |
 | R2771 | API 키 설정 UI — SettingsPanel AI 탭 + WelcomeScreen 미설정 경고 배너 | ✅ |
 | R2772 | aria 접근성 — Sidebar tablist/tab, SessionList listbox, FileTree tree | ✅ |
+| R2773 | SessionList/SceneTree 가상 스크롤 + localStorage 키 cd- 접두사 통일 | ✅ |
+| R2774 | AppLayout props 15개 추가 이관 (ccTab/mainPanelTab/chatFocusTrigger 등) | ✅ |
+| R2775 | 공통 CSS 클래스 6개 추출 (panel-header/empty/btn/search/item) | ✅ |
