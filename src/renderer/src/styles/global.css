@@ -226,3 +226,11 @@ code, pre {
 .panel-item:hover {
   background: var(--bg-hover);
 }
+.panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+.panel-divider {
+  border-top: 1px solid var(--border);
+  margin: 4px 0;
+}

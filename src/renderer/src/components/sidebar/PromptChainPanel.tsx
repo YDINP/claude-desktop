@@ -353,10 +353,7 @@ export function PromptChainPanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative' }}>
       {/* Header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0,
-      }}>
+      <div className="panel-header" style={{ flexShrink: 0 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>프롬프트 체이닝</span>
         <div style={{ display: 'flex', gap: 4 }}>
           <button
