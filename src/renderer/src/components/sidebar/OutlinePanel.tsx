@@ -138,17 +138,8 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
           onChange={e => setSearch(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setSearch('')}
           placeholder="헤딩 검색..."
-          style={{
-            width: '100%',
-            background: 'var(--bg-input)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            padding: '3px 8px',
-            fontSize: 11,
-            outline: 'none',
-            boxSizing: 'border-box',
-          }}
+          className="panel-search"
+          style={{ background: 'var(--bg-input)', boxSizing: 'border-box' }}
         />
       </div>
 

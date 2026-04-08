@@ -43,7 +43,7 @@ export function BookmarksPanel({
 
   if (bookmarked.length === 0) {
     return (
-      <div style={{ padding: '16px 12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
+      <div className="panel-empty">
         ★ 북마크된 메시지 없음
         <div style={{ fontSize: 11, marginTop: 4 }}>메시지 위에 마우스를 올리고 ☆ 클릭</div>
       </div>

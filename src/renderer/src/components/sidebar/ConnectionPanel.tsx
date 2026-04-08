@@ -240,7 +240,8 @@ export function ConnectionPanel() {
             onChange={e => setServerSearch(e.target.value)}
             onKeyDown={e => e.key === 'Escape' && setServerSearch('')}
             placeholder="서버 검색..."
-            style={{ width: '100%', boxSizing: 'border-box', padding: '3px 6px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-primary)', fontSize: 11, outline: 'none' }}
+            className="panel-search"
+            style={{ background: 'var(--bg-input)', boxSizing: 'border-box' }}
           />
         </div>
       )}

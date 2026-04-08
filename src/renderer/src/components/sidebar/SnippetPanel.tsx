@@ -361,11 +361,8 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           onChange={e => setFilter(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setFilter('')}
           placeholder="스니펫 검색..."
-          style={{
-            flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
-            border: '1px solid var(--border)', borderRadius: 4,
-            padding: '3px 8px', fontSize: 11, outline: 'none', boxSizing: 'border-box',
-          }}
+          className="panel-search"
+          style={{ background: 'var(--bg-input)', flex: 1, width: 'auto', boxSizing: 'border-box' }}
         />
         <button
           onClick={() => setSortOrder(o => o === 'created' ? 'name' : 'created')}
