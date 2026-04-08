@@ -975,3 +975,5 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2775 | 공통 CSS 클래스 6개 추출 (panel-header/empty/btn/search/item) | ✅ |
 | R2776 | 세션 전환 스트리밍 중단 (경쟁 조건 해소) + handleSend 이중 전송 방지 | ✅ |
 | R2777 | 저장소 우선순위 — theme/accent electron-store 우선, localStorage 캐시 동기화 | ✅ |
+| R2778 | 세션 전환 스트리밍 경쟁 조건 해소 + handleSend 이중 전송 가드 | ✅ |
+| R2779 | 씬 저장 직렬화 큐 (pendingSaveRef) + useDebounce 공통 훅 3곳 적용 | ✅ |
