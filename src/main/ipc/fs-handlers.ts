@@ -324,8 +324,8 @@ export function registerFsHandlers(_win: unknown) {
         maxBuffer: 1024 * 1024,
       })
       return { ok: true, output: String(stdout).slice(0, 4000) }
-    } catch (e: any) {
-      return { ok: false, output: e.message?.slice(0, 2000) ?? 'Error' }
+    } catch (e: unknown) {
+      return { ok: false, output: (e instanceof Error ? e.message : String(e)).slice(0, 2000) ?? 'Error' }
     }
   })
 

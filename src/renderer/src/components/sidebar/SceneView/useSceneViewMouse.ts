@@ -53,7 +53,7 @@ interface MouseDeps {
   setMeasureLine: (v: { x1: number; y1: number; x2: number; y2: number } | null) => void
   setUndoStack: (fn: (prev: UndoEntry[]) => UndoEntry[]) => void
   setRedoStack: (v: UndoEntry[]) => void
-  setChangeHistory: (fn: (prev: any[]) => any[]) => void
+  setChangeHistory: (fn: (prev: { uuid: string; name: string; x: number; y: number; ts: number }[]) => { uuid: string; name: string; x: number; y: number; ts: number }[]) => void
   setNodeAccessCount: (fn: (prev: Record<string, number>) => Record<string, number>) => void
   setNodeClickCount: (fn: (prev: Map<string, number>) => Map<string, number>) => void
   setCollapsedUuids: (fn: (prev: Set<string>) => Set<string>) => void
@@ -426,7 +426,7 @@ export function useSceneViewMouse(deps: MouseDeps) {
       if (draggedNode) {
         setChangeHistory(prev => {
           const entry = { uuid: drag.uuid, name: draggedNode.name, x: Math.round(draggedNode.x), y: Math.round(draggedNode.y), ts: Date.now() }
-          return [entry, ...prev.filter((e: any) => e.uuid !== drag.uuid)].slice(0, 20)
+          return [entry, ...prev.filter(e => e.uuid !== drag.uuid)].slice(0, 20)
         })
         if (draggedNode.x !== drag.startNodeX || draggedNode.y !== drag.startNodeY) {
           addEditHistory('move', drag.uuid, draggedNode.name, { x: drag.startNodeX, y: drag.startNodeY }, { x: draggedNode.x, y: draggedNode.y })

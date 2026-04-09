@@ -185,8 +185,8 @@ export const CodeBlock = memo(function CodeBlock({
     try {
       const res = await window.api.shellExec?.(codeString)
       setShellResult(res ?? { ok: false, output: 'shellExec not available' })
-    } catch (e: any) {
-      setShellResult({ ok: false, output: String(e) })
+    } catch (e: unknown) {
+      setShellResult({ ok: false, output: e instanceof Error ? e.message : String(e) })
     } finally {
       setShellRunning(false)
     }

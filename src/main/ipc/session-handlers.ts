@@ -842,7 +842,7 @@ ${messages.map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'assistant'}
       if (!await fileExists(filePath)) continue
       try {
         const session = JSON.parse(await readFile(filePath, 'utf-8'))
-        const messages: any[] = session.messages ?? []
+        const messages: { text?: unknown; role?: unknown }[] = session.messages ?? []
         messages.forEach((msg, idx) => {
           const text = typeof msg.text === 'string' ? msg.text : ''
           if (text.toLowerCase().includes(q)) {
@@ -855,7 +855,7 @@ ${messages.map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'assistant'}
               sessionId: meta.id,
               sessionTitle: meta.title ?? 'Untitled',
               messageIndex: idx,
-              role: msg.role ?? 'assistant',
+              role: typeof msg.role === 'string' ? msg.role : 'assistant',
               excerpt,
               updatedAt: meta.updatedAt ?? 0,
             })
