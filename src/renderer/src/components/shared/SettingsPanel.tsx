@@ -5,6 +5,8 @@ import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 import type { FeatureFlags } from '../../hooks/useFeatureFlags'
 import { FEATURE_GROUP_MAP } from '../../../../shared/feature-types'
 import type { FeatureGroup } from '../../../../shared/feature-types'
+import { t, setLanguage, getCurrentLanguage } from '../../utils/i18n'
+import type { SupportedLang } from '../../utils/i18n'
 
 function trapFocus(container: HTMLElement, e: React.KeyboardEvent) {
   if (e.key !== 'Tab') return
@@ -101,13 +103,13 @@ const SHORTCUTS = [
 
 type SettingsTab = 'general' | 'appearance' | 'ai' | 'shortcuts' | 'advanced' | 'features'
 
-const TABS: { id: SettingsTab; label: string }[] = [
-  { id: 'general',    label: '일반' },
-  { id: 'appearance', label: '외관' },
-  { id: 'ai',         label: 'AI' },
-  { id: 'shortcuts',  label: '단축키' },
-  { id: 'advanced',   label: '고급' },
-  { id: 'features',   label: '기능 관리' },
+const TAB_DEFS: { id: SettingsTab; key: string }[] = [
+  { id: 'general',    key: 'settings.tab.general' },
+  { id: 'appearance', key: 'settings.tab.appearance' },
+  { id: 'ai',         key: 'settings.tab.ai' },
+  { id: 'shortcuts',  key: 'settings.tab.shortcuts' },
+  { id: 'advanced',   key: 'settings.tab.advanced' },
+  { id: 'features',   key: 'settings.tab.features' },
 ]
 
 export function SettingsPanel({ open, onClose, currentProject }: { open: boolean; onClose: () => void; currentProject?: string }) {
@@ -148,6 +150,12 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
   const [showOpenaiKey, setShowOpenaiKey] = useState(false)
   const [anthropicApiKey, setAnthropicApiKey] = useState('')
   const [showAnthropicKey, setShowAnthropicKey] = useState(false)
+  const [appLanguage, setAppLanguage] = useState<SupportedLang>(getCurrentLanguage)
+
+  const handleLanguageChange = (lang: SupportedLang) => {
+    setLanguage(lang)
+    setAppLanguage(lang)
+  }
 
   useEffect(() => {
     if (!open) { setLoaded(false); return }
@@ -345,7 +353,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
       >
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>설정</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{t('settings.title', '설정')}</div>
           <button
             onClick={onClose}
             style={{
@@ -357,7 +365,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
 
         {/* Tab bar */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
-          {TABS.map(tab => (
+          {TAB_DEFS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setSettingsTab(tab.id)}
@@ -373,7 +381,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                 transition: 'color 0.15s',
               }}
             >
-              {tab.label}
+              {t(tab.key)}
             </button>
           ))}
         </div>
@@ -381,6 +389,26 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
         {/* Tab: 일반 */}
         {settingsTab === 'general' && (
           <div>
+            {/* Language */}
+            <div style={sectionStyle}>
+              <div style={sectionTitleStyle}>{t('settings.lang.label', '언어')}</div>
+              <div style={rowStyle}>
+                <span style={labelStyle}>{t('settings.lang.label', '언어')}</span>
+                <select
+                  value={appLanguage}
+                  onChange={e => handleLanguageChange(e.target.value as SupportedLang)}
+                  style={{
+                    padding: '4px 8px', fontSize: 12, borderRadius: 4,
+                    border: '1px solid var(--border)', background: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)', cursor: 'pointer',
+                  }}
+                >
+                  <option value="ko">{t('settings.lang.ko', '한국어')}</option>
+                  <option value="en">{t('settings.lang.en', 'English')}</option>
+                </select>
+              </div>
+            </div>
+
             {/* Chat */}
             <div style={sectionStyle}>
               <div style={sectionTitleStyle}>채팅</div>

@@ -3,7 +3,7 @@ import http from 'http'
 import { readFile } from 'fs/promises'
 import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene, parseCCSceneChunked, isLargeScene } from '../cc/cc-file-parser'
-import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile, recordSceneMtime, forceOverwriteScene } from '../cc/cc-file-saver'
+import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile, recordSceneMtime, forceOverwriteScene, clearMtimeMap } from '../cc/cc-file-saver'
 import { ccFileWatcher } from '../cc/cc-file-watcher'
 import { buildUUIDMap, extractReferencedUUIDs, resolveTextureUrl } from '../cc/cc-asset-resolver'
 import {
@@ -64,6 +64,8 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
       properties: ['openDirectory'],
     })
     if (result.canceled || result.filePaths.length === 0) return null
+    // 프로젝트 전환 시 이전 프로젝트의 mtime 캐시 클리어
+    clearMtimeMap()
     return detectCCVersion(result.filePaths[0])
   })
 

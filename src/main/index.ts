@@ -145,8 +145,8 @@ app.whenReady().then(() => {
       if (!isAllowed) {
         return new Response(null, { status: 403 })
       }
-      const data = await readFile(filePath)
-      const ext = filePath.split('.').pop()?.toLowerCase() ?? ''
+      const data = await readFile(resolvedPath)
+      const ext = resolvedPath.split('.').pop()?.toLowerCase() ?? ''
       return new Response(data, {
         status: 200,
         headers: { 'Content-Type': LOCAL_MIME[ext] ?? 'application/octet-stream' }

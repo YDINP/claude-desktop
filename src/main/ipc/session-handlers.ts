@@ -130,6 +130,15 @@ export function registerSessionHandlers() {
       // Build index from disk (first run or migration)
       index = await buildIndexFromDisk()
       if (index.length > 0) await writeIndex(index)
+    } else {
+      // Reconcile: find orphan session files not in index
+      const diskIndex = await buildIndexFromDisk()
+      const indexedIds = new Set(index.map(s => s.id))
+      const orphans = diskIndex.filter(s => !indexedIds.has(s.id))
+      if (orphans.length > 0) {
+        index = [...index, ...orphans]
+        await writeIndex(index)
+      }
     }
     // Pinned sessions float to top; within each group preserve index order (respects manual reorder)
     const pinned = index.filter(s => s.pinned)

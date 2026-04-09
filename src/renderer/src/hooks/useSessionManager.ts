@@ -33,6 +33,10 @@ export function useSessionManager(deps: SessionManagerDeps): SessionManager {
   const autoTitledSessionsRef = useRef<Set<string>>(new Set())
   const autoTaggedSessionsRef = useRef<Set<string>>(new Set())
 
+  // Capture latest values to avoid stale closures in auto-save effect
+  const latestRef = useRef({ messages, sessionId, currentPath, selectedModel })
+  latestRef.current = { messages, sessionId, currentPath, selectedModel }
+
   // ── Smart early title: generate title from first user message (non-blocking) ──
   useEffect(() => {
     const userMsgs = messages.filter(m => m.role === 'user')
@@ -61,19 +65,21 @@ export function useSessionManager(deps: SessionManagerDeps): SessionManager {
     if (!wasStreaming && isStreaming) {
       setSuggestions([])
     }
-    if (wasStreaming && !isStreaming && sessionId && currentPath && messages.length > 0) {
-      const firstUser = messages.find(m => m.role === 'user')
+    if (wasStreaming && !isStreaming) {
+      const { messages: msgs, sessionId: sid, currentPath: cwd, selectedModel: model } = latestRef.current
+      if (!sid || !cwd || msgs.length === 0) return
+
+      const firstUser = msgs.find(m => m.role === 'user')
       const title = firstUser ? firstUser.text.replace(/\n/g, ' ').slice(0, 60) : 'Untitled'
 
       // Auto-title: 첫 번째 응답 완료 시 Haiku API로 제목 생성
-      const userMsgs = messages.filter(m => m.role === 'user')
-      const assistantMsgs = messages.filter(m => m.role === 'assistant')
+      const userMsgs = msgs.filter(m => m.role === 'user')
+      const assistantMsgs = msgs.filter(m => m.role === 'assistant')
       if (
         userMsgs.length === 1 && assistantMsgs.length === 1 &&
-        !autoTitledSessionsRef.current.has(sessionId) &&
-        !earlyTitledSessionsRef.current.has(sessionId)
+        !autoTitledSessionsRef.current.has(sid) &&
+        !earlyTitledSessionsRef.current.has(sid)
       ) {
-        const sid = sessionId
         autoTitledSessionsRef.current.add(sid)
         const userText = userMsgs[0].text
         const assistantText = assistantMsgs[0].text
@@ -113,21 +119,21 @@ export function useSessionManager(deps: SessionManagerDeps): SessionManager {
         }
       }
 
-      const sessionCreated = messages[0]?.timestamp ?? Date.now()
+      const sessionCreated = msgs[0]?.timestamp ?? Date.now()
       setSessionTitle(title)
       setSessionCreatedAt(sessionCreated)
       window.api?.sessionSave({
-        id: sessionId, title,
-        cwd: currentPath,
-        model: selectedModel,
-        messages: messages,
+        id: sid, title,
+        cwd,
+        model,
+        messages: msgs,
         createdAt: sessionCreated,
         updatedAt: Date.now(),
       }).then(() => window.dispatchEvent(new CustomEvent('session:saved')))
 
       // Desktop notification on session complete
       if ('Notification' in window) {
-        const last = messages.filter(m => m.role === 'assistant').pop()
+        const last = msgs.filter(m => m.role === 'assistant').pop()
         const preview = last?.text?.slice(0, 100)?.replace(/\n/g, ' ') ?? '응답이 완료되었습니다'
         if (Notification.permission === 'granted') {
           new window.Notification('클로드', { body: preview, silent: false })
@@ -141,8 +147,8 @@ export function useSessionManager(deps: SessionManagerDeps): SessionManager {
       }
 
       // Follow-up suggestions
-      const lastAssistant = messages.filter(m => m.role === 'assistant').pop()
-      const lastUser = messages.filter(m => m.role === 'user').pop()
+      const lastAssistant = msgs.filter(m => m.role === 'assistant').pop()
+      const lastUser = msgs.filter(m => m.role === 'user').pop()
       if (lastAssistant?.text && lastUser?.text) {
         setSuggestions([])
         window.api?.suggestFollowUps?.(lastAssistant.text, lastUser.text)

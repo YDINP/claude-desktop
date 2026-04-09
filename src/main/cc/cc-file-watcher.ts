@@ -109,6 +109,11 @@ export class CCFileWatcher {
       const { readFileSync } = await import('fs')
       const newContent = readFileSync(path, 'utf-8')
       const oldContent = this.fileContentCache.get(path)
+      // 캐시 크기 제한 (50개 초과 시 가장 오래된 항목 제거)
+      if (!this.fileContentCache.has(path) && this.fileContentCache.size >= 50) {
+        const oldest = this.fileContentCache.keys().next().value
+        if (oldest !== undefined) this.fileContentCache.delete(oldest)
+      }
       this.fileContentCache.set(path, newContent)
 
       if (!oldContent) {

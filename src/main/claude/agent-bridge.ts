@@ -37,6 +37,12 @@ export class AgentBridge {
     if (this.abortController) {
       this.abortController.abort()
     }
+    // 이전 세션의 textFlushTimer가 남아있으면 클리어 (abort 후 잔류 방지)
+    if (this.textFlushTimer !== null) {
+      clearTimeout(this.textFlushTimer)
+      this.textFlushTimer = null
+    }
+    this.textBatch = ''
     this.currentCwd = cwd
     this.abortController = new AbortController()
 

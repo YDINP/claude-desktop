@@ -23,6 +23,17 @@ export function recordSceneMtime(scenePath: string): void {
   } catch { /* ignore */ }
 }
 
+/** 프로젝트 전환 시 mtime 맵 클리어 (projectPath 없으면 전체 클리어) */
+export function clearMtimeMap(projectPath?: string): void {
+  if (projectPath) {
+    for (const key of loadedMtimeMap.keys()) {
+      if (key.startsWith(projectPath)) loadedMtimeMap.delete(key)
+    }
+  } else {
+    loadedMtimeMap.clear()
+  }
+}
+
 /** R1437: 강제 덮어쓰기 — mtime 무시하고 저장 */
 export function forceOverwriteScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): SaveResult {
   // mtime 기록 초기화 후 저장

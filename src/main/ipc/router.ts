@@ -13,7 +13,12 @@ import { registerCommandHandlers } from './command-handlers'
 import { registerFeatureHandlers } from './feature-handlers'
 import { registerRemoteHandlers } from './remote-handlers'
 
+let _registered = false
+
 export function registerAllHandlers(win: BrowserWindow) {
+  if (_registered) return
+  _registered = true
+
   const agentBridge = new AgentBridge(win)
   const ptyManager = new PtyManager(win)
 
