@@ -31,6 +31,7 @@ import type { WorkspaceManager } from '../../hooks/useWorkspaceManager'
 import type { SettingsSync } from '../../hooks/useSettingsSync'
 import type { ResizeHandlers } from '../../hooks/useResizeHandlers'
 import type { ChatMessage } from '../../domains/chat/domain'
+import type { ProjectContext, ChatContext } from '../../types/app-props'
 import { useUIStore } from '../../stores/ui-store'
 import { useCocosStore } from '../../domains/cocos/store'
 
@@ -51,10 +52,8 @@ export interface AppLayoutProps {
   workspace: WorkspaceManager
   settings: SettingsSync
   resize: ResizeHandlers
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  project: any   // ReturnType<typeof useProject> — 순환 import 방지
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  chat: any      // ReturnType<typeof useChatStore>
+  project: ProjectContext   // ReturnType<typeof useProject> — 순환 import 방지
+  chat: ChatContext         // ReturnType<typeof useChatStore>
 
   // Session
   sessionTitle: string | undefined
@@ -204,7 +203,7 @@ export function AppLayout({
             style={{
               flexShrink: 0, width: 32, height: 28,
               background: mainPanelTab === t.id ? 'var(--bg-primary)' : 'transparent',
-              color: mainPanelTab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && chat.messages.some((m: any) => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
+              color: mainPanelTab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && chat.messages.some(m => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
               borderTop: 'none', borderLeft: 'none', borderRight: 'none',
               borderBottom: mainPanelTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
               fontSize: 14, cursor: 'pointer', transition: 'all 0.1s',
@@ -527,7 +526,7 @@ export function AppLayout({
                         agents={activeAgents}
                         activeSessionId={chat.sessionId ?? null}
                         isStreaming={chat.isStreaming}
-                        toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-5)}
+                        toolUses={chat.messages.flatMap(m => m.toolUses).slice(-5)}
                         width={agentBayWidth}
                         onSelectSession={async (sid: string) => {
                           if (chat.isStreaming) {
@@ -568,7 +567,7 @@ export function AppLayout({
                       </div>
                     </div>
                     <OpsFeed
-                      toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-10)}
+                      toolUses={chat.messages.flatMap(m => m.toolUses).slice(-10)}
                       isStreaming={chat.isStreaming}
                       onToolClick={(toolId) => console.log('tool clicked:', toolId)}
                     />

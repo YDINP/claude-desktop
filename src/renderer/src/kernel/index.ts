@@ -13,7 +13,10 @@ export { commandBus } from './commandBus'
 export { initIpcBridge, destroyIpcBridge } from './ipcBridge'
 export type { AppCommand, AppEvent, AppCommandType, AppEventType, CommandPayload, EventPayload } from './types'
 
-/** dispatch 함수 반환. 컴포넌트에서 커맨드 디스패치 시 사용 */
+/**
+ * @future 커널 커맨드 디스패치 훅. 미래 인프라 확장용으로 의도적으로 노출.
+ * dispatch 함수 반환. 컴포넌트에서 커맨드 디스패치 시 사용.
+ */
 export function useKernel(): <T extends AppCommandType>(
   command: Extract<AppCommand, { type: T }>
 ) => Promise<unknown> {
@@ -23,7 +26,10 @@ export function useKernel(): <T extends AppCommandType>(
   )
 }
 
-/** 커널 이벤트 구독 훅. 언마운트 시 자동 해제 */
+/**
+ * @future 커널 이벤트 구독 훅. 미래 인프라 확장용으로 의도적으로 노출.
+ * 언마운트 시 자동 해제.
+ */
 export function useKernelEvent<T extends AppEventType>(
   type: T,
   handler: (payload: EventPayload<T>) => void

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react'
-import type { SceneNode, ViewTransform, DragState, ResizeState } from './types'
+import type { SceneNode, ViewTransform, DragState, ResizeState, UndoEntry } from './types'
 import { LABEL_COLORS, VB_KEY } from './sceneViewConstants'
 import type { CameraBookmark } from './sceneViewConstants'
 
@@ -38,8 +38,8 @@ interface KeyboardDeps {
   setIsDragging: (v: boolean) => void
   setIsResizing: (v: boolean) => void
   setMarquee: (v: null) => void
-  setUndoStack: (fn: (prev: any[]) => any[]) => void
-  setRedoStack: (fn: (prev: any[]) => any[]) => void
+  setUndoStack: (fn: (prev: UndoEntry[]) => UndoEntry[]) => void
+  setRedoStack: (fn: (prev: UndoEntry[]) => UndoEntry[]) => void
   setBookmarkedUuids: (fn: (prev: Set<string>) => Set<string>) => void
   setFocusMode: (fn: (v: boolean) => boolean) => void
   setMeasureMode: (fn: (v: boolean) => boolean) => void
