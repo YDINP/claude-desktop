@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-04-09T00:21:19.153Z
+> 2026-04-09T00:55:39.703Z
 
 ## Critical
 _없음_
@@ -10,7 +10,7 @@ _없음_
 ## Pass
 - bun run build 성공
 - tsc --noEmit 오류 없음
-- 277개 소스 파일 검사 완료
+- 276개 소스 파일 검사 완료
 - package.json 파싱 성공 (name: claude-desktop)
 - preload expose 메서드 290개 확인
 - ipcMain.handle 등록: 11개 이상
@@ -63,17 +63,12 @@ _없음_
 - SceneTree 노드 인라인 이름 편집 존재
 - 스트리밍 경과 시간 표시 존재
 - cc-bridge.ts: createNode + deleteNode 존재
-- NodePropertyPanel 색상 스왓치 표시 존재
 - globalStats: totalMessages/dailyMessageCounts/topSessions 존재
 - StatsPanel 일별 메시지 수 차트 존재
 - StatsPanel 상위 세션 TOP 5 존재
-- NodePropertyPanel 슬라이더 PropRow 존재
-- Opacity 슬라이더 (0-255) 존재
-- Rotation 슬라이더 (-180~180) 존재
 - chat-store: saveAlternative + alternatives 필드 존재
 - MessageBubble alternatives 네비게이션 존재
 - CC 3x extension: color key 지원 존재
-- NodePropertyPanel 색상피커 input 존재
 - SessionList 커스텀 태그 추가 기능 존재
 - SessionList 커스텀 태그 자동완성 + 필터 존재
 - SceneView DragState groupOffsets 필드 존재
@@ -83,8 +78,6 @@ _없음_
 - InputBar 문자/줄 수 표시 존재
 - CC 3x extension: POST /node/:uuid/component 엔드포인트 존재
 - cc-bridge: setComponentProp 메서드 존재
-- NodePropertyPanel 컴포넌트별 편집 UI 존재 (cc.Label/cc.Button)
-- NodePropertyPanel saveComp + ccSetComponentProp 연동 존재
 - SessionList 날짜 그룹 이번달 + monthStart 존재
 - SessionList 5단계 날짜 그룹(오늘/어제/이번주/이번달/이전) 존재
 - SceneToolbar 정렬 도구 6종 버튼 존재
@@ -113,8 +106,6 @@ _없음_
 - SceneViewPanel: showLabels 상태 + NodeRenderer에 showLabel 전달 존재
 - NodeHierarchyList: focusUuid + scrollContainerRef + scrollIntoView 존재
 - NodeHierarchyList: 노드 행에 data-uuid 속성 존재
-- NodePropertyPanel: cc.Slider + cc.Toggle + cc.ProgressBar COMP_EDITABLE_KEYS 존재
-- NodePropertyPanel: cc.ScrollView + cc.Animation COMP_EDITABLE_KEYS 존재
 - SceneViewPanel: handleFocusSelected + targetZoom + G키 단축키 존재
 - SceneInspector: Scale 섹션 + scaleX/scaleY NumInput 존재
 - SceneInspector: UIOpacity 조건부 Opacity 섹션 + NumInput 존재
@@ -216,7 +207,6 @@ _없음_
 - TasksPanel: 인라인 태스크 편집 존재
 - RunTimeline: 전체 런 요약 복사(allCopied) 존재
 - SceneTreePanel: 씬 트리 텍스트 복사(copyTreeAsText) 존재
-- NodePropertyPanel: Transform 전체 JSON 복사(copyTransform) 존재
 - AssetBrowserPanel: ESC 검색+타입필터 초기화 + copyPath .then() 개선 존재
 - SnippetPanel: 스니펫 복제(handleDuplicate) + ESC 검색 초기화 존재
 - RemotePanel: 상대시간(fmtRelative) + ESC 검색 초기화 존재
@@ -272,7 +262,6 @@ _없음_
 - OutlinePanel: 역순 정렬 (reversed/setReversed/reverse) 존재
 - DiffPanel: diff 통계 (diffStats/getLineChanges/added/removed) 존재
 - FileTree: 숨김 파일 토글 (hideHidden/setHideHidden/startsWith) 존재
-- NodePropertyPanel: 노드 활성화 토글 (toggleActive/activeToggling/node.active) 존재
 - SceneTreePanel: 비활성 노드 숨기기 (hideInactive/setHideInactive/filterTree) 존재
 - PromptChainPanel: 결과 복사 버튼 (resultCopied/copyResult/setResultCopied) 존재
 - GlobalSearchPanel: 검색 히스토리 (searchHistory/SEARCH_HISTORY_KEY/showHistory) 존재
@@ -302,7 +291,6 @@ _없음_
 - CalendarPanel: 다음 이벤트 미리보기 (upcomingEvents/slice(0,3)) 존재
 - SceneTreePanel: 비활성 노드 수 표시 (countInactive/inactiveNodes) 존재
 - PromptChainPanel: 체인 복제 버튼 (duplicateChain/복사/📋) 존재
-- NodePropertyPanel: 컴포넌트 전체 펼치기/접기 (allOpen/⊕/⊖) 존재
 - ChangedFilesPanel: 정렬 토글 (sortAsc/↑/↓) 존재
 - RemotePanel: 호스트 검색 필터 (filteredSsh/filteredSaved/query) 존재
 - SnippetPanel: 스니펫 복사 버튼 (copiedId/📋/✓) 존재
@@ -322,7 +310,6 @@ _없음_
 - DiffPanel: 경로 교체 버튼 (handleSwap/⇄) 존재
 - WebPreviewPanel: 외부 브라우저에서 열기 버튼 (window.open/_blank) 존재
 - SceneTreePanel: 총 노드 수 표시 (countNodes/totalNodes) 존재
-- NodePropertyPanel: UUID 복사 버튼 (copyUuid/uuidCopied) 존재
 - PromptChainPanel: 마지막 실행 시간 표시 (lastRun/relativeTime) 존재
 - AgentPanel: 탭 배지 (enabledCount/badge) 존재
 - RemotePanel: 총 호스트 수 배지 (sshHosts+savedHosts 합산) 존재
@@ -454,13 +441,10 @@ _없음_
 - SceneView: Ctrl+]/[ z-order 변경 존재
 - SceneView: Tab/Shift+Tab 형제 노드 순환 선택 존재
 - 씬뷰 Delete 키 핸들러 존재
-- Inspector 섹션 상태 localStorage 저장
-- Inspector props 타입 힌트 배지 존재
 - 씬뷰 레이어 가시성 토글 존재
 - 시스템 프롬프트 변수 치환 존재 (resolveVars)
 - SessionList 날짜 그룹 헤더 존재
 - Edit 도구 인라인 diff 렌더링 존재
-- Inspector 배열 속성 편집 컴포넌트 존재
 - Inspector 실시간 미리보기 debounce 존재
 - 세션 병합 IPC 핸들러 존재
 - 프롬프트 히스토리 ↑↓ 탐색 존재

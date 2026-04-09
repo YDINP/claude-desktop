@@ -2795,7 +2795,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             }}
           >
             <button
-              onClick={() => console.log('group nodes:', [...multiSelected])}
+              disabled
               style={{
                 fontSize: 10,
                 padding: '3px 10px',

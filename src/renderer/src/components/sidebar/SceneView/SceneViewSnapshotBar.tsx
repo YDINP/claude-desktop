@@ -175,7 +175,7 @@ export function SceneViewSnapshotBar() {
               {snapshots.map((s) => (
                 <div
                   key={s.timestamp}
-                  onClick={() => { console.log('restore snapshot:', s.label); setSnapshotOpen(false) }}
+                  onClick={() => { setSnapshotOpen(false) }}
                   style={{ padding: '6px 12px', fontSize: 11, color: '#cbd5e1', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(96,165,250,0.15)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = '' }}

@@ -275,7 +275,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
 
   const handleTranslate = () => {
     if (translatedText) { setShowTranslation(v => !v); return }
-    console.log('translate:', msg.text?.slice(0, 50))
+    console.warn('translate:', msg.text?.slice(0, 50))
     setTranslatedText('(번역 준비 중...)')
     setShowTranslation(true)
   }

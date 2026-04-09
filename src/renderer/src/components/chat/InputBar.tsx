@@ -913,7 +913,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const handleVoiceInput = () => {
     const SpeechRecognitionAPI = window.SpeechRecognition ?? window.webkitSpeechRecognition
     if (!SpeechRecognitionAPI) {
-      console.log('speech not supported')
+      console.warn('speech not supported')
       return
     }
 
