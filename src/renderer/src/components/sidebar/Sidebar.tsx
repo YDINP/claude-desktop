@@ -1,23 +1,24 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import type React from 'react'
 import { FileTree } from './FileTree'
 import { SessionList } from './SessionList'
 import { ChangedFilesPanel } from './ChangedFilesPanel'
 import { SearchPanel } from './SearchPanel'
 import { BookmarksPanel } from './BookmarksPanel'
-import { StatsPanel } from './StatsPanel'
 import { SnippetPanel } from './SnippetPanel'
 import { OutlinePanel } from './OutlinePanel'
-import { PluginsPanel } from './PluginsPanel'
-import { ConnectionPanel } from './ConnectionPanel'
 import { AgentPanel } from './AgentPanel'
 import { GlobalSearchPanel } from './GlobalSearchPanel'
-import { CalendarPanel } from './CalendarPanel'
-import { TasksPanel } from './TasksPanel'
-import { NotesPanel } from './NotesPanel'
-import { ClipboardPanel } from './ClipboardPanel'
-import { DiffPanel } from './DiffPanel'
-import { RemotePanel } from './RemotePanel'
+
+const StatsPanel = lazy(() => import('./StatsPanel').then(m => ({ default: m.StatsPanel })))
+const PluginsPanel = lazy(() => import('./PluginsPanel').then(m => ({ default: m.PluginsPanel })))
+const ConnectionPanel = lazy(() => import('./ConnectionPanel').then(m => ({ default: m.ConnectionPanel })))
+const CalendarPanel = lazy(() => import('./CalendarPanel').then(m => ({ default: m.CalendarPanel })))
+const TasksPanel = lazy(() => import('./TasksPanel'))
+const NotesPanel = lazy(() => import('./NotesPanel'))
+const ClipboardPanel = lazy(() => import('./ClipboardPanel').then(m => ({ default: m.ClipboardPanel })))
+const DiffPanel = lazy(() => import('./DiffPanel').then(m => ({ default: m.DiffPanel })))
+const RemotePanel = lazy(() => import('./RemotePanel').then(m => ({ default: m.RemotePanel })))
 import type { ChangedFile } from './ChangedFilesPanel'
 import type { ChatMessage } from '../../domains/chat'
 import { useProject } from '../../stores/project-store'
@@ -306,7 +307,9 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           <BookmarksPanel messages={messages} onScrollToMessage={onScrollToMessage} />
         )}
         {activeTab === 'stats' && features.stats && (
-          <StatsPanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <StatsPanel />
+          </Suspense>
         )}
         {activeTab === 'stats' && !features.stats && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>통계 기능이 비활성화되었습니다.</div>
@@ -327,13 +330,17 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>아웃라인 기능이 비활성화되었습니다.</div>
         )}
         {activeTab === 'plugins' && features.plugins && (
-          <PluginsPanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <PluginsPanel />
+          </Suspense>
         )}
         {activeTab === 'plugins' && !features.plugins && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>플러그인 기능이 비활성화되었습니다.</div>
         )}
         {activeTab === 'connections' && features.connections && (
-          <ConnectionPanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <ConnectionPanel />
+          </Suspense>
         )}
         {activeTab === 'connections' && !features.connections && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>MCP 연결 기능이 비활성화되었습니다.</div>
@@ -350,22 +357,34 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           />
         )}
         {activeTab === 'calendar' && (
-          <CalendarPanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <CalendarPanel />
+          </Suspense>
         )}
         {activeTab === 'tasks' && (
-          <TasksPanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <TasksPanel />
+          </Suspense>
         )}
         {activeTab === 'notes' && (
-          <NotesPanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <NotesPanel />
+          </Suspense>
         )}
         {activeTab === 'clipboard' && (
-          <ClipboardPanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <ClipboardPanel />
+          </Suspense>
         )}
         {activeTab === 'diff' && (
-          <DiffPanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <DiffPanel />
+          </Suspense>
         )}
         {activeTab === 'remote' && (
-          <RemotePanel />
+          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+            <RemotePanel />
+          </Suspense>
         )}
       </div>
     </div>

@@ -32,7 +32,7 @@ export { EMPTY_SNAPSHOT }
 
 // ── Dependencies ─────────────────────────────────────────────────────────────
 
-interface WorkspaceManagerDeps {
+export interface WorkspaceManagerDeps {
   chatHydrate: (msgs: ChatMessage[], sessionId: string | null) => void
   chatClearMessages: () => void
   chatSetSessionId: (id: string | null) => void
