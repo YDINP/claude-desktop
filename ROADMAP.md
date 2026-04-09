@@ -988,3 +988,5 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2788 | as any 11건 → 구체 타입 교체 + cc-asset-resolver/storage-migrate/i18n 테스트 56개 (총 197) | ✅ |
 | R2789 | CCFileSceneView Context 분리 4,374→2,530줄 — CCSceneContext/Toolbar/HUD/SVGOverlays 추출 | ✅ |
 | R2790 | 6차 감사 — scene/ 고아 디렉토리 삭제, NodePropertyPanel 삭제, stub console.log 정리 | ✅ |
+| R2791 | SceneViewPanel 3,636→2,401줄 — InfoPanels/ToolbarExtras/QuickActions/EditBar/ShortcutsHelp 추출 | ✅ |
+| R2792 | Sidebar 9탭 lazy loading + useWorkspaceManager/ui-store 테스트 40개 (총 236) | ✅ |
