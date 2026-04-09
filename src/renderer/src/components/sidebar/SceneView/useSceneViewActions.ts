@@ -213,8 +213,8 @@ export function useSceneViewActions(deps: ActionDeps) {
     const ref = nodes[0]
     for (let i = 1; i < nodes.length; i++) {
       const n = nodes[i]
-      if (dim === 'W' || dim === 'both') { updateNode(n.uuid, { width: ref.width }); try { await window.api.ccSetProperty?.(port, n.uuid, 'width', ref.width) } catch (_) {} }
-      if (dim === 'H' || dim === 'both') { updateNode(n.uuid, { height: ref.height }); try { await window.api.ccSetProperty?.(port, n.uuid, 'height', ref.height) } catch (_) {} }
+      if (dim === 'W' || dim === 'both') { updateNode(n.uuid, { width: ref.width }); try { await window.api.ccSetProperty?.(port, n.uuid, 'width', ref.width) } catch (e) { console.warn('[SceneView] IPC error:', e) } }
+      if (dim === 'H' || dim === 'both') { updateNode(n.uuid, { height: ref.height }); try { await window.api.ccSetProperty?.(port, n.uuid, 'height', ref.height) } catch (e) { console.warn('[SceneView] IPC error:', e) } }
     }
   }, [selectedUuids, nodeMap, port, updateNode])
 
@@ -228,7 +228,7 @@ export function useSceneViewActions(deps: ActionDeps) {
       for (let i = 1; i < sorted.length - 1; i++) {
         const newX = sorted[0].x + step * i
         updateNode(sorted[i].uuid, { x: newX })
-        try { await window.api.ccSetProperty?.(port, sorted[i].uuid, 'x', newX) } catch (_) {}
+        try { await window.api.ccSetProperty?.(port, sorted[i].uuid, 'x', newX) } catch (e) { console.warn('[SceneView] IPC error:', e) }
       }
     } else {
       const sorted = [...nodes].sort((a, b) => a.y - b.y)
@@ -236,7 +236,7 @@ export function useSceneViewActions(deps: ActionDeps) {
       for (let i = 1; i < sorted.length - 1; i++) {
         const newY = sorted[0].y + step * i
         updateNode(sorted[i].uuid, { y: newY })
-        try { await window.api.ccSetProperty?.(port, sorted[i].uuid, 'y', newY) } catch (_) {}
+        try { await window.api.ccSetProperty?.(port, sorted[i].uuid, 'y', newY) } catch (e) { console.warn('[SceneView] IPC error:', e) }
       }
     }
   }, [selectedUuids, nodeMap, port, updateNode])
@@ -267,7 +267,7 @@ export function useSceneViewActions(deps: ActionDeps) {
     for (let i = 0; i < sorted.length; i++) {
       const newX = sorted[0].x + step * i
       updateNode(sorted[i].uuid, { x: newX })
-      try { await window.api.ccSetProperty?.(port, sorted[i].uuid, 'x', newX) } catch (_) {}
+      try { await window.api.ccSetProperty?.(port, sorted[i].uuid, 'x', newX) } catch (e) { console.warn('[SceneView] IPC error:', e) }
     }
   }, [selectedUuids, nodeMap, port, updateNode])
 
@@ -280,7 +280,7 @@ export function useSceneViewActions(deps: ActionDeps) {
     for (let i = 0; i < sorted.length; i++) {
       const newY = sorted[0].y + step * i
       updateNode(sorted[i].uuid, { y: newY })
-      try { await window.api.ccSetProperty?.(port, sorted[i].uuid, 'y', newY) } catch (_) {}
+      try { await window.api.ccSetProperty?.(port, sorted[i].uuid, 'y', newY) } catch (e) { console.warn('[SceneView] IPC error:', e) }
     }
   }, [selectedUuids, nodeMap, port, updateNode])
 
@@ -296,7 +296,7 @@ export function useSceneViewActions(deps: ActionDeps) {
       const angle = angleStep * i - Math.PI / 2
       const newX = cx + radius * Math.cos(angle); const newY = cy + radius * Math.sin(angle)
       updateNode(nodes[i].uuid, { x: newX, y: newY })
-      try { await window.api.ccSetProperty?.(port, nodes[i].uuid, 'x', newX); await window.api.ccSetProperty?.(port, nodes[i].uuid, 'y', newY) } catch (_) {}
+      try { await window.api.ccSetProperty?.(port, nodes[i].uuid, 'x', newX); await window.api.ccSetProperty?.(port, nodes[i].uuid, 'y', newY) } catch (e) { console.warn('[SceneView] IPC error:', e) }
     }
   }, [selectedUuids, nodeMap, port, updateNode])
 
@@ -423,7 +423,7 @@ export function useSceneViewActions(deps: ActionDeps) {
         const a = document.createElement('a')
         a.href = url; a.download = `scene-${ts}.png`; a.click()
         URL.revokeObjectURL(url)
-        try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]) } catch {}
+        try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]) } catch (e) { console.warn('[SceneView] IPC error:', e) }
         setScreenshotDone(true)
         setTimeout(() => setScreenshotDone(false), 1500)
       }, 'image/png')

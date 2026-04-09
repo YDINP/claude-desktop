@@ -528,11 +528,13 @@ let currentLang: SupportedLang = ((): SupportedLang => {
   return stored === 'en' ? 'en' : 'ko'
 })()
 
+/** Translate a key to the current language. Falls back to `fallback` or the key itself. */
 export function t(key: string, fallback?: string): string {
   const dict = currentLang === 'ko' ? ko : en
   return dict[key] ?? fallback ?? key
 }
 
+/** Switch the active language and persist to localStorage. Dispatches a `language-change` event. */
 export function setLanguage(lang: SupportedLang): void {
   currentLang = lang
   localStorage.setItem('app-language', lang)
