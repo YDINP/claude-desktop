@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { ToolUseItem } from '../../domains/chat'
+import { t } from '../../utils/i18n'
 
 interface SessionMeta {
   id: string
@@ -259,7 +260,7 @@ export function AgentBay({ sessions = [], agents = [], activeSessionId, isStream
             <div style={{ marginBottom: 10, fontSize: 20, opacity: 0.4 }}>◌</div>
             NO ACTIVE AGENTS
             <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(200,210,240,0.5)', lineHeight: 1.6 }}>
-              Claude가 Task 툴을 사용할 때<br/>서브에이전트가 여기에 표시됩니다
+              {t('agentBay.noAgentsDesc', 'Claude가 Task 툴을 사용할 때')}<br/>{t('agentBay.noAgentsDesc2', '서브에이전트가 여기에 표시됩니다')}
             </div>
           </div>
         )}
@@ -324,7 +325,7 @@ export function AgentBay({ sessions = [], agents = [], activeSessionId, isStream
         lineHeight: 1.6,
         flexShrink: 0,
       }}>
-        Claude가 Task 툴을 사용하면<br/>서브에이전트가 자동 등록됩니다
+        {t('agentBay.footerDesc', 'Claude가 Task 툴을 사용하면')}<br/>{t('agentBay.footerDesc2', '서브에이전트가 자동 등록됩니다')}
       </div>
     </div>
   )

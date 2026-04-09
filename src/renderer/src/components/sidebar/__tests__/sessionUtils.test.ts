@@ -3,8 +3,11 @@ import {
   formatTime,
   formatRelativeTime,
   formatCharCount,
+  formatHHMM,
   groupSessionsByDate,
   groupSessions,
+  TAG_COLORS,
+  TAG_CSS,
 } from '../sessionUtils'
 import type { SessionMeta } from '../sessionUtils'
 
@@ -244,5 +247,100 @@ describe('groupSessions', () => {
   it('빈 그룹은 반환하지 않는다', () => {
     const groups = groupSessions([])
     expect(groups).toHaveLength(0)
+  })
+
+  it('이번 주 세션 → "이번 주" 그룹', () => {
+    const s = makeSession({ id: 'g3', updatedAt: new Date('2024-06-12T08:00:00').getTime() })
+    const groups = groupSessions([s])
+    expect(groups[0].label).toBe('이번 주')
+  })
+
+  it('이번 달 세션 → "이번 달" 그룹', () => {
+    const s = makeSession({ id: 'g4', updatedAt: new Date('2024-06-02T08:00:00').getTime() })
+    const groups = groupSessions([s])
+    expect(groups[0].label).toBe('이번 달')
+  })
+
+  it('오래된 세션 → "이전" 그룹', () => {
+    const s = makeSession({ id: 'g5', updatedAt: new Date('2023-01-01T08:00:00').getTime() })
+    const groups = groupSessions([s])
+    expect(groups[0].label).toBe('이전')
+  })
+
+  it('여러 그룹에 분류', () => {
+    const today = makeSession({ id: 'gm1', updatedAt: new Date('2024-06-15T08:00:00').getTime() })
+    const yest = makeSession({ id: 'gm2', updatedAt: new Date('2024-06-14T08:00:00').getTime() })
+    const groups = groupSessions([today, yest])
+    expect(groups).toHaveLength(2)
+    expect(groups[0].label).toBe('Today')
+    expect(groups[1].label).toBe('Yesterday')
+  })
+})
+
+// -----------------------------------------------------------------------
+// formatHHMM
+// -----------------------------------------------------------------------
+
+describe('formatHHMM', () => {
+  it('타임스탬프를 HH:MM 형식으로 반환한다', () => {
+    // 고정 시각: 2024-06-15 09:05:00 KST = UTC 00:05 (KST -9h)
+    const ts = new Date('2024-06-15T09:05:00+09:00').getTime()
+    const result = formatHHMM(ts)
+    expect(result).toMatch(/^\d{2}:\d{2}$/)
+  })
+
+  it('반환값이 문자열이다', () => {
+    expect(typeof formatHHMM(Date.now())).toBe('string')
+  })
+})
+
+// -----------------------------------------------------------------------
+// TAG_COLORS / TAG_CSS
+// -----------------------------------------------------------------------
+
+describe('TAG_COLORS', () => {
+  it('6가지 색상이 있다', () => {
+    expect(TAG_COLORS).toHaveLength(6)
+  })
+
+  it('"red", "orange", "yellow", "green", "blue", "purple"을 포함한다', () => {
+    expect(TAG_COLORS).toContain('red')
+    expect(TAG_COLORS).toContain('orange')
+    expect(TAG_COLORS).toContain('yellow')
+    expect(TAG_COLORS).toContain('green')
+    expect(TAG_COLORS).toContain('blue')
+    expect(TAG_COLORS).toContain('purple')
+  })
+})
+
+describe('TAG_CSS', () => {
+  it('모든 TAG_COLORS에 대해 CSS 값이 있다', () => {
+    for (const color of TAG_COLORS) {
+      expect(TAG_CSS[color]).toBeTruthy()
+    }
+  })
+
+  it('CSS 값이 # 으로 시작하는 헥스 컬러이다', () => {
+    for (const color of TAG_COLORS) {
+      expect(TAG_CSS[color]).toMatch(/^#[0-9a-f]{6}$/i)
+    }
+  })
+})
+
+// -----------------------------------------------------------------------
+// formatCharCount — 경계값
+// -----------------------------------------------------------------------
+
+describe('formatCharCount — 경계값', () => {
+  it('9999 → "10.0K" (반올림)', () => {
+    expect(formatCharCount(9999)).toBe('10.0K')
+  })
+
+  it('10001 → "1.0만"', () => {
+    expect(formatCharCount(10001)).toBe('1.0만')
+  })
+
+  it('100000 → "10.0만"', () => {
+    expect(formatCharCount(100000)).toBe('10.0만')
   })
 })
