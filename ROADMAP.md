@@ -1009,3 +1009,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2809 | 테스트 **1,000개** 달성 + i18n 33키(총~573) + Sidebar 18패널 ErrorBoundary 래핑 | ✅ |
 | R2810 | 테스트 **1,106개** + i18n ~597키 + FileViewer/FileTabBar 한영 전환 | ✅ |
 | R2811 | i18n hq 컴포넌트 + ResourceBar/OpsFeed/AgentBay/sessionUtils 51테스트 (총 1,157) | ✅ |
+| R2812 | ToastContainer/TitleBar/WelcomeScreen/CalendarPanel/NotesPanel 84 렌더테스트 (총 1,241) | ✅ |
