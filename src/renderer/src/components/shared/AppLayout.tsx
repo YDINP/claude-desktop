@@ -569,7 +569,6 @@ export function AppLayout({
                     <OpsFeed
                       toolUses={chat.messages.flatMap(m => m.toolUses).slice(-10)}
                       isStreaming={chat.isStreaming}
-                      onToolClick={(toolId) => console.log('tool clicked:', toolId)}
                     />
                   </div>
                 ) : (

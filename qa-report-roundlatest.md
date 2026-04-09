@@ -1,5 +1,5 @@
 # QA Report — Round latest
-> 2026-04-09T03:05:45.873Z
+> 2026-04-09T03:12:01.322Z
 
 ## Critical
 _없음_
@@ -10,7 +10,7 @@ _없음_
 ## Pass
 - bun run build 성공
 - tsc --noEmit 오류 없음
-- 292개 소스 파일 검사 완료
+- 295개 소스 파일 검사 완료
 - package.json 파싱 성공 (name: claude-desktop)
 - preload expose 메서드 290개 확인
 - ipcMain.handle 등록: 11개 이상

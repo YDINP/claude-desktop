@@ -160,7 +160,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
     } else if (window.api?.sessionDuplicate) {
       await window.api.sessionDuplicate(id)
     } else {
-      console.log('duplicate session:', id)
+      // duplicateSession API unavailable — no-op
     }
     await refresh()
   }, [refresh])
@@ -334,7 +334,6 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
 
   const exportSession = useCallback(async (id: string) => {
     if (typeof window.api.exportSession === 'function') await window.api.exportSession(id)
-    else console.log('export session:', id)
     setExportedId(id); setTimeout(() => setExportedId(null), 1500)
   }, [])
 
@@ -690,7 +689,7 @@ export function SessionList({ onSelect, activeSessionId, onImportComplete }: { o
           <button onClick={async () => { const r = await window.api.sessionImportBackup(); if (r.ok) { toast(`${r.imported}개 가져옴`, 'success'); await refresh(); onImportComplete?.() } else if (!r.canceled && r.error) toast('실패: ' + r.error, 'error') }} title="복원" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '2px 4px' }}>&#8595; 복원</button>
         </div>
       </div>
-      {mergeMode && (<div style={{ padding: '6px 12px', background: 'var(--accent)', color: '#fff', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexShrink: 0 }}><span>병합 모드 ({mergeTargets.size}개)</span><div style={{ display: 'flex', gap: 6 }}>{mergeTargets.size >= 2 && <button onClick={() => { console.log('merge:', [...mergeTargets]); setMergeMode(false); setMergeTargets(new Set()) }} style={{ background: '#fff', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>병합</button>}<button onClick={() => { setMergeMode(false); setMergeTargets(new Set()) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 12, padding: '0 2px', lineHeight: 1 }}>&#x2715;</button></div></div>)}
+      {mergeMode && (<div style={{ padding: '6px 12px', background: 'var(--accent)', color: '#fff', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexShrink: 0 }}><span>병합 모드 ({mergeTargets.size}개)</span><div style={{ display: 'flex', gap: 6 }}>{mergeTargets.size >= 2 && <button onClick={() => { setMergeMode(false); setMergeTargets(new Set()) }} style={{ background: '#fff', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>병합</button>}<button onClick={() => { setMergeMode(false); setMergeTargets(new Set()) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 12, padding: '0 2px', lineHeight: 1 }}>&#x2715;</button></div></div>)}
       <div ref={scrollContainerRef} style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
         <div style={{ height: virtualizer.getTotalSize(), width: '100%', position: 'relative' }}>
           {virtualizer.getVirtualItems().map(virtualRow => {

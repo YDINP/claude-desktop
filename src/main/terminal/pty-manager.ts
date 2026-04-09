@@ -17,7 +17,6 @@ export class PtyManager {
       const pty = this._loadPty()
       if (pty) {
         this.available = true
-        console.log('[PtyManager] Terminal available')
       }
     } catch {
       console.warn('[PtyManager] Terminal unavailable — native binary not found')

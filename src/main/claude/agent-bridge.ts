@@ -243,7 +243,7 @@ export class AgentBridge {
           })
         }
       } else if (evType === 'ping') {
-        console.log('[agent-bridge] ping received')
+        // ping — no-op
       } else if (evType === 'error') {
         const err = event.error as Record<string, unknown> | undefined
         const errType = err?.type as string ?? ''

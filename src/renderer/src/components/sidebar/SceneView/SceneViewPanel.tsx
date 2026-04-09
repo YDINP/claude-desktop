@@ -1507,11 +1507,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             setAnimPreview(next)
             if (next) {
               animPreviewIntervalRef.current = setInterval(() => {
-                setAnimFrame(f => {
-                  const nf = f >= 100 ? 0 : f + 1
-                  console.log('anim frame:', nf)
-                  return nf
-                })
+                setAnimFrame(f => (f >= 100 ? 0 : f + 1))
               }, 50)
             } else {
               if (animPreviewIntervalRef.current) {
@@ -1532,11 +1528,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             min={0}
             max={100}
             value={animFrame}
-            onChange={e => {
-              const v = Number(e.target.value)
-              setAnimFrame(v)
-              console.log('anim frame:', v)
-            }}
+            onChange={e => setAnimFrame(Number(e.target.value))}
             style={{ flex: 1, accentColor: '#fbbf24', cursor: 'pointer' }}
           />
         )}
