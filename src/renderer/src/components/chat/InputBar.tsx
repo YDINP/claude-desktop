@@ -6,6 +6,7 @@ import { useProject } from '../../stores/project-store'
 import { SlashCommandDropdown } from './SlashCommandDropdown'
 import { MentionDropdown, VarSuggestionDropdown, SnippetDropdown } from './SuggestionDropdown'
 import { QuickActionsBar, TemplatePanel } from './QuickActionsBar'
+import { t } from '../../utils/i18n'
 
 // ── QA keyword markers (extracted features — do not remove) ─────────────
 // historySearch historySearchOpen historyPage historyPageSize historyPagination histIdxRef historyIdx historyIdxRef historyIndex historyNav searchHistory cmdHistory
@@ -1003,7 +1004,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       }}>
         <span style={{ fontSize: 13 }}>⏸</span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 10, color: '#fbbf24', fontWeight: 600, marginBottom: 2 }}>작업 저장됨</div>
+          <div style={{ fontSize: 10, color: '#fbbf24', fontWeight: 600, marginBottom: 2 }}>{t('input.pauseLabel', '작업 저장됨')}</div>
           {pausedTask && (
             <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {pausedTask}
@@ -1016,14 +1017,14 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
             padding: '4px 12px', background: '#fbbf24', color: '#000',
             borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer', flexShrink: 0,
           }}
-        >▶ 재개</button>
+        >{t('input.resume', '▶ 재개')}</button>
         <button
           onClick={onInterrupt}
           style={{
             padding: '4px 8px', background: 'transparent', color: 'var(--text-muted)',
             border: '1px solid var(--border)', borderRadius: 4, fontSize: 11, cursor: 'pointer', flexShrink: 0,
           }}
-        >✕ 취소</button>
+        >{t('input.cancel', '✕ 취소')}</button>
       </div>
     )}
     <div
@@ -1055,7 +1056,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           zIndex: 200,
         }}>
           <span style={{ color: 'var(--accent, #527bff)', fontSize: 13, fontWeight: 500 }}>
-            📎 파일을 여기에 놓으세요
+            {t('input.dropFiles', '📎 파일을 여기에 놓으세요')}
           </span>
         </div>
       )}
@@ -1290,13 +1291,13 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         }}
         placeholder={(() => {
           if (disabled) return 'Open a folder to start...'
-          if (multilineMode) return 'Message Claude... (Enter: 줄바꿈, Ctrl+Enter: 전송, Shift+Enter: 일반 모드)'
+          if (multilineMode) return t('input.placeholder.multiline', 'Message Claude... (Enter: 줄바꿈, Ctrl+Enter: 전송, Shift+Enter: 일반 모드)')
           // 슬래시 커맨드 입력 중이고 args 단계이면 힌트 표시
           if (slashParsed && slashParsed.args !== null) {
             const hint = SlashCommandRegistry.getArgHint(slashParsed.cmd)
             if (hint) return `/${slashParsed.cmd} ${hint}`
           }
-          return 'Message Claude... (/ commands, @file, Enter to send, Shift+Enter: 멀티라인 모드)'
+          return t('input.placeholder.default', 'Message Claude... (/ commands, @file, Enter to send, Shift+Enter: 멀티라인 모드)')
         })()}
         disabled={disabled}
         rows={1}
@@ -1340,7 +1341,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
                 flexShrink: 0,
                 userSelect: 'none',
               }}>
-                ~{tokenCount > 999 ? `${(tokenCount / 1000).toFixed(1)}k` : tokenCount} 토큰
+                ~{tokenCount > 999 ? `${(tokenCount / 1000).toFixed(1)}k` : tokenCount} {t('input.tokens', '토큰')}
               </span>
             )
           })()}
@@ -1352,7 +1353,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         <button
           onClick={handleVoiceInput}
           disabled={disabled}
-          title={isRecording ? '녹음 중지' : '음성 입력'}
+          title={isRecording ? t('input.title.stopRecording', '녹음 중지') : t('input.title.voiceInput', '음성 입력')}
           style={{
             padding: '8px',
             background: isRecording ? 'var(--error)' : 'var(--bg-tertiary)',
@@ -1371,7 +1372,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
 
       <button
         onClick={toggleMultilineMode}
-        title={multilineMode ? '멀티라인 모드 끄기 (일반 모드로 전환)' : '멀티라인 모드 켜기 (Shift+Enter)'}
+        title={multilineMode ? t('input.title.multilineOff', '멀티라인 모드 끄기 (일반 모드로 전환)') : t('input.title.multilineOn', '멀티라인 모드 켜기 (Shift+Enter)')}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           color: multilineMode ? 'var(--accent)' : 'var(--text-muted)',
@@ -1383,7 +1384,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
 
       <button
         onClick={() => setShowTemplates(v => !v)}
-        title="메시지 템플릿"
+        title={t('input.title.templates', '메시지 템플릿')}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           color: showTemplates ? 'var(--accent)' : 'var(--text-muted)',
@@ -1399,7 +1400,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           setSmartInput(next)
           localStorage.setItem('cd-smart-input', String(next))
         }}
-        title={smartInput ? '스마트 입력 끄기 (선택 후 " 또는 ( 입력 시 자동 감싸기)' : '스마트 입력 켜기 (선택 후 " 또는 ( 입력 시 자동 감싸기)'}
+        title={smartInput ? t('input.title.smartOff', '스마트 입력 끄기 (선택 후 " 또는 ( 입력 시 자동 감싸기)') : t('input.title.smartOn', '스마트 입력 켜기 (선택 후 " 또는 ( 입력 시 자동 감싸기)')}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           color: smartInput ? 'var(--accent)' : 'var(--text-muted)',
@@ -1414,7 +1415,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
         <button
           onClick={handleEnhance}
           disabled={enhancing}
-          title="프롬프트 개선 (AI)"
+          title={t('input.title.enhance', '프롬프트 개선 (AI)')}
           style={{
             background: 'none', border: 'none', cursor: enhancing ? 'not-allowed' : 'pointer',
             color: enhancing ? 'var(--text-muted)' : 'var(--accent)',
@@ -1428,7 +1429,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       <select
         value={selectedModel}
         onChange={(e) => handleModelChange(e.target.value)}
-        title="전송에 사용할 모델"
+        title={t('input.title.modelSelect', '전송에 사용할 모델')}
         style={{
           background: 'var(--bg-input)',
           color: 'var(--text-muted)',
@@ -1470,7 +1471,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
               fontSize: 12,
               cursor: 'pointer',
             }}
-            title={isPaused ? '재개 (Resume)' : '일시정지 (Pause)'}
+            title={isPaused ? t('input.title.resume', '재개 (Resume)') : t('input.title.pause', '일시정지 (Pause)')}
           >
             {isPaused ? '▶ Resume' : '⏸ Pause'}
           </button>
@@ -1489,7 +1490,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
               alignItems: 'center',
               gap: 5,
             }}
-            title="중지 (Stop / Esc)"
+            title={t('input.title.stop', '중지 (Stop / Esc)')}
           >
             <span style={{
               display: 'inline-block',
@@ -1515,7 +1516,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           {onOpenPromptChain && (
             <button
               onClick={onOpenPromptChain}
-              title="PromptChain 열기"
+              title={t('input.title.promptChain', 'PromptChain 열기')}
               style={{
                 background: 'none',
                 border: 'none',

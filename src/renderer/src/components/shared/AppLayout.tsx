@@ -5,6 +5,7 @@
 import type React from 'react'
 import { useRef, useCallback } from 'react'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
+import { t } from '../../utils/i18n'
 import { AgentBay } from '../hq/AgentBay'
 import { ResourceBar } from '../hq/ResourceBar'
 import { OpsFeed } from '../hq/OpsFeed'
@@ -35,14 +36,14 @@ import type { ProjectContext, ChatContext } from '../../types/app-props'
 import { useUIStore } from '../../stores/ui-store'
 import { useCocosStore } from '../../domains/cocos/store'
 
-const PANEL_TAB_INFO: Partial<Record<SidebarTab, { icon: string; title: string }>> = {
-  bookmarks: { icon: '★', title: '북마크' },
-  stats: { icon: '📊', title: '통계' },
-  snippets: { icon: '📎', title: '스니펫' },
-  outline: { icon: '📑', title: '아웃라인' },
-  plugins: { icon: '🧩', title: '플러그인' },
-  connections: { icon: '🔌', title: 'MCP 연결' },
-  agent: { icon: '🤖', title: '에이전트' },
+const PANEL_TAB_INFO: Partial<Record<SidebarTab, { icon: string; titleKey: string; titleFallback: string }>> = {
+  bookmarks: { icon: '★', titleKey: 'panel.icon.bookmarks', titleFallback: '북마크' },
+  stats: { icon: '📊', titleKey: 'panel.icon.stats', titleFallback: '통계' },
+  snippets: { icon: '📎', titleKey: 'panel.icon.snippets', titleFallback: '스니펫' },
+  outline: { icon: '📑', titleKey: 'panel.icon.outline', titleFallback: '아웃라인' },
+  plugins: { icon: '🧩', titleKey: 'panel.icon.plugins', titleFallback: '플러그인' },
+  connections: { icon: '🔌', titleKey: 'panel.icon.connections', titleFallback: 'MCP 연결' },
+  agent: { icon: '🤖', titleKey: 'panel.icon.agent', titleFallback: '에이전트' },
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -181,13 +182,13 @@ export function AppLayout({
       {/* Icon bar — sidebar panel shortcuts + HQ */}
       <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', flexShrink: 0, height: 28, overflowX: 'auto', scrollbarWidth: 'none' }}>
         {([
-          { id: 'bookmarks' as SidebarTab, label: '★', title: '북마크', featureKey: null },
-          { id: 'stats' as SidebarTab, label: '📊', title: '통계', featureKey: 'stats' as const },
-          { id: 'snippets' as SidebarTab, label: '📎', title: '스니펫', featureKey: null },
-          { id: 'outline' as SidebarTab, label: '📑', title: '아웃라인', featureKey: 'outline' as const },
-          { id: 'plugins' as SidebarTab, label: '🧩', title: '플러그인', featureKey: 'plugins' as const },
-          { id: 'connections' as SidebarTab, label: '🔌', title: 'MCP 연결', featureKey: 'connections' as const },
-          { id: 'agent' as SidebarTab, label: '🤖', title: '에이전트', featureKey: null },
+          { id: 'bookmarks' as SidebarTab, label: '★', title: t('panel.icon.bookmarks', '북마크'), featureKey: null },
+          { id: 'stats' as SidebarTab, label: '📊', title: t('panel.icon.stats', '통계'), featureKey: 'stats' as const },
+          { id: 'snippets' as SidebarTab, label: '📎', title: t('panel.icon.snippets', '스니펫'), featureKey: null },
+          { id: 'outline' as SidebarTab, label: '📑', title: t('panel.icon.outline', '아웃라인'), featureKey: 'outline' as const },
+          { id: 'plugins' as SidebarTab, label: '🧩', title: t('panel.icon.plugins', '플러그인'), featureKey: 'plugins' as const },
+          { id: 'connections' as SidebarTab, label: '🔌', title: t('panel.icon.connections', 'MCP 연결'), featureKey: 'connections' as const },
+          { id: 'agent' as SidebarTab, label: '🤖', title: t('panel.icon.agent', '에이전트'), featureKey: null },
         ]).filter(t => t.featureKey === null || features[t.featureKey]).map(t => (
           <button
             key={t.id}
@@ -213,7 +214,7 @@ export function AppLayout({
         <div style={{ flex: 1 }} />
         <button
           onClick={handleToggleHQ}
-          title={!features.hqMode ? 'HQ Mode (비활성화됨)' : hqMode ? '기본 모드로 전환 (Ctrl+Shift+H)' : 'HQ Mode (Ctrl+Shift+H)'}
+          title={!features.hqMode ? t('hq.disabled', 'HQ Mode (비활성화됨)') : hqMode ? t('hq.switchDefault', '기본 모드로 전환 (Ctrl+Shift+H)') : t('hq.switchHQ', 'HQ Mode (Ctrl+Shift+H)')}
           disabled={!features.hqMode}
           style={{
             flexShrink: 0, padding: '0 10px', height: 28,
@@ -416,7 +417,7 @@ export function AppLayout({
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  {PANEL_TAB_INFO[mainPanelTab]?.icon} {PANEL_TAB_INFO[mainPanelTab]?.title}
+                  {PANEL_TAB_INFO[mainPanelTab]?.icon} {t(PANEL_TAB_INFO[mainPanelTab]?.titleKey ?? '', PANEL_TAB_INFO[mainPanelTab]?.titleFallback)}
                   <span style={{ marginLeft: 4, fontSize: 10, opacity: 0.6 }}>✕</span>
                 </button>
               )}
@@ -765,7 +766,7 @@ export function AppLayout({
             cursor: 'pointer', userSelect: 'none',
           }}
         >
-          🎯 포커스 모드 (Ctrl+Shift+F)
+          {t('focusMode.exit', '🎯 포커스 모드 (Ctrl+Shift+F)')}
         </div>
       )}
 

@@ -411,9 +411,9 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
 
             {/* Chat */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>채팅</div>
+              <div style={sectionTitleStyle}>{t('settings.section.chat', '채팅')}</div>
               <div style={rowStyle}>
-                <span style={labelStyle}>타임스탬프 표시</span>
+                <span style={labelStyle}>{t('settings.chat.timestamps', '타임스탬프 표시')}</span>
                 <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                   <input
                     type="checkbox"
@@ -424,14 +424,14 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                 </label>
               </div>
               <div style={rowStyle}>
-                <span style={labelStyle}>토큰 예산</span>
+                <span style={labelStyle}>{t('settings.chat.tokenBudget', '토큰 예산')}</span>
                 <input
                   type="number"
                   min={0}
                   max={200000}
                   value={settings.maxTokensPerRequest}
                   onChange={e => patch('maxTokensPerRequest', Number(e.target.value))}
-                  placeholder="0 = 무제한"
+                  placeholder={t('settings.chat.tokenBudgetHint', '0 = 무제한')}
                   style={{
                     width: 110,
                     padding: '4px 8px',
@@ -446,15 +446,15 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>응답 완료 사운드</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Claude 응답이 끝날 때 알림음 재생</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('settings.chat.soundLabel', '응답 완료 사운드')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('settings.chat.soundDesc', 'Claude 응답이 끝날 때 알림음 재생')}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <button
                     onClick={() => playCompletionSound()}
                     style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)', borderRadius: 3, padding: '1px 6px', fontSize: 10, cursor: 'pointer' }}
                   >
-                    테스트
+                    {t('settings.chat.soundTest', '테스트')}
                   </button>
                   <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                     <input
@@ -470,12 +470,12 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
 
             {/* Notification Settings */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>알림 설정</div>
+              <div style={sectionTitleStyle}>{t('settings.section.notifications', '알림 설정')}</div>
               {[
-                { key: 'responseComplete' as const, label: '응답 완료 시 알림', icon: '🔔' },
-                { key: 'backgroundOnly' as const, label: '백그라운드에서만 알림', icon: '📵' },
-                { key: 'longSession' as const, label: '긴 세션 경고 (30개+)', icon: '⚠️' },
-                { key: 'contextWarning' as const, label: '컨텍스트 한도 80% 경고', icon: '📊' },
+                { key: 'responseComplete' as const, label: t('settings.notif.responseComplete', '응답 완료 시 알림'), icon: '🔔' },
+                { key: 'backgroundOnly' as const, label: t('settings.notif.backgroundOnly', '백그라운드에서만 알림'), icon: '📵' },
+                { key: 'longSession' as const, label: t('settings.notif.longSession', '긴 세션 경고 (30개+)'), icon: '⚠️' },
+                { key: 'contextWarning' as const, label: t('settings.notif.contextWarning', '컨텍스트 한도 80% 경고'), icon: '📊' },
               ].map(({ key, label, icon }) => (
                 <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{icon} {label}</span>
@@ -496,9 +496,9 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
           <div>
             {/* Appearance */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>외관</div>
+              <div style={sectionTitleStyle}>{t('settings.section.appearance', '외관')}</div>
               <div style={rowStyle}>
-                <span style={labelStyle}>테마</span>
+                <span style={labelStyle}>{t('settings.appearance.theme', '테마')}</span>
                 <div style={{ display: 'flex', gap: 6 }}>
                   {(['dark', 'light', 'system'] as const).map(t => (
                     <button
@@ -520,7 +520,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                 </div>
               </div>
               <div style={rowStyle}>
-                <span style={labelStyle}>글꼴 크기</span>
+                <span style={labelStyle}>{t('settings.appearance.fontSize', '글꼴 크기')}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <input
                     type="range"
@@ -537,7 +537,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
               </div>
               <div style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={labelStyle}>채팅 글꼴 크기</span>
+                  <span style={labelStyle}>{t('settings.appearance.chatFontSize', '채팅 글꼴 크기')}</span>
                   <span style={{ fontSize: 12, color: 'var(--accent)', fontFamily: 'monospace' }}>{chatFontSize}px</span>
                 </div>
                 <input
@@ -556,8 +556,8 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                   style={{ width: '100%', accentColor: 'var(--accent)' }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
-                  <span>작게 (12px)</span>
-                  <span>크게 (20px)</span>
+                  <span>{t('settings.appearance.fontSmall', '작게 (12px)')}</span>
+                  <span>{t('settings.appearance.fontLarge', '크게 (20px)')}</span>
                 </div>
                 {chatFontSize !== 14 && (
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
@@ -578,13 +578,13 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                         cursor: 'pointer',
                       }}
                     >
-                      기본값 (14px)
+                      {t('settings.appearance.fontDefault', '기본값 (14px)')}
                     </button>
                   </div>
                 )}
               </div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>🎨 강조 색상</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>🎨 {t('settings.appearance.accentColor', '강조 색상')}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
                   {ACCENT_PRESETS.map(preset => (
                     <div
@@ -643,14 +643,14 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                       cursor: 'pointer',
                     }}
                   >
-                    적용
+                    {t('settings.appearance.apply', '적용')}
                   </button>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>컴팩트 모드</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>메시지 간격을 줄여 더 많은 대화를 표시</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('settings.appearance.compactMode', '컴팩트 모드')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('settings.appearance.compactDesc', '메시지 간격을 줄여 더 많은 대화를 표시')}</div>
                 </div>
                 <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                   <input
@@ -665,9 +665,9 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
 
             {/* Custom CSS */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>커스텀 CSS</div>
+              <div style={sectionTitleStyle}>{t('settings.section.customCSS', '커스텀 CSS')}</div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
-                CSS 변수 오버라이드 또는 추가 스타일 입력 (저장 시 즉시 적용)
+                {t('settings.customCSS.desc', 'CSS 변수 오버라이드 또는 추가 스타일 입력 (저장 시 즉시 적용)')}
               </div>
               <textarea
                 value={settings.customCSS}
@@ -703,7 +703,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                     cursor: 'pointer',
                   }}
                 >
-                  초기화
+                  {t('settings.customCSS.reset', '초기화')}
                 </button>
               </div>
             </div>
@@ -715,7 +715,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
           <div>
             {/* Model */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>모델</div>
+              <div style={sectionTitleStyle}>{t('settings.section.model', '모델')}</div>
               <div style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Temperature</div>
@@ -731,8 +731,8 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                   style={{ width: '100%', accentColor: 'var(--accent)' }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
-                  <span>정밀 (0.0)</span>
-                  <span>창의적 (1.0)</span>
+                  <span>{t('settings.model.tempPrecise', '정밀 (0.0)')}</span>
+                  <span>{t('settings.model.tempCreative', '창의적 (1.0)')}</span>
                 </div>
               </div>
               {MODELS.map(m => (
@@ -758,14 +758,14 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
 
             {/* Global System Prompt */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>글로벌 시스템 프롬프트</div>
+              <div style={sectionTitleStyle}>{t('settings.section.globalPrompt', '글로벌 시스템 프롬프트')}</div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
-                모든 채팅에 공통으로 적용되는 시스템 프롬프트입니다. 채팅창 상단 ⚙ 버튼으로도 편집 가능합니다.
+                {t('settings.globalPrompt.desc', '모든 채팅에 공통으로 적용되는 시스템 프롬프트입니다. 채팅창 상단 ⚙ 버튼으로도 편집 가능합니다.')}
               </div>
               <textarea
                 value={globalSystemPrompt}
                 onChange={e => setGlobalSystemPrompt(e.target.value.slice(0, 2000))}
-                placeholder="Claude에게 항상 전달할 전역 지침을 입력하세요..."
+                placeholder={t('settings.globalPrompt.placeholder', 'Claude에게 항상 전달할 전역 지침을 입력하세요...')}
                 rows={5}
                 style={{
                   width: '100%', background: 'var(--bg-input, var(--bg-tertiary))', color: 'var(--text-primary)',
@@ -786,16 +786,16 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                     background: 'var(--bg-tertiary)', color: 'var(--text-muted)', cursor: 'pointer',
                   }}
                 >
-                  초기화
+                  {t('settings.globalPrompt.reset', '초기화')}
                 </button>
               </div>
             </div>
 
             {/* AI Behavior */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>AI 동작 설정</div>
+              <div style={sectionTitleStyle}>{t('settings.section.aiBehavior', 'AI 동작 설정')}</div>
               <div style={rowStyle}>
-                <span style={labelStyle}>응답 언어</span>
+                <span style={labelStyle}>{t('settings.ai.responseLang', '응답 언어')}</span>
                 <select
                   value={preferredLanguage}
                   onChange={e => setPreferredLanguage(e.target.value)}
@@ -806,7 +806,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                   }}
                 >
                   {[
-                    { value: 'auto', label: '자동' },
+                    { value: 'auto', label: t('settings.ai.langAuto', '자동') },
                     { value: 'ko',   label: '한국어' },
                     { value: 'en',   label: 'English' },
                     { value: 'ja',   label: '日本語' },
@@ -820,13 +820,13 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
 
             {/* Anthropic API Key */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>API 설정</div>
+              <div style={sectionTitleStyle}>{t('settings.section.apiSettings', 'API 설정')}</div>
               <div style={{ marginBottom: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>Anthropic API Key</div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
                   {anthropicApiKey
-                    ? '✓ API 키가 설정되어 있습니다.'
-                    : '미설정 — 환경변수 ANTHROPIC_API_KEY 사용 중 (또는 미설정)'}
+                    ? t('settings.api.anthropicKeySet', '✓ API 키가 설정되어 있습니다.')
+                    : t('settings.api.anthropicKeyMissing', '미설정 — 환경변수 ANTHROPIC_API_KEY 사용 중 (또는 미설정)')}
                 </div>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <input
@@ -847,7 +847,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                       borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, flexShrink: 0,
                     }}
                   >
-                    {showAnthropicKey ? '숨기기' : '표시'}
+                    {showAnthropicKey ? t('settings.api.hideKey', '숨기기') : t('settings.api.showKey', '표시')}
                   </button>
                   {anthropicApiKey && (
                     <button
@@ -857,7 +857,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                         borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, flexShrink: 0,
                       }}
                     >
-                      초기화
+                      {t('settings.api.resetKey', '초기화')}
                     </button>
                   )}
                 </div>
@@ -866,9 +866,9 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
 
             {/* OpenAI API Key */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>OpenAI API Key</div>
+              <div style={sectionTitleStyle}>{t('settings.section.openaiKey', 'OpenAI API Key')}</div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
-                OpenAI 모델(gpt-4o, o3-mini 등) 사용 시 필요합니다.
+                {t('settings.openai.desc', 'OpenAI 모델(gpt-4o, o3-mini 등) 사용 시 필요합니다.')}
               </div>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <input
@@ -889,7 +889,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                     borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, flexShrink: 0,
                   }}
                 >
-                  {showOpenaiKey ? '숨기기' : '표시'}
+                  {showOpenaiKey ? t('settings.api.hideKey', '숨기기') : t('settings.api.showKey', '표시')}
                 </button>
               </div>
             </div>
@@ -914,7 +914,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                 )}
                 <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
                   <input
-                    placeholder="프로필 이름"
+                    placeholder={t('settings.projectPrompt.profileName', '프로필 이름')}
                     value={profileName}
                     onChange={e => setProfileName(e.target.value)}
                     style={{ flex: 1, padding: '4px 6px', background: 'var(--bg-input, var(--bg-tertiary))', border: '1px solid var(--border)', borderRadius: 4, color: 'inherit', fontSize: 12 }}
@@ -923,13 +923,13 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                     onClick={saveProfile}
                     style={{ padding: '4px 8px', background: 'var(--accent)', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer', fontSize: 12 }}
                   >
-                    저장
+                    {t('settings.projectPrompt.save', '저장')}
                   </button>
                 </div>
                 <textarea
                   value={localSystemPrompt}
                   onChange={e => setLocalSystemPrompt(e.target.value)}
-                  placeholder="이 프로젝트에서 Claude에게 항상 전달할 지침을 입력하세요..."
+                  placeholder={t('settings.projectPrompt.placeholder', '이 프로젝트에서 Claude에게 항상 전달할 지침을 입력하세요...')}
                   rows={4}
                   style={{
                     width: '100%', background: 'var(--bg-input, var(--bg-tertiary))', color: 'var(--text-primary)',
@@ -939,7 +939,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
                   }}
                 />
                 <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>
-                  Claude가 이 프로젝트에서 답변할 때 항상 이 내용이 컨텍스트로 추가됩니다.
+                  {t('settings.projectPrompt.hint', 'Claude가 이 프로젝트에서 답변할 때 항상 이 내용이 컨텍스트로 추가됩니다.')}
                 </div>
               </div>
             )}
@@ -950,7 +950,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
         {settingsTab === 'shortcuts' && (
           <div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
-              읽기 전용 — 단축키는 앱 코드에서 설정됩니다.
+              {t('settings.shortcuts.readonly', '읽기 전용 — 단축키는 앱 코드에서 설정됩니다.')}
             </div>
             {SHORTCUTS.map(s => (
               <div key={s.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -968,26 +968,26 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
           <div>
             {/* Settings Management */}
             <div style={sectionStyle}>
-              <div style={sectionTitleStyle}>설정 관리</div>
+              <div style={sectionTitleStyle}>{t('settings.section.management', '설정 관리')}</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
                   onClick={exportSettings}
                   style={{ flex: 1, padding: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'inherit', fontSize: 12 }}
                 >
-                  📤 내보내기
+                  {t('settings.management.export', '📤 내보내기')}
                 </button>
                 <button
                   onClick={importSettings}
                   style={{ flex: 1, padding: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'inherit', fontSize: 12 }}
                 >
-                  📥 가져오기
+                  {t('settings.management.import', '📥 가져오기')}
                 </button>
               </div>
             </div>
 
             {/* About */}
             <div style={{ marginBottom: 20 }}>
-              <div style={sectionTitleStyle}>정보</div>
+              <div style={sectionTitleStyle}>{t('settings.section.about', '정보')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>
                 <div>Claude Desktop <span style={{ color: 'var(--text-secondary)' }}>v0.6.0</span></div>
                 <div>Anthropic Claude API 기반 데스크톱 클라이언트</div>
@@ -1000,7 +1000,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
         {settingsTab === 'features' && (
           <div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
-              그룹을 OFF하면 하위 기능이 모두 비활성화됩니다. 변경 사항은 즉시 반영됩니다.
+              {t('settings.features.groupDesc', '그룹을 OFF하면 하위 기능이 모두 비활성화됩니다. 변경 사항은 즉시 반영됩니다.')}
             </div>
             {([
               {
@@ -1120,7 +1120,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
               color: 'var(--text-secondary)', cursor: 'pointer',
             }}
           >
-            취소
+            {t('settings.footer.cancel', '취소')}
           </button>
           <button
             onClick={handleSave}
@@ -1130,7 +1130,7 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
               color: '#fff', cursor: 'pointer', fontWeight: 500,
             }}
           >
-            저장
+            {t('settings.footer.save', '저장')}
           </button>
         </div>
       </div>
