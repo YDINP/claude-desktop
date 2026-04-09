@@ -1,6 +1,7 @@
 // QA anchors (extracted to hooks): scrollPositions prevSessionIdRef saveScrollPos handleScroll scrollToBottom
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import type { ScrollToOptions } from '@tanstack/virtual-core'
 import { MessageBubble } from './MessageBubble'
 import { InputBar } from './InputBar'
 import { ModelSelector } from './ModelSelector'
@@ -99,7 +100,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
 
   // ── 채팅 밀도 모드 ─────────────────────────────────────────────────────────
   const [chatDensity, setChatDensity] = useState<'compact' | 'normal' | 'focus'>(() =>
-    (localStorage.getItem('chat-density') as any) ?? 'normal'
+    (localStorage.getItem('chat-density') as 'compact' | 'normal' | 'focus') ?? 'normal'
   )
   useEffect(() => { localStorage.setItem('chat-density', chatDensity) }, [chatDensity])
   const toggleViewMode = () => setChatViewMode(v => {
@@ -207,7 +208,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
   })
 
   // scrollToIndex ref: virtualizer 초기화 전에 useChatScroll/useChatSearch에 주입
-  const scrollToIndexRef = useRef<(idx: number, opts?: { align?: string; behavior?: string }) => void>(() => {})
+  const scrollToIndexRef = useRef<(idx: number, opts?: ScrollToOptions) => void>(() => {})
 
   // streaming 종료 시 CC 액션 실행 + 노드 하이라이트 콜백
   const handleAfterStreamEnd = useCallback(() => {
@@ -265,7 +266,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
 
   // virtualizer 초기화 후 ref 업데이트
   scrollToIndexRef.current = (idx, opts) => {
-    virtualizer.scrollToIndex(idx, opts as any)
+    virtualizer.scrollToIndex(idx, opts)
   }
   scrollToMatchRef.current = (idx: number) => {
     virtualizer.scrollToIndex(idx, { align: 'center', behavior: 'smooth' })

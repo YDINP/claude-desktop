@@ -123,7 +123,7 @@ export function SceneTreePanel({ port, onSelectNode }: SceneTreePanelProps) {
   useEffect(() => {
     refresh()
     const unsub = window.api.onCCEvent?.((event) => {
-      if ((event as any)._ccPort !== undefined && (event as any)._ccPort !== port) return
+      if (event._ccPort !== undefined && event._ccPort !== port) return
       if (event.type === 'scene:ready' || event.type === 'scene:saved') {
         if (debounceRef.current) clearTimeout(debounceRef.current)
         debounceRef.current = setTimeout(() => { debounceRef.current = null; refresh() }, 500)

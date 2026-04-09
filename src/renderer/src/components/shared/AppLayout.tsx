@@ -476,7 +476,7 @@ export function AppLayout({
                       window.api.claudeInterrupt?.()
                       chat.finishStreaming()
                     }
-                    const saved = await window.api.sessionLoad(sid) as any
+                    const saved = await window.api.sessionLoad(sid)
                     if (saved?.messages?.length) { chat.hydrate(saved.messages, sid) }
                     else { chat.clearMessages(); chat.setSessionId(sid) }
                     setSessionTitle(saved?.title); setSessionCreatedAt(saved?.createdAt)

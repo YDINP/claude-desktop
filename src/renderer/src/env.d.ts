@@ -60,6 +60,7 @@ interface Window {
     // OpenAI
     openaiSend?: (payload: { model: string; messages: { role: string; content: string }[] }) => void
     openaiInterrupt?: () => void
+    ccGetAssets?: (port: number) => Promise<import('../../shared/ipc-schema').AssetTree>
     // CC File-based editor
     ccFileBuildUUIDMap?: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
     openCCEditorWindow?: () => Promise<void>

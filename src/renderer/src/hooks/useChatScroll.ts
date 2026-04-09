@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import type { ChatMessage } from '../domains/chat/domain'
+import type { ScrollToOptions } from '@tanstack/virtual-core'
 
 interface UseChatScrollOptions {
   sessionId: string | null | undefined
@@ -9,7 +10,7 @@ interface UseChatScrollOptions {
   scrollToMessageId?: string | null
   scrollContainerRef: React.RefObject<HTMLDivElement>
   /** virtualizer.scrollToIndex 래퍼 — ChatPanel에서 주입 */
-  scrollToIndex: (idx: number, opts?: { align?: string; behavior?: string }) => void
+  scrollToIndex: (idx: number, opts?: ScrollToOptions) => void
   onAfterStreamEnd?: () => void
 }
 

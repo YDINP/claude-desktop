@@ -83,10 +83,10 @@ function runInSandbox(code: string): { output: string[]; error?: string } {
   document.body.appendChild(iframe)
   try {
     const win = iframe.contentWindow!
-    ;(win as any).console = {
-      log: (...args: any[]) => logs.push(args.map(String).join(' ')),
-      warn: (...args: any[]) => logs.push('[warn] ' + args.map(String).join(' ')),
-      error: (...args: any[]) => logs.push('[error] ' + args.map(String).join(' ')),
+    ;(win as Window & { console: Partial<Console> }).console = {
+      log: (...args: unknown[]) => logs.push(args.map(String).join(' ')),
+      warn: (...args: unknown[]) => logs.push('[warn] ' + args.map(String).join(' ')),
+      error: (...args: unknown[]) => logs.push('[error] ' + args.map(String).join(' ')),
     }
     win.eval(code)
     return { output: logs }

@@ -101,6 +101,8 @@ export interface CCEvent {
   type: 'connected' | 'scene:ready' | 'scene:saved' | 'node:select' | 'node:deselect'
   uuids?: string[]
   version?: string
+  /** IPC 레이어에서 포트 구분용으로 주입되는 내부 필드 */
+  _ccPort?: number
 }
 
 export interface CCStatus {

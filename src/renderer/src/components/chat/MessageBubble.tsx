@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
+import type { Plugin } from 'unified'
 import { makeMdComponents } from './CodeBlock'
 import { clipboardStore } from '../../utils/clipboard-store'
 import { ThinkingPanel } from './ThinkingPanel'
@@ -315,7 +316,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
     const node = (
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex as any]}
+        rehypePlugins={[rehypeKatex as unknown as Plugin]}
         components={mdComponents}
       >
         {processedDisplayText}

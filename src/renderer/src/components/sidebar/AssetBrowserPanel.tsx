@@ -43,7 +43,7 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
     setLoading(true)
     setError(null)
     try {
-      const result = await (window.api as any).ccGetAssets?.(port)
+      const result = await window.api.ccGetAssets?.(port)
       if (result?.error) setError(result.error)
       else setTree(result?.tree ?? [])
     } catch (e) {
