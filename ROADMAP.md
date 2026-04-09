@@ -1002,3 +1002,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2802 | useFeatureFlags/command-handlers/cc-version-detector 41테스트 (총 561) + 최종 스캔 완료 | ✅ |
 | R2803 | aria 접근성 확장 6컴포넌트 (CommandPalette/ChatPanel/InputBar/Terminal/Settings) | ✅ |
 | R2804 | work-history/command-learner/clipboard-store/toast 67테스트 (총 628) | ✅ |
+| R2805 | 빈 catch 8건→warn + JSDoc + cost-tracker 14테스트 (총 642) | ✅ |
