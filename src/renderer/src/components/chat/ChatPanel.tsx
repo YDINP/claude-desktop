@@ -17,6 +17,7 @@ import {
   formatElapsed, formatTimeSep, MSG_LABEL_KINDS, MSG_LABEL_COLORS,
 } from './chatUtils'
 import { useChatStore } from '../../domains/chat/store'
+import { useShallow } from 'zustand/react/shallow'
 import type { useProject } from '../../stores/project-store'
 import type { ChatMessage } from '../../domains/chat/domain'
 import { getActiveTerminalId } from '../../domains/terminal/store'
@@ -58,7 +59,22 @@ interface ChatPanelProps {
 /* Feature registry — extracted: BookmarkView(showOnlyBookmarks,exportAll,exportOne,bookmarkedMsgs), ExportButtons, ModelSelector(MODEL_DEFS,recent-model,modelHistory,modelFavorites), MiniMap, VariableModal(varModal,varValues,varInputRefs), ShortcutsOverlay, ChatToolbar(SystemPromptEditor,SessionSummaryPanel,ChatSearchBar), chatUtils(CONTEXT_WINDOW,ContextUsageIndicator,StreamingSpinner,TypingIndicator,formatElapsed,formatTimeSep)
  * Deferred: messageFolders,activeMsgFolder,msgFolder,msgSearchQuery,showMsgSearch,searchHighlights,searchHlIdx,searchFilter,showSearchFilter,reactionStats,showReactionStats,emojiReactions,showEmojiPicker,messageReactions,showReactionPicker,threadOpen,msgThreads,threadReplies,threadSummaries,threadSummaryLoading,threadingEnabled,activeThread,threadView,threadRoot,msgRatings,showRatingBar,qualityScores,showQualityPanel,summaryCards,showSummaryCard,convSummary,showSummaryPanel,msgSummaryView,summaryDepth,runningBlocks,blockOutputs,codeRunTarget,showCodeRunner,msgExpiry,showExpiredMsgs,exportTemplate,msgExportFormat,showMsgExportPanel,chatExportOptions,showExportOptions,chatExportFormat,showExportPanel,exportTarget,modelHistory,modelFavorites,streamSpeed,streamChunkSize,pausedStream,branchPoint,branches,translateLang,translating,chatTranslate,showTranslatePanel,translateEnabled,translateTarget,translationHistory,showTranslationHistory,pinnedMessages,showPinnedPanel,pinnedMsgs,showPinnedOnly,readReceipts,showReadReceipts,readStatus,showReadStatus,readMarkers,copyFormat,showCopyMenu,chatDraft,showDraftPanel,messageDrafts,showDraftList,bulkSelectMode,bulkSelected,encryptedMsgs,showEncryptionInfo,scheduledMsgs,messageSchedule,showSchedulePanel,msgSchedule,showScheduler,watermarkText,showWatermark,persona,personaList,activePersona,personaPrompt,systemPromptDraft,showSystemPromptEditor,msgCategories,categoryFilter,showCategoryFilter,messageCategories,activeMsgCategory,msgCategory,regenOptions,showRegenOptions,collapseThreshold,collapsedByDefault,collapsedMsgs,autoCollapse,contextUsage,showContextBar,msgTheme,msgDensity,conversationInsights,showInsightsPanel,messageAnalytics,showAnalyticsPanel,chatAnalytics,showAnalyticsDashboard,msgAnalytics,showAnalytics,msgStats,showMsgStats,chatNotes,showChatNotes,chatStats,showChatStats,sentimentMode,sentimentData,chatTheme,showThemeSelector,msgPriority,showPriorityFilter,timestampFormat,aiSuggestions,showAiSuggestions,aiAssistMode,aiAssistSuggestion,msgSearchFilter,msgSortOrder,showSortOptions,favMsgs,showFavMsgs,chatBg,showBgPicker,msgFormatMode,showFormatToolbar,foldedMsgs,msgFoldThreshold,msgColors,showColorPalette,shareTarget,showSharePanel,msgVotes,showVotePanel,inlinePreview,previewMaxHeight,msgBookmarks,msgStatus,showStatusPanel,forwardingMsg,forwardTarget,msgGroupBy,showGroupByPanel,chatReactions,chatFilter,chatFilterActive,chatFilterResults,chatGroupBy,showGroupPanel,chatPagination,showPaginationBar,chatSideBySide,sideBySideWidth,chatAccessibility,accessibilityConfig,chatVoice,voiceLanguage,showDensityPicker,chatPresets,showPresetPanel,chatCollaboration,collaborators,chatZoom,showZoomControls,chatReadAloud,readAloudSpeed,replyingTo,replyContext,chatWidgets,showWidgetPanel,chatBookmark,showBookmarkPanel,chatTags,showTagPanel,chatHistorySearch,historySearchResults,chatFontSize,chatFontFamily,bookmarkFolders,activeBookmarkFolder,messageBookmarks,messageTags,showTagFilter,messageLabels,showLabelPicker,showLabelMenu,msgLabels */
 export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessageId, onFork, onEditResend, onOpenFile, onImageClick, onCompressContext, pendingInsert, onPendingInsertConsumed, onReplyToMessage, suggestions, onDismissSuggestions, recentSessions, onSelectSession, hqMode, onToggleHQ, onOpenPromptChain }: ChatPanelProps) {
-  const chat = useChatStore()
+  const chat = useChatStore(useShallow(s => ({
+    messages: s.messages,
+    isStreaming: s.isStreaming,
+    sessionId: s.sessionId,
+    sessionInputTokens: s.sessionInputTokens,
+    addUserMessage: s.addUserMessage,
+    finishStreaming: s.finishStreaming,
+    toggleBookmark: s.toggleBookmark,
+    togglePin: s.togglePin,
+    toggleReaction: s.toggleReaction,
+    deleteMessage: s.deleteMessage,
+    appendText: s.appendText,
+    ensureAssistantMessage: s.ensureAssistantMessage,
+    saveAlternative: s.saveAlternative,
+    setAltIndex: s.setAltIndex,
+  })))
   const { features } = useFeatureFlags()
   const ccCtx = useCCContext()
   const ccFileCtx = useCCFileContext()
