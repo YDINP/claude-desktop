@@ -990,3 +990,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2790 | 6차 감사 — scene/ 고아 디렉토리 삭제, NodePropertyPanel 삭제, stub console.log 정리 | ✅ |
 | R2791 | SceneViewPanel 3,636→2,401줄 — InfoPanels/ToolbarExtras/QuickActions/EditBar/ShortcutsHelp 추출 | ✅ |
 | R2792 | Sidebar 9탭 lazy loading + useWorkspaceManager/ui-store 테스트 40개 (총 236) | ✅ |
+| R2793 | i18n 57키 추가 — WelcomeScreen/Sidebar/StatusBar/ChatPanel 한영 전환 | ✅ |
