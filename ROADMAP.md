@@ -996,3 +996,5 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2796 | 테스트 86개 추가 — useSessionManager/useSettingsSync/cc-file-watcher/remote-handlers (총 322) | ✅ |
 | R2797 | :any 6건→unknown 교체 + useChatScroll/Search/project-store/syntaxLanguages 65테스트 (총 387) | ✅ |
 | R2798 | Main 모듈 88테스트 (session/fs/app-config) + console.log 9건 정리 (총 475) | ✅ |
+| R2799 | i18n 95키 추가 — SettingsPanel/InputBar/AppLayout 전체 (총 207키) | ✅ |
+| R2800 | 성능 최적화 — useShallow selector(AppLayout+App), updateToolUse O(1) fast-path, trackChangedFile useCallback | ✅ |
