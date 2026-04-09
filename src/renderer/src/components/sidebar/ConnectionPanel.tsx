@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { t } from '../../utils/i18n'
 
 interface McpServer {
   name: string
@@ -28,10 +29,10 @@ function StatusDot({ status }: { status: McpServer['status'] }) {
 }
 
 function statusLabel(server: McpServer): string {
-  if (server.status === 'checking') return '확인 중...'
-  if (server.status === 'alive') return `활성 (${server.latency}ms)`
-  if (server.status === 'dead') return '응답 없음'
-  return '알 수 없음'
+  if (server.status === 'checking') return t('conn.checking', '확인 중...')
+  if (server.status === 'alive') return `${t('conn.alive', '활성')} (${server.latency}ms)`
+  if (server.status === 'dead') return t('conn.dead', '응답 없음')
+  return t('conn.unknown', '알 수 없음')
 }
 
 export function ConnectionPanel() {
@@ -153,7 +154,7 @@ export function ConnectionPanel() {
         flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>MCP 서버</span>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('conn.header', 'MCP 서버')}</span>
           {servers.length > 0 && (
             <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 8, background: 'var(--bg-hover)', color: 'var(--text-muted)', fontWeight: 600 }}>
               {servers.length}
@@ -175,7 +176,7 @@ export function ConnectionPanel() {
           {servers.length > 0 && (
             <button
               onClick={() => setAutoPing(v => !v)}
-              title={autoPing ? '자동 핑 끄기 (30초 간격)' : '자동 핑 켜기 (30초 간격)'}
+              title={autoPing ? t('conn.autoPingOn', '자동 핑 끄기 (30초 간격)') : t('conn.autoPingOff', '자동 핑 켜기 (30초 간격)')}
               style={{
                 fontSize: 11, padding: '2px 6px',
                 background: autoPing ? 'var(--accent)' : 'var(--bg-input)',
@@ -190,7 +191,7 @@ export function ConnectionPanel() {
           {servers.length > 0 && (
             <button
               onClick={() => setAutoReconnect(v => !v)}
-              title={autoReconnect ? '자동 재연결 끄기 (10초 간격)' : '자동 재연결 켜기 (10초 간격)'}
+              title={autoReconnect ? t('conn.autoReconnectOn', '자동 재연결 끄기 (10초 간격)') : t('conn.autoReconnectOff', '자동 재연결 켜기 (10초 간격)')}
               style={{
                 fontSize: 11, padding: '2px 6px',
                 background: autoReconnect ? '#16a34a' : 'var(--bg-input)',
@@ -206,7 +207,7 @@ export function ConnectionPanel() {
             <button
               onClick={pingAll}
               disabled={servers.some(s => s.status === 'checking')}
-              title="모든 서버 핑"
+              title={t('conn.pingAllTitle', '모든 서버 핑')}
               style={{
                 fontSize: 11, padding: '2px 8px',
                 background: 'var(--bg-input)', color: 'var(--accent)',
@@ -214,7 +215,7 @@ export function ConnectionPanel() {
                 cursor: servers.some(s => s.status === 'checking') ? 'wait' : 'pointer',
               }}
             >
-              모두 핑
+              {t('conn.pingAll', '모두 핑')}
             </button>
           )}
           <button
@@ -227,7 +228,7 @@ export function ConnectionPanel() {
               cursor: loading ? 'wait' : 'pointer',
             }}
           >
-            {loading ? '로딩...' : '새로고침'}
+            {loading ? t('conn.loading', '로딩...') : t('conn.refresh', '새로고침')}
           </button>
         </div>
       </div>
@@ -239,7 +240,7 @@ export function ConnectionPanel() {
             value={serverSearch}
             onChange={e => setServerSearch(e.target.value)}
             onKeyDown={e => e.key === 'Escape' && setServerSearch('')}
-            placeholder="서버 검색..."
+            placeholder={t('conn.searchPlaceholder', '서버 검색...')}
             className="panel-search"
             style={{ background: 'var(--bg-input)', boxSizing: 'border-box' }}
           />
@@ -250,7 +251,7 @@ export function ConnectionPanel() {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {servers.length === 0 && !loading && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12, textAlign: 'center' }}>
-            MCP 서버가 설정되지 않았습니다
+            {t('conn.empty', 'MCP 서버가 설정되지 않았습니다')}
           </div>
         )}
 
@@ -315,7 +316,7 @@ export function ConnectionPanel() {
                     setTimeout(() => setCopiedServerIdx(i => i === index ? null : i), 1500)
                   })
                 }}
-                title="명령어 복사"
+                title={t('conn.copyCmd', '명령어 복사')}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: '0 2px', color: copiedServerIdx === index ? '#4caf50' : 'var(--border)', flexShrink: 0 }}
               >
                 {copiedServerIdx === index ? '✓' : '📋'}
@@ -324,7 +325,7 @@ export function ConnectionPanel() {
 
             {/* Status */}
             <div style={{ color: 'var(--text-muted)', fontSize: 10 }}>
-              상태: {statusLabel(server)}
+              {t('conn.status', '상태')}: {statusLabel(server)}
             </div>
           </div>
         )})}
@@ -341,11 +342,11 @@ export function ConnectionPanel() {
           display: 'flex', alignItems: 'center', gap: 4,
         }}>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-            설정 파일: {configFile}
+            {t('conn.configFile', '설정 파일')}: {configFile}
           </span>
           <button
             onClick={() => navigator.clipboard.writeText(configFile).then(() => { setCfgCopied(true); setTimeout(() => setCfgCopied(false), 1500) })}
-            title="경로 복사"
+            title={t('conn.copyPath', '경로 복사')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: cfgCopied ? '#4caf50' : 'var(--text-muted)', flexShrink: 0, padding: '0 2px' }}
           >
             {cfgCopied ? '✓' : '📋'}
