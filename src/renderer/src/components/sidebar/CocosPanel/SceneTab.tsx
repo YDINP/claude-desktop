@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { t } from '../../../utils/i18n'
 import { CCFileSceneView } from '../SceneView/CCFileSceneView'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { CCFileBatchInspector } from './BatchInspector'
@@ -138,7 +139,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                       if (fn) onSelectNode(fn)
                     }}
                     onContextMenu={e => { e.preventDefault(); togglePinNode(p.uuid, p.name) }}
-                    title={`${p.name} 선택 / 우클릭: 핀 해제 (R2474)`}
+                    title={t('hierarchy.pinnedSelect', `${p.name} 선택 / 우클릭: 핀 해제 (R2474)`).replace('{n}', p.name)}
                     style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,191,36,0.4)', background: selectedNode?.uuid === p.uuid ? 'rgba(251,191,36,0.2)' : 'none', color: selectedNode?.uuid === p.uuid ? '#fbbf24' : '#a88a44', flexShrink: 0, maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >{p.name}</span>
                 ))}
@@ -148,16 +149,16 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
             <div style={{ flexShrink: 0, borderBottom: '1px solid var(--border)', background: 'rgba(0,0,0,0.15)' }}>
               {dupeBarOpen ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '1px 6px', fontSize: 9, color: 'var(--text-muted)' }}>
-                  <span title="접기" onClick={() => { setDupeBarOpen(false); localStorage.setItem('cc-dupe-bar-open', 'false') }}
-                    style={{ flexShrink: 0, cursor: 'pointer' }}>Δ복제 ▲</span>
+                  <span title={t('hierarchy.dupeOffsetCollapse', '접기')} onClick={() => { setDupeBarOpen(false); localStorage.setItem('cc-dupe-bar-open', 'false') }}
+                    style={{ flexShrink: 0, cursor: 'pointer' }}>{t('hierarchy.dupeOffsetLabel', 'Δ복제 ▲')}</span>
                   <span>X</span>
                   <input type="number" value={dupeOffsetX} onChange={e => saveDupeOffset(parseInt(e.target.value) || 0, dupeOffsetY)}
                     style={{ width: 38, fontSize: 9, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
-                    title="복제 X 오프셋 (R2488)" />
+                    title={t('hierarchy.dupeOffsetX', '복제 X 오프셋 (R2488)')} />
                   <span>Y</span>
                   <input type="number" value={dupeOffsetY} onChange={e => saveDupeOffset(dupeOffsetX, parseInt(e.target.value) || 0)}
                     style={{ width: 38, fontSize: 9, padding: '0 3px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 2 }}
-                    title="복제 Y 오프셋 (R2488)" />
+                    title={t('hierarchy.dupeOffsetY', '복제 Y 오프셋 (R2488)')} />
                   <span style={{ color: 'var(--border)', fontSize: 10 }}>|</span>
                   {([0, 10, 20, 50] as const).map(v => (
                     <span key={v} onClick={() => saveDupeOffset(v, v)} title={`Δ${v}px`}
@@ -167,7 +168,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', padding: '1px 6px', fontSize: 9, color: 'var(--text-muted)' }}>
-                  <span title="복제 오프셋 펼치기" onClick={() => { setDupeBarOpen(true); localStorage.setItem('cc-dupe-bar-open', 'true') }}
+                  <span title={t('hierarchy.dupeOffsetExpand', '복제 오프셋 펼치기')} onClick={() => { setDupeBarOpen(true); localStorage.setItem('cc-dupe-bar-open', 'true') }}
                     style={{ cursor: 'pointer' }}>Δ ▼</span>
                 </div>
               )}
@@ -261,7 +262,7 @@ export function SceneTabContent({ ctx, selectedNode, onSelectNode }: SceneTabPro
           {/* R1595: 최근 선택 노드 히스토리 */}
           {nodeHistory.length > 1 && !selectedNode && multiSelectedUuids.length <= 1 && (
             <div style={{ width: sceneViewHeight, flexShrink: 0, padding: '4px 8px', borderLeft: '1px solid var(--border)', background: 'var(--bg-secondary)', overflow: 'auto' }}>
-              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>최근 선택</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>{t('hierarchy.recentNodes', '최근 선택')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                 {nodeHistory.slice(0, 8).map(uuid => {
                   const fn = sceneFile?.root ? (() => {

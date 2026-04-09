@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, DragEvent, ChangeEvent } from 'react'
+import { t } from '../../utils/i18n'
 import { Terminal, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
@@ -599,13 +600,13 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           background: 'var(--bg-secondary)',
           flexShrink: 0,
         }}>
-          Terminal (unavailable — install Visual Studio Build Tools)
+          {t('terminal.unavailableTitle', 'Terminal (unavailable — install Visual Studio Build Tools)')}
         </div>
         <div style={{
           flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: 'var(--text-muted)', fontSize: 12, flexDirection: 'column', gap: 8,
         }}>
-          <div>Terminal requires Visual Studio Build Tools</div>
+          <div>{t('terminal.unavailableDesc', 'Terminal requires Visual Studio Build Tools')}</div>
           <code style={{ color: 'var(--accent)', fontSize: 11 }}>
             npm install -g windows-build-tools
           </code>
@@ -625,7 +626,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
       {/* Tab bar */}
       <div
         role="tablist"
-        aria-label="터미널 탭"
+        aria-label={t('terminal.tabLabel', '터미널 탭')}
         onClick={() => { setTabColorMenuOpen(null); setCmdBookmarkOpen(false); setOutputThemeOpen(false) }}
         style={{
           display: 'flex',
@@ -747,7 +748,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             {/* Feature 3: save history button */}
             <span
               onClick={e => { e.stopPropagation(); saveTerminalHistory(tab.id, getTabLabel(tab, i)) }}
-              title="터미널 히스토리 저장"
+              title={t('terminal.saveHistory', '터미널 히스토리 저장')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -767,7 +768,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             {/* Feature 1: clear button */}
             <span
               onClick={e => { e.stopPropagation(); clearTerminal(tab.id) }}
-              title="터미널 지우기"
+              title={t('terminal.clearTerminal', '터미널 지우기')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -862,7 +863,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
         {tabs.length < 5 && (
           <div
             onClick={addTab}
-            title="New terminal"
+            title={t('terminal.newTab', 'New terminal')}
             style={{
               padding: '4px 8px',
               fontSize: 14,
@@ -881,9 +882,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           {/* Split layout buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {([
-              { value: 'single', icon: '☐', title: '단일 터미널' },
-              { value: 'horizontal', icon: '⬚', title: '수평 분할 (좌우)' },
-              { value: 'vertical', icon: '⬓', title: '수직 분할 (위아래)' },
+              { value: 'single', icon: '☐', title: t('terminal.splitSingle', '단일 터미널') },
+              { value: 'horizontal', icon: '⬚', title: t('terminal.splitHorizontal', '수평 분할 (좌우)') },
+              { value: 'vertical', icon: '⬓', title: t('terminal.splitVertical', '수직 분할 (위아래)') },
             ] as const).map(({ value, icon, title }) => (
               <span
                 key={value}
@@ -916,7 +917,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           {/* Filter button */}
           <span
             onClick={() => { setShowTermFilter(prev => !prev); setTimeout(() => filterInputRef.current?.focus(), 50) }}
-            title="출력 필터 (Ctrl+Shift+F)"
+            title={t('terminal.filterTitle', '출력 필터 (Ctrl+Shift+F)')}
             style={{
               display: 'flex', alignItems: 'center', gap: 3,
               cursor: 'pointer', fontSize: 11, padding: '1px 5px',
@@ -928,12 +929,12 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = showTermFilter ? 'var(--accent)' : 'var(--border)' }}
           >
-            &#128269; 필터
+            &#128269; {t('terminal.filter', '필터')}
           </span>
           {/* Recording button */}
           <span
             onClick={toggleRecording}
-            title={recording ? '녹화 중지 및 저장' : '터미널 출력 녹화 시작'}
+            title={recording ? t('terminal.recordStop', '녹화 중지 및 저장') : t('terminal.recordStart', '터미널 출력 녹화 시작')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -952,12 +953,12 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = recording ? '#f44336' : 'var(--text-muted)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = recording ? '#f44336' : 'var(--border)' }}
           >
-            {recording ? '⏹' : '🔴'} {recording ? '녹화중' : '녹화'}
+            {recording ? '⏹' : '🔴'} {recording ? t('terminal.recordingActive', '녹화중') : t('terminal.recording', '녹화')}
           </span>
           <select
             value={terminalTheme}
             onChange={e => handleThemeChange(e.target.value)}
-            title="터미널 테마"
+            title={t('terminal.themeLabel', '터미널 테마')}
             style={{
               background: 'var(--bg-tertiary)',
               color: 'var(--text-muted)',
@@ -977,7 +978,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           <div style={{ position: 'relative' }}>
             <span
               onClick={e => { e.stopPropagation(); setOutputThemeOpen(prev => !prev) }}
-              title="출력 색상 테마"
+              title={t('terminal.outputTheme', '출력 색상 테마')}
               style={{
                 display: 'flex', alignItems: 'center', gap: 3,
                 cursor: 'pointer', fontSize: 11, padding: '1px 5px',
@@ -1053,7 +1054,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           <button
             key={cmd}
             onClick={() => sendQuickCmd(cmd + '\n')}
-            title={`자주 사용: ${cmd}`}
+            title={t('terminal.learnedCmd', '자주 사용: {c}').replace('{c}', cmd)}
             style={{
               padding: '2px 8px', borderRadius: 4, fontSize: 11,
               background: 'rgba(82,139,255,0.1)', border: '1px solid rgba(82,139,255,0.3)',
@@ -1087,7 +1088,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           <button
             onClick={bookmarkCmd}
             onContextMenu={e => { e.preventDefault(); setCmdBookmarkOpen(prev => !prev) }}
-            title="현재 입력 명령어 즐겨찾기 추가 (우클릭: 목록)"
+            title={t('terminal.bookmarkAdd', '현재 입력 명령어 즐겨찾기 추가 (우클릭: 목록)')}
             style={{ padding: '2px 6px', fontSize: 13, background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
@@ -1114,11 +1115,11 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               }}
             >
               <div style={{ padding: '4px 8px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>즐겨찾기 ({cmdBookmarks.length}/10)</span>
+                <span>{t('terminal.bookmarkList', '즐겨찾기 ({n}/10)').replace('{n}', String(cmdBookmarks.length))}</span>
                 <button onClick={() => setCmdBookmarkOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, padding: 0 }}>×</button>
               </div>
               {cmdBookmarks.length === 0 ? (
-                <div style={{ padding: '8px 10px', fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>즐겨찾기 없음</div>
+                <div style={{ padding: '8px 10px', fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>{t('terminal.bookmarkEmpty', '즐겨찾기 없음')}</div>
               ) : (
                 cmdBookmarks.map((cmd, idx) => (
                   <div
@@ -1145,7 +1146,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           )}
           <button
             onClick={() => setEditingCmds(e => !e)}
-            title="빠른 명령어 편집"
+            title={t('terminal.quickEdit', '빠른 명령어 편집')}
             style={{ padding: '2px 6px', fontSize: 11, background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)' }}
           >
             &#9881;
@@ -1161,20 +1162,20 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               <input
                 value={qc.label}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => updateCmd(i, 'label', e.target.value)}
-                placeholder="레이블"
+                placeholder={t('terminal.quickLabelPlaceholder', '레이블')}
                 style={{ width: 80, padding: '2px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 3, color: 'inherit', fontSize: 11 }}
               />
               <input
                 value={qc.cmd}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => updateCmd(i, 'cmd', e.target.value)}
-                placeholder="명령어"
+                placeholder={t('terminal.quickCmdPlaceholder', '명령어')}
                 style={{ flex: 1, padding: '2px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 3, color: 'inherit', fontSize: 11 }}
               />
               <button onClick={() => deleteCmd(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f44336' }}>×</button>
             </div>
           ))}
           {quickCmds.length < 8 && (
-            <button onClick={addCmd} style={{ fontSize: 11, background: 'none', border: '1px dashed var(--border)', borderRadius: 3, cursor: 'pointer', padding: '2px 8px', color: 'var(--text-muted)' }}>+ 추가</button>
+            <button onClick={addCmd} style={{ fontSize: 11, background: 'none', border: '1px dashed var(--border)', borderRadius: 3, cursor: 'pointer', padding: '2px 8px', color: 'var(--text-muted)' }}>{t('terminal.quickAddBtn', '+ 추가')}</button>
           )}
         </div>
       )}
@@ -1191,7 +1192,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             value={termFilter}
             onChange={e => setTermFilter(e.target.value)}
             onKeyDown={e => { if (e.key === 'Escape') { setShowTermFilter(false); setTermFilter('') } }}
-            placeholder="출력 필터 키워드..."
+            placeholder={t('terminal.filterPlaceholder', '출력 필터 키워드...')}
             style={{
               flex: 1, padding: '3px 8px', fontSize: 12,
               background: 'var(--bg-input)', color: 'var(--text-primary)',
@@ -1200,7 +1201,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           />
           {termFilter && (
             <span style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-              {(outputBufferRef.current[activeTabId] ?? []).filter(l => l.includes(termFilter)).length} 줄 매칭
+              {t('terminal.filterLines', '{n} 줄 매칭').replace('{n}', String((outputBufferRef.current[activeTabId] ?? []).filter(l => l.includes(termFilter)).length))}
             </span>
           )}
           <button
@@ -1236,7 +1237,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             </div>
             {/* Splitter handle */}
             <div
-              title="드래그하여 비율 조정"
+              title={t('terminal.splitterDrag', '드래그하여 비율 조정')}
               onMouseDown={e => {
                 e.preventDefault()
                 const container = (e.currentTarget as HTMLElement).parentElement
@@ -1340,7 +1341,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               })
             }
             {(outputBufferRef.current[activeTabId] ?? []).filter(l => l.includes(termFilter)).length === 0 && (
-              <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>매칭 결과 없음</div>
+              <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>{t('terminal.filterNoMatch', '매칭 결과 없음')}</div>
             )}
           </div>
         )}
@@ -1351,14 +1352,14 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px',
             fontSize: 11, zIndex: 10,
           }}>
-            <span style={{ color: 'var(--error, #f85149)' }}>⚠️ 에러 감지</span>
+            <span style={{ color: 'var(--error, #f85149)' }}>{t('terminal.errorDetected', '⚠️ 에러 감지')}</span>
             <button
               onClick={handleAskClaude}
               style={{
                 background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4,
                 padding: '2px 8px', fontSize: 11, cursor: 'pointer',
               }}
-            >🤖 AI 분석</button>
+            >{t('terminal.aiAnalyze', '🤖 AI 분석')}</button>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none' }}>
               <input
                 type="checkbox"
@@ -1366,7 +1367,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
                 onChange={e => setAutoAnalyze(e.target.checked)}
                 style={{ cursor: 'pointer' }}
               />
-              자동 분석
+              {t('terminal.autoAnalyze', '자동 분석')}
             </label>
             <button
               onClick={() => setErrorBanners(prev => ({ ...prev, [activeTabId]: false }))}
@@ -1414,7 +1415,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
                   setSearchQuery('')
                 }
               }}
-              placeholder="터미널 검색..."
+              placeholder={t('terminal.searchPlaceholder', '터미널 검색...')}
               style={{
                 background: 'var(--bg-input)',
                 color: 'var(--text-primary)',

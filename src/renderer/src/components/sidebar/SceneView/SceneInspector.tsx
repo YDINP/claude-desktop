@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { t } from '../../../utils/i18n'
 import type { SceneNode } from './types'
 import { getComponentIcon } from './utils'
 import { NumInput, SectionHeader, WidgetInspector, SpriteInspector, LabelInspector, ButtonInspector, ProgressBarInspector, LayoutInspector, AnimationInspector, TweenInspector, AudioSourceInspector, AddComponentDropdown } from './InspectorComponents'
@@ -37,7 +38,7 @@ function ChildList({ childUuids, nodeMap, onSelect }: { childUuids: string[]; no
   return (
     <span>
       <span
-        title={`자식 노드 ${childUuids.length}개 — 클릭으로 목록 펼치기`}
+        title={t('inspector.childNodes', `자식 노드 ${childUuids.length}개 — 클릭으로 목록 펼치기`).replace('{n}', String(childUuids.length))}
         style={{ cursor: 'pointer', color: expanded ? 'var(--accent)' : undefined }}
         onClick={() => setExpanded(v => !v)}
       >
@@ -183,7 +184,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
           <span style={{ fontSize: 10, fontWeight: 600, color: '#60a5fa' }}>
-            {selectionCount}개 노드 선택됨
+            {t('inspector.multiSelected', `${selectionCount}개 노드 선택됨`).replace('{n}', String(selectionCount))}
           </span>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13, padding: '0 2px', lineHeight: 1 }}>×</button>
         </div>
@@ -200,7 +201,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           >OFF</button>
         </div>
         {/* Position 오프셋 편집 */}
-        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>Position 오프셋 (상대 이동)</div>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>{t('inspector.posOffset', 'Position 오프셋 (상대 이동)')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 6 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 16 }}>dX</span>
@@ -245,7 +246,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
             background: 'var(--accent)', color: '#fff', border: 'none',
           }}
         >
-          일괄 적용
+          {t('inspector.applyBatch', '일괄 적용')}
         </button>
       </div>
     )
@@ -310,7 +311,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
               maxWidth: 140,
               cursor: 'text',
             }}
-            title={`${node.name} (더블클릭하여 이름 변경)`}
+            title={t('inspector.nodeNameTitle', `${node.name} (더블클릭하여 이름 변경)`).replace('{n}', node.name)}
             onDoubleClick={() => { setNameDraft(node.name); setNameEditing(true) }}
           >
             {node.name}
