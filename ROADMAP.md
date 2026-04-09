@@ -994,3 +994,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2794 | i18n 55키 추가 — 6패널+MessageBubble 한영 전환 (총 112키) + 7차 감사 dead export 정리 | ✅ |
 | R2795 | AppLayout any→ProjectContext/ChatContext 타입 강화 + undo/redo UndoEntry[] + kernel @future | ✅ |
 | R2796 | 테스트 86개 추가 — useSessionManager/useSettingsSync/cc-file-watcher/remote-handlers (총 322) | ✅ |
+| R2797 | :any 6건→unknown 교체 + useChatScroll/Search/project-store/syntaxLanguages 65테스트 (총 387) | ✅ |
