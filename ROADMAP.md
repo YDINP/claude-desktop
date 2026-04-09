@@ -1012,3 +1012,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2812 | ToastContainer/TitleBar/WelcomeScreen/CalendarPanel/NotesPanel 84 렌더테스트 (총 1,241) | ✅ |
 | R2813 | TasksPanel/ClipboardPanel/DiffPanel/RemotePanel 75 렌더테스트 (총 1,316) | ✅ |
 | R2814 | BookmarksPanel/SnippetPanel/StatusBar/CommandPalette 62 렌더테스트 (총 1,378) | ✅ |
+| R2815 | SettingsPanel/SearchPanel/ConnectionPanel/StatsPanel/OutlinePanel 78 렌더테스트 (총 1,456) | ✅ |
