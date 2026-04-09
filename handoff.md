@@ -5,10 +5,11 @@
 
 ## 현재 상태
 
-- **QA**: 0 Critical / 0 Warning / 2628 Pass
+- **QA**: 0 Critical / 0 Warning / 2612 Pass
 - **tsc**: 0 에러
 - **빌드**: 성공
-- **최신 커밋**: `9f55b5d1` — docs: ROADMAP R2778~R2779 경쟁조건/디바운스 기록
+- **테스트**: 197/197 (15 파일)
+- **최신 커밋**: `4cbb74f7` — docs: ROADMAP R2789~R2790 CCFileSceneView Context/6차감사 기록
 
 ---
 
@@ -20,9 +21,9 @@
 
 ## 남은 장기 과제
 
-- **테스트 커버리지**: vitest 미도입, 단위 테스트 0%
-- **i18n**: 한국어 하드코딩 325건 (대규모 작업 필요)
-- **대형 파일 한계**: CCFileSceneView.tsx 4,961줄 / SceneViewPanel 4,439줄 — 구조적 추가 분리 후보 (하단 참조)
+- **테스트 커버리지**: vitest 197 테스트 / 단위 테스트 부분 적용
+- **i18n**: 기반 구축 완료 (t() + 언어 선택 UI), 한국어 하드코딩 잔여 건수 추가 전환 필요
+- **대형 파일 한계**: CCFileSceneView.tsx 2,530줄 / SceneViewPanel 3,636줄 — 구조적 추가 분리 후보 (하단 참조)
 - **인라인 style 전환**: 점진적 추가 CSS 클래스 전환 미완
 - **AppLayout props**: 나머지 ~30 props drilling 해소 미완
 - **슬래시 커맨드 관리 UI** (Phase 4): 선택 사항, 미구현
@@ -124,20 +125,30 @@ src/renderer/
 
 ---
 
-## CCFileSceneView.tsx 추가 분리 후보 (미착수)
+## CCFileSceneView.tsx 추가 분리 후보 (CCSceneContext 분리 후 현황)
 
-| 파일명 | 라인 범위 | 분량 | 내용 |
-|--------|----------|------|------|
-| `useCCSceneMouseHandlers.ts` | 429–839 | ~410줄 | handleMouseDown/Move/Up |
-| `CCSceneToolbar.tsx` | 1038–1836 | ~799줄 | 도구 패널, 오버레이 패널, 검색 |
-| `CCSceneSvgLayer.tsx` | 1865–4372 | ~2508줄 | SVG 렌더링 전체 (최우선) |
-| `CCSceneOverlays.tsx` | 4433–4958 | ~525줄 | hover 정보, 팝업 패널 |
+Context 분리 완료 후 2,530줄. 추가 분리 가능 영역:
 
-→ SVG 레이어(2,508줄)가 최우선 분리 후보. props 전달 범위가 크므로 신중히 접근.
+| 후보 | 내용 |
+|------|------|
+| `CCSceneSvgLayer` (잔여 SVG) | SVG 렌더링 추가 세분화 여전히 가능 |
+| `useCCSceneMouseHandlers` | mouseDown/Move/Up 핸들러 훅 추출 |
+
+→ SceneViewPanel(3,636줄)도 유사하게 추가 분리 가능하나 props 범위 신중히 검토.
 
 ---
 
 ## 이전 작업 이력 (축약)
+
+### 2026-04-08 — Context 분리 / 감사 5~6차 / as-any 제거 / 테스트 확장
+- CCFileSceneView Context 분리: 4,374 → 2,530줄 (CCSceneContext/Toolbar/HUD/SVGOverlays)
+- SceneViewPanel Context 분리: 4,440 → 3,636줄 (SceneViewContext/ContextMenu/Overlays/SnapshotBar)
+- 6차 감사: scene/ 고아 디렉토리 삭제, NodePropertyPanel 삭제, stub 정리
+- 5차 감사 7건: local:// 경로 검증, IPC 중복 가드, 세션 고아 복구, stale closure, 메모리 누수 3건
+- `as any` 11건 → 0건
+- 테스트 197/197 (15 파일)
+- i18n 기반 구축 (t() + 언어 선택 UI)
+- QA: 2628 → 2612 Pass (최종)
 
 ### 2026-04-08 — 전수검사 2·3차 (인스펙터 렌더러)
 - LabelRenderer `showRichPreview` 미선언 crash 수정 (Critical)
