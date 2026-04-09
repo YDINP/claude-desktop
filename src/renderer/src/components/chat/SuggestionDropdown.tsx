@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 
 interface Snippet {
   id: string
@@ -18,7 +18,7 @@ interface MentionDropdownProps {
   onSelect: (filePath: string) => void
 }
 
-export function MentionDropdown({ filteredFiles, mentionSelected, setMentionSelected, onSelect }: MentionDropdownProps) {
+export const MentionDropdown = memo(function MentionDropdown({ filteredFiles, mentionSelected, setMentionSelected, onSelect }: MentionDropdownProps) {
   if (filteredFiles.length === 0) return null
   return (
     <div style={{
@@ -66,7 +66,7 @@ export function MentionDropdown({ filteredFiles, mentionSelected, setMentionSele
       })}
     </div>
   )
-}
+})
 
 // ── Template var autocomplete dropdown ──
 interface VarSuggestionDropdownProps {
@@ -76,7 +76,7 @@ interface VarSuggestionDropdownProps {
   onSelect: (varName: string) => void
 }
 
-export function VarSuggestionDropdown({ varSuggestions, varSuggestionsIdx, setVarSuggestionsIdx, onSelect }: VarSuggestionDropdownProps) {
+export const VarSuggestionDropdown = memo(function VarSuggestionDropdown({ varSuggestions, varSuggestionsIdx, setVarSuggestionsIdx, onSelect }: VarSuggestionDropdownProps) {
   if (varSuggestions.length === 0) return null
   return (
     <div style={{
@@ -117,7 +117,7 @@ export function VarSuggestionDropdown({ varSuggestions, varSuggestionsIdx, setVa
       ))}
     </div>
   )
-}
+})
 
 // ── Snippet shortcut dropdown ──
 interface SnippetDropdownProps {
@@ -127,7 +127,7 @@ interface SnippetDropdownProps {
   onSelect: (snippet: Snippet) => void
 }
 
-export function SnippetDropdown({ snippetMatches, snippetMenuIdx, setSnippetMenuIdx, onSelect }: SnippetDropdownProps) {
+export const SnippetDropdown = memo(function SnippetDropdown({ snippetMatches, snippetMenuIdx, setSnippetMenuIdx, onSelect }: SnippetDropdownProps) {
   if (snippetMatches.length === 0) return null
   return (
     <div style={{
@@ -179,4 +179,4 @@ export function SnippetDropdown({ snippetMatches, snippetMenuIdx, setSnippetMenu
       ))}
     </div>
   )
-}
+})

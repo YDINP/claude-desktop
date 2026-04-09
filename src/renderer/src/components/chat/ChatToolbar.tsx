@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { memo } from 'react'
 
 // ── System Prompt Editor ─────────────────────────────────────────────────────
-export function SystemPromptEditor({
+export const SystemPromptEditor = memo(function SystemPromptEditor({
   customSystemPrompt, setCustomSystemPrompt, onClose,
 }: {
   customSystemPrompt: string
@@ -52,10 +52,10 @@ export function SystemPromptEditor({
       </div>
     </div>
   )
-}
+})
 
 // ── Session Summary Panel ────────────────────────────────────────────────────
-export function SessionSummaryPanel({
+export const SessionSummaryPanel = memo(function SessionSummaryPanel({
   summaryLoading, summaryText, onRegenerate, onClose,
 }: {
   summaryLoading: boolean
@@ -110,10 +110,10 @@ export function SessionSummaryPanel({
       </div>
     </div>
   )
-}
+})
 
 // ── Chat Search Bar ─────────────────────────────────────────────────────────
-export function ChatSearchBar({
+export const ChatSearchBar = memo(function ChatSearchBar({
   searchQuery, matchCount, safeMatchIdx, isSearchPending,
   searchInputRef, onSearchChange, onSearchPrev, onSearchNext, onSearchKeyDown, onClose,
 }: {
@@ -175,4 +175,4 @@ export function ChatSearchBar({
       }}>×</button>
     </div>
   )
-}
+})

@@ -26,6 +26,7 @@ import { WebPreviewPanel } from '../sidebar/WebPreviewPanel'
 import { SceneViewPanel } from '../sidebar/SceneView/SceneViewPanel'
 import { CocosPanel } from '../sidebar/CocosPanel'
 import { ToastContainer } from './ToastContainer'
+import { ErrorBoundary } from './ErrorBoundary'
 import { WorkspaceTabBar } from './WorkspaceTabBar'
 import { FileTabBar } from './FileTabBar'
 import type { WorkspaceManager } from '../../hooks/useWorkspaceManager'
@@ -264,6 +265,7 @@ export function AppLayout({
         }}>
           <div style={{ width: sidebarWidth, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             {!mainPanelTab && (
+              <ErrorBoundary name="Sidebar">
               <Sidebar
                 activeSessionId={chat.sessionId}
                 changedFiles={changedFiles}
@@ -327,6 +329,7 @@ export function AppLayout({
                 onCCPortChange={setWsCCPort}
                 onCCConnectedChange={setWsCCConnected}
               />
+              </ErrorBoundary>
             )}
           </div>
         </div>
@@ -477,6 +480,7 @@ export function AppLayout({
             {/* Panel tab content */}
             {mainPanelTab && activeTab === 'chat' && (
               <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', zIndex: 1 }}>
+                <ErrorBoundary name="SidebarPanel">
                 <Sidebar
                   activeSessionId={chat.sessionId}
                   changedFiles={changedFiles}
@@ -508,6 +512,7 @@ export function AppLayout({
                   onCCConnectedChange={setWsCCConnected}
                   forceTab={mainPanelTab}
                 />
+                </ErrorBoundary>
               </div>
             )}
 
@@ -577,7 +582,9 @@ export function AppLayout({
                         onMouseLeave={e => { if (!isAgentBayDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                       />
                       <div style={{ flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
+                        <ErrorBoundary name="ChatPanel">
                         <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={features.sessionFork ? handleFork : undefined} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={features.contextCompress ? handleCompressContext : undefined} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
+                        </ErrorBoundary>
                       </div>
                     </div>
                     <OpsFeed
@@ -586,7 +593,9 @@ export function AppLayout({
                     />
                   </div>
                 ) : (
+                  <ErrorBoundary name="ChatPanel">
                   <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={features.sessionFork ? handleFork : undefined} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={features.contextCompress ? handleCompressContext : undefined} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
+                  </ErrorBoundary>
                 )}
               </div>
 

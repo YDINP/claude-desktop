@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { SlashCommandRegistry, type SlashCommandCompat } from '../../domains/commands/SlashCommandRegistry'
 
 interface SlashCommandDropdownProps {
@@ -9,7 +9,7 @@ interface SlashCommandDropdownProps {
   onSelect: (cmd: SlashCommandCompat) => void
 }
 
-export function SlashCommandDropdown({
+export const SlashCommandDropdown = memo(function SlashCommandDropdown({
   groupedCmds,
   flatCmds,
   slashSelected,
@@ -107,4 +107,4 @@ export function SlashCommandDropdown({
       </div>
     </div>
   )
-}
+})

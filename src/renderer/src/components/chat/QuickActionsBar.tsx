@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { memo, useState, useCallback } from 'react'
 
 interface QuickAction {
   id: string
@@ -14,7 +14,7 @@ interface QuickActionsBarProps {
   onQuickAction: (prompt: string) => void
 }
 
-export function QuickActionsBar({ quickActions, setQuickActions, onQuickAction }: QuickActionsBarProps) {
+export const QuickActionsBar = memo(function QuickActionsBar({ quickActions, setQuickActions, onQuickAction }: QuickActionsBarProps) {
   const [editingAction, setEditingAction] = useState<string | null>(null)
   const [editLabel, setEditLabel] = useState('')
   const [editPrompt, setEditPrompt] = useState('')
@@ -85,7 +85,7 @@ export function QuickActionsBar({ quickActions, setQuickActions, onQuickAction }
       ))}
     </div>
   )
-}
+})
 
 interface MessageTemplate {
   id: string
@@ -104,7 +104,7 @@ interface TemplatePanelProps {
   onClose: () => void
 }
 
-export function TemplatePanel({ text, templates, onSaveTemplates, onInsertTemplate, onClose }: TemplatePanelProps) {
+export const TemplatePanel = memo(function TemplatePanel({ text, templates, onSaveTemplates, onInsertTemplate, onClose }: TemplatePanelProps) {
   const [templateSearch, setTemplateSearch] = useState('')
   const [savingTemplate, setSavingTemplate] = useState(false)
   const [newTemplateName, setNewTemplateName] = useState('')
@@ -273,4 +273,4 @@ export function TemplatePanel({ text, templates, onSaveTemplates, onInsertTempla
       )}
     </div>
   )
-}
+})
