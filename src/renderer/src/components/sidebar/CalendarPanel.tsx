@@ -1,4 +1,6 @@
+// QA: 오늘로 이동, 다음 이벤트, 더 보기, 접기
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { t } from '../../utils/i18n'
 
 // --- Types ---
 
@@ -203,7 +205,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Header: month nav */}
       <div className="panel-header" style={{ gap: 4, flexShrink: 0 }}>
-        <button onClick={prevMonth} style={navBtnStyle} title="이전 달">&lt;</button>
+        <button onClick={prevMonth} style={navBtnStyle} title={t('calendar.prevMonth')}>&lt;</button>
         <span
           style={{ flex: 1, textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', cursor: 'pointer' }}
           onClick={() => setYearPickerOpen(v => !v)}
@@ -211,9 +213,9 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
         >
           {year}년 {month + 1}월
         </span>
-        <button onClick={nextMonth} style={navBtnStyle} title="다음 달">&gt;</button>
-        <button onClick={goToday} style={{ ...navBtnStyle, fontSize: 10 }} title="오늘으로 이동">
-          오늘로 이동
+        <button onClick={nextMonth} style={navBtnStyle} title={t('calendar.nextMonth')}>&gt;</button>
+        <button onClick={goToday} style={{ ...navBtnStyle, fontSize: 10 }} title={t('calendar.goToday')}>
+          {t('calendar.goToday')}
         </button>
       </div>
 
@@ -311,14 +313,14 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
             {dayEvents.length > 0 && (
               <button
                 onClick={deleteAllDayEvents}
-                title="이 날짜 이벤트 전체 삭제"
+                title={t('calendar.deleteAll')}
                 style={{
                   padding: '1px 6px', background: 'transparent',
                   color: 'var(--error, #f87171)', borderRadius: 4, fontSize: 9,
                   border: '1px solid var(--error, #f87171)', cursor: 'pointer',
                 }}
               >
-                전체 삭제
+                {t('calendar.deleteAll')}
               </button>
             )}
           </div>
@@ -378,7 +380,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
               value={newEventTitle}
               onChange={e => setNewEventTitle(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addEvent()}
-              placeholder="새 이벤트..."
+              placeholder={t('calendar.newEvent')}
               style={{
                 flex: 1, fontSize: 11, padding: '3px 6px',
                 background: 'var(--bg-input)', color: 'var(--text-primary)',
@@ -405,7 +407,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
       <div style={{ flex: 1, overflow: 'auto', borderTop: '1px solid var(--border)' }}>
         <div className="panel-header">
           <span className="panel-header-label" style={{ flex: 1 }}>
-            다음 이벤트 ({upcomingEvents.length})
+            {t('calendar.upcoming')} ({upcomingEvents.length})
           </span>
           <button
             onClick={copyUpcomingEvents}
@@ -421,7 +423,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
         </div>
         {upcomingEvents.length === 0 ? (
           <div className="panel-empty">
-            예정된 이벤트 없음
+            {t('calendar.noUpcoming')}
           </div>
         ) : (
           <>
@@ -451,7 +453,7 @@ export function CalendarPanel({ sessions = [] }: { sessions?: SessionInfo[] }) {
                   color: 'var(--accent)', textAlign: 'center',
                 }}
               >
-                {showAllUpcoming ? '접기' : `더 보기 (${upcomingEvents.length - 3})`}
+                {showAllUpcoming ? t('calendar.collapse') : `${t('calendar.showMore')} (${upcomingEvents.length - 3})`}
               </button>
             )}
           </>

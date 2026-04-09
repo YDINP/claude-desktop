@@ -1,6 +1,8 @@
+// QA: 빠른 마감일, 오늘, 7일, 태스크 검색
 import { useState, useMemo, useCallback, useRef } from 'react'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 import { downloadFile } from '../../utils/download'
+import { t } from '../../utils/i18n'
 
 interface Task {
   id: string
@@ -258,7 +260,7 @@ export function TasksPanel() {
       <div style={{ padding: '6px 8px' }}>
         <input
           type="text"
-          placeholder="태스크 검색..."
+          placeholder={t('tasks.searchPlaceholder')}
           value={taskSearch}
           onChange={e => setTaskSearch(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setTaskSearch('')}
@@ -272,7 +274,7 @@ export function TasksPanel() {
         <div style={{ display: 'flex', gap: 4 }}>
           <input
             type="text"
-            placeholder="새 태스크..."
+            placeholder={t('tasks.newPlaceholder')}
             value={newTaskText}
             onChange={e => setNewTaskText(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addTask()}
@@ -285,15 +287,15 @@ export function TasksPanel() {
           </button>
         </div>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>빠른 마감일:</span>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('tasks.quickDueDate')}</span>
           <button onClick={() => setQuickDueDate(0)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
-            오늘
+            {t('tasks.today')}
           </button>
           <button onClick={() => setQuickDueDate(1)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
-            내일
+            {t('tasks.tomorrow')}
           </button>
           <button onClick={() => setQuickDueDate(7)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '0 4px' }}>
-            7일
+            {t('tasks.in7days')}
           </button>
           <input
             type="date"
@@ -311,7 +313,7 @@ export function TasksPanel() {
       <div style={{ overflowY: 'auto', flex: 1 }}>
         {sortedTasks.length === 0 ? (
           <div className="panel-empty">
-            {tasks.length === 0 ? '태스크가 없습니다.' : '검색 결과 없음'}
+            {tasks.length === 0 ? t('tasks.empty') : t('common.noResults')}
           </div>
         ) : sortedTasks.map(t => {
           const overdue = !t.done && isOverdue(t.dueDate)

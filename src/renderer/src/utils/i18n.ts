@@ -83,6 +83,77 @@ const ko: Record<string, string> = {
 
   // ChatPanel
   'chat.close': '닫기',
+
+  // Common actions
+  'common.add':     '추가',
+  'common.delete':  '삭제',
+  'common.save':    '저장',
+  'common.cancel':  '취소',
+  'common.search':  '검색',
+  'common.export':  '내보내기',
+  'common.import':  '가져오기',
+  'common.copy':    '복사',
+  'common.close':   '닫기',
+  'common.confirm': '확인',
+  'common.reset':   '초기화',
+  'common.noResults': '검색 결과 없음',
+
+  // CalendarPanel
+  'calendar.prevMonth':    '이전 달',
+  'calendar.nextMonth':    '다음 달',
+  'calendar.goToday':      '오늘로 이동',
+  'calendar.deleteAll':    '전체 삭제',
+  'calendar.newEvent':     '새 이벤트...',
+  'calendar.upcoming':     '다음 이벤트',
+  'calendar.noUpcoming':   '예정된 이벤트 없음',
+  'calendar.collapse':     '접기',
+  'calendar.showMore':     '더 보기',
+
+  // TasksPanel
+  'tasks.empty':        '태스크가 없습니다.',
+  'tasks.searchPlaceholder': '태스크 검색...',
+  'tasks.newPlaceholder':    '새 태스크...',
+  'tasks.quickDueDate': '빠른 마감일:',
+  'tasks.today':        '오늘',
+  'tasks.tomorrow':     '내일',
+  'tasks.in7days':      '7일',
+
+  // NotesPanel
+  'notes.empty':        '노트가 없습니다. + 버튼으로 추가하세요.',
+  'notes.searchPlaceholder': '노트 검색...',
+  'notes.backToList':   '< 목록',
+
+  // ClipboardPanel
+  'clipboard.empty':           '클립보드 기록 없음',
+  'clipboard.searchPlaceholder': '클립보드 검색...',
+
+  // DiffPanel
+  'diff.title':          'Diff 비교',
+  'diff.noHistory':      '비교 히스토리가 없습니다',
+  'diff.placeholder':    '파일 경로를 입력하고 비교 버튼을 클릭하세요',
+  'diff.comparing':      '비교 중...',
+  'diff.compare':        '비교',
+  'diff.originalPath':   '원본 파일 경로',
+  'diff.modifiedPath':   '수정 파일 경로',
+
+  // RemotePanel
+  'remote.title':        '원격 호스트',
+  'remote.loading':      'SSH 설정 로딩 중...',
+  'remote.empty':        '등록된 호스트가 없습니다',
+
+  // MessageBubble actions
+  'msg.copy':           '복사',
+  'msg.copyCode':       '코드 블록 복사',
+  'msg.delete':         '삭제',
+  'msg.regenerate':     '재생성',
+  'msg.edit':           '편집',
+  'msg.unpin':          '핀 해제',
+  'msg.pin':            '핀 고정',
+  'msg.unbookmark':     '북마크 해제',
+  'msg.bookmark':       '북마크',
+  'msg.fork':           '분기',
+  'msg.retry':          '재시도',
+  'msg.copyAll':        '메시지 전체 복사',
 }
 
 const en: Record<string, string> = {
@@ -167,6 +238,77 @@ const en: Record<string, string> = {
 
   // ChatPanel
   'chat.close': 'Close',
+
+  // Common actions
+  'common.add':     'Add',
+  'common.delete':  'Delete',
+  'common.save':    'Save',
+  'common.cancel':  'Cancel',
+  'common.search':  'Search',
+  'common.export':  'Export',
+  'common.import':  'Import',
+  'common.copy':    'Copy',
+  'common.close':   'Close',
+  'common.confirm': 'Confirm',
+  'common.reset':   'Reset',
+  'common.noResults': 'No results',
+
+  // CalendarPanel
+  'calendar.prevMonth':    'Previous month',
+  'calendar.nextMonth':    'Next month',
+  'calendar.goToday':      'Go to today',
+  'calendar.deleteAll':    'Delete all',
+  'calendar.newEvent':     'New event...',
+  'calendar.upcoming':     'Upcoming',
+  'calendar.noUpcoming':   'No upcoming events',
+  'calendar.collapse':     'Collapse',
+  'calendar.showMore':     'Show more',
+
+  // TasksPanel
+  'tasks.empty':        'No tasks.',
+  'tasks.searchPlaceholder': 'Search tasks...',
+  'tasks.newPlaceholder':    'New task...',
+  'tasks.quickDueDate': 'Quick due:',
+  'tasks.today':        'Today',
+  'tasks.tomorrow':     'Tomorrow',
+  'tasks.in7days':      '7 days',
+
+  // NotesPanel
+  'notes.empty':        'No notes. Press + to add.',
+  'notes.searchPlaceholder': 'Search notes...',
+  'notes.backToList':   '< List',
+
+  // ClipboardPanel
+  'clipboard.empty':           'No clipboard history',
+  'clipboard.searchPlaceholder': 'Search clipboard...',
+
+  // DiffPanel
+  'diff.title':          'Diff',
+  'diff.noHistory':      'No diff history',
+  'diff.placeholder':    'Enter file paths and click Compare',
+  'diff.comparing':      'Comparing...',
+  'diff.compare':        'Compare',
+  'diff.originalPath':   'Original file path',
+  'diff.modifiedPath':   'Modified file path',
+
+  // RemotePanel
+  'remote.title':        'Remote Hosts',
+  'remote.loading':      'Loading SSH config...',
+  'remote.empty':        'No hosts registered',
+
+  // MessageBubble actions
+  'msg.copy':           'Copy',
+  'msg.copyCode':       'Copy code block',
+  'msg.delete':         'Delete',
+  'msg.regenerate':     'Regenerate',
+  'msg.edit':           'Edit',
+  'msg.unpin':          'Unpin',
+  'msg.pin':            'Pin',
+  'msg.unbookmark':     'Unbookmark',
+  'msg.bookmark':       'Bookmark',
+  'msg.fork':           'Fork',
+  'msg.retry':          'Retry',
+  'msg.copyAll':        'Copy message',
 }
 
 export type SupportedLang = 'ko' | 'en'

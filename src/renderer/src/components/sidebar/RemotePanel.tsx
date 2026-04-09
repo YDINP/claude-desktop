@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
+import { t } from '../../utils/i18n'
 
 // --- 상대 시간 ---
 function fmtRelative(ts: number): string {
@@ -147,7 +148,7 @@ export function RemotePanel() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontSize: 12 }}>
       {/* 헤더 */}
       <div className="panel-header" style={{ padding: '8px 10px', gap: 6, flexShrink: 0 }}>
-        <span style={{ fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>원격 호스트</span>
+        <span style={{ fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{t('remote.title')}</span>
         {/* 호스트 수 배지 */}
         <span style={{
           fontSize: 9, padding: '1px 5px', borderRadius: 8,
@@ -173,7 +174,7 @@ export function RemotePanel() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setQuery('')}
-          placeholder="호스트 검색..."
+          placeholder={t('common.search') + '...'}
           className="panel-search"
           style={{ background: 'var(--bg-secondary)', boxSizing: 'border-box' }}
         />
@@ -200,11 +201,11 @@ export function RemotePanel() {
             <button onClick={handleAddHost}
               disabled={!newName.trim() || !newHost.trim() || !newUser.trim()}
               style={{ flex: 1, padding: '3px 0', background: 'var(--accent)', color: '#fff', borderRadius: 3, fontSize: 10, opacity: (!newName.trim() || !newHost.trim() || !newUser.trim()) ? 0.5 : 1, cursor: 'pointer', border: 'none' }}>
-              저장
+              {t('common.save')}
             </button>
             <button onClick={() => setShowAddForm(false)}
               style={{ flex: 1, padding: '3px 0', background: 'var(--bg-tertiary)', color: 'var(--text-muted)', borderRadius: 3, fontSize: 10, cursor: 'pointer', border: 'none' }}>
-              취소
+              {t('common.cancel')}
             </button>
           </div>
         </div>
@@ -214,13 +215,13 @@ export function RemotePanel() {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {loading && (
           <div className="panel-empty">
-            SSH 설정 로딩 중...
+            {t('remote.loading')}
           </div>
         )}
 
         {!loading && sshHosts.length === 0 && savedHosts.length === 0 && (
           <div className="panel-empty">
-            등록된 호스트가 없습니다
+            {t('remote.empty')}
           </div>
         )}
 

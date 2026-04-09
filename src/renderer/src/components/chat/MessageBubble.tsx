@@ -10,6 +10,7 @@ import type { Plugin } from 'unified'
 import { makeMdComponents } from './CodeBlock'
 import { clipboardStore } from '../../utils/clipboard-store'
 import { ThinkingPanel } from './ThinkingPanel'
+import { t } from '../../utils/i18n'
 
 // ── QA keyword markers (extracted to CodeBlock.tsx — do not remove) ─────
 // copiedBlock copyCode clipboardCopy clipboard copied
@@ -403,7 +404,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
           >
-            📋 복사
+            📋 {t('msg.copy')}
           </div>
           {onFork && (
             <div
@@ -425,7 +426,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
-              📋 코드 블록 복사
+              📋 {t('msg.copyCode')}
             </div>
           )}
           {onTogglePin && (
@@ -435,7 +436,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
-              📌 {isPinned ? '핀 해제' : '핀 고정'}
+              📌 {isPinned ? t('msg.unpin') : t('msg.pin')}
             </div>
           )}
           {onBookmark && (
@@ -445,7 +446,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
-              ★ {isBookmarked ? '북마크 해제' : '북마크'}
+              ★ {isBookmarked ? t('msg.unbookmark') : t('msg.bookmark')}
             </div>
           )}
           {isUser && onRetry && !isStreaming && (
@@ -455,7 +456,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
-              🔁 재시도
+              🔁 {t('msg.retry')}
             </div>
           )}
           {onDelete && (
@@ -467,7 +468,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
               >
-                🗑️ 삭제
+                🗑️ {t('msg.delete')}
               </div>
             </>
           )}
@@ -492,7 +493,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           {onBookmark && (
             <button
               onClick={onBookmark}
-              title={isBookmarked ? '북마크 해제' : '북마크'}
+              title={isBookmarked ? t('msg.unbookmark') : t('msg.bookmark')}
               style={{
                 background: isBookmarked ? '#3d3a1a' : '#3a3a4a',
                 color: isBookmarked ? '#fbbf24' : '#aaa',
@@ -510,7 +511,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           {onTogglePin && (
             <button
               onClick={onTogglePin}
-              title={isPinned ? '핀 해제' : '핀 고정'}
+              title={isPinned ? t('msg.unpin') : t('msg.pin')}
               style={{
                 background: isPinned ? '#2a3a4a' : '#3a3a4a',
                 color: isPinned ? '#60a5fa' : '#aaa',
@@ -528,32 +529,32 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           {isUser && onEditResend && !isStreaming && (
             <button
               onClick={() => { setEditText(msg.text); setIsEditing(true); setTimeout(() => { editTextareaRef.current?.focus(); editTextareaRef.current?.select() }, 0) }}
-              title="편집"
+              title={t('msg.edit')}
               style={{
                 background: '#3a3a4a', color: '#aaa',
                 border: 'none', borderRadius: 3, padding: '2px 8px', fontSize: 11, cursor: 'pointer',
               }}
-            >&#9998; 편집</button>
+            >&#9998; {t('msg.edit')}</button>
           )}
           {isUser && onFork && (
             <button
               onClick={onFork}
-              title="여기서 대화 분기"
+              title={t('msg.fork')}
               style={{
                 background: '#3a3a4a', color: '#aaa',
                 border: 'none', borderRadius: 3, padding: '2px 8px', fontSize: 11, cursor: 'pointer',
               }}
-            >&#8663; 분기</button>
+            >&#8663; {t('msg.fork')}</button>
           )}
           {!isUser && isLast && onRegenerate && (
             <button
               onClick={onRegenerate}
-              title="응답 재생성"
+              title={t('msg.regenerate')}
               style={{
                 background: '#3a3a4a', color: '#aaa',
                 border: 'none', borderRadius: 3, padding: '2px 8px', fontSize: 11, cursor: 'pointer',
               }}
-            >&#8634; 재생성</button>
+            >&#8634; {t('msg.regenerate')}</button>
           )}
           {!isUser && isLast && (altCount ?? 0) > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-muted)' }}>
@@ -610,7 +611,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           )}
           <button
             onClick={handleMsgCopy}
-            title="메시지 전체 복사"
+            title={t('msg.copyAll')}
             style={{
               background: 'none',
               border: 'none',
@@ -1169,7 +1170,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           {onRegenerate && (
             <button
               onClick={onRegenerate}
-              title="응답 재생성"
+              title={t('msg.regenerate')}
               style={{
                 background: 'rgba(255,255,255,0.06)',
                 color: 'var(--text-muted)',
@@ -1192,7 +1193,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
                 ;(e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'
               }}
             >
-              &#8634; 재생성
+              &#8634; {t('msg.regenerate')}
             </button>
           )}
           {(altCount ?? 0) > 0 && (

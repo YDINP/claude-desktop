@@ -1,6 +1,8 @@
+// QA: 노트 검색
 import { useState, useMemo, useCallback, useRef } from 'react'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 import { downloadFile } from '../../utils/download'
+import { t } from '../../utils/i18n'
 
 interface Note {
   id: string
@@ -199,7 +201,7 @@ export function NotesPanel() {
             onClick={() => { saveEditing(); setSelectedId(null) }}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12 }}
           >
-            {'<'} 목록
+            {t('notes.backToList')}
           </button>
           <input
             value={editingTitle}
@@ -295,7 +297,7 @@ export function NotesPanel() {
       <div style={{ padding: '6px 8px' }}>
         <input
           type="text"
-          placeholder="노트 검색..."
+          placeholder={t('notes.searchPlaceholder')}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setSearchQuery('')}
@@ -307,7 +309,7 @@ export function NotesPanel() {
       <div style={{ overflowY: 'auto', flex: 1 }}>
         {sortedNotes.length === 0 ? (
           <div className="panel-empty">
-            {notes.length === 0 ? '노트가 없습니다. + 버튼으로 추가하세요.' : '검색 결과 없음'}
+            {notes.length === 0 ? t('notes.empty') : t('common.noResults')}
           </div>
         ) : sortedNotes.map(n => {
           const excerpt = searchQuery.trim() && n.content.toLowerCase().includes(searchQuery.toLowerCase())

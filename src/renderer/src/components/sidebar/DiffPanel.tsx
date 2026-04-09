@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
+import { t } from '../../utils/i18n'
 
 // --- diff 통계 ---
 interface DiffStats {
@@ -196,7 +197,7 @@ export function DiffPanel() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontSize: 12 }}>
       {/* 헤더 */}
       <div className="panel-header" style={{ padding: '8px 10px', gap: 6, flexShrink: 0 }}>
-        <span style={{ fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>Diff 비교</span>
+        <span style={{ fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{t('diff.title')}</span>
         <button
           onClick={() => setShowHistory(v => !v)}
           title="최근 비교 히스토리"
@@ -216,7 +217,7 @@ export function DiffPanel() {
         <div style={{ borderBottom: '1px solid var(--border)', maxHeight: 200, overflowY: 'auto', flexShrink: 0 }}>
           {diffHistory.length === 0 ? (
             <div className="panel-empty">
-              비교 히스토리가 없습니다
+              {t('diff.noHistory')}
             </div>
           ) : diffHistory.map(entry => (
             <div
@@ -250,7 +251,7 @@ export function DiffPanel() {
           <input
             value={originalPath}
             onChange={e => setOriginalPath(e.target.value)}
-            placeholder="원본 파일 경로"
+            placeholder={t('diff.originalPath')}
             style={{
               flex: 1, padding: '4px 8px', background: 'var(--bg-secondary)',
               border: '1px solid var(--border)', borderRadius: 4,
@@ -275,7 +276,7 @@ export function DiffPanel() {
           <input
             value={modifiedPath}
             onChange={e => setModifiedPath(e.target.value)}
-            placeholder="수정 파일 경로"
+            placeholder={t('diff.modifiedPath')}
             style={{
               flex: 1, padding: '4px 8px', background: 'var(--bg-secondary)',
               border: '1px solid var(--border)', borderRadius: 4,
@@ -309,7 +310,7 @@ export function DiffPanel() {
               cursor: loading ? 'wait' : 'pointer',
             }}
           >
-            {loading ? '비교 중...' : '비교'}
+            {loading ? t('diff.comparing') : t('diff.compare')}
           </button>
         </div>
       </div>
@@ -348,7 +349,7 @@ export function DiffPanel() {
       <div style={{ flex: 1, overflow: 'auto', fontFamily: 'monospace', fontSize: 11 }}>
         {diffLines.length === 0 && !error && (
           <div className="panel-empty" style={{ padding: 20 }}>
-            파일 경로를 입력하고 비교 버튼을 클릭하세요
+            {t('diff.placeholder')}
           </div>
         )}
         {diffLines.map((dl, i) => (

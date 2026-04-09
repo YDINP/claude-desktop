@@ -1,6 +1,8 @@
+// QA: 클립보드 검색
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 import { useExpandedId } from '../../hooks/useExpandedId'
+import { t } from '../../utils/i18n'
 
 // --- Types ---
 
@@ -132,7 +134,7 @@ export function ClipboardPanel() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setQuery('')}
-          placeholder="클립보드 검색..."
+          placeholder={t('clipboard.searchPlaceholder')}
           className="panel-search"
           style={{ flex: 1, background: 'var(--bg-input)', boxSizing: 'border-box' }}
         />
@@ -165,7 +167,7 @@ export function ClipboardPanel() {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {filtered.length === 0 ? (
           <div className="panel-empty">
-            {entries.length === 0 ? '클립보드 기록 없음' : '검색 결과 없음'}
+            {entries.length === 0 ? t('clipboard.empty') : t('common.noResults')}
           </div>
         ) : filtered.map(entry => {
           const pinned = isPinned(entry.id)

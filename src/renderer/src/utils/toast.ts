@@ -41,8 +41,3 @@ export function toastInfo(message: string): void {
 export function toastWarning(message: string): void {
   toast(message, 'warning', 4000)
 }
-
-// Legacy shim — keeps App.tsx registerToast call working during migration
-export function registerToast(_fn: unknown): void {
-  // no-op: event emitter pattern replaces this
-}
