@@ -624,6 +624,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
     }}>
       {/* Tab bar */}
       <div
+        role="tablist"
+        aria-label="터미널 탭"
         onClick={() => { setTabColorMenuOpen(null); setCmdBookmarkOpen(false); setOutputThemeOpen(false) }}
         style={{
           display: 'flex',
@@ -637,6 +639,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
         {tabs.map((tab, i) => (
           <div
             key={tab.id}
+            role="tab"
+            aria-selected={tab.id === activeTabId}
             draggable
             onClick={() => setActiveTabId(tab.id)}
             onDragStart={(e: DragEvent<HTMLDivElement>) => {

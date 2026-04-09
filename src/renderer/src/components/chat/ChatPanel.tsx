@@ -848,6 +848,9 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
       ) : (<>
       <div
         ref={scrollContainerRef}
+        role="log"
+        aria-live="polite"
+        aria-label="대화 메시지"
         data-view-mode={chatViewMode}
         style={{
           flex: 1, overflow: 'auto', position: 'relative',

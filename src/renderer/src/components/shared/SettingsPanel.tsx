@@ -364,10 +364,12 @@ export function SettingsPanel({ open, onClose, currentProject }: { open: boolean
         </div>
 
         {/* Tab bar */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
+        <div role="tablist" aria-label="설정 탭" style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
           {TAB_DEFS.map(tab => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={settingsTab === tab.id}
               onClick={() => setSettingsTab(tab.id)}
               style={{
                 padding: '8px 16px',

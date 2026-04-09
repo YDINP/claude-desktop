@@ -38,7 +38,7 @@ export function SlashCommandDropdown({
       <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none', flexShrink: 0 }}>
         ↑↓ 탐색 · Enter/Tab 선택 · Space 인자 입력 · Esc 닫기
       </div>
-      <div style={{ overflowY: 'auto', flex: 1 }}>
+      <div role="listbox" aria-label="슬래시 커맨드" style={{ overflowY: 'auto', flex: 1 }}>
       {(() => {
         let flatIdx = 0
         return groupedCmds.map((group) => (
@@ -67,6 +67,8 @@ export function SlashCommandDropdown({
               return (
                 <div
                   key={`${c.category ?? 'builtin'}-${c.cmd}`}
+                  role="option"
+                  aria-selected={idx === slashSelected}
                   onMouseDown={e => e.preventDefault()}
                   onClick={() => onSelect(c)}
                   onMouseEnter={() => setSlashSelected(idx)}

@@ -1165,6 +1165,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       <textarea
         key={taKey}
         ref={textareaRef}
+        aria-label="메시지 입력"
         value={text}
         onChange={(e) => {
           cursorPosRef.current = e.target.selectionStart ?? 0
@@ -1534,6 +1535,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           <button
             onClick={handleSend}
             disabled={!text.trim() || disabled}
+            aria-label="메시지 전송"
             style={{
               padding: '8px 14px',
               background: text.trim() && !disabled ? 'var(--accent)' : 'var(--bg-tertiary)',

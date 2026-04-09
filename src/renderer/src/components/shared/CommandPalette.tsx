@@ -116,6 +116,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
   const [globalSearchResults, setGlobalSearchResults] = useState<GlobalSearchResult[]>([])
   const globalSearchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
 
   const [favorites, setFavorites] = useState<string[]>(getFavorites)
   const usage = useMemo(() => getUsage(), [])
@@ -130,8 +131,12 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
   }
 
   useEffect(() => {
+    previousFocusRef.current = document.activeElement as HTMLElement
     inputRef.current?.focus()
     window.api.sessionList().then(list => setSessions(list as SessionMeta[]))
+    return () => {
+      previousFocusRef.current?.focus()
+    }
   }, [])
 
   useEffect(() => {
@@ -415,7 +420,12 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
       >
         <input
           ref={inputRef}
+          role="combobox"
           aria-label="검색"
+          aria-expanded={totalCount > 0}
+          aria-controls="cmd-palette-listbox"
+          aria-activedescendant={totalCount > 0 ? `cmd-palette-option-${clampSel}` : undefined}
+          aria-autocomplete="list"
           value={query}
           onChange={e => { setQuery(e.target.value); setSelected(0) }}
           onKeyDown={onKeyDown}
@@ -427,7 +437,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
             fontSize: 14, outline: 'none', boxSizing: 'border-box',
           }}
         />
-        <div role="listbox" style={{ maxHeight: 360, overflow: 'auto' }}>
+        <div id="cmd-palette-listbox" role="listbox" style={{ maxHeight: 360, overflow: 'auto' }}>
           {isGlobalSearch ? (
             <>
               <div style={{ padding: '6px 16px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', background: 'var(--bg-primary)' }}>
@@ -441,6 +451,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
               {globalSearchResults.map((r, i) => (
                 <div
                   key={r.sessionId}
+                  id={`cmd-palette-option-${i}`}
                   role="option"
                   aria-selected={i === clampSel}
                   onClick={() => selectGlobalResult(r)}
@@ -518,6 +529,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
                       </div>
                     )}
                     <div
+                      id={`cmd-palette-option-${i}`}
                       role="option"
                       aria-selected={i === clampSel}
                       onClick={() => select(r)}
