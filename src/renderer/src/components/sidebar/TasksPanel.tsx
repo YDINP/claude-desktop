@@ -205,17 +205,17 @@ export function TasksPanel() {
       {/* header */}
       <div className="panel-header" style={{ gap: 4 }}>
         <span className="panel-header-label" style={{ flex: 1 }}>
-          태스크 {tasks.length}개
+          {t('tasks.headerCount', '태스크 {n}개').replace('{n}', String(tasks.length))}
         </span>
         {tasks.filter(t => !t.done).length > 0 && (
-          <button onClick={markAllDone} title="모두 완료 처리"
+          <button onClick={markAllDone} title={t('tasks.markAllDone', '모두 완료 처리')}
             style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 9, padding: '1px 5px' }}>
             ✓ 전부
           </button>
         )}
         <button
           onClick={() => setShowOverdueOnly(v => !v)}
-          title={showOverdueOnly ? '전체 보기' : '기한 초과만'}
+          title={showOverdueOnly ? t('tasks.showAll', '전체 보기') : t('tasks.showOverdueOnly', '기한 초과만')}
           style={{
             background: showOverdueOnly ? '#f8717133' : 'none',
             border: `1px solid ${showOverdueOnly ? '#f87171' : 'transparent'}`,
@@ -224,15 +224,15 @@ export function TasksPanel() {
             fontSize: 9, padding: '1px 5px',
           }}
         >
-          {overdueCount > 0 ? `${overdueCount}건 초과` : '초과 0'}
+          {overdueCount > 0 ? t('tasks.overdueCount', '{n}건 초과').replace('{n}', String(overdueCount)) : t('tasks.noOverdue', '초과 0')}
         </button>
         <button
           onClick={() => setSortBy(s => s === 'created' ? 'priority' : s === 'priority' ? 'dueDate' : 'created')}
-          title={`정렬: ${sortBy === 'created' ? '생성순' : sortBy === 'priority' ? '우선순위' : '마감일'}`}
+          title={t('tasks.sortLabel', '정렬: {s}').replace('{s}', sortBy === 'created' ? t('tasks.sortCreated', '생성순') : sortBy === 'priority' ? t('tasks.sortPriority', '우선순위') : t('tasks.sortDueDate', '마감일'))}
           style={{ background: 'none', border: '1px solid transparent', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 10, padding: '1px 4px' }}>
           {sortBy === 'created' ? '↕' : sortBy === 'priority' ? '🔴' : '📅'}
         </button>
-        <button onClick={exportTasks} title="Markdown으로 내보내기"
+        <button onClick={exportTasks} title={t('tasks.exportMarkdown', 'Markdown으로 내보내기')}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, padding: '2px 4px' }}>
           📤
         </button>
@@ -241,7 +241,7 @@ export function TasksPanel() {
       {/* progress bar */}
       <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: 'var(--text-muted)' }}>
-          <span>진행률 {progressPct}%</span>
+          <span>{t('tasks.progress', '진행률 {n}%').replace('{n}', String(progressPct))}</span>
           <span style={{ fontSize: 9 }}>{doneCount}/{tasks.length}</span>
         </div>
         <div style={{ height: 3, background: 'var(--bg-tertiary)', borderRadius: 2, marginTop: 2 }}>
@@ -252,7 +252,7 @@ export function TasksPanel() {
       {/* completion banner */}
       {progressPct === 100 && tasks.length > 0 && (
         <div style={{ padding: '6px 8px', background: '#4ade8022', textAlign: 'center', fontSize: 12, color: '#4ade80', borderBottom: '1px solid var(--border)' }}>
-          🎉 전부 완료
+          {t('tasks.allDone', '🎉 전부 완료')}
         </div>
       )}
 
@@ -281,7 +281,7 @@ export function TasksPanel() {
             className="panel-search"
             style={{ flex: 1, background: 'var(--bg-secondary)', boxSizing: 'border-box' }}
           />
-          <button onClick={addTask} title="추가"
+          <button onClick={addTask} title={t('tasks.addBtn', '추가')}
             style={{ padding: '4px 10px', background: 'var(--accent)', color: '#fff', borderRadius: 4, fontSize: 11, cursor: 'pointer', border: 'none' }}>
             +
           </button>
@@ -315,33 +315,33 @@ export function TasksPanel() {
           <div className="panel-empty">
             {tasks.length === 0 ? t('tasks.empty') : t('common.noResults')}
           </div>
-        ) : sortedTasks.map(t => {
-          const overdue = !t.done && isOverdue(t.dueDate)
-          const dday = getDDayLabel(t.dueDate)
-          const diffDays = t.dueDate ? Math.round((new Date(t.dueDate).getTime() - Date.now()) / 86400000) : null
+        ) : sortedTasks.map(task => {
+          const overdue = !task.done && isOverdue(task.dueDate)
+          const dday = getDDayLabel(task.dueDate)
+          const diffDays = task.dueDate ? Math.round((new Date(task.dueDate).getTime() - Date.now()) / 86400000) : null
 
           return (
-            <div key={t.id} style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)' }}>
+            <div key={task.id} style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 {/* checkbox */}
                 <input
                   type="checkbox"
-                  checked={t.done}
-                  onChange={() => toggleDone(t.id)}
+                  checked={task.done}
+                  onChange={() => toggleDone(task.id)}
                   style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--accent)' }}
                 />
                 {/* priority dot */}
                 <span
-                  onClick={() => cyclePriority(t.id)}
-                  title="클릭: 우선순위 변경"
+                  onClick={() => cyclePriority(task.id)}
+                  title={t('tasks.priorityChange', '클릭: 우선순위 변경')}
                   style={{
                     width: 8, height: 8, borderRadius: '50%',
-                    background: PRIORITY_COLORS[t.priority],
+                    background: PRIORITY_COLORS[task.priority],
                     cursor: 'pointer', flexShrink: 0,
                   }}
                 />
                 {/* task text */}
-                {editingId === t.id ? (
+                {editingId === task.id ? (
                   <input
                     ref={editInputRef}
                     value={editingText}
@@ -356,38 +356,38 @@ export function TasksPanel() {
                   />
                 ) : (
                   <span
-                    onDoubleClick={() => startEdit(t)}
-                    title="더블클릭하여 편집"
+                    onDoubleClick={() => startEdit(task)}
+                    title={t('tasks.editDblClick', '더블클릭하여 편집')}
                     style={{
-                      flex: 1, fontSize: 11, color: t.done ? 'var(--text-muted)' : 'var(--text-primary)',
-                      textDecoration: t.done ? 'line-through' : 'none',
+                      flex: 1, fontSize: 11, color: task.done ? 'var(--text-muted)' : 'var(--text-primary)',
+                      textDecoration: task.done ? 'line-through' : 'none',
                       cursor: 'default', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}
                   >
-                    {t.text}
+                    {task.text}
                   </span>
                 )}
                 {/* copy */}
-                <button onClick={() => copyTaskText(t.id)} title="태스크 텍스트 복사"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: copiedTaskId === t.id ? '#4ade80' : 'var(--text-muted)', fontSize: 10, padding: '1px 3px' }}>
-                  {copiedTaskId === t.id ? '✓' : '📋'}
+                <button onClick={() => copyTaskText(task.id)} title={t('tasks.copyText', '태스크 텍스트 복사')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: copiedTaskId === task.id ? '#4ade80' : 'var(--text-muted)', fontSize: 10, padding: '1px 3px' }}>
+                  {copiedTaskId === task.id ? '✓' : '📋'}
                 </button>
                 {/* memo toggle */}
-                <button onClick={() => setExpandedMemoId(id => id === t.id ? null : t.id)} title="메모"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.memo ? 'var(--accent)' : 'var(--text-muted)', fontSize: 10, padding: '1px 3px' }}>
-                  {t.memo ? '📝' : '💬'}
+                <button onClick={() => setExpandedMemoId(id => id === task.id ? null : task.id)} title={t('tasks.memo', '메모')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: task.memo ? 'var(--accent)' : 'var(--text-muted)', fontSize: 10, padding: '1px 3px' }}>
+                  {task.memo ? '📝' : '💬'}
                 </button>
                 {/* delete */}
-                <button onClick={() => deleteTask(t.id)} title="삭제"
+                <button onClick={() => deleteTask(task.id)} title={t('tasks.delete', '삭제')}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--error, #f87171)', fontSize: 10, padding: '1px 3px' }}>
                   🗑
                 </button>
               </div>
               {/* due date row */}
-              {(t.dueDate || overdue) && (
+              {(task.dueDate || overdue) && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, marginLeft: 20 }}>
                   <span style={{ fontSize: 9, color: overdue ? '#f87171' : 'var(--text-muted)' }}>
-                    마감일: {t.dueDate}
+                    {t('tasks.dueDate', '마감일:')} {task.dueDate}
                   </span>
                   {dday && (
                     <span style={{
@@ -399,8 +399,8 @@ export function TasksPanel() {
                   )}
                   <input
                     type="date"
-                    value={t.dueDate || ''}
-                    onChange={e => updateDueDate(t.id, e.target.value)}
+                    value={task.dueDate || ''}
+                    onChange={e => updateDueDate(task.id, e.target.value)}
                     style={{
                       marginLeft: 'auto', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
                       borderRadius: 4, color: 'var(--text-primary)', fontSize: 9, padding: '0 3px', outline: 'none',
@@ -409,12 +409,12 @@ export function TasksPanel() {
                 </div>
               )}
               {/* memo */}
-              {expandedMemoId === t.id && (
+              {expandedMemoId === task.id && (
                 <div style={{ marginTop: 4, marginLeft: 20 }}>
                   <textarea
-                    value={t.memo || ''}
-                    onChange={e => updateMemo(t.id, e.target.value)}
-                    placeholder="메모 입력..."
+                    value={task.memo || ''}
+                    onChange={e => updateMemo(task.id, e.target.value)}
+                    placeholder={t('tasks.memoPlaceholder', '메모 입력...')}
                     rows={2}
                     style={{
                       width: '100%', boxSizing: 'border-box', padding: '4px 6px',

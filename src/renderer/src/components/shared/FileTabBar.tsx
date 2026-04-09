@@ -1,3 +1,5 @@
+import { t } from '../../utils/i18n'
+
 type MainTab = string
 
 export function FileTabBar({ tabs, active, onSelect, onClose, dirtyTabs }: {
@@ -17,16 +19,16 @@ export function FileTabBar({ tabs, active, onSelect, onClose, dirtyTabs }: {
       height: 28,
       overflowX: 'auto',
     }}>
-      {tabs.map(t => {
-        const isActive = t === active
-        const label = t === 'chat' ? '🏠 홈'
-          : t === 'scene' ? '⬡ 씬뷰'
-          : t === 'preview' ? '🌐 프리뷰'
-          : (t.split(/[\\/]/).pop() ?? t)
+      {tabs.map(tab => {
+        const isActive = tab === active
+        const label = tab === 'chat' ? t('tab.home', '🏠 홈')
+          : tab === 'scene' ? t('tab.scene', '⬡ 씬뷰')
+          : tab === 'preview' ? t('tab.preview', '🌐 프리뷰')
+          : (tab.split(/[\\/]/).pop() ?? tab)
         return (
           <div
-            key={t}
-            onClick={() => onSelect(t)}
+            key={tab}
+            onClick={() => onSelect(tab)}
             style={{
               display: 'flex', alignItems: 'center', gap: 4,
               padding: '0 12px', flexShrink: 0,
@@ -42,12 +44,12 @@ export function FileTabBar({ tabs, active, onSelect, onClose, dirtyTabs }: {
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {label}
             </span>
-            {dirtyTabs?.has(t) && (
+            {dirtyTabs?.has(tab) && (
               <span style={{ color: 'var(--accent)', fontSize: 8, flexShrink: 0 }}>●</span>
             )}
-            {t !== 'chat' && t !== 'scene' && t !== 'preview' && (
+            {tab !== 'chat' && tab !== 'scene' && tab !== 'preview' && (
               <span
-                onClick={e => { e.stopPropagation(); onClose(t) }}
+                onClick={e => { e.stopPropagation(); onClose(tab) }}
                 style={{ opacity: 0.4, fontSize: 14, lineHeight: 1, padding: '0 1px', flexShrink: 0 }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.4' }}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { t } from '../../utils/i18n'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { SyntaxHighlighter, vscDarkPlus } from '../../utils/syntaxLanguages'
@@ -71,7 +72,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
     setError(null)
     if (!isImage) {
       setContent(null)
-      window.api.readFile(path).then(setContent).catch(() => setError('파일을 읽을 수 없습니다'))
+      window.api.readFile(path).then(setContent).catch(() => setError(t('fileViewer.readError', '파일을 읽을 수 없습니다')))
     }
   }, [path])
 
@@ -177,10 +178,10 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
         {content !== null && !isImage && !isEditing && !isMarkdown && (
           <button
             onClick={() => editorRef.current?.getAction('editor.action.gotoLine')?.run()}
-            title="라인으로 이동 (Ctrl+G)"
+            title={t('fileViewer.gotoLine', '라인으로 이동 (Ctrl+G)')}
             style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--text-muted)', fontSize: 11, padding: '2px 6px', cursor: 'pointer', flexShrink: 0 }}
           >
-            :줄
+            {t('fileViewer.gotoLineLabel', ':줄')}
           </button>
         )}
         {!isImage && (
@@ -199,12 +200,12 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
                   flexShrink: 0,
                 }}
               >
-                미리보기
+                {t('fileViewer.preview', '미리보기')}
               </button>
               {isMarkdown && (
                 <button
                   onClick={() => setSplitPreview(p => !p)}
-                  title={splitPreview ? '분할 뷰 닫기' : '분할 뷰 열기'}
+                  title={splitPreview ? t('fileViewer.splitClose', '분할 뷰 닫기') : t('fileViewer.splitOpen', '분할 뷰 열기')}
                   style={{
                     background: splitPreview ? 'var(--accent)' : 'none',
                     border: '1px solid var(--border)',
@@ -216,7 +217,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
                     flexShrink: 0,
                   }}
                 >
-                  분할 뷰
+                  {t('fileViewer.splitView', '분할 뷰')}
                 </button>
               )}
               <button
@@ -234,13 +235,13 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
                   flexShrink: 0,
                 }}
               >
-                {saveStatus === 'saving' ? '저장 중...' : saveStatus === 'saved' ? '저장됨' : saveStatus === 'error' ? '오류' : '저장'}
+                {saveStatus === 'saving' ? t('fileViewer.saving', '저장 중...') : saveStatus === 'saved' ? t('fileViewer.saved', '저장됨') : saveStatus === 'error' ? t('fileViewer.saveError', '오류') : t('fileViewer.save', '저장')}
               </button>
             </>
           ) : (
             <button
               onClick={() => { setEditContent(content ?? ''); setIsEditing(true) }}
-              title="편집 모드"
+              title={t('fileViewer.editMode', '편집 모드')}
               style={{
                 background: 'none',
                 border: '1px solid var(--border)',
@@ -252,7 +253,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
                 flexShrink: 0,
               }}
             >
-              ✏ 편집
+              {t('fileViewer.edit', '✏ 편집')}
             </button>
           )
         )}
@@ -278,7 +279,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
         {onSplitView && !isEditing && (
           <button
             onClick={() => onSplitView(path)}
-            title="분할 뷰에서 열기"
+            title={t('fileViewer.openSplit', '분할 뷰에서 열기')}
             style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, padding: '2px 6px', flexShrink: 0 }}
           >
             ⧉
@@ -287,7 +288,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
         {onClose && (
           <button
             onClick={onClose}
-            title="닫기"
+            title={t('fileViewer.close', '닫기')}
             style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14, padding: '2px 6px', flexShrink: 0 }}
           >
             ×
@@ -462,22 +463,22 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
                   [
                     {
                       label: '−',
-                      title: '축소 (25%)',
+                      title: t('fileViewer.zoomOut', '축소 (25%)'),
                       onClick: () => { setFitMode(false); setImgScale(prev => Math.max(0.25, parseFloat((prev - 0.25).toFixed(2)))) },
                     },
                     {
                       label: `${fitMode ? 'fit' : `${Math.round(imgScale * 100)}%`}`,
-                      title: '100%로 리셋',
+                      title: t('fileViewer.zoomReset', '100%로 리셋'),
                       onClick: () => { setFitMode(false); setImgScale(1) },
                     },
                     {
                       label: '+',
-                      title: '확대 (25%)',
+                      title: t('fileViewer.zoomIn', '확대 (25%)'),
                       onClick: () => { setFitMode(false); setImgScale(prev => Math.min(5, parseFloat((prev + 0.25).toFixed(2)))) },
                     },
                     {
-                      label: '맞추기',
-                      title: '화면에 맞추기',
+                      label: t('fileViewer.fitLabel', '맞추기'),
+                      title: t('fileViewer.fitTitle', '화면에 맞추기'),
                       onClick: () => setFitMode(f => !f),
                       active: fitMode,
                     },
@@ -504,7 +505,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
               <img
                 src={imgSrc}
                 alt={filename}
-                onError={() => setError('이미지를 불러올 수 없습니다')}
+                onError={() => setError(t('fileViewer.imgError', '이미지를 불러올 수 없습니다'))}
                 style={{
                   maxWidth: fitMode ? '100%' : 'none',
                   maxHeight: fitMode ? '100%' : 'none',
@@ -605,7 +606,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
         }}>
           <span style={{ color: '#0098ff', flexShrink: 0 }}>⚡</span>
           <span style={{ color: 'var(--text-muted)', flexShrink: 0, whiteSpace: 'nowrap' }}>
-            {selectedCode.split('\n').length}줄 선택
+            {t('fileViewer.linesSelected', '{n}줄 선택').replace('{n}', String(selectedCode.split('\n').length))}
           </span>
           <button
             onClick={() => {
@@ -618,7 +619,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
               fontSize: 11, padding: '2px 8px', cursor: 'pointer', flexShrink: 0,
             }}
           >
-            설명
+            {t('fileViewer.explain', '설명')}
           </button>
           <div style={{ display: 'flex', gap: 4, flex: 1, minWidth: 0 }}>
             <input
@@ -630,7 +631,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
                   setAiInput('')
                 }
               }}
-              placeholder="수정 요청 입력 후 Enter..."
+              placeholder={t('fileViewer.modifyPlaceholder', '수정 요청 입력 후 Enter...')}
               style={{
                 flex: 1, minWidth: 0,
                 background: 'var(--bg-input)',
@@ -653,7 +654,7 @@ export function FileViewer({ path, cwd, onClose, onSplitView, onAskAI, onDirtyCh
                 flexShrink: 0,
               }}
             >
-              수정
+              {t('fileViewer.modify', '수정')}
             </button>
           </div>
           <button

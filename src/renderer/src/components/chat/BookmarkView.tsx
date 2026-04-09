@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ChatMessage } from '../../domains/chat/domain'
+import { t } from '../../utils/i18n'
 
 export function BookmarkView({ messages }: { messages: ChatMessage[] }) {
   const bookmarked = messages.filter(m => m.bookmarked)
@@ -24,14 +25,14 @@ export function BookmarkView({ messages }: { messages: ChatMessage[] }) {
   if (!bookmarked.length) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200, color: 'var(--text-muted)', fontSize: 13 }}>
-        즐겨찾기한 메시지가 없습니다
+        {t('bookmarkView.empty', '즐겨찾기한 메시지가 없습니다')}
       </div>
     )
   }
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, paddingBottom: 6, borderBottom: '1px solid var(--border)' }}>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>즐겨찾기 {bookmarked.length}개</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('bookmarkView.count', '즐겨찾기 {n}개').replace('{n}', String(bookmarked.length))}</span>
         <button
           onClick={exportAll}
           style={{
@@ -39,7 +40,7 @@ export function BookmarkView({ messages }: { messages: ChatMessage[] }) {
             color: 'var(--text-secondary)', fontSize: 10,
             padding: '2px 8px', borderRadius: 3, cursor: 'pointer',
           }}
-        >전체 즐겨찾기 내보내기</button>
+        >{t('bookmarkView.exportAll', '전체 즐겨찾기 내보내기')}</button>
       </div>
       {bookmarked.map(msg => (
         <div key={msg.id} style={{
@@ -49,11 +50,11 @@ export function BookmarkView({ messages }: { messages: ChatMessage[] }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
-              {msg.role === 'user' ? '나' : 'Claude'} · {msg.timestamp ? new Date(msg.timestamp).toLocaleString('ko-KR') : ''}
+              {msg.role === 'user' ? t('msg.roleUser', '나') : 'Claude'} · {msg.timestamp ? new Date(msg.timestamp).toLocaleString('ko-KR') : ''}
             </span>
             <button
               onClick={() => exportOne(msg)}
-              title="JSON 다운로드"
+              title={t('bookmarkView.jsonDownload', 'JSON 다운로드')}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 color: 'var(--text-muted)', fontSize: 12, padding: '0 4px',

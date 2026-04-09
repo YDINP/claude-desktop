@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { t } from '../../utils/i18n'
 
 interface AssetItem {
   path: string
@@ -145,7 +146,7 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
         {tree.length > 0 && (
           <button
             onClick={toggleExpandAll}
-            title={allExpanded ? '전체 접기' : '전체 펼치기'}
+            title={allExpanded ? t('asset.collapseAll', '전체 접기') : t('asset.expandAll', '전체 펼치기')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 10, padding: '0 3px' }}
           >
             {allExpanded ? '⊟' : '⊞'}
@@ -154,7 +155,7 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
         <button
           onClick={refresh}
           disabled={loading}
-          title="새로고침"
+          title={t('asset.refresh', '새로고침')}
           style={{ background: 'none', border: 'none', cursor: loading ? 'default' : 'pointer', color: 'var(--text-muted)', fontSize: 12, padding: '0 2px' }}
         >
           {loading ? '⟳' : '↺'}
@@ -167,7 +168,7 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           onKeyDown={e => { if (e.key === 'Escape') { setSearch(''); setTypeFilter(null) } }}
-          placeholder="에셋 검색..."
+          placeholder={t('asset.searchPlaceholder', '에셋 검색...')}
           style={{
             width: '100%', boxSizing: 'border-box',
             background: 'var(--bg-input, var(--bg-secondary))',
@@ -181,19 +182,19 @@ export function AssetBrowserPanel({ connected, port }: AssetBrowserPanelProps) {
       {/* Type filter chips */}
       {availableTypes.length > 1 && (
         <div style={{ display: 'flex', gap: 3, padding: '3px 6px', borderBottom: '1px solid var(--border)', flexShrink: 0, flexWrap: 'wrap' }}>
-          {availableTypes.map(t => (
+          {availableTypes.map(type => (
             <button
-              key={t}
-              onClick={() => setTypeFilter(f => f === t ? null : t)}
-              title={t}
+              key={type}
+              onClick={() => setTypeFilter(f => f === type ? null : type)}
+              title={type}
               style={{
                 padding: '0 5px', fontSize: 9, borderRadius: 8, cursor: 'pointer',
-                border: `1px solid ${typeFilter === t ? 'var(--accent)' : 'var(--border)'}`,
-                background: typeFilter === t ? 'var(--accent)' : 'none',
-                color: typeFilter === t ? '#fff' : 'var(--text-muted)',
+                border: `1px solid ${typeFilter === type ? 'var(--accent)' : 'var(--border)'}`,
+                background: typeFilter === type ? 'var(--accent)' : 'none',
+                color: typeFilter === type ? '#fff' : 'var(--text-muted)',
               }}
             >
-              {ASSET_ICONS[t] ?? '📄'} {t}{typeCounts[t] ? ` (${typeCounts[t]})` : ''}
+              {ASSET_ICONS[type] ?? '📄'} {type}{typeCounts[type] ? ` (${typeCounts[type]})` : ''}
             </button>
           ))}
         </div>

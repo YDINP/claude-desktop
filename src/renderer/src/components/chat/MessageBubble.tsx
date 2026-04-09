@@ -626,7 +626,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           </button>
           <button
             onClick={handleTranslate}
-            title={showTranslation ? '번역 숨기기' : '번역'}
+            title={showTranslation ? t('msg.translateHide', '번역 숨기기') : t('msg.translate', '번역')}
             style={{
               background: 'none',
               border: 'none',
@@ -641,7 +641,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           {onReplyTo && (
             <button
               onClick={onReplyTo}
-              title="이 메시지에 인용 응답"
+              title={t('msg.replyTo', '이 메시지에 인용 응답')}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 13, padding: '2px 4px' }}
             >
               ↩
@@ -650,7 +650,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           {onQuoteReply && (
             <button
               onClick={() => onQuoteReply((msg.text ?? '').slice(0, 80))}
-              title="인용 답장"
+              title={t('msg.quoteReply', '인용 답장')}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 13, padding: '2px 4px' }}
             >
               ↩
@@ -659,7 +659,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           {onSetNote && (
             <button
               onClick={() => { setNoteText(msg.note ?? ''); setNoteOpen(o => !o) }}
-              title="메모"
+              title={t('msg.noteTitle', '메모')}
               style={{
                 background: noteOpen ? '#2a2a1a' : '#3a3a4a',
                 color: noteOpen ? '#f0c040' : '#aaa',
@@ -691,7 +691,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           textTransform: 'uppercase',
           letterSpacing: isWide ? '0.8px' : '0.5px',
         }}>
-          {isUser ? (isWide ? '나' : 'You') : 'Claude'}
+          {isUser ? t('msg.roleUser', '나') : 'Claude'}
         </span>
         {!isUser && msg.model && (
           <span style={{
@@ -1084,7 +1084,7 @@ export const MessageBubble = memo(function MessageBubble({ msg, isLast, isStream
           <textarea
             value={noteText}
             onChange={e => setNoteText(e.target.value)}
-            placeholder="여기에 메모를 입력하세요..."
+            placeholder={t('msg.notePlaceholder', '여기에 메모를 입력하세요...')}
             rows={3}
             style={{
               width: '100%',

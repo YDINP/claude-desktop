@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { t } from '../../utils/i18n'
 
 interface ThinkingPanelProps {
   text: string
@@ -33,7 +34,7 @@ export function ThinkingPanel({ text, isStreaming = false }: ThinkingPanelProps)
       >
         <span style={{ fontSize: 13 }}>🧠</span>
         <span style={{ fontSize: 10, fontWeight: 500 }}>
-          {isStreaming ? '생각 중...' : `Thinking (${Math.ceil(text.length / 4)}tok)`}
+          {isStreaming ? t('thinking.streaming', '생각 중...') : `Thinking (${Math.ceil(text.length / 4)}tok)`}
         </span>
         {isStreaming && (
           <span style={{

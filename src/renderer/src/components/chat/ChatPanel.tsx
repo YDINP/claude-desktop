@@ -589,7 +589,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
           <>
             <button
               onClick={jumpToBookmark}
-              title="다음 북마크로 이동"
+              title={t('chat.nextBookmark', '다음 북마크로 이동')}
               style={{
                 background: 'none', border: 'none', color: 'var(--warning, #fbbf24)',
                 fontSize: 13, cursor: 'pointer', padding: '2px 6px',
@@ -597,7 +597,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
             >★</button>
             <button
               onClick={() => setShowOnlyBookmarks(v => !v)}
-              title={showOnlyBookmarks ? '전체 메시지 보기' : '즐겨찾기 뷰 보기'}
+              title={showOnlyBookmarks ? t('chat.showAllMessages', '전체 메시지 보기') : t('chat.showBookmarksView', '즐겨찾기 뷰 보기')}
               style={{
                 background: showOnlyBookmarks ? 'var(--warning, #fbbf24)' : 'none',
                 border: '1px solid var(--warning, #fbbf24)',
@@ -623,7 +623,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
           <button
             key={d}
             onClick={() => setChatDensity(d)}
-            title={d === 'compact' ? '촘촘 보기' : d === 'normal' ? '기본 보기' : '집중 보기'}
+            title={d === 'compact' ? t('chat.densityCompact', '촘촘 보기') : d === 'normal' ? t('chat.densityNormal', '기본 보기') : t('chat.densityFocus', '집중 보기')}
             style={{
               background: chatDensity === d ? 'var(--accent, #89b4fa)' : 'none',
               border: 'none',
@@ -635,7 +635,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         ))}
         <button
           onClick={toggleViewMode}
-          title={chatViewMode === 'compact' ? '와이드 뷰로 전환' : '컴팩트 뷰로 전환'}
+          title={chatViewMode === 'compact' ? t('chat.wideView', '와이드 뷰로 전환') : t('chat.compactView', '컴팩트 뷰로 전환')}
           style={{
             background: 'none', border: 'none',
             color: chatViewMode === 'wide' ? 'var(--accent, #89b4fa)' : 'var(--text-muted)',
@@ -645,7 +645,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         <ContextUsageIndicator messages={chat.messages} />
         <button
           onClick={() => setShowMinimap(v => !v)}
-          title={showMinimap ? '미니맵 숨기기' : '미니맵 표시'}
+          title={showMinimap ? t('chat.hideMinimap', '미니맵 숨기기') : t('chat.showMinimap', '미니맵 표시')}
           style={{
             background: 'none', border: 'none',
             color: showMinimap ? 'var(--accent, #89b4fa)' : 'var(--text-muted)',
@@ -655,7 +655,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         >🗺</button>
         <button
           onClick={toggleTimestamps}
-          title={showTimestamps ? '타임스탬프 숨기기' : '타임스탬프 표시'}
+          title={showTimestamps ? t('chat.hideTimestamps', '타임스탬프 숨기기') : t('chat.showTimestamps', '타임스탬프 표시')}
           style={{
             background: 'none', border: 'none',
             color: showTimestamps ? 'var(--accent, #89b4fa)' : 'var(--text-muted)',
@@ -665,24 +665,24 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         {chat.messages.length >= msgFoldThreshold && (
           <button
             onClick={toggleFoldMessages}
-            title={foldedMessages.size > 0 ? '접힌 메시지 펼치기' : '중간 메시지 접기'}
+            title={foldedMessages.size > 0 ? t('chat.unfoldMessages', '접힌 메시지 펼치기') : t('chat.foldMessages', '중간 메시지 접기')}
             style={{
               background: 'none', border: 'none',
               color: foldedMessages.size > 0 ? 'var(--accent, #89b4fa)' : 'var(--text-muted)',
               fontSize: 11, cursor: 'pointer', padding: '2px 6px',
             }}
-          >{foldedMessages.size > 0 ? `↕ ${foldedMessages.size}개 메시지 보이기` : '↕ 메시지 숨기기'}</button>
+          >{foldedMessages.size > 0 ? t('chat.foldedCount', '↕ {n}개 메시지 보이기').replace('{n}', String(foldedMessages.size)) : t('chat.hideMessages', '↕ 메시지 숨기기')}</button>
         )}
         {chat.messages.length > 0 && (
           <button
             onClick={handleSummarize}
-            title="세션 요약 생성"
+            title={t('chat.summarizeTitle', '세션 요약 생성')}
             style={{
               background: 'none', border: 'none',
               color: summaryOpen ? 'var(--accent, #89b4fa)' : 'var(--text-muted)',
               fontSize: 11, cursor: 'pointer', padding: '2px 6px',
             }}
-          >📝 요약</button>
+          >{t('chat.summarizeBtn', '📝 요약')}</button>
         )}
         {chat.isStreaming && (
           <>
@@ -704,7 +704,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
             cursor: 'pointer',
           }}
         >
-          {customSystemPrompt ? '⚙ 시스템 ✓' : '⚙ 시스템 프롬프트'}
+          {customSystemPrompt ? t('chat.systemActive', '⚙ 시스템 ✓') : t('chat.systemPromptBtn', '⚙ 시스템 프롬프트')}
         </button>
       </div>
 
@@ -729,11 +729,11 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-              {chat.messages.length}개 메시지
+              {t('chat.msgCount', '{n}개 메시지').replace('{n}', String(chat.messages.length))}
             </span>
             <button
               onClick={() => {
-                if (!autoSummary) setAutoSummary('대화 요약 생성 중...')
+                if (!autoSummary) setAutoSummary(t('chat.summaryGenerating', '대화 요약 생성 중...'))
                 setShowAutoSummary((v) => !v)
               }}
               style={{
@@ -746,7 +746,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
                 cursor: 'pointer',
               }}
             >
-              요약 보기
+              {t('chat.viewSummary', '요약 보기')}
             </button>
           </div>
           {showAutoSummary && autoSummary && (
@@ -776,7 +776,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
           flexShrink: 0,
         }}>
           <span style={{ color: 'var(--text-muted)' }}>
-            {chat.messages.length}개 메시지 — 컨텍스트가 길어졌습니다
+            {t('chat.ctxLong', '{n}개 메시지 — 컨텍스트가 길어졌습니다').replace('{n}', String(chat.messages.length))}
           </span>
           <button
             onClick={onCompressContext}
@@ -790,7 +790,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
               cursor: 'pointer',
             }}
           >
-            압축
+            {t('chat.compress', '압축')}
           </button>
         </div>
       )}
@@ -815,7 +815,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
               onClick={() => setPinnedOpen(p => !p)}
               style={{ padding: '6px 12px', cursor: 'pointer', fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}
             >
-              📌 핀 메시지 {pinnedMessages.length}개 {pinnedOpen ? '▴' : '▾'}
+              {t('chat.pinnedCount', '📌 핀 메시지 {n}개').replace('{n}', String(pinnedMessages.length))} {pinnedOpen ? '▴' : '▾'}
             </div>
             {pinnedOpen && pinnedMessages.map(m => {
               const msgIdx = displayMessages.findIndex(dm => dm.id === m.id)
@@ -850,7 +850,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
         ref={scrollContainerRef}
         role="log"
         aria-live="polite"
-        aria-label="대화 메시지"
+        aria-label={t('chat.ariaMessages', '대화 메시지')}
         data-view-mode={chatViewMode}
         style={{
           flex: 1, overflow: 'auto', position: 'relative',
@@ -982,12 +982,12 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
                         color: MSG_LABEL_COLORS[msgLabels[msg.id]], border: `1px solid ${MSG_LABEL_COLORS[msgLabels[msg.id]]}55`,
                         letterSpacing: '0.3px',
                       }}>
-                        {msgLabels[msg.id]}
+                        {t('label.' + msgLabels[msg.id], msgLabels[msg.id])}
                       </span>
                     )}
                     <button
                       onClick={() => setShowLabelMenu(prev => prev === msg.id ? null : msg.id)}
-                      title="레이블 설정"
+                      title={t('chat.labelSet', '레이블 설정')}
                       style={{
                         background: 'none', border: 'none', cursor: 'pointer',
                         color: 'var(--text-muted)', fontSize: 11, padding: '0 2px', opacity: 0.5,
@@ -1014,7 +1014,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
                               color: MSG_LABEL_COLORS[kind],
                             }}
                           >
-                            {kind}
+                            {t('label.' + kind, kind)}
                           </button>
                         ))}
                       </div>
@@ -1074,7 +1074,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
             boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
             zIndex: 10,
           }}
-          title="맨 위로 스크롤"
+          title={t('chat.scrollTop', '맨 위로 스크롤')}
         >↑ 맨 위</button>
       )}
 
@@ -1105,10 +1105,10 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
               alignItems: 'center',
               gap: 6,
             }}
-            title="맨 아래로 스크롤 (자동 스크롤 재개)"
+            title={t('chat.scrollBottomAuto', '맨 아래로 스크롤 (자동 스크롤 재개)')}
           >
             <span className="scroll-pulse-dot" />
-            ↓ 새 메시지 수신 중
+            {t('chat.newMsgReceiving', '↓ 새 메시지 수신 중')}
           </button>
         ) : (
           <button
@@ -1127,7 +1127,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
               boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
               zIndex: 10,
             }}
-            title="맨 아래로 스크롤"
+            title={t('chat.scrollBottom', '맨 아래로 스크롤')}
           >↓</button>
         )
       )}
@@ -1210,7 +1210,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
             }}
           >
             <span>📎</span>
-            <span>컨텍스트 파일 {ctxFiles.files.length > 0 ? `(${ctxFiles.files.length}개, ~${ctxFiles.totalTokens > 1000 ? (ctxFiles.totalTokens/1000).toFixed(1)+'k' : ctxFiles.totalTokens}토큰)` : ''}</span>
+            <span>{t('chat.ctxFiles', '컨텍스트 파일')} {ctxFiles.files.length > 0 ? `(${ctxFiles.files.length}개, ~${ctxFiles.totalTokens > 1000 ? (ctxFiles.totalTokens/1000).toFixed(1)+'k' : ctxFiles.totalTokens}토큰)` : ''}</span>
             <span style={{ marginLeft: 'auto' }}>{showCtxFiles ? '▲' : '▼'}</span>
           </div>
           {showCtxFiles && (
@@ -1237,7 +1237,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
                 onClick={async e => {
                   e.stopPropagation()
                   if (window.api.openFileDialog) {
-                    const paths = await window.api.openFileDialog({ title: '컨텍스트 파일 선택' })
+                    const paths = await window.api.openFileDialog({ title: t('chat.ctxFileSelect', '컨텍스트 파일 선택') })
                     for (const p of paths) ctxFiles.addFile(p)
                   } else {
                     const path = window.prompt('파일 경로:')?.trim()
@@ -1249,7 +1249,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
                   borderRadius: 4, padding: '2px 8px', fontSize: 10,
                   color: 'var(--text-muted)', cursor: 'pointer',
                 }}
-              >+ 파일 추가</button>
+              >{t('chat.ctxFilesAdd', '+ 파일 추가')}</button>
             </div>
           )}
         </div>

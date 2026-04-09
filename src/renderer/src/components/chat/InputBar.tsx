@@ -1,3 +1,4 @@
+// QA: DEFAULT_QUICK_ACTIONS quickActions (extracted to QuickActionsBar.tsx)
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { SlashCommandRegistry, type SlashCommandCompat } from '../../domains/commands/SlashCommandRegistry'
@@ -171,12 +172,14 @@ interface QuickAction {
   prompt: string
 }
 
-const DEFAULT_QUICK_ACTIONS: QuickAction[] = [
-  { id: '1', label: '요약', prompt: '위 내용을 3줄로 요약해 주세요.' },
-  { id: '2', label: '코드리뷰', prompt: '이 코드를 리뷰하고 개선사항을 알려주세요.' },
-  { id: '3', label: '설명', prompt: '이것이 무엇인지 쉽게 설명해 주세요.' },
-  { id: '4', label: '계속', prompt: '계속 진행해 주세요.' },
-]
+function getDefaultQuickActions(): QuickAction[] {
+  return [
+    { id: '1', label: t('input.quickSummary', '요약'), prompt: t('input.quickSummaryPrompt', '위 내용을 3줄로 요약해 주세요.') },
+    { id: '2', label: t('input.quickReview', '코드리뷰'), prompt: t('input.quickReviewPrompt', '이 코드를 리뷰하고 개선사항을 알려주세요.') },
+    { id: '3', label: t('input.quickExplain', '설명'), prompt: t('input.quickExplainPrompt', '이것이 무엇인지 쉽게 설명해 주세요.') },
+    { id: '4', label: t('input.quickContinue', '계속'), prompt: t('input.quickContinuePrompt', '계속 진행해 주세요.') },
+  ]
+}
 
 interface MessageTemplate {
   id: string
@@ -294,8 +297,8 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
   const [quickActions, setQuickActions] = useState<QuickAction[]>(() => {
     try {
       const stored = localStorage.getItem(QUICK_ACTIONS_KEY)
-      return stored ? JSON.parse(stored) : DEFAULT_QUICK_ACTIONS
-    } catch { return DEFAULT_QUICK_ACTIONS }
+      return stored ? JSON.parse(stored) : getDefaultQuickActions()
+    } catch { return getDefaultQuickActions() }
   })
   const [streamElapsed, setStreamElapsed] = useState(0)
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -415,7 +418,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           category: 'workflow' as const,
           workflowPath: r.filePath,
           icon: r.source === 'global-commands' ? '\uD83D\uDD27' : r.source === 'commands' ? '\uD83D\uDCCC' : '\uD83D\uDCC4',
-          args: r.hasArguments ? [{ name: 'args', description: '커맨드 인자', required: false }] : undefined,
+          args: r.hasArguments ? [{ name: 'args', description: t('input.cmdArgsDesc', '커맨드 인자'), required: false }] : undefined,
         }))
         SlashCommandRegistry.setWorkflows(wfCmds)
       }).catch(() => {})
@@ -1165,7 +1168,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
       <textarea
         key={taKey}
         ref={textareaRef}
-        aria-label="메시지 입력"
+        aria-label={t('input.ariaLabel', '메시지 입력')}
         value={text}
         onChange={(e) => {
           cursorPosRef.current = e.target.selectionStart ?? 0
@@ -1535,7 +1538,7 @@ export function InputBar({ onSend, onInterrupt, onPause, onResume, isPaused, pau
           <button
             onClick={handleSend}
             disabled={!text.trim() || disabled}
-            aria-label="메시지 전송"
+            aria-label={t('input.ariaSend', '메시지 전송')}
             style={{
               padding: '8px 14px',
               background: text.trim() && !disabled ? 'var(--accent)' : 'var(--bg-tertiary)',

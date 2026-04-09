@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import type { ChatMessage } from '../../domains/chat/domain'
+import { t } from '../../utils/i18n'
 
 export function ExportConversationButton({ messages }: { messages: ChatMessage[] }) {
   if (!messages.length) return null
@@ -9,11 +10,11 @@ export function ExportConversationButton({ messages }: { messages: ChatMessage[]
     await window.api.saveFile(md, `${title}.md`)
   }
   return (
-    <button onClick={handleExport} title="대화를 파일로 저장" style={{
+    <button onClick={handleExport} title={t('export.saveFile', '대화를 파일로 저장')} style={{
       background: 'none', border: 'none', color: 'var(--text-muted)',
       fontSize: 11, cursor: 'pointer', padding: '2px 6px',
     }}>
-      💾 내보내기
+      {t('export.saveBtn', '💾 내보내기')}
     </button>
   )
 }
@@ -63,7 +64,7 @@ export function ExportHtmlButton({ messages, sessionName }: { messages: ChatMess
     await window.api.exportHtml(filePath, html)
   }
   return (
-    <button onClick={handleExport} title="HTML로 내보내기" style={{
+    <button onClick={handleExport} title={t('export.html', 'HTML로 내보내기')} style={{
       background: 'none', border: 'none', color: 'var(--text-muted)',
       cursor: 'pointer', fontSize: 12, padding: '2px 6px',
     }}>
@@ -84,7 +85,7 @@ export function ExportPdfButton({ messages, sessionId }: { messages: ChatMessage
     }
   }
   return (
-    <button onClick={handleExport} disabled={exporting} title="PDF로 내보내기" style={{
+    <button onClick={handleExport} disabled={exporting} title={t('export.pdf', 'PDF로 내보내기')} style={{
       background: 'none', border: 'none', color: exporting ? 'var(--text-muted)' : 'var(--text-muted)',
       cursor: exporting ? 'default' : 'pointer', fontSize: 12, padding: '2px 6px',
     }}>
@@ -106,7 +107,7 @@ export function CopyConversationButton({ messages }: { messages: ChatMessage[] }
   return (
     <button
       onClick={copy}
-      title="대화 전체 복사 (Markdown)"
+      title={t('export.copyAll', '대화 전체 복사 (Markdown)')}
       style={{
         background: 'none', border: 'none',
         color: copied ? 'var(--success)' : 'var(--text-muted)',
@@ -114,7 +115,7 @@ export function CopyConversationButton({ messages }: { messages: ChatMessage[] }
         marginRight: 'auto',
       }}
     >
-      {copied ? '✓ 복사됨' : '📋 대화 복사'}
+      {copied ? t('export.copied', '✓ 복사됨') : t('export.copy', '📋 대화 복사')}
     </button>
   )
 }

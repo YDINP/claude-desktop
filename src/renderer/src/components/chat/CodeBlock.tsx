@@ -235,7 +235,7 @@ export const CodeBlock = memo(function CodeBlock({
         {isRunnable && (
           <button
             onClick={handleRunInTerminal}
-            title="터미널에서 실행"
+            title={t('code.runInTerminal', '터미널에서 실행')}
             style={{
               background: '#1e3a2e',
               color: '#4ade80',
@@ -247,13 +247,13 @@ export const CodeBlock = memo(function CodeBlock({
               lineHeight: 1.4,
             }}
           >
-            {terminalRunning ? '⟳' : '▶ 터미널'}
+            {terminalRunning ? '⟳' : t('code.terminal', '▶ 터미널')}
           </button>
         )}
         {isShellExecable && (
           <button
             onClick={handleShellExec}
-            title="인라인 실행 (shell:exec)"
+            title={t('code.shellExec', '인라인 실행 (shell:exec)')}
             style={{
               background: shellResult ? (shellResult.ok ? '#1a3a2e' : '#3a1a1a') : '#1e2a1e',
               color: shellResult ? (shellResult.ok ? '#86efac' : '#f87171') : '#4ade80',
@@ -271,7 +271,7 @@ export const CodeBlock = memo(function CodeBlock({
         {isJsRunnable && !isRunnable && !isShellExecable && (
           <button
             onClick={handleRunJs}
-            title="브라우저 샌드박스에서 JS 실행"
+            title={t('code.jsRun', '브라우저 샌드박스에서 JS 실행')}
             style={{
               background: '#1e2a3e',
               color: '#7ec8a0',
@@ -283,13 +283,13 @@ export const CodeBlock = memo(function CodeBlock({
               lineHeight: 1.4,
             }}
           >
-            {hasRun ? '⟳ 재실행' : '▶ 실행'}
+            {hasRun ? t('code.rerun', '⟳ 재실행') : t('code.run', '▶ 실행')}
           </button>
         )}
         {isDocable && (
           <button
             onClick={handleGenerateDocs}
-            title={docCode ? '문서화 닫기' : 'JSDoc/docstring 생성'}
+            title={docCode ? t('code.docClose', '문서화 닫기') : t('code.docGen', 'JSDoc/docstring 생성')}
             style={{
               background: docCode ? '#1a2a3e' : '#3a3a4a',
               color: docCode ? '#4a90e2' : '#aaa',
@@ -307,7 +307,7 @@ export const CodeBlock = memo(function CodeBlock({
         )}
         <button
           onClick={handleExplain}
-          title={explanation ? '설명 닫기' : 'AI 코드 설명'}
+          title={explanation ? t('code.explainClose', '설명 닫기') : t('code.explainTitle', 'AI 코드 설명')}
           style={{
             background: explanation ? '#2a3a5e' : '#3a3a4a',
             color: explanation ? '#60a5fa' : '#aaa',
@@ -324,7 +324,7 @@ export const CodeBlock = memo(function CodeBlock({
         </button>
         <button
           onClick={handleCopy}
-          title="코드 복사"
+          title={t('code.copy', '코드 복사')}
           style={{
             background: copiedBlock ? '#2d5a27' : '#3a3a4a',
             color: copiedBlock ? '#7ec87a' : '#aaa',
@@ -392,11 +392,11 @@ export const CodeBlock = memo(function CodeBlock({
             <span style={{ color: '#7ec8a0', fontWeight: 600 }}>▶ 출력</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ color: '#6e7681', fontSize: 10 }}>
-                {runError ? '오류 발생' : `실행 완료 (${runOutput!.length}줄)`}
+                {runError ? t('code.runError', '오류 발생') : t('code.runComplete', '실행 완료 ({n}줄)').replace('{n}', String(runOutput!.length))}
               </span>
               <button
                 onClick={() => { setRunOutput(null); setRunError(null) }}
-                title="출력 닫기"
+                title={t('code.outputClose', '출력 닫기')}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -413,7 +413,7 @@ export const CodeBlock = memo(function CodeBlock({
           </div>
           <div style={{ padding: '6px 10px', minHeight: 24 }}>
             {runOutput!.length === 0 && !runError && (
-              <span style={{ color: '#6e7681' }}>(출력 없음)</span>
+              <span style={{ color: '#6e7681' }}>{t('code.noOutput', '(출력 없음)')}</span>
             )}
             {runOutput!.map((line, i) => (
               <div key={i} style={{ color: '#7ec8a0', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{line}</div>
@@ -439,11 +439,11 @@ export const CodeBlock = memo(function CodeBlock({
             borderBottom: '1px solid var(--border)',
           }}>
             <span style={{ color: shellResult.ok ? '#86efac' : '#f87171', fontSize: 10, fontWeight: 600 }}>
-              {shellResult.ok ? '▶ 실행 결과' : '▶ 오류'}
+              {shellResult.ok ? t('code.shellResult', '▶ 실행 결과') : t('code.shellError', '▶ 오류')}
             </span>
             <button
               onClick={() => setShellResult(null)}
-              title="닫기"
+              title={t('common.close', '닫기')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -467,7 +467,7 @@ export const CodeBlock = memo(function CodeBlock({
             maxHeight: 200,
             overflowY: 'auto',
           }}>
-            {shellResult.output || '(출력 없음)'}
+            {shellResult.output || t('code.noOutput', '(출력 없음)')}
           </pre>
         </div>
       )}
@@ -485,7 +485,7 @@ export const CodeBlock = memo(function CodeBlock({
             padding: '4px 10px',
             borderBottom: '1px solid #1a2a3e',
           }}>
-            <span style={{ color: '#4a90e2', fontWeight: 600, fontSize: 11 }}>📝 문서화된 코드</span>
+            <span style={{ color: '#4a90e2', fontWeight: 600, fontSize: 11 }}>{t('code.docTitle', '📝 문서화된 코드')}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button
                 onClick={handleDocCopy}
@@ -499,11 +499,11 @@ export const CodeBlock = memo(function CodeBlock({
                   cursor: 'pointer',
                 }}
               >
-                {docCopied ? '복사됨' : '복사'}
+                {docCopied ? t('code.docCopied', '복사됨') : t('code.docCopy', '복사')}
               </button>
               <button
                 onClick={() => setDocCode(null)}
-                title="닫기"
+                title={t('common.close', '닫기')}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -543,9 +543,9 @@ export const CodeBlock = memo(function CodeBlock({
           gap: 4,
         }}>
           {[
-            { action: 'explain' as const, label: '설명', title: '이 코드 설명' },
-            { action: 'optimize' as const, label: '최적화', title: '성능 최적화' },
-            { action: 'fix' as const, label: '수정', title: '버그 수정' },
+            { action: 'explain' as const, label: t('code.quickExplain', '설명'), title: t('code.quickExplainTitle', '이 코드 설명') },
+            { action: 'optimize' as const, label: t('code.quickOptimize', '최적화'), title: t('code.quickOptimizeTitle', '성능 최적화') },
+            { action: 'fix' as const, label: t('code.quickFix', '수정'), title: t('code.quickFixTitle', '버그 수정') },
           ].map(({ action, label, title }) => (
             <button
               key={action}

@@ -1,25 +1,26 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react'
+import { t } from '../../utils/i18n'
 
 export const MODEL_DEFS = [
   {
     id: 'claude-opus-4-6',
     label: 'Opus 4.6',
     icon: '🧠',
-    desc: '가장 강력',
+    descKey: 'model.desc.powerful' as const,
     color: '#c084fc',
   },
   {
     id: 'claude-sonnet-4-6',
     label: 'Sonnet 4.6',
     icon: '⚖️',
-    desc: '균형',
+    descKey: 'model.desc.balanced' as const,
     color: '#60a5fa',
   },
   {
     id: 'claude-haiku-4-5-20251001',
     label: 'Haiku 4.5',
     icon: '⚡',
-    desc: '빠름',
+    descKey: 'model.desc.fast' as const,
     color: '#34d399',
   },
 ] as const
@@ -64,7 +65,7 @@ export function ModelSelector({ value, onChange }: { value: string; onChange: (v
     <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
       <button
         onClick={() => setOpen((v) => !v)}
-        title="모델 선택"
+        title={t('model.select', '모델 선택')}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -146,7 +147,7 @@ export function ModelSelector({ value, onChange }: { value: string; onChange: (v
                       <span style={{ fontSize: 10, color: m.color }}>✓</span>
                     )}
                   </div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{m.desc}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{t(m.descKey)}</div>
                 </div>
               </div>
             )

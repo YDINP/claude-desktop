@@ -1,4 +1,5 @@
 import React, { memo, useState, useCallback } from 'react'
+import { t } from '../../utils/i18n'
 
 interface QuickAction {
   id: string
@@ -38,12 +39,12 @@ export const QuickActionsBar = memo(function QuickActionsBar({ quickActions, set
               borderRadius: 6, padding: 8, width: 220,
             }}>
               <input value={editLabel} onChange={e => setEditLabel(e.target.value)}
-                placeholder="레이블"
+                placeholder={t('quickActions.labelPlaceholder', '레이블')}
                 style={{ width: '100%', boxSizing: 'border-box', marginBottom: 4,
                   background: 'var(--bg-primary)', border: '1px solid var(--border)',
                   borderRadius: 3, padding: '3px 6px', color: 'var(--text-primary)', fontSize: 11 }} />
               <textarea value={editPrompt} onChange={e => setEditPrompt(e.target.value)}
-                placeholder="프롬프트"
+                placeholder={t('quickActions.promptPlaceholder', '프롬프트')}
                 rows={3}
                 style={{ width: '100%', boxSizing: 'border-box', marginBottom: 4,
                   background: 'var(--bg-primary)', border: '1px solid var(--border)',
@@ -53,11 +54,11 @@ export const QuickActionsBar = memo(function QuickActionsBar({ quickActions, set
                 <button onClick={() => setEditingAction(null)}
                   style={{ fontSize: 10, padding: '2px 8px', background: 'none',
                     border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer',
-                    color: 'var(--text-muted)' }}>취소</button>
+                    color: 'var(--text-muted)' }}>{t('common.cancel', '취소')}</button>
                 <button onClick={saveQuickActionEdit}
                   style={{ fontSize: 10, padding: '2px 8px',
                     background: 'var(--accent)', border: 'none', borderRadius: 3,
-                    cursor: 'pointer', color: 'white' }}>저장</button>
+                    cursor: 'pointer', color: 'white' }}>{t('common.save', '저장')}</button>
               </div>
             </div>
           ) : null}
@@ -155,7 +156,7 @@ export const TemplatePanel = memo(function TemplatePanel({ text, templates, onSa
               if (e.key === 'Enter') { e.preventDefault(); handleSaveTemplate() }
               if (e.key === 'Escape') { setSavingTemplate(false); setNewTemplateName('') }
             }}
-            placeholder="템플릿 제목..."
+            placeholder={t('quickActions.templateTitlePlaceholder', '템플릿 제목...')}
             style={{
               fontSize: 12,
               background: 'var(--bg-input)',
@@ -175,13 +176,13 @@ export const TemplatePanel = memo(function TemplatePanel({ text, templates, onSa
               disabled={!newTemplateName.trim() || !text.trim()}
               style={{ fontSize: 11, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4, padding: '3px 8px', cursor: 'pointer' }}
             >
-              저장
+              {t('common.save', '저장')}
             </button>
             <button
               onClick={() => { setSavingTemplate(false); setNewTemplateName('') }}
               style={{ fontSize: 11, background: 'none', color: 'var(--text-muted)', border: 'none', cursor: 'pointer', padding: '3px 6px' }}
             >
-              취소
+              {t('common.cancel', '취소')}
             </button>
           </>
         ) : (
@@ -189,7 +190,7 @@ export const TemplatePanel = memo(function TemplatePanel({ text, templates, onSa
             <button
               onClick={() => { if (text.trim()) setSavingTemplate(true) }}
               disabled={!text.trim() || templates.length >= MAX_TEMPLATES}
-              title={templates.length >= MAX_TEMPLATES ? '최대 20개' : '현재 입력 저장'}
+              title={templates.length >= MAX_TEMPLATES ? t('quickActions.saveMax', '최대 20개') : t('quickActions.saveCurrent', '현재 입력 저장')}
               style={{
                 fontSize: 11,
                 background: 'none',
@@ -201,7 +202,7 @@ export const TemplatePanel = memo(function TemplatePanel({ text, templates, onSa
                 whiteSpace: 'nowrap',
               }}
             >
-              + 현재 입력 저장
+              {t('quickActions.saveCurrent', '+ 현재 입력 저장')}
             </button>
             <button
               onClick={onClose}
@@ -216,7 +217,7 @@ export const TemplatePanel = memo(function TemplatePanel({ text, templates, onSa
       <input
         value={templateSearch}
         onChange={e => setTemplateSearch(e.target.value)}
-        placeholder="검색..."
+        placeholder={t('quickActions.searchPlaceholder', '검색...')}
         style={{
           width: '100%',
           fontSize: 12,
@@ -233,7 +234,7 @@ export const TemplatePanel = memo(function TemplatePanel({ text, templates, onSa
       {/* Template list */}
       {filteredTemplates.length === 0 ? (
         <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '4px 2px' }}>
-          {templates.length === 0 ? '저장된 템플릿이 없습니다.' : '검색 결과 없음'}
+          {templates.length === 0 ? t('quickActions.empty', '저장된 템플릿이 없습니다.') : t('quickActions.noResults', '검색 결과 없음')}
         </div>
       ) : (
         <div style={{ maxHeight: 160, overflowY: 'auto' }}>

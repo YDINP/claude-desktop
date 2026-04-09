@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { t } from '../../utils/i18n'
 
 interface SessionMeta {
   id: string
@@ -189,18 +190,18 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
     : []
 
   const ACTIONS: PaletteResult[] = [
-    { type: 'action', actionId: 'new-chat', label: '새 세션 시작', sub: 'New chat', shortcut: 'Ctrl+N' },
-    { type: 'action', actionId: 'open-folder', label: '폴더 열기', sub: 'Open workspace' },
-    { type: 'action', actionId: 'toggle-terminal', label: '터미널 토글', sub: 'Terminal', shortcut: 'Ctrl+T' },
-    { type: 'action', actionId: 'open-settings', label: '설정 열기', sub: 'Settings', shortcut: 'Ctrl+,' },
-    { type: 'action', actionId: 'export-markdown', label: '현재 세션을 마크다운으로 내보내기', sub: 'Export session' },
-    { type: 'action', actionId: 'session-search', label: '세션 검색 (대화 내 검색)', sub: '# prefix search' },
-    { type: 'action', actionId: 'sidebar-git', label: 'Git 패널 열기', sub: 'Sidebar: Git' },
-    { type: 'action', actionId: 'sidebar-search', label: '코드 검색 열기', sub: 'Sidebar: Search' },
-    { type: 'action', actionId: 'sidebar-bookmarks', label: '북마크 목록 열기', sub: 'Sidebar: Bookmarks' },
-    { type: 'action', actionId: 'sidebar-sessions', label: '히스토리 패널 열기', sub: 'Sidebar: History' },
-    { type: 'action', actionId: 'toggle-sound', label: soundEnabled ? '알림 사운드 끄기' : '알림 사운드 켜기', sub: 'Sound toggle' },
-    { type: 'action', actionId: 'toggle-compact', label: compactMode ? '컴팩트 모드 끄기' : '컴팩트 모드 켜기', sub: 'Compact mode' },
+    { type: 'action', actionId: 'new-chat', label: t('cmd.newChat', '새 세션 시작'), sub: 'New chat', shortcut: 'Ctrl+N' },
+    { type: 'action', actionId: 'open-folder', label: t('cmd.openFolder', '폴더 열기'), sub: 'Open workspace' },
+    { type: 'action', actionId: 'toggle-terminal', label: t('cmd.terminal', '터미널 토글'), sub: 'Terminal', shortcut: 'Ctrl+T' },
+    { type: 'action', actionId: 'open-settings', label: t('cmd.settings', '설정 열기'), sub: 'Settings', shortcut: 'Ctrl+,' },
+    { type: 'action', actionId: 'export-markdown', label: t('cmd.exportMarkdown', '현재 세션을 마크다운으로 내보내기'), sub: 'Export session' },
+    { type: 'action', actionId: 'session-search', label: t('cmd.sessionSearch', '세션 검색 (대화 내 검색)'), sub: '# prefix search' },
+    { type: 'action', actionId: 'sidebar-git', label: t('cmd.sidebarGit', 'Git 패널 열기'), sub: 'Sidebar: Git' },
+    { type: 'action', actionId: 'sidebar-search', label: t('cmd.sidebarSearch', '코드 검색 열기'), sub: 'Sidebar: Search' },
+    { type: 'action', actionId: 'sidebar-bookmarks', label: t('cmd.sidebarBookmarks', '북마크 목록 열기'), sub: 'Sidebar: Bookmarks' },
+    { type: 'action', actionId: 'sidebar-sessions', label: t('cmd.sidebarSessions', '히스토리 패널 열기'), sub: 'Sidebar: History' },
+    { type: 'action', actionId: 'toggle-sound', label: soundEnabled ? t('cmd.soundOff', '알림 사운드 끄기') : t('cmd.soundOn', '알림 사운드 켜기'), sub: 'Sound toggle' },
+    { type: 'action', actionId: 'toggle-compact', label: compactMode ? t('cmd.compactOff', '컴팩트 모드 끄기') : t('cmd.compactOn', '컴팩트 모드 켜기'), sub: 'Compact mode' },
   ]
 
   const actionResults: PaletteResult[] = !q
@@ -252,8 +253,8 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
     return [{
       type: 'ai-suggest' as const,
       query: q,
-      label: `"${query.trim()}" — AI에 질문하기`,
-      sub: '새 채팅에서 이 내용으로 질문합니다',
+      label: t('cmd.aiAsk', '"{q}" — AI에 질문하기').replace('{q}', query.trim()),
+      sub: t('cmd.aiAskSub', '새 채팅에서 이 내용으로 질문합니다'),
     }]
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, isActionMode, isGlobalSearch, query])
@@ -401,7 +402,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="커맨드 팔레트"
+      aria-label={t('cmd.ariaLabel', '커맨드 팔레트')}
       style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         background: 'rgba(0,0,0,0.45)',
@@ -421,7 +422,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
         <input
           ref={inputRef}
           role="combobox"
-          aria-label="검색"
+          aria-label={t('cmd.searchAriaLabel', '검색')}
           aria-expanded={totalCount > 0}
           aria-controls="cmd-palette-listbox"
           aria-activedescendant={totalCount > 0 ? `cmd-palette-option-${clampSel}` : undefined}
@@ -429,7 +430,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
           value={query}
           onChange={e => { setQuery(e.target.value); setSelected(0) }}
           onKeyDown={onKeyDown}
-          placeholder="명령어, 세션, 파일 검색... (> = 커맨드, # = 대화 내 검색)"
+          placeholder={t('cmd.searchPlaceholder', '명령어, 세션, 파일 검색... (> = 커맨드, # = 대화 내 검색)')}
           style={{
             width: '100%', padding: '12px 16px',
             background: 'var(--bg-input)', color: 'var(--text-primary)',
@@ -441,11 +442,11 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
           {isGlobalSearch ? (
             <>
               <div style={{ padding: '6px 16px', fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', background: 'var(--bg-primary)' }}>
-                대화 내 검색
+                {t('cmd.inChatSearch', '대화 내 검색')}
               </div>
               {globalSearchResults.length === 0 && (
                 <div style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: 12 }}>
-                  {query.trimStart().slice(1).trim().length < 2 ? '2글자 이상 입력하세요' : '검색 결과 없음'}
+                  {query.trimStart().slice(1).trim().length < 2 ? t('cmd.typeMin', '2글자 이상 입력하세요') : t('cmd.noResults', '검색 결과 없음')}
                 </div>
               )}
               {globalSearchResults.map((r, i) => (
@@ -478,7 +479,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
                         fontSize: 10, padding: '1px 6px', borderRadius: 8,
                         background: 'var(--accent)', color: '#fff', flexShrink: 0,
                       }}>
-                        {r.matchCount}건
+                        {t('cmd.matchCount', '{n}건').replace('{n}', String(r.matchCount))}
                       </span>
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -508,17 +509,17 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
                 const showAiHeader = r.type === 'ai-suggest'
 
                 const sectionHeader = showRecentFilesHeader
-                  ? '📂 최근 파일'
+                  ? t('cmd.recentFiles', '📂 최근 파일')
                   : showRecentSessionsHeader
-                  ? '💬 최근 세션'
+                  ? t('cmd.recentSessions', '💬 최근 세션')
                   : showRecentActionsHeader
-                  ? '⚡ 최근 실행 액션'
+                  ? t('cmd.recentActions', '⚡ 최근 실행 액션')
                   : showFavoritesHeader
-                  ? '즐겨찾기'
+                  ? t('cmd.favorites', '즐겨찾기')
                   : isFirstUnpinned
-                  ? '전체'
+                  ? t('cmd.all', '전체')
                   : showAiHeader
-                  ? '제안'
+                  ? t('cmd.suggestions', '제안')
                   : null
 
                 return (
@@ -581,7 +582,7 @@ export function CommandPalette({ onClose, openTabs, onSelectSession, onSelectTab
                         {r.type !== 'recent-file' && r.type !== 'recent-session' && r.type !== 'recent-action' && r.type !== 'ai-suggest' && (
                           <button
                             onClick={e => toggleFavorite(rid, e)}
-                            title={isPinned ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+                            title={isPinned ? t('cmd.pinRemove', '즐겨찾기 해제') : t('cmd.pinAdd', '즐겨찾기 추가')}
                             style={{
                               background: 'none', border: 'none', cursor: 'pointer',
                               fontSize: 14, lineHeight: 1, padding: '0 2px',

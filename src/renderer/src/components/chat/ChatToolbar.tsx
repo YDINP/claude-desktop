@@ -1,4 +1,5 @@
 import React, { memo } from 'react'
+import { t } from '../../utils/i18n'
 
 // ── System Prompt Editor ─────────────────────────────────────────────────────
 export const SystemPromptEditor = memo(function SystemPromptEditor({
@@ -16,7 +17,7 @@ export const SystemPromptEditor = memo(function SystemPromptEditor({
       flexShrink: 0,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>커스텀 시스템 프롬프트</span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{t('chat.systemPromptLabel', '커스텀 시스템 프롬프트')}</span>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           <span style={{ fontSize: 9, color: customSystemPrompt.length > 1800 ? '#f87171' : 'var(--text-muted)' }}>
             {customSystemPrompt.length} / 2000
@@ -29,7 +30,7 @@ export const SystemPromptEditor = memo(function SystemPromptEditor({
       <textarea
         value={customSystemPrompt}
         onChange={e => setCustomSystemPrompt(e.target.value.slice(0, 2000))}
-        placeholder="Claude에게 항상 적용할 지침을 입력하세요... (예: 한국어로 답변해줘, 코드는 TypeScript로)"
+        placeholder={t('settings.globalPrompt.placeholder', 'Claude에게 항상 전달할 전역 지침을 입력하세요...')}
         rows={3}
         style={{
           width: '100%',
@@ -48,7 +49,7 @@ export const SystemPromptEditor = memo(function SystemPromptEditor({
         }}
       />
       <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 4 }}>
-        지원 변수: {'{'}'{'{'}date{'}'}{'}'}(YYYY-MM-DD), {'{'}'{'{'}time{'}'}{'}'}(HH:MM), {'{'}'{'{'}project{'}'}{'}'}(프로젝트명), {'{'}'{'{'}model{'}'}{'}'}(모델명), {'{'}'{'{'}day{'}'}{'}'}(요일)
+        {t('chat.systemPromptVars', '지원 변수: {{date}}(YYYY-MM-DD), {{time}}(HH:MM), {{project}}(프로젝트명), {{model}}(모델명), {{day}}(요일)')}
       </div>
     </div>
   )
@@ -77,20 +78,20 @@ export const SessionSummaryPanel = memo(function SessionSummaryPanel({
         gap: 8,
         borderBottom: summaryLoading ? 'none' : '1px solid var(--border)',
       }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)' }}>📝 세션 요약</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)' }}>{t('chat.sessionSummaryTitle', '📝 세션 요약')}</span>
         <button
           onClick={onRegenerate}
           disabled={summaryLoading}
-          title="재생성"
+          title={t('chat.regenerate', '🔄 재생성')}
           style={{
             background: 'none', border: 'none',
             color: summaryLoading ? 'var(--text-muted)' : 'var(--accent)',
             fontSize: 11, cursor: summaryLoading ? 'default' : 'pointer', padding: '1px 6px',
           }}
-        >🔄 재생성</button>
+        >{t('chat.regenerate', '🔄 재생성')}</button>
         <button
           onClick={onClose}
-          title="닫기"
+          title={t('common.close', '닫기')}
           style={{
             background: 'none', border: 'none',
             color: 'var(--text-muted)',
@@ -106,7 +107,7 @@ export const SessionSummaryPanel = memo(function SessionSummaryPanel({
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-word',
       }}>
-        {summaryLoading ? '요약 생성 중...' : summaryText}
+        {summaryLoading ? t('chat.summaryLoading', '요약 생성 중...') : summaryText}
       </div>
     </div>
   )
@@ -140,7 +141,7 @@ export const ChatSearchBar = memo(function ChatSearchBar({
     }}>
       <input
         ref={searchInputRef}
-        placeholder="대화 검색..."
+        placeholder={t('chat.searchPlaceholder', '대화 검색...')}
         value={searchQuery}
         onChange={e => onSearchChange(e.target.value)}
         onKeyDown={onSearchKeyDown}
@@ -156,20 +157,20 @@ export const ChatSearchBar = memo(function ChatSearchBar({
         }}
       />
       <span style={{ fontSize: 11, color: 'var(--text-muted)', minWidth: 72, textAlign: 'center' }}>
-        {matchCount > 0 ? `${safeMatchIdx + 1} / ${matchCount}개 매칭` : (searchQuery ? '0개 매칭' : '')}
+        {matchCount > 0 ? t('chat.searchMatchCount', '{idx} / {n}개 매칭').replace('{idx}', String(safeMatchIdx + 1)).replace('{n}', String(matchCount)) : (searchQuery ? t('chat.searchNoMatch', '0개 매칭') : '')}
         {isSearchPending && searchQuery && (
           <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 4 }}>...</span>
         )}
       </span>
-      <button onClick={onSearchPrev} disabled={matchCount === 0} title="이전 (Shift+Enter)" style={{
+      <button onClick={onSearchPrev} disabled={matchCount === 0} title={t('chat.searchPrev', '이전 (Shift+Enter)')} style={{
         background: 'none', border: 'none', color: 'var(--text-muted)',
         fontSize: 13, cursor: matchCount > 0 ? 'pointer' : 'default', padding: '2px 4px',
       }}>▲</button>
-      <button onClick={onSearchNext} disabled={matchCount === 0} title="다음 (Enter)" style={{
+      <button onClick={onSearchNext} disabled={matchCount === 0} title={t('chat.searchNext', '다음 (Enter)')} style={{
         background: 'none', border: 'none', color: 'var(--text-muted)',
         fontSize: 13, cursor: matchCount > 0 ? 'pointer' : 'default', padding: '2px 4px',
       }}>▼</button>
-      <button onClick={onClose} title="닫기 (Esc)" style={{
+      <button onClick={onClose} title={t('chat.close', '닫기') + ' (Esc)'} style={{
         background: 'none', border: 'none', color: 'var(--text-muted)',
         fontSize: 14, cursor: 'pointer', padding: '2px 6px', lineHeight: 1,
       }}>×</button>

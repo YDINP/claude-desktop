@@ -1,5 +1,6 @@
 import React, { memo } from 'react'
 import { SlashCommandRegistry, type SlashCommandCompat } from '../../domains/commands/SlashCommandRegistry'
+import { t } from '../../utils/i18n'
 
 interface SlashCommandDropdownProps {
   groupedCmds: ReturnType<typeof SlashCommandRegistry.getGrouped>
@@ -38,7 +39,7 @@ export const SlashCommandDropdown = memo(function SlashCommandDropdown({
       <div style={{ padding: '4px 10px 2px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', userSelect: 'none', flexShrink: 0 }}>
         ↑↓ 탐색 · Enter/Tab 선택 · Space 인자 입력 · Esc 닫기
       </div>
-      <div role="listbox" aria-label="슬래시 커맨드" style={{ overflowY: 'auto', flex: 1 }}>
+      <div role="listbox" aria-label={t('slash.ariaLabel', '슬래시 커맨드')} style={{ overflowY: 'auto', flex: 1 }}>
       {(() => {
         let flatIdx = 0
         return groupedCmds.map((group) => (
