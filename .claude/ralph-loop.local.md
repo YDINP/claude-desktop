@@ -1,6 +1,6 @@
 ---
 active: true
-iteration: 70
+iteration: 72
 max_iterations: 999
 completion_promise: 사용자가 직접 취소할 때까지 계속 진행
 started_at: "2026-04-09T15:00:00Z"

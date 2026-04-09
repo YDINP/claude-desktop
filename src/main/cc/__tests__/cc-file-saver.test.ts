@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // Mock fs before importing
 vi.mock('fs', () => {
@@ -31,6 +31,11 @@ import {
   validateCCScene,
   recordSceneMtime,
   forceOverwriteScene,
+  clearMtimeMap,
+  listBakFiles,
+  deleteAllBakFiles,
+  restoreFromBakFile,
+  restoreFromBackup,
 } from '../cc-file-saver'
 import type { CCSceneNode, CCSceneFile } from '../../../shared/ipc-schema'
 
@@ -484,6 +489,269 @@ describe('cc-file-saver', () => {
 
       expect(result.valid).toBe(false)
       expect(result.errors.some(e => e.includes('순환 참조'))).toBe(true)
+    })
+  })
+
+  // ── clearMtimeMap ──────────────────────────────────────────────────────────
+
+  describe('clearMtimeMap', () => {
+    afterEach(() => {
+      clearMtimeMap()
+    })
+
+    it('특정 projectPath prefix를 가진 키만 삭제한다', () => {
+      mockStatSync.mockReturnValue({ mtimeMs: 5000, size: 100 } as ReturnType<typeof fs.statSync>)
+      recordSceneMtime('/project/a/scene.fire')
+      recordSceneMtime('/project/b/scene.fire')
+      recordSceneMtime('/other/scene.fire')
+
+      clearMtimeMap('/project/a')
+
+      // /project/a가 삭제되었으면 conflict 없이 저장 가능해야 함
+      // recordSceneMtime 후 statSync가 다른 값 반환하면 conflict 발생
+      mockStatSync.mockReturnValue({ mtimeMs: 9999, size: 100 } as ReturnType<typeof fs.statSync>)
+
+      const root = makeNode({ children: [makeChildNode()] })
+      // /project/a 는 삭제됐으니 mtime 체크 없이 저장됨 (sceneFile의 scenePath가 달라도 검증 로직 상)
+      const sceneFileA: CCSceneFile = makeSceneFile(root) // /fake/scene.fire (clearMtimeMap 미기록)
+      const res = saveCCScene(sceneFileA, root)
+      expect(res.success).toBe(true)
+    })
+
+    it('인자 없이 호출하면 전체 클리어', () => {
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 100 } as ReturnType<typeof fs.statSync>)
+      recordSceneMtime('/fake/scene.fire')
+      clearMtimeMap()
+
+      // mtime이 클리어됐으므로 conflict 없이 저장됨
+      mockStatSync.mockReturnValue({ mtimeMs: 9999, size: 100 } as ReturnType<typeof fs.statSync>)
+      const root = makeNode({ children: [makeChildNode()] })
+      const sceneFile = makeSceneFile(root)
+      const res = saveCCScene(sceneFile, root)
+      expect(res.success).toBe(true)
+    })
+  })
+
+  // ── 충돌 감지 추가 시나리오 ──────────────────────────────────────────────
+
+  describe('saveCCScene — conflict detection (추가)', () => {
+    afterEach(() => {
+      clearMtimeMap()
+    })
+
+    it('mtime 차이가 정확히 100ms이면 conflict 아님', () => {
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 100 } as ReturnType<typeof fs.statSync>)
+      recordSceneMtime('/fake/scene.fire')
+
+      // 100ms 차이 → abs(1100-1000)=100 → 100 > 100 → false → conflict 아님
+      mockStatSync.mockReturnValue({ mtimeMs: 1100, size: 100 } as ReturnType<typeof fs.statSync>)
+      const root = makeNode({ children: [makeChildNode()] })
+      const sceneFile = makeSceneFile(root)
+      const res = saveCCScene(sceneFile, root)
+      expect(res.conflict).toBeUndefined()
+    })
+
+    it('mtime 차이가 101ms이면 conflict', () => {
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 100 } as ReturnType<typeof fs.statSync>)
+      recordSceneMtime('/fake/scene.fire')
+
+      mockStatSync.mockReturnValue({ mtimeMs: 1101, size: 100 } as ReturnType<typeof fs.statSync>)
+      const root = makeNode({ children: [makeChildNode()] })
+      const sceneFile = makeSceneFile(root)
+      const res = saveCCScene(sceneFile, root)
+      expect(res.conflict).toBe(true)
+      expect(res.success).toBe(false)
+    })
+
+    it('mtime이 감소해도 차이가 101ms이면 conflict', () => {
+      mockStatSync.mockReturnValue({ mtimeMs: 2000, size: 100 } as ReturnType<typeof fs.statSync>)
+      recordSceneMtime('/fake/scene.fire')
+
+      mockStatSync.mockReturnValue({ mtimeMs: 1800, size: 100 } as ReturnType<typeof fs.statSync>)
+      const root = makeNode({ children: [makeChildNode()] })
+      const sceneFile = makeSceneFile(root)
+      const res = saveCCScene(sceneFile, root)
+      expect(res.conflict).toBe(true)
+    })
+
+    it('conflict 시 currentMtime을 반환한다', () => {
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 100 } as ReturnType<typeof fs.statSync>)
+      recordSceneMtime('/fake/scene.fire')
+
+      mockStatSync.mockReturnValue({ mtimeMs: 5000, size: 100 } as ReturnType<typeof fs.statSync>)
+      const root = makeNode({ children: [makeChildNode()] })
+      const sceneFile = makeSceneFile(root)
+      const res = saveCCScene(sceneFile, root)
+      expect(res.currentMtime).toBe(5000)
+    })
+
+    it('forceOverwriteScene은 conflict를 무시하고 저장한다', () => {
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 100 } as ReturnType<typeof fs.statSync>)
+      recordSceneMtime('/fake/scene.fire')
+
+      mockStatSync.mockReturnValue({ mtimeMs: 9999, size: 100 } as ReturnType<typeof fs.statSync>)
+      const root = makeNode({ children: [makeChildNode()] })
+      const sceneFile = makeSceneFile(root)
+      const res = forceOverwriteScene(sceneFile, root)
+      expect(res.success).toBe(true)
+      expect(res.conflict).toBeUndefined()
+    })
+
+    it('statSync가 예외를 던지면 conflict 없이 저장된다', () => {
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 100 } as ReturnType<typeof fs.statSync>)
+      recordSceneMtime('/fake/scene.fire')
+
+      mockStatSync.mockImplementation(() => { throw new Error('file deleted') })
+      vi.mocked(fs.copyFileSync).mockImplementation(() => {})
+      vi.mocked(fs.writeFileSync).mockImplementation(() => {})
+      vi.mocked(fs.renameSync).mockImplementation(() => {})
+
+      const root = makeNode({ children: [makeChildNode()] })
+      const sceneFile = makeSceneFile(root)
+      const res = saveCCScene(sceneFile, root)
+      expect(res.conflict).toBeUndefined()
+    })
+  })
+
+  // ── listBakFiles ───────────────────────────────────────────────────────────
+
+  describe('listBakFiles', () => {
+    it('해당 씬 이름으로 시작하고 .bak으로 끝나는 파일만 반환한다', () => {
+      vi.mocked(fs.readdirSync).mockReturnValue([
+        'scene.fire.bak',
+        'scene.fire.bak2',
+        'other.fire.bak',
+        'scene.fire.json',
+      ] as unknown as ReturnType<typeof fs.readdirSync>)
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 512 } as ReturnType<typeof fs.statSync>)
+
+      const result = listBakFiles('/project/scene.fire')
+      expect(result.map(r => r.name)).toContain('scene.fire.bak')
+      expect(result.find(r => r.name === 'other.fire.bak')).toBeUndefined()
+      expect(result.find(r => r.name === 'scene.fire.json')).toBeUndefined()
+    })
+
+    it('mtime 내림차순으로 정렬한다', () => {
+      vi.mocked(fs.readdirSync).mockReturnValue([
+        'scene.fire.bak',
+        'scene.fire.bak2',
+      ] as unknown as ReturnType<typeof fs.readdirSync>)
+      let callCount = 0
+      mockStatSync.mockImplementation(() => {
+        callCount++
+        return { mtimeMs: callCount === 1 ? 1000 : 2000, size: 100 } as ReturnType<typeof fs.statSync>
+      })
+
+      const result = listBakFiles('/project/scene.fire')
+      if (result.length >= 2) {
+        expect(result[0].mtime).toBeGreaterThanOrEqual(result[1].mtime)
+      }
+    })
+
+    it('readdirSync 실패 시 빈 배열 반환', () => {
+      vi.mocked(fs.readdirSync).mockImplementation(() => { throw new Error('no dir') })
+      const result = listBakFiles('/project/scene.fire')
+      expect(result).toEqual([])
+    })
+
+    it('각 파일에 name, path, size, mtime이 포함된다', () => {
+      vi.mocked(fs.readdirSync).mockReturnValue([
+        'scene.fire.bak',
+      ] as unknown as ReturnType<typeof fs.readdirSync>)
+      mockStatSync.mockReturnValue({ mtimeMs: 3000, size: 1024 } as ReturnType<typeof fs.statSync>)
+
+      const result = listBakFiles('/project/scene.fire')
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('scene.fire.bak')
+      expect(result[0].size).toBe(1024)
+      expect(result[0].mtime).toBe(3000)
+    })
+  })
+
+  // ── deleteAllBakFiles ──────────────────────────────────────────────────────
+
+  describe('deleteAllBakFiles', () => {
+    it('모든 .bak 파일을 삭제하고 deleted 수를 반환한다', () => {
+      vi.mocked(fs.readdirSync).mockReturnValue([
+        'scene.fire.bak',
+        'scene.fire.1234.bak',
+      ] as unknown as ReturnType<typeof fs.readdirSync>)
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 100 } as ReturnType<typeof fs.statSync>)
+      vi.mocked(fs.unlinkSync).mockImplementation(() => {})
+
+      const result = deleteAllBakFiles('/project/scene.fire')
+      expect(result.deleted).toBe(2)
+    })
+
+    it('.bak 파일이 없으면 deleted=0', () => {
+      vi.mocked(fs.readdirSync).mockReturnValue([] as unknown as ReturnType<typeof fs.readdirSync>)
+      const result = deleteAllBakFiles('/project/scene.fire')
+      expect(result.deleted).toBe(0)
+    })
+
+    it('unlinkSync가 일부 실패해도 나머지는 계속 삭제한다', () => {
+      vi.mocked(fs.readdirSync).mockReturnValue([
+        'scene.fire.bak',
+        'scene.fire.1234.bak',
+      ] as unknown as ReturnType<typeof fs.readdirSync>)
+      mockStatSync.mockReturnValue({ mtimeMs: 1000, size: 100 } as ReturnType<typeof fs.statSync>)
+      let callCount = 0
+      vi.mocked(fs.unlinkSync).mockImplementation(() => {
+        callCount++
+        if (callCount === 1) throw new Error('permission denied')
+      })
+
+      const result = deleteAllBakFiles('/project/scene.fire')
+      expect(result.deleted).toBe(1)
+    })
+  })
+
+  // ── restoreFromBakFile ─────────────────────────────────────────────────────
+
+  describe('restoreFromBakFile', () => {
+    it('bak 파일이 존재하면 복원 성공', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.copyFileSync).mockImplementation(() => {})
+
+      const result = restoreFromBakFile('/project/scene.fire.bak', '/project/scene.fire')
+      expect(result.success).toBe(true)
+    })
+
+    it('bak 파일이 없으면 실패 반환', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false)
+
+      const result = restoreFromBakFile('/project/scene.fire.bak', '/project/scene.fire')
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('존재하지 않습니다')
+    })
+
+    it('copyFileSync 실패 시 error 메시지 반환', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.copyFileSync).mockImplementation(() => { throw new Error('copy error') })
+
+      const result = restoreFromBakFile('/project/scene.fire.bak', '/project/scene.fire')
+      expect(result.success).toBe(false)
+      expect(result.error).toBeTruthy()
+    })
+  })
+
+  // ── restoreFromBackup ──────────────────────────────────────────────────────
+
+  describe('restoreFromBackup', () => {
+    it('.bak 파일이 있으면 복원 성공', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.copyFileSync).mockImplementation(() => {})
+
+      const result = restoreFromBackup('/project/scene.fire')
+      expect(result.success).toBe(true)
+    })
+
+    it('.bak 파일이 없으면 실패', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false)
+
+      const result = restoreFromBackup('/project/scene.fire')
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('없습니다')
     })
   })
 })

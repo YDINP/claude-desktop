@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import type React from 'react'
+import { ErrorBoundary } from '../shared/ErrorBoundary'
 import { FileTree } from './FileTree'
 import { SessionList } from './SessionList'
 import { ChangedFilesPanel } from './ChangedFilesPanel'
@@ -237,48 +238,50 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
       {/* Content */}
       <div key={activeTab} role="tabpanel" aria-label={panelTitles[activeTab]} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.15s ease' }}>
         {activeTab === 'files' && currentPath && (
-          <>
-            {/* File search */}
-            <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-              <input
-                value={fileSearch}
-                onChange={e => setFileSearch(e.target.value)}
-                placeholder={t('sidebar.fileSearch', '파일 검색...')}
-                style={{
-                  width: '100%', background: 'var(--bg-input)', color: 'var(--text-primary)',
-                  border: '1px solid var(--border)', borderRadius: 4,
-                  padding: '3px 8px', fontSize: 11, outline: 'none', boxSizing: 'border-box',
-                }}
-              />
-            </div>
-            {/* Search results or tree */}
-            <div style={{ flex: 1, overflow: 'auto' }}>
-              {fileSearch.trim().length >= 2 ? (
-                fileSearchResults.length === 0 ? (
-                  <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 11 }}>{t('sidebar.noResults', '결과 없음')}</div>
+          <ErrorBoundary name="FilesPanel">
+            <>
+              {/* File search */}
+              <div style={{ padding: '4px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+                <input
+                  value={fileSearch}
+                  onChange={e => setFileSearch(e.target.value)}
+                  placeholder={t('sidebar.fileSearch', '파일 검색...')}
+                  style={{
+                    width: '100%', background: 'var(--bg-input)', color: 'var(--text-primary)',
+                    border: '1px solid var(--border)', borderRadius: 4,
+                    padding: '3px 8px', fontSize: 11, outline: 'none', boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+              {/* Search results or tree */}
+              <div style={{ flex: 1, overflow: 'auto' }}>
+                {fileSearch.trim().length >= 2 ? (
+                  fileSearchResults.length === 0 ? (
+                    <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 11 }}>{t('sidebar.noResults', '결과 없음')}</div>
+                  ) : (
+                    fileSearchResults.map(f => (
+                      <div
+                        key={f.path}
+                        onClick={() => onFileClick(f.path)}
+                        style={{
+                          padding: '5px 10px', cursor: 'pointer', fontSize: 12,
+                          borderBottom: '1px solid var(--border)',
+                          background: f.path === activeFilePath ? 'var(--bg-hover)' : 'transparent',
+                        }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = f.path === activeFilePath ? 'var(--bg-hover)' : 'transparent' }}
+                      >
+                        <div style={{ color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.relPath}</div>
+                      </div>
+                    ))
+                  )
                 ) : (
-                  fileSearchResults.map(f => (
-                    <div
-                      key={f.path}
-                      onClick={() => onFileClick(f.path)}
-                      style={{
-                        padding: '5px 10px', cursor: 'pointer', fontSize: 12,
-                        borderBottom: '1px solid var(--border)',
-                        background: f.path === activeFilePath ? 'var(--bg-hover)' : 'transparent',
-                      }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = f.path === activeFilePath ? 'var(--bg-hover)' : 'transparent' }}
-                    >
-                      <div style={{ color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.relPath}</div>
-                    </div>
-                  ))
-                )
-              ) : (
-                <FileTree rootPath={currentPath} onFileClick={onFileClick} activeFilePath={activeFilePath} onOpenInSplit={onOpenInSplit} />
-              )}
-            </div>
-          </>
+                  <FileTree rootPath={currentPath} onFileClick={onFileClick} activeFilePath={activeFilePath} onOpenInSplit={onOpenInSplit} />
+                )}
+              </div>
+            </>
+          </ErrorBoundary>
         )}
         {activeTab === 'files' && !currentPath && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
@@ -286,7 +289,9 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           </div>
         )}
         {activeTab === 'search' && currentPath && (
-          <SearchPanel rootPath={currentPath} onFileClick={(path) => onFileClick(path)} />
+          <ErrorBoundary name="SearchPanel">
+            <SearchPanel rootPath={currentPath} onFileClick={(path) => onFileClick(path)} />
+          </ErrorBoundary>
         )}
         {activeTab === 'search' && !currentPath && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
@@ -294,99 +299,131 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           </div>
         )}
         {activeTab === 'sessions' && (
-          <SessionList onSelect={onSessionSelect} activeSessionId={activeSessionId} />
+          <ErrorBoundary name="SessionList">
+            <SessionList onSelect={onSessionSelect} activeSessionId={activeSessionId} />
+          </ErrorBoundary>
         )}
         {activeTab === 'changes' && (
-          <ChangedFilesPanel
-            files={changedFiles}
-            onFileClick={onFileClick}
-            onClear={onClearChangedFiles ?? (() => {})}
-            onRemoveFile={onRemoveChangedFile}
-            rootPath={currentPath ?? undefined}
-          />
+          <ErrorBoundary name="ChangedFilesPanel">
+            <ChangedFilesPanel
+              files={changedFiles}
+              onFileClick={onFileClick}
+              onClear={onClearChangedFiles ?? (() => {})}
+              onRemoveFile={onRemoveChangedFile}
+              rootPath={currentPath ?? undefined}
+            />
+          </ErrorBoundary>
         )}
         {activeTab === 'bookmarks' && (
-          <BookmarksPanel messages={messages} onScrollToMessage={onScrollToMessage} />
+          <ErrorBoundary name="BookmarksPanel">
+            <BookmarksPanel messages={messages} onScrollToMessage={onScrollToMessage} />
+          </ErrorBoundary>
         )}
         {activeTab === 'stats' && features.stats && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <StatsPanel />
-          </Suspense>
+          <ErrorBoundary name="StatsPanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <StatsPanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {activeTab === 'stats' && !features.stats && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{t('sidebar.statsDisabled', '통계 기능이 비활성화되었습니다.')}</div>
         )}
         {activeTab === 'snippets' && (
-          <SnippetPanel onInsert={onInsertSnippet ?? (() => {})} />
+          <ErrorBoundary name="SnippetPanel">
+            <SnippetPanel onInsert={onInsertSnippet ?? (() => {})} />
+          </ErrorBoundary>
         )}
         {activeTab === 'outline' && features.outline && (
-          <OutlinePanel
-            messages={messages}
-            onScrollToMsg={onScrollToMessage ? (idx) => {
-              const msg = messages[idx]
-              if (msg) onScrollToMessage(msg.id)
-            } : undefined}
-          />
+          <ErrorBoundary name="OutlinePanel">
+            <OutlinePanel
+              messages={messages}
+              onScrollToMsg={onScrollToMessage ? (idx) => {
+                const msg = messages[idx]
+                if (msg) onScrollToMessage(msg.id)
+              } : undefined}
+            />
+          </ErrorBoundary>
         )}
         {activeTab === 'outline' && !features.outline && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{t('sidebar.outlineDisabled', '아웃라인 기능이 비활성화되었습니다.')}</div>
         )}
         {activeTab === 'plugins' && features.plugins && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <PluginsPanel />
-          </Suspense>
+          <ErrorBoundary name="PluginsPanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <PluginsPanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {activeTab === 'plugins' && !features.plugins && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{t('sidebar.pluginsDisabled', '플러그인 기능이 비활성화되었습니다.')}</div>
         )}
         {activeTab === 'connections' && features.connections && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <ConnectionPanel />
-          </Suspense>
+          <ErrorBoundary name="ConnectionPanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <ConnectionPanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {activeTab === 'connections' && !features.connections && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{t('sidebar.connDisabled', 'MCP 연결 기능이 비활성화되었습니다.')}</div>
         )}
         {activeTab === 'agent' && (
-          <AgentPanel />
+          <ErrorBoundary name="AgentPanel">
+            <AgentPanel />
+          </ErrorBoundary>
         )}
         {activeTab === 'globalsearch' && (
-          <GlobalSearchPanel
-            onSelectSession={(sessionId) => {
-              switchTab('sessions')
-              onSessionSelect(sessionId)
-            }}
-          />
+          <ErrorBoundary name="GlobalSearchPanel">
+            <GlobalSearchPanel
+              onSelectSession={(sessionId) => {
+                switchTab('sessions')
+                onSessionSelect(sessionId)
+              }}
+            />
+          </ErrorBoundary>
         )}
         {activeTab === 'calendar' && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <CalendarPanel />
-          </Suspense>
+          <ErrorBoundary name="CalendarPanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <CalendarPanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {activeTab === 'tasks' && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <TasksPanel />
-          </Suspense>
+          <ErrorBoundary name="TasksPanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <TasksPanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {activeTab === 'notes' && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <NotesPanel />
-          </Suspense>
+          <ErrorBoundary name="NotesPanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <NotesPanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {activeTab === 'clipboard' && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <ClipboardPanel />
-          </Suspense>
+          <ErrorBoundary name="ClipboardPanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <ClipboardPanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {activeTab === 'diff' && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <DiffPanel />
-          </Suspense>
+          <ErrorBoundary name="DiffPanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <DiffPanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {activeTab === 'remote' && (
-          <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
-            <RemotePanel />
-          </Suspense>
+          <ErrorBoundary name="RemotePanel">
+            <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
+              <RemotePanel />
+            </Suspense>
+          </ErrorBoundary>
         )}
       </div>
     </div>

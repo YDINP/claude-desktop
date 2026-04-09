@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { aguiSubscribe } from '../../utils/agui-store'
 import type { AguiRun } from '../../utils/agui-store'
+import { t } from '../../utils/i18n'
 
 function fmtMs(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -58,7 +59,7 @@ function RunCard({ run }: { run: AguiRun }) {
       {expanded && (
         <div style={{ padding: '0 10px 8px' }}>
           {run.steps.length === 0 ? (
-            <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>도구 호출 없음</div>
+            <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>{t('run.noTools', '도구 호출 없음')}</div>
           ) : run.steps.map(step => (
             <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0' }}>
               <span style={{ color: step.status === 'done' ? '#4ade80' : step.status === 'error' ? 'var(--error)' : '#60a5fa', fontSize: 11 }}>
@@ -144,7 +145,7 @@ export function RunTimeline() {
       <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
         {displayRuns.length === 0 ? (
           <div style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'center', marginTop: 32 }}>
-            아직 실행된 런이 없습니다
+            {t('run.empty', '아직 실행된 런이 없습니다')}
           </div>
         ) : shownRuns.map(run => <RunCard key={run.id} run={run} />)}
       </div>

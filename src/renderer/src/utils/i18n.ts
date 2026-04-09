@@ -614,6 +614,43 @@ const ko: Record<string, string> = {
   'scene.compAll':              '전체',
   'scene.tagAll':               '#태그',
 
+  // SearchPanel
+  'search.searching':           '검색 중...',
+  'search.error':               '오류: ',
+  'search.noResults':           '결과 없음',
+  'search.clearHistory':        '전체 삭제',
+  'search.replaceAll':          '모두 바꾸기',
+  'search.replacing':           '...',
+
+  // ChangedFilesPanel
+  'changes.empty':              '변경된 파일 없음',
+  'changes.emptyHint':          'Claude가 파일을 수정하면 여기에 표시됩니다',
+  'changes.clear':              '지우기',
+
+  // WebPreviewPanel
+  'preview.title':              '웹 프리뷰',
+  'preview.loading':            '로딩 중...',
+  'preview.navigate':           '이동',
+  'preview.emptyHint':          'CC 웹빌드 URL을 입력하세요',
+  'preview.defaultHint':        '기본값: ',
+  'preview.openDefault':        '기본 URL로 열기',
+
+  // RunTimeline
+  'run.noTools':                '도구 호출 없음',
+  'run.empty':                  '아직 실행된 런이 없습니다',
+
+  // PromptChainPanel
+  'chain.title':                '프롬프트 체이닝',
+  'chain.newChain':             '+ 새 체인',
+  'chain.running':              '실행 중...',
+  'chain.run':                  '▶ 실행',
+  'chain.addStep':              '+ 스텝 추가',
+  'chain.reset':                '초기화',
+  'chain.result':               '결과',
+  'chain.processing':           '처리 중...',
+  'chain.emptyHint':            '+ 새 체인 버튼으로 체인을 만드세요',
+  'chain.import':               '가져오기',
+
   // SceneInspector
   'inspector.multiSelected':    '{n}개 노드 선택됨',
   'inspector.posOffset':        'Position 오프셋 (상대 이동)',

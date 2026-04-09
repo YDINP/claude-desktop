@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from 'react'
+import { t } from '../../utils/i18n'
 
 interface WebPreviewPanelProps {
   defaultUrl?: string
@@ -74,7 +75,7 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
         padding: '6px 10px 4px', borderBottom: '1px solid var(--border)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <span>웹 프리뷰</span>
+        <span>{t('preview.title', '웹 프리뷰')}</span>
         <div style={{ display: 'flex', gap: 4 }}>
           <button onClick={handleBack} disabled={!canBack}
             title="뒤로"
@@ -158,7 +159,7 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
             padding: '3px 8px', background: 'var(--accent)', color: '#fff',
             borderRadius: 4, fontSize: 10, cursor: 'pointer',
           }}
-        >이동</button>
+        >{t('preview.navigate', '이동')}</button>
       </div>
 
       {/* iframe 영역 */}
@@ -169,7 +170,7 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
             justifyContent: 'center', background: 'var(--bg-secondary)', zIndex: 1,
             fontSize: 11, color: 'var(--text-muted)',
           }}>
-            로딩 중...
+            {t('preview.loading', '로딩 중...')}
           </div>
         )}
         {url ? (
@@ -189,9 +190,9 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
             alignItems: 'center', justifyContent: 'center',
             color: 'var(--text-muted)', fontSize: 11, gap: 8,
           }}>
-            <div>CC 웹빌드 URL을 입력하세요</div>
+            <div>{t('preview.emptyHint', 'CC 웹빌드 URL을 입력하세요')}</div>
             <div style={{ fontSize: 10 }}>
-              기본값: <code style={{ background: 'var(--bg-tertiary)', padding: '1px 4px', borderRadius: 2 }}>
+              {t('preview.defaultHint', '기본값: ')}<code style={{ background: 'var(--bg-tertiary)', padding: '1px 4px', borderRadius: 2 }}>
                 http://localhost:7456
               </code>
             </div>
@@ -204,7 +205,7 @@ export function WebPreviewPanel({ defaultUrl = '', onUrlChange }: WebPreviewPane
                 marginTop: 4, padding: '4px 12px', background: 'var(--accent)', color: '#fff',
                 borderRadius: 4, fontSize: 11, cursor: 'pointer',
               }}
-            >기본 URL로 열기</button>
+            >{t('preview.openDefault', '기본 URL로 열기')}</button>
           </div>
         )}
       </div>

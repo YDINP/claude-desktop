@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { t } from '../../utils/i18n'
 
 export interface ChangedFile {
   path: string
@@ -42,8 +43,8 @@ export function ChangedFilesPanel({ files, onFileClick, onClear }: ChangedFilesP
   if (files.length === 0) {
     return (
       <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12, textAlign: 'center' }}>
-        <div style={{ marginBottom: 6 }}>변경된 파일 없음</div>
-        <div style={{ fontSize: 11 }}>Claude가 파일을 수정하면 여기에 표시됩니다</div>
+        <div style={{ marginBottom: 6 }}>{t('changes.empty', '변경된 파일 없음')}</div>
+        <div style={{ fontSize: 11 }}>{t('changes.emptyHint', 'Claude가 파일을 수정하면 여기에 표시됩니다')}</div>
       </div>
     )
   }
@@ -102,7 +103,7 @@ export function ChangedFilesPanel({ files, onFileClick, onClear }: ChangedFilesP
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
         >
-          지우기
+          {t('changes.clear', '지우기')}
         </button>
       </div>
 
