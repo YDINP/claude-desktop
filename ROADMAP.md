@@ -986,3 +986,5 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2786 | 5차 감사 7건 — local:// 경로 검증, IPC 중복 가드, 세션 고아 복구, stale closure, 메모리 누수 3건 | ✅ |
 | R2787 | i18n 기반 — t() 함수 + SettingsPanel 언어 선택 UI (한국어/English) | ✅ |
 | R2788 | as any 11건 → 구체 타입 교체 + cc-asset-resolver/storage-migrate/i18n 테스트 56개 (총 197) | ✅ |
+| R2789 | CCFileSceneView Context 분리 4,374→2,530줄 — CCSceneContext/Toolbar/HUD/SVGOverlays 추출 | ✅ |
+| R2790 | 6차 감사 — scene/ 고아 디렉토리 삭제, NodePropertyPanel 삭제, stub console.log 정리 | ✅ |
