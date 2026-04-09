@@ -31,6 +31,7 @@ import { useChatScroll } from '../../hooks/useChatScroll'
 import { useChatSearch } from '../../hooks/useChatSearch'
 import { useChatEvents } from '../../hooks/useChatEvents'
 import { useDebounce } from '../../hooks/useDebounce'
+import { t } from '../../utils/i18n'
 
 interface ChatPanelProps {
   project: ReturnType<typeof useProject>
@@ -1158,7 +1159,7 @@ export function ChatPanel({ project, focusTrigger, searchTrigger, scrollToMessag
               background: 'none', border: 'none', color: 'var(--text-muted)',
               fontSize: 14, cursor: 'pointer', padding: '2px 6px', lineHeight: 1, marginLeft: 'auto', flexShrink: 0,
             }}
-            title="닫기"
+            title={t('chat.close', '닫기')}
           >×</button>
         </div>
       )}

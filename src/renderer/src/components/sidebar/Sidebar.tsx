@@ -23,6 +23,7 @@ import type { ChangedFile } from './ChangedFilesPanel'
 import type { ChatMessage } from '../../domains/chat'
 import { useProject } from '../../stores/project-store'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
+import { t } from '../../utils/i18n'
 
 interface SidebarProps {
   onSessionSelect: (sessionId: string) => void
@@ -50,28 +51,29 @@ export type { Tab as SidebarTab }
 
 type Tab = 'files' | 'sessions' | 'changes' | 'search' | 'bookmarks' | 'stats' | 'snippets' | 'outline' | 'plugins' | 'connections' | 'agent' | 'globalsearch' | 'calendar' | 'tasks' | 'notes' | 'clipboard' | 'diff' | 'remote'
 
-const PANEL_TITLES: Record<Tab, string> = {
-  files: 'Files',
-  search: 'Search',
-  sessions: 'History',
-  changes: 'Changes',
-  globalsearch: 'Global Search',
-  bookmarks: 'Bookmarks',
-  stats: 'Stats',
-  snippets: 'Snippets',
-  outline: 'Outline',
-  plugins: 'Plugins',
-  connections: 'Connections',
-  agent: 'Agent',
-  calendar: '캘린더',
-  tasks: '작업',
-  notes: '노트',
-  clipboard: '클립보드',
-  diff: 'Diff',
-  remote: '리모트',
-}
+const getPanelTitles = (): Record<Tab, string> => ({
+  files:        t('panel.files',       'Files'),
+  search:       t('panel.search',      'Search'),
+  sessions:     t('panel.sessions',    'History'),
+  changes:      t('panel.changes',     'Changes'),
+  globalsearch: t('panel.globalsearch','Global Search'),
+  bookmarks:    t('panel.bookmarks',   'Bookmarks'),
+  stats:        t('panel.stats',       'Stats'),
+  snippets:     t('panel.snippets',    'Snippets'),
+  outline:      t('panel.outline',     'Outline'),
+  plugins:      t('panel.plugins',     'Plugins'),
+  connections:  t('panel.connections', 'Connections'),
+  agent:        t('panel.agent',       'Agent'),
+  calendar:     t('panel.calendar',    '캘린더'),
+  tasks:        t('panel.tasks',       '작업'),
+  notes:        t('panel.notes',       '노트'),
+  clipboard:    t('panel.clipboard',   '클립보드'),
+  diff:         t('panel.diff',        'Diff'),
+  remote:       t('panel.remote',      '리모트'),
+})
 
 export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePath, activeSessionId, changedFiles = [], onClearChangedFiles, onRemoveChangedFile, onOpenInSplit, messages = [], onScrollToMessage, switchTabRef, onInsertSnippet, onTabChange, wsKey, ccPort, onCCPortChange, onCCConnectedChange, forceTab }: SidebarProps) {
+  const panelTitles = getPanelTitles()
   const [tab, setTab] = useState<Tab>('files')
   const switchTab = (t: Tab) => { setTab(t); onTabChange?.(t) }
   // forceTab이 있으면 해당 탭 강제 표시
@@ -106,13 +108,13 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
       {/* Tab bar — 2 rows: text tabs + icon tabs */}
       <div style={{ flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
         {/* Row 1: icon tabs — 균등 분배 */}
-        <div role="tablist" aria-label="사이드바 탭" style={{ display: 'flex' }}>
+        <div role="tablist" aria-label={t('sidebar.tabsLabel', '사이드바 탭')} style={{ display: 'flex' }}>
           {([
-            { id: 'files', label: '📁', title: 'Files' },
-            { id: 'search', label: '🔍', title: 'Search' },
-            { id: 'sessions', label: '📖', title: 'History' },
-            { id: 'changes', label: '✏️', title: changedFiles.length > 0 ? `Changes (${changedFiles.length})` : 'Changes' },
-            { id: 'globalsearch', label: '🌐', title: 'Global Search' },
+            { id: 'files', label: '📁', title: panelTitles.files },
+            { id: 'search', label: '🔍', title: panelTitles.search },
+            { id: 'sessions', label: '📖', title: panelTitles.sessions },
+            { id: 'changes', label: '✏️', title: changedFiles.length > 0 ? `${panelTitles.changes} (${changedFiles.length})` : panelTitles.changes },
+            { id: 'globalsearch', label: '🌐', title: panelTitles.globalsearch },
           ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
@@ -136,14 +138,14 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           ))}
         </div>
         {/* Row 2: 추가 패널 아이콘 */}
-        <div role="tablist" aria-label="사이드바 추가 탭" style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
+        <div role="tablist" aria-label={t('sidebar.extraTabsLabel', '사이드바 추가 탭')} style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
           {([
-            { id: 'calendar', label: '📅', title: '캘린더' },
-            { id: 'tasks', label: '✅', title: '작업' },
-            { id: 'notes', label: '📝', title: '노트' },
-            { id: 'clipboard', label: '📋', title: '클립보드' },
-            { id: 'diff', label: '⊟', title: 'Diff' },
-            { id: 'remote', label: '🔗', title: '리모트' },
+            { id: 'calendar', label: '📅', title: panelTitles.calendar },
+            { id: 'tasks', label: '✅', title: panelTitles.tasks },
+            { id: 'notes', label: '📝', title: panelTitles.notes },
+            { id: 'clipboard', label: '📋', title: panelTitles.clipboard },
+            { id: 'diff', label: '⊟', title: panelTitles.diff },
+            { id: 'remote', label: '🔗', title: panelTitles.remote },
           ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
@@ -167,15 +169,15 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           ))}
         </div>
         {/* Row 3: 숨겨진 기능 탭 아이콘 */}
-        <div role="tablist" aria-label="사이드바 기능 탭" style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
+        <div role="tablist" aria-label={t('sidebar.featureTabsLabel', '사이드바 기능 탭')} style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
           {([
-            { id: 'bookmarks', label: '★', title: 'Bookmarks' },
-            { id: 'stats', label: '📊', title: 'Stats' },
-            { id: 'snippets', label: '✂', title: 'Snippets' },
-            { id: 'outline', label: '§', title: 'Outline' },
-            { id: 'plugins', label: '🧩', title: 'Plugins' },
-            { id: 'connections', label: '🔌', title: 'Connections' },
-            { id: 'agent', label: '🤖', title: 'Agent' },
+            { id: 'bookmarks', label: '★', title: panelTitles.bookmarks },
+            { id: 'stats', label: '📊', title: panelTitles.stats },
+            { id: 'snippets', label: '✂', title: panelTitles.snippets },
+            { id: 'outline', label: '§', title: panelTitles.outline },
+            { id: 'plugins', label: '🧩', title: panelTitles.plugins },
+            { id: 'connections', label: '🔌', title: panelTitles.connections },
+            { id: 'agent', label: '🤖', title: panelTitles.agent },
           ] as { id: Tab; label: string; title: string }[]).map((t) => (
             <button
               key={t.id}
@@ -212,7 +214,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
         background: 'var(--bg-secondary)',
         flexShrink: 0,
       }}>
-        {PANEL_TITLES[activeTab]}
+        {panelTitles[activeTab]}
       </div>
 
       {/* New chat button */}
@@ -229,11 +231,11 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           flexShrink: 0,
         }}
       >
-        + New Chat
+        {t('sidebar.newChat', '+ New Chat')}
       </button>
 
       {/* Content */}
-      <div key={activeTab} role="tabpanel" aria-label={PANEL_TITLES[activeTab]} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.15s ease' }}>
+      <div key={activeTab} role="tabpanel" aria-label={panelTitles[activeTab]} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.15s ease' }}>
         {activeTab === 'files' && currentPath && (
           <>
             {/* File search */}
@@ -241,7 +243,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
               <input
                 value={fileSearch}
                 onChange={e => setFileSearch(e.target.value)}
-                placeholder="파일 검색..."
+                placeholder={t('sidebar.fileSearch', '파일 검색...')}
                 style={{
                   width: '100%', background: 'var(--bg-input)', color: 'var(--text-primary)',
                   border: '1px solid var(--border)', borderRadius: 4,
@@ -253,7 +255,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
             <div style={{ flex: 1, overflow: 'auto' }}>
               {fileSearch.trim().length >= 2 ? (
                 fileSearchResults.length === 0 ? (
-                  <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 11 }}>결과 없음</div>
+                  <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 11 }}>{t('sidebar.noResults', '결과 없음')}</div>
                 ) : (
                   fileSearchResults.map(f => (
                     <div
@@ -280,7 +282,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
         )}
         {activeTab === 'files' && !currentPath && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
-            No folder open
+            {t('sidebar.noFolder', 'No folder open')}
           </div>
         )}
         {activeTab === 'search' && currentPath && (
@@ -288,7 +290,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
         )}
         {activeTab === 'search' && !currentPath && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>
-            No folder open
+            {t('sidebar.noFolder', 'No folder open')}
           </div>
         )}
         {activeTab === 'sessions' && (
@@ -312,7 +314,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           </Suspense>
         )}
         {activeTab === 'stats' && !features.stats && (
-          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>통계 기능이 비활성화되었습니다.</div>
+          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{t('sidebar.statsDisabled', '통계 기능이 비활성화되었습니다.')}</div>
         )}
         {activeTab === 'snippets' && (
           <SnippetPanel onInsert={onInsertSnippet ?? (() => {})} />
@@ -327,7 +329,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           />
         )}
         {activeTab === 'outline' && !features.outline && (
-          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>아웃라인 기능이 비활성화되었습니다.</div>
+          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{t('sidebar.outlineDisabled', '아웃라인 기능이 비활성화되었습니다.')}</div>
         )}
         {activeTab === 'plugins' && features.plugins && (
           <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
@@ -335,7 +337,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           </Suspense>
         )}
         {activeTab === 'plugins' && !features.plugins && (
-          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>플러그인 기능이 비활성화되었습니다.</div>
+          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{t('sidebar.pluginsDisabled', '플러그인 기능이 비활성화되었습니다.')}</div>
         )}
         {activeTab === 'connections' && features.connections && (
           <Suspense fallback={<div style={{ padding: 16, color: 'var(--text-muted)' }}>...</div>}>
@@ -343,7 +345,7 @@ export function Sidebar({ onSessionSelect, onNewChat, onFileClick, activeFilePat
           </Suspense>
         )}
         {activeTab === 'connections' && !features.connections && (
-          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>MCP 연결 기능이 비활성화되었습니다.</div>
+          <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 12 }}>{t('sidebar.connDisabled', 'MCP 연결 기능이 비활성화되었습니다.')}</div>
         )}
         {activeTab === 'agent' && (
           <AgentPanel />

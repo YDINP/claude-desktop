@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { getTodayCost, getMonthlyCost } from '../../utils/cost-tracker'
+import { t } from '../../utils/i18n'
 
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'claude-opus-4-6': { input: 15, output: 75 },
@@ -174,7 +175,7 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
         <span
           onClick={() => setShowSessionInfo(v => !v)}
           style={{ opacity: 0.85, display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, cursor: 'pointer' }}
-          title="클릭하여 세션 정보 보기"
+          title={t('status.sessionInfo', '세션 정보')}
         >
           <span>💰</span>
           <span>${costUsd.toPrecision(4)}</span>
@@ -218,12 +219,12 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
                 const pricing = MODEL_PRICING[model] ?? MODEL_PRICING['claude-sonnet-4-6']
                 return (
                   <>
-                    <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>비용 상세</div>
-                    <div style={{ color: 'var(--text-secondary)', marginBottom: 3 }}>세션: ${totalCost.toFixed(4)}</div>
-                    {todayCost > 0 && <div style={{ color: 'var(--text-secondary)', marginBottom: 3 }}>오늘: ${todayCost.toFixed(4)}</div>}
-                    {monthlyCost > 0 && <div style={{ color: 'var(--text-secondary)', marginBottom: 6 }}>이달: ${monthlyCost.toFixed(4)}</div>}
+                    <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>{t('status.costDetail', '비용 상세')}</div>
+                    <div style={{ color: 'var(--text-secondary)', marginBottom: 3 }}>{t('status.session', '세션')}: ${totalCost.toFixed(4)}</div>
+                    {todayCost > 0 && <div style={{ color: 'var(--text-secondary)', marginBottom: 3 }}>{t('status.today', '오늘')}: ${todayCost.toFixed(4)}</div>}
+                    {monthlyCost > 0 && <div style={{ color: 'var(--text-secondary)', marginBottom: 6 }}>{t('status.monthly', '이달')}: ${monthlyCost.toFixed(4)}</div>}
                     <div style={{ borderTop: '1px solid var(--border)', paddingTop: 5, color: 'var(--text-muted)', fontSize: 10 }}>
-                      입력 ${pricing.input}/M · 출력 ${pricing.output}/M
+                      {t('status.inputRate', '입력')} ${pricing.input}/M · {t('status.outputRate', '출력')} ${pricing.output}/M
                     </div>
                   </>
                 )
@@ -233,13 +234,13 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
         </span>
       )}
       {sessionElapsed && (
-        <span style={{ fontSize: 10, opacity: 0.65, cursor: 'default' }} title="세션 경과 시간">
+        <span style={{ fontSize: 10, opacity: 0.65, cursor: 'default' }} title={t('status.sessionInfo', '세션 경과 시간')}>
           ⏱ {sessionElapsed}
         </span>
       )}
       {chatFontSize !== undefined && chatFontSize !== 14 && (
         <span
-          title="채팅 폰트 크기 (Ctrl+0으로 초기화)"
+          title={t('status.fontSize', '채팅 폰트 크기 (Ctrl+0으로 초기화)')}
           style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}
         >
           {chatFontSize}px
@@ -252,7 +253,7 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
             color: memMB > 500 ? 'var(--warning)' : 'rgba(255,255,255,0.6)',
             cursor: 'default',
           }}
-          title={`메모리 사용량: ${memMB}MB`}
+          title={`${t('status.memUsage', '메모리 사용량')}: ${memMB}MB`}
         >
           {memMB}MB
         </span>
@@ -264,25 +265,25 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
             color: cpuUsage > 80 ? 'var(--warning)' : 'rgba(255,255,255,0.6)',
             cursor: 'default',
           }}
-          title={`CPU 사용률: ${cpuUsage}%`}
+          title={`${t('status.cpuUsage', 'CPU 사용률')}: ${cpuUsage}%`}
         >
           {cpuUsage}%
         </span>
       )}
       <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <span
-          title={online ? '온라인' : '오프라인'}
+          title={online ? t('status.online', '온라인') : t('status.offline', '오프라인')}
           style={{
             display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
             background: online ? '#4caf50' : '#f44336',
             marginRight: 4, flexShrink: 0,
           }}
         />
-        {!online && <span style={{ color: '#f44336', fontSize: 11 }}>오프라인</span>}
+        {!online && <span style={{ color: '#f44336', fontSize: 11 }}>{t('status.offline', '오프라인')}</span>}
       </span>
       <button
         onClick={() => setShowSessionInfo(v => !v)}
-        title="세션 정보"
+        title={t('status.sessionInfo', '세션 정보')}
         style={{
           background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)',
           fontSize: 12, cursor: 'pointer', padding: '0 2px', lineHeight: 1,
@@ -291,7 +292,7 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
       {onShowShortcuts && (
         <button
           onClick={onShowShortcuts}
-          title="키보드 단축키 (Ctrl+?)"
+          title={t('status.shortcuts', '키보드 단축키 (Ctrl+?)')}
           style={{
             marginLeft: (totalCost > 0 || (contextUsage !== undefined && contextUsage > 0)) ? 0 : 'auto',
             background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)',
@@ -310,7 +311,7 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
           }}
         >
           <div style={{ fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
-            세션 정보
+            {t('status.sessionInfo', '세션 정보')}
           </div>
           {sessionTitle && (
             <div style={{ marginBottom: 4, color: 'var(--text-secondary)' }}>
@@ -324,37 +325,37 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
           )}
           {sessionCreatedAt && (
             <div style={{ marginBottom: 4, color: 'var(--text-secondary)' }}>
-              생성: {new Date(sessionCreatedAt).toLocaleString('ko-KR')}
+              {t('status.createdAt', '생성')}: {new Date(sessionCreatedAt).toLocaleString('ko-KR')}
             </div>
           )}
           {messageCount !== undefined && (
             <div style={{ marginBottom: 4, color: 'var(--text-secondary)' }}>
-              메시지 {messageCount}개
+              {t('status.messages', '메시지')} {messageCount}개
             </div>
           )}
           {inputTokens !== undefined && (
             <div style={{ marginBottom: 4, color: 'var(--text-secondary)' }}>
-              입력 {inputTokens?.toLocaleString()} / 출력 {outputTokens?.toLocaleString()} 토큰
+              {t('status.inputTokens', '입력')} {inputTokens?.toLocaleString()} / {t('status.outputTokens', '출력')} {outputTokens?.toLocaleString()} 토큰
             </div>
           )}
           {costUsd !== null && costUsd !== undefined && (
             <div style={{ marginBottom: 4, color: 'var(--accent)' }}>
-              예상 비용: ${costUsd.toPrecision(4)}
+              {t('status.estimatedCost', '예상 비용')}: ${costUsd.toPrecision(4)}
             </div>
           )}
           {(totalCost > 0) && (
             <div style={{ marginBottom: 4, color: 'var(--text-secondary)', fontSize: 11 }}>
-              누적 비용: ${totalCost.toFixed(4)}
+              {t('status.totalCost', '누적 비용')}: ${totalCost.toFixed(4)}
             </div>
           )}
           {todayCost > 0 && (
             <div style={{ marginBottom: 4, color: 'var(--text-secondary)', fontSize: 11 }}>
-              오늘 사용: ${todayCost.toFixed(4)}
+              {t('status.todayCost', '오늘 사용')}: ${todayCost.toFixed(4)}
             </div>
           )}
           {monthlyCost > 0 && (
             <div style={{ marginBottom: 4, color: 'var(--text-secondary)', fontSize: 11 }}>
-              이번달 합계: ${monthlyCost.toFixed(4)}
+              {t('status.monthlyCost', '이번달 합계')}: ${monthlyCost.toFixed(4)}
             </div>
           )}
           <button
@@ -365,7 +366,7 @@ export function StatusBar({ model, totalCost, totalInputTokens = 0, totalOutputT
               borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11,
             }}
           >
-            닫기
+            {t('status.close', '닫기')}
           </button>
         </div>
       )}
