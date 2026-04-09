@@ -985,3 +985,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2785 | 테스트 추가 — 공통 훅/유틸 28개 (총 104→151) + CSS panel-scroll/divider | ✅ |
 | R2786 | 5차 감사 7건 — local:// 경로 검증, IPC 중복 가드, 세션 고아 복구, stale closure, 메모리 누수 3건 | ✅ |
 | R2787 | i18n 기반 — t() 함수 + SettingsPanel 언어 선택 UI (한국어/English) | ✅ |
+| R2788 | as any 11건 → 구체 타입 교체 + cc-asset-resolver/storage-migrate/i18n 테스트 56개 (총 197) | ✅ |
