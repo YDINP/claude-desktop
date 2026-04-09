@@ -17,6 +17,10 @@ import {
   VP_KEY, NT_KEY, VB_KEY, DEFAULT_PRESETS, DEFAULT_TEMPLATES, PNG_BG_COLORS,
   getRulerTicks, buildHeatmap, slotKey,
 } from './sceneViewConstants'
+import { SceneViewProvider, type SceneViewContextValue } from './SceneViewContext'
+import { SceneViewContextMenu } from './SceneViewContextMenu'
+import { SceneViewOverlays } from './SceneViewOverlays'
+import { SceneViewSnapshotBar } from './SceneViewSnapshotBar'
 
 // Types and constants imported from ./sceneViewConstants
 
@@ -1247,6 +1251,51 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // R1422: 그리드 크기를 사용자 설정에서 가져옴
   const gridStep = gridSettings.size
 
+  // ── Context 값 구성 (하위 추출 컴포넌트에 전달) ──────────────
+  const ctxValue: SceneViewContextValue = {
+    nodeMap, rootUuid, updateNode, refresh,
+    view, setView, DESIGN_W, DESIGN_H,
+    selectedUuid, setSelectedUuid, selectedUuids, setSelectedUuids,
+    selectedNode,
+    bookmarkedUuids, setBookmarkedUuids,
+    pinnedUuids, lockedUuids, setLockedUuids,
+    hiddenLayers, setHiddenLayers, lockedLayers, setLockedLayers,
+    collapsedUuids, setCollapsedUuids,
+    nodeColors, setNodeColors, nodeColorTags, setNodeColorTags,
+    nodeTags, setNodeTags, layerColors, setLayerColors,
+    handleDeleteNode, handleCopy, handlePaste, handleDuplicate,
+    togglePin,
+    clipboard, setClipboard, setCopiedNode,
+    topLevelNodes, nodeToTopLevel, collectDescendants, allLayers,
+    connected, port, containerRef,
+    savedSnapshot, changedUuids,
+    diffModeR1381, setDiffModeR1381,
+    beforeAfterMode, setBeforeAfterMode, sliderX, setSliderX,
+    snapshot, showDiff, setShowDiff,
+    editHistory, showEditHistory, setShowEditHistory,
+    showJsonViewer, setShowJsonViewer, jsonViewScope, setJsonViewScope,
+    shareUrl, setShareUrl, shareLoading, setShareLoading,
+    showImportModal, setShowImportModal, importJson, setImportJson, importError, setImportError,
+    showCenterGuide, setShowCenterGuide, snapThreshold, setSnapThreshold,
+    blockInactiveClick, setBlockInactiveClick,
+    snapshots, snapshotOpen, setSnapshotOpen, takeSnapshot, handleTakeSnapshot,
+    nodeAccessCount, setNodeAccessCount,
+    showLayerPanel, showAllToggle, setShowAllToggle,
+    layerDragIdx, setLayerDragIdx, layerDropIdx, setLayerDropIdx,
+    animPlayingUuid, handleAnimPreviewStart, handleAnimPreviewStop, handleAiAnalyze,
+    nodeTemplates, setNodeTemplates, showTemplateDropdown, setShowTemplateDropdown,
+    svgContextMenu, setSvgContextMenu,
+    showColorTagPicker, setShowColorTagPicker,
+    nodeTagInput, setNodeTagInput, nodeTagDraft, setNodeTagDraft,
+    sceneTabFiles, sceneHistory,
+    showMinimap, setShowMinimap,
+    flashUuid, setFlashUuid, flashTimerRef,
+    svgRef,
+    changeHistory, showChangeHistory, setShowChangeHistory,
+    beforeAfterDragRef,
+    compareScenePath, setCompareScenePath,
+  }
+
   if (!connected) {
     return (
       <div
@@ -1265,6 +1314,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }
 
   return (
+    <SceneViewProvider value={ctxValue}>
     <div
       style={{
         display: 'flex',
@@ -1667,172 +1717,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         </div>
       )}
 
-      {/* 스냅샷 기록 툴바 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'relative', zIndex: 10 }}>
-        <button
-          onClick={takeSnapshot}
-          style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4, color: '#93c5fd', cursor: 'pointer', whiteSpace: 'nowrap' }}
-        >
-          스냅샷
-        </button>
-        {/* R1381: 씬 diff 뷰어 토글 */}
-        <button
-          onClick={() => setDiffModeR1381(v => !v)}
-          title={diffModeR1381 ? '씬 diff 뷰어 끄기' : '변경된 노드 주황 테두리 강조'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: diffModeR1381 ? 'rgba(251,146,60,0.25)' : 'rgba(255,255,255,0.06)',
-            border: diffModeR1381 ? '1px solid rgba(251,146,60,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: diffModeR1381 ? '#fb923c' : '#cbd5e1',
-          }}
-        >
-          diff {changedUuids.size > 0 ? `(${changedUuids.size})` : ''}
-        </button>
-        {/* R1431: Before/After 슬라이더 비교 토글 */}
-        <button
-          onClick={() => { setBeforeAfterMode(v => !v); if (!beforeAfterMode) setSliderX(0.5) }}
-          title={beforeAfterMode ? 'Before/After 비교 끄기' : 'Before/After 슬라이더 비교'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: beforeAfterMode ? 'rgba(168,85,247,0.25)' : 'rgba(255,255,255,0.06)',
-            border: beforeAfterMode ? '1px solid rgba(168,85,247,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: beforeAfterMode ? '#c084fc' : '#cbd5e1',
-          }}
-        >
-          B/A
-        </button>
-        {/* R1435: 씬 JSON 뷰어 토글 */}
-        <button
-          onClick={() => setShowJsonViewer(v => !v)}
-          title={showJsonViewer ? '씬 JSON 뷰어 닫기' : '씬 JSON 뷰어 열기'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: showJsonViewer ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)',
-            border: showJsonViewer ? '1px solid rgba(96,165,250,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: showJsonViewer ? '#60a5fa' : '#cbd5e1', fontFamily: 'monospace',
-          }}
-        >
-          {'{ }'}
-        </button>
-        {/* R1438: 씬 공유 링크 */}
-        <button
-          onClick={async () => {
-            setShareLoading(true)
-            try {
-              const data = Array.from(nodeMap.values()).map(n => ({ name: n.name, uuid: n.uuid, x: Math.round(n.x), y: Math.round(n.y), width: Math.round(n.width), height: Math.round(n.height), rotation: n.rotation, active: n.active, components: n.components }))
-              const sceneJson = JSON.stringify({ nodeCount: nodeMap.size, rootUuid, nodes: data }, null, 2)
-              const result = await window.api.ccFileServeScene?.(sceneJson)
-              if (result?.success && result.url) {
-                await navigator.clipboard.writeText(result.url)
-                setShareUrl(result.url)
-                setTimeout(() => setShareUrl(null), 5000)
-              }
-            } catch { /* ignore */ }
-            setShareLoading(false)
-          }}
-          disabled={shareLoading || nodeMap.size === 0}
-          title={shareUrl ? `공유 URL: ${shareUrl}` : '씬 로컬 HTTP 공유 (60초, 클립보드 복사)'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: shareUrl ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)',
-            border: shareUrl ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: shareUrl ? '#4ade80' : '#cbd5e1',
-            opacity: shareLoading || nodeMap.size === 0 ? 0.5 : 1,
-          }}
-        >
-          {shareLoading ? '...' : shareUrl ? '✓ 복사됨' : '\u{1F517}'}
-        </button>
-        {/* R1440: 씬 JSON 임포트 버튼 */}
-        <button
-          onClick={() => { setShowImportModal(true); setImportJson(''); setImportError(null) }}
-          title="외부 씬 JSON 붙여넣기로 노드 임포트"
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: showImportModal ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)',
-            border: showImportModal ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: showImportModal ? '#4ade80' : '#cbd5e1',
-          }}
-        >
-          {'\uD83D\uDCE5'} 임포트
-        </button>
-        {/* R1442: Center Guide 토글 */}
-        <button
-          onClick={() => setShowCenterGuide(v => !v)}
-          title={showCenterGuide ? '씬 중앙선 숨기기' : '씬 중앙선 표시 (0,0 기준)'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: showCenterGuide ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)',
-            border: showCenterGuide ? '1px solid rgba(96,165,250,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: showCenterGuide ? '#60a5fa' : '#cbd5e1',
-          }}
-        >
-          {'\u271A'}
-        </button>
-        {/* R1442: 스냅 거리 임계값 설정 */}
-        <select
-          value={snapThreshold}
-          onChange={e => setSnapThreshold(Number(e.target.value))}
-          title={`정렬 스냅 거리: ${snapThreshold}px`}
-          style={{
-            fontSize: 9, padding: '2px 4px', borderRadius: 3, cursor: 'pointer',
-            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
-            color: '#cbd5e1',
-          }}
-        >
-          {[4, 8, 12, 16].map(v => (
-            <option key={v} value={v}>{v}px</option>
-          ))}
-        </select>
-        {/* R1428: 비활성 노드 클릭 방지 토글 */}
-        <button
-          onClick={() => setBlockInactiveClick(v => !v)}
-          title={blockInactiveClick ? '비활성 노드 클릭 허용' : '비활성 노드 클릭 방지'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: blockInactiveClick ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)',
-            border: blockInactiveClick ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(255,255,255,0.15)',
-            color: blockInactiveClick ? '#fca5a5' : '#cbd5e1',
-          }}
-        >
-          {blockInactiveClick ? '비활성 차단' : '비활성 허용'}
-        </button>
-        {/* 접근 횟수 초기화 버튼 (R702) */}
-        {Object.keys(nodeAccessCount).length > 0 && (
-          <button
-            onClick={() => setNodeAccessCount({})}
-            style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 4, color: '#fca5a5', cursor: 'pointer', whiteSpace: 'nowrap' }}
-          >
-            접근 횟수 초기화
-          </button>
-        )}
-        {snapshots.length > 0 && (
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setSnapshotOpen(v => !v)}
-              style={{ fontSize: 11, padding: '2px 8px', background: snapshotOpen ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 4, color: '#cbd5e1', cursor: 'pointer' }}
-            >
-              기록 ({snapshots.length}) ▾
-            </button>
-            {snapshotOpen && (
-              <div
-                style={{ position: 'absolute', top: '100%', left: 0, marginTop: 2, background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, minWidth: 220, zIndex: 100, boxShadow: '0 4px 16px rgba(0,0,0,0.5)' }}
-              >
-                {snapshots.map((s) => (
-                  <div
-                    key={s.timestamp}
-                    onClick={() => { console.log('restore snapshot:', s.label); setSnapshotOpen(false) }}
-                    style={{ padding: '6px 12px', fontSize: 11, color: '#cbd5e1', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(96,165,250,0.15)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = '' }}
-                  >
-                    {s.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      {/* 스냅샷 기록 툴바 (추출) */}
+      <SceneViewSnapshotBar />
 
       {/* 애니메이션 미리보기 바 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 6px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
@@ -3449,334 +3335,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           )
         })()}
 
-        {/* 레이어 패널 (좌측 상단, 접이식) */}
-        {showLayerPanel && topLevelNodes.length > 0 && (
-          <div style={{
-            position: 'absolute', top: 4, left: 4, zIndex: 20,
-            width: 150, maxHeight: 200, overflowY: 'auto',
-            background: 'rgba(0,0,0,0.7)', borderRadius: 4,
-            padding: '6px 8px', fontSize: 10,
-            border: '1px solid rgba(255,255,255,0.12)',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Layers ({allLayers.length})</span>
-              <button
-                onClick={() => {
-                  const next = !showAllToggle
-                  setShowAllToggle(next)
-                  if (next) {
-                    setHiddenLayers(new Set())
-                  } else {
-                    setHiddenLayers(new Set(topLevelNodes.map(n => n.uuid)))
-                  }
-                }}
-                title={showAllToggle ? '모두 숨김' : '모두 표시'}
-                style={{
-                  fontSize: 12, padding: '1px 3px',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  opacity: showAllToggle ? 1 : 0.4,
-                  textDecoration: showAllToggle ? 'none' : 'line-through',
-                  lineHeight: 1,
-                }}
-              >
-                {showAllToggle ? '👁' : '🙈'}
-              </button>
-            </div>
-            {/* R1395+R1450: 레이어 목록 (가시성/잠금/색상 라벨 + 드래그 재배치) */}
-            {topLevelNodes.map((layer, layerIdx) => {
-              const isHidden = hiddenLayers.has(layer.uuid)
-              const isLocked = lockedLayers.has(layer.uuid)
-              const childCount = collectDescendants(layer.uuid).length - 1
-              const lc = layerColors[layer.uuid]
-              return (
-                <div
-                  key={layer.uuid}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    borderTop: layerDropIdx === layerIdx && layerDragIdx !== null && layerDragIdx !== layerIdx ? '2px solid #60a5fa' : 'none',
-                    opacity: layerDragIdx === layerIdx ? 0.4 : 1,
-                  }}
-                  onDragOver={e => { e.preventDefault(); setLayerDropIdx(layerIdx) }}
-                  onDragLeave={() => { if (layerDropIdx === layerIdx) setLayerDropIdx(null) }}
-                  onDrop={e => {
-                    e.preventDefault()
-                    if (layerDragIdx !== null && layerDragIdx !== layerIdx && rootUuid) {
-                      // R1450: 레이어 순서 변경 — rootUuid의 childUuids 재배치
-                      const root = nodeMap.get(rootUuid)
-                      if (root) {
-                        const uuids = [...root.childUuids]
-                        const [moved] = uuids.splice(layerDragIdx, 1)
-                        uuids.splice(layerIdx, 0, moved)
-                        updateNode(rootUuid, { childUuids: uuids })
-                      }
-                    }
-                    setLayerDragIdx(null)
-                    setLayerDropIdx(null)
-                  }}
-                >
-                  {/* R1450: 드래그 핸들 */}
-                  <span
-                    draggable
-                    onDragStart={() => setLayerDragIdx(layerIdx)}
-                    onDragEnd={() => { setLayerDragIdx(null); setLayerDropIdx(null) }}
-                    style={{ cursor: 'grab', color: 'rgba(255,255,255,0.3)', fontSize: 10, flexShrink: 0, userSelect: 'none' }}
-                    title="R1450: 드래그하여 레이어 순서 변경"
-                  >{'⋮⋮'}</span>
-                  <button
-                    onClick={() => setHiddenLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
-                    title={isHidden ? '표시' : '숨김'}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, opacity: isHidden ? 0.4 : 1, lineHeight: 1 }}
-                  >
-                    {isHidden ? '🙈' : '👁'}
-                  </button>
-                  <button
-                    onClick={() => setLockedLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
-                    title={isLocked ? '잠금 해제' : '잠금'}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, opacity: isLocked ? 1 : 0.4, lineHeight: 1 }}
-                  >
-                    {isLocked ? '🔒' : '🔓'}
-                  </button>
-                  {/* R1395: 색상 라벨 버튼 — 클릭 시 팔레트 순환 */}
-                  <button
-                    onClick={() => {
-                      setLayerColors(prev => {
-                        const next = { ...prev }
-                        const curIdx = lc ? LAYER_COLOR_PALETTE.indexOf(lc) : -1
-                        if (curIdx >= LAYER_COLOR_PALETTE.length - 1 || curIdx < 0 && lc) {
-                          delete next[layer.uuid]
-                        } else {
-                          next[layer.uuid] = LAYER_COLOR_PALETTE[(curIdx + 1) % LAYER_COLOR_PALETTE.length]
-                        }
-                        return next
-                      })
-                    }}
-                    title={lc ? `색상: ${lc} (클릭하여 변경)` : '색상 라벨 추가'}
-                    style={{
-                      width: 8, height: 8, borderRadius: '50%', padding: 0, flexShrink: 0,
-                      background: lc ?? 'rgba(255,255,255,0.15)',
-                      border: lc ? `1px solid ${lc}` : '1px solid rgba(255,255,255,0.2)',
-                      cursor: 'pointer',
-                    }}
-                  />
-                  <span
-                    style={{ flex: 1, color: isHidden ? 'rgba(255,255,255,0.3)' : (lc ?? '#e0e0e0'), fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    title={layer.name}
-                  >
-                    {layer.name}
-                  </span>
-                  {childCount > 0 && (
-                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 9 }}>{childCount}</span>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* R1446: 편집 이력 패널 (우측 상단) */}
-        {showEditHistory && editHistory.length > 0 && (
-          <div style={{
-            position: 'absolute', top: 4, right: 4, zIndex: 20,
-            width: 200, maxHeight: 240, overflowY: 'auto',
-            background: 'rgba(0,0,0,0.75)', borderRadius: 4,
-            padding: '6px 8px', fontSize: 10,
-            border: '1px solid rgba(255,255,255,0.12)',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Edit History ({editHistory.length})</span>
-              <button
-                onClick={() => setShowEditHistory(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, lineHeight: 1, padding: 0 }}
-              >x</button>
-            </div>
-            {editHistory.map((entry, i) => (
-              <div
-                key={`${entry.timestamp}-${i}`}
-                onClick={() => {
-                  setSelectedUuid(entry.nodeUuid)
-                  setSelectedUuids(new Set([entry.nodeUuid]))
-                }}
-                style={{
-                  display: 'flex', flexDirection: 'column', gap: 1, padding: '3px 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer',
-                }}
-              >
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
-                    {new Date(entry.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                  </span>
-                  <span style={{ color: entry.action === 'move' ? '#60a5fa' : entry.action === 'resize' ? '#34d399' : '#fbbf24', fontSize: 9, fontWeight: 600, flexShrink: 0 }}>
-                    {entry.action}
-                  </span>
-                </div>
-                <span style={{ color: '#e0e0e0', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {entry.nodeName}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 미니맵 오버레이 */}
-        {showMinimap && nodeMap.size > 0 && (() => {
-          const MM_W = 90, MM_H = 60
-          // 씬 전체 노드 bounding box 계산 (디자인 좌표 기준)
-          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-          nodeMap.forEach(n => {
-            const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
-            minX = Math.min(minX, sx - n.width / 2)
-            minY = Math.min(minY, sy - n.height / 2)
-            maxX = Math.max(maxX, sx + n.width / 2)
-            maxY = Math.max(maxY, sy + n.height / 2)
-          })
-          // 기본 씬 영역 포함
-          minX = Math.min(minX, 0); minY = Math.min(minY, 0)
-          maxX = Math.max(maxX, DESIGN_W); maxY = Math.max(maxY, DESIGN_H)
-          const scW = maxX - minX || DESIGN_W
-          const scH = maxY - minY || DESIGN_H
-          const sx = MM_W / scW, sy = MM_H / scH
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 28,
-                right: 6,
-                width: MM_W,
-                height: MM_H,
-                background: 'rgba(0,0,0,0.6)',
-                border: '1px solid var(--border)',
-                borderRadius: 4,
-                overflow: 'hidden',
-                cursor: 'crosshair',
-                userSelect: 'none',
-              }}
-              title="미니맵 — 클릭: 뷰포트 이동 / 더블클릭: 숨기기"
-              onDoubleClick={e => { e.stopPropagation(); setShowMinimap(false) }}
-              onClick={e => {
-                // 미니맵 좌표 → 씬 좌표 → 뷰포트 오프셋 계산
-                const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
-                const mmX = e.clientX - rect.left
-                const mmY = e.clientY - rect.top
-                // 씬 좌표 (SVG 공간)
-                const sceneX = mmX / sx + minX
-                const sceneY = mmY / sy + minY
-                if (containerRef.current) {
-                  const cw = containerRef.current.clientWidth
-                  const ch = containerRef.current.clientHeight
-                  setView(prev => ({
-                    ...prev,
-                    offsetX: cw / 2 - sceneX * prev.zoom,
-                    offsetY: ch / 2 - sceneY * prev.zoom,
-                  }))
-                }
-              }}
-            >
-              <svg width={MM_W} height={MM_H} style={{ display: 'block' }}>
-                {/* 디자인 캔버스 경계 */}
-                <rect
-                  x={(0 - minX) * sx} y={(0 - minY) * sy}
-                  width={DESIGN_W * sx} height={DESIGN_H * sy}
-                  fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth={1}
-                />
-                {/* 노드 표시 */}
-                {[...nodeMap.values()].map(n => {
-                  const { sx: nsx, sy: nsy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
-                  const mx = (nsx - n.width / 2 - minX) * sx
-                  const my = (nsy - n.height / 2 - minY) * sy
-                  const mw = Math.max(1, n.width * sx)
-                  const mh = Math.max(1, n.height * sy)
-                  const isSelected = selectedUuids.has(n.uuid)
-                  const color = n.color ? `rgba(${n.color.r ?? 255},${n.color.g ?? 255},${n.color.b ?? 255},0.7)` : 'rgba(100,180,255,0.5)'
-                  return (
-                    <rect key={n.uuid} x={mx} y={my} width={mw} height={mh}
-                      fill={isSelected ? '#60a5fa' : color}
-                      stroke={isSelected ? '#60a5fa' : 'none'}
-                      strokeWidth={isSelected ? 0.5 : 0}
-                      opacity={n.active ? 1 : 0.3}
-                    />
-                  )
-                })}
-                {/* 현재 뷰포트 표시 */}
-                {containerRef.current && (() => {
-                  const cw = containerRef.current!.clientWidth
-                  const ch = containerRef.current!.clientHeight
-                  const vx = (-view.offsetX / view.zoom - minX) * sx
-                  const vy = (-view.offsetY / view.zoom - minY) * sy
-                  const vw = (cw / view.zoom) * sx
-                  const vh = (ch / view.zoom) * sy
-                  return (
-                    <rect x={vx} y={vy} width={vw} height={vh}
-                      fill="none" stroke="rgba(250,200,50,0.7)" strokeWidth={1}
-                    />
-                  )
-                })()}
-              </svg>
-            </div>
-          )
-        })()}
-
-        {/* 미니맵 숨겨진 경우 복원 버튼 */}
-        {!showMinimap && (
-          <button
-            onClick={() => setShowMinimap(true)}
-            title="미니맵 표시"
-            style={{
-              position: 'absolute', bottom: 28, right: 6,
-              fontSize: 9, padding: '1px 4px',
-              background: 'rgba(15,15,20,0.8)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer',
-            }}
-          >
-            ⊞
-          </button>
-        )}
-
-        {/* 변경 히스토리 버튼 + 팝업 */}
-        {changeHistory.length > 0 && (
-          <div style={{ position: 'absolute', bottom: 52, right: 6 }}>
-            <button
-              onClick={() => setShowChangeHistory(v => !v)}
-              title="최근 노드 이동 히스토리"
-              style={{
-                fontSize: 9, padding: '1px 4px',
-                background: showChangeHistory ? 'var(--accent-dim)' : 'rgba(15,15,20,0.8)',
-                border: `1px solid ${showChangeHistory ? 'var(--accent)' : 'rgba(255,255,255,0.15)'}`,
-                borderRadius: 3, color: showChangeHistory ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer',
-              }}
-            >
-              ↕ {changeHistory.length}
-            </button>
-            {showChangeHistory && (
-              <div
-                style={{
-                  position: 'absolute', bottom: 22, right: 0,
-                  width: 180, maxHeight: 200, overflowY: 'auto',
-                  background: 'rgba(10,10,15,0.95)', border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-                  fontSize: 9, color: 'var(--text-muted)',
-                }}
-              >
-                <div style={{ padding: '3px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-primary)', fontWeight: 600 }}>
-                  최근 이동 히스토리
-                </div>
-                {changeHistory.map((entry, i) => (
-                  <div
-                    key={i}
-                    onClick={() => { setSelectedUuid(entry.uuid); setSelectedUuids(new Set([entry.uuid])); setShowChangeHistory(false) }}
-                    style={{ padding: '3px 8px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{entry.name}</span>
-                    <span style={{ flexShrink: 0, marginLeft: 6, fontVariantNumeric: 'tabular-nums' }}>{entry.x}, {entry.y}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {/* 레이어/편집 이력/미니맵/변경 히스토리 오버레이 (추출) */}
+        <SceneViewOverlays />
 
         {/* 회전 각도 오버레이 */}
         {isRotating && selectedNode && (
@@ -4055,373 +3615,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onSelectNode={(uuid) => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
       />
 
-      {/* SVG 우클릭 컨텍스트 메뉴 */}
-      {svgContextMenu && (() => {
-        const ctxUuid = svgContextMenu.uuid
-        const ctxNode = ctxUuid ? nodeMap.get(ctxUuid) : null
-        const close = () => setSvgContextMenu(null)
-        const menuStyle: React.CSSProperties = {
-          display: 'block', width: '100%', textAlign: 'left',
-          padding: '5px 12px', background: 'none', border: 'none',
-          color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11,
-          whiteSpace: 'nowrap',
-        }
-        return (
-          <>
-            <div style={{ position: 'fixed', inset: 0, zIndex: 999 }} onClick={close} onContextMenu={e => { e.preventDefault(); close() }} />
-            <div style={{
-              position: 'fixed', left: svgContextMenu.x, top: svgContextMenu.y,
-              zIndex: 1000, background: 'var(--bg-secondary)',
-              border: '1px solid var(--border)', borderRadius: 4,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.4)', minWidth: 150, fontSize: 11,
-            }}>
-              {ctxNode && (
-                <div style={{ padding: '3px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
-                  {ctxNode.name}
-                </div>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => { setSelectedUuid(ctxUuid!); setSelectedUuids(new Set([ctxUuid!])); close() }}>선택</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  setSelectedUuid(ctxUuid!)
-                  setSelectedUuids(new Set([ctxUuid!]))
-                  const n = nodeMap.get(ctxUuid!)
-                  if (n) {
-                    setClipboard([{ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 }])
-                    setCopiedNode(n)
-                  }
-                  close()
-                }}>복사</button>
-              )}
-              <button style={menuStyle} onClick={() => { handlePaste(); close() }}>붙여넣기</button>
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => { handleDuplicate(); close() }}>복제</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  updateNode(ctxUuid!, { visible: ctxNode.visible === false ? true : false })
-                  close()
-                }}>{ctxNode.visible === false ? '👁 보이기' : '👁 숨기기'}</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  updateNode(ctxUuid!, { locked: !ctxNode.locked })
-                  close()
-                }}>{ctxNode.locked ? '🔓 잠금 해제' : '🔒 잠금'}</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  setBookmarkedUuids(prev => {
-                    const next = new Set(prev)
-                    if (next.has(ctxUuid!)) next.delete(ctxUuid!)
-                    else next.add(ctxUuid!)
-                    return next
-                  })
-                  close()
-                }}>{bookmarkedUuids.has(ctxUuid!) ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  navigator.clipboard?.writeText(ctxUuid!)
-                  close()
-                }}>📋 UUID 복사</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  const pathParts: string[] = []
-                  let cur: SceneNode | undefined = ctxNode
-                  while (cur) { pathParts.unshift(cur.name); cur = cur.parentUuid ? nodeMap.get(cur.parentUuid) : undefined }
-                  navigator.clipboard?.writeText(pathParts.join('/'))
-                  close()
-                }}>📋 경로 복사</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  const existing = nodeTags[ctxUuid!] ?? []
-                  setNodeTagDraft(existing.join(', '))
-                  setNodeTagInput(ctxUuid!)
-                  close()
-                }}>🏷 태그 편집</button>
-              )}
-              {/* R1464: 애니메이션 프리뷰 */}
-              {ctxNode && (() => {
-                const hasAnim = ctxNode.components.some(c =>
-                  c.type === 'cc.Tween' || c.type === 'cc.TweenSystem' ||
-                  c.type === 'cc.Animation' || c.type === 'cc.AnimationComponent' ||
-                  c.type === 'cc.SkeletalAnimation'
-                )
-                if (!hasAnim) return null
-                const isPlaying = animPlayingUuid === ctxUuid
-                return isPlaying ? (
-                  <button style={menuStyle} onClick={() => { handleAnimPreviewStop(); close() }}>{'■'} 애니 정지</button>
-                ) : (
-                  <button style={menuStyle} onClick={() => {
-                    const comp = ctxNode.components.find(c =>
-                      c.type === 'cc.Animation' || c.type === 'cc.AnimationComponent' ||
-                      c.type === 'cc.Tween' || c.type === 'cc.TweenSystem'
-                    )
-                    const dur = (comp?.props as Record<string, unknown> | undefined)?.duration as number | undefined
-                    handleAnimPreviewStart(ctxUuid!, dur ? dur * 1000 : 1000)
-                    close()
-                  }}>{'▶'} 애니 프리뷰</button>
-                )
-              })()}
-              {/* R1468: AI 분석 요청 */}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => { handleAiAnalyze(ctxUuid!); close() }}>{'\uD83E\uDD16'} AI 분석</button>
-              )}
-              {/* R1452: 템플릿으로 저장 */}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  const name = prompt('템플릿 이름:')
-                  if (!name?.trim()) { close(); return }
-                  const n = nodeMap.get(ctxUuid!)
-                  if (!n) { close(); return }
-                  const tmplNode = {
-                    uuid: '', name: n.name, active: n.active,
-                    position: { x: n.x, y: n.y, z: 0 }, rotation: n.rotation,
-                    scale: { x: n.scaleX, y: n.scaleY, z: 1 }, size: { x: n.width, y: n.height },
-                    anchor: { x: n.anchorX, y: n.anchorY }, opacity: n.opacity, color: n.color,
-                    components: n.components, children: [],
-                  }
-                  setNodeTemplates(prev => {
-                    const next = [{ name: name.trim(), node: tmplNode }, ...prev].slice(0, 10)
-                    localStorage.setItem(NT_KEY, JSON.stringify(next))
-                    return next
-                  })
-                  close()
-                }}>{'\uD83D\uDCCC'} 템플릿으로 저장</button>
-              )}
-              {/* R1407: 색상 태그 */}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  setShowColorTagPicker({ uuid: ctxUuid!, x: svgContextMenu!.x + 160, y: svgContextMenu!.y })
-                  close()
-                }}>🎨 색상 태그</button>
-              )}
-              <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }} />
-              {ctxNode && (
-                <button style={{ ...menuStyle, color: 'var(--error)' }} onClick={() => {
-                  close()
-                  handleDeleteNode()
-                }}>삭제</button>
-              )}
-            </div>
-          </>
-        )
-      })()}
-
-      {/* 노드 태그 입력 모달 */}
-      {nodeTagInput && (() => {
-        const addNodeTag = () => {
-          const tags = nodeTagDraft.split(',').map(t => t.trim()).filter(Boolean)
-          setNodeTags(prev => {
-            const next = { ...prev, [nodeTagInput]: tags }
-            if (tags.length === 0) delete next[nodeTagInput]
-            localStorage.setItem('node-tags', JSON.stringify(next))
-            return next
-          })
-          setNodeTagInput(null)
-          setNodeTagDraft('')
-        }
-        const nodeName = nodeMap.get(nodeTagInput)?.name ?? nodeTagInput
-        return (
-          <>
-            <div style={{ position: 'fixed', inset: 0, zIndex: 1999, background: 'rgba(0,0,0,0.4)' }}
-              onClick={() => { setNodeTagInput(null); setNodeTagDraft('') }} />
-            <div style={{
-              position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-              zIndex: 2000, background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 6, padding: '16px 20px', minWidth: 280, boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
-                태그 편집 — {nodeName}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 8 }}>
-                쉼표로 구분하여 여러 태그 입력 (예: ui, button, important)
-              </div>
-              <input
-                autoFocus
-                value={nodeTagDraft}
-                onChange={e => setNodeTagDraft(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') addNodeTag()
-                  if (e.key === 'Escape') { setNodeTagInput(null); setNodeTagDraft('') }
-                }}
-                placeholder="태그 입력..."
-                style={{
-                  width: '100%', boxSizing: 'border-box',
-                  background: 'var(--bg-primary)', border: '1px solid var(--border)',
-                  borderRadius: 4, padding: '5px 8px', fontSize: 11,
-                  color: 'var(--text-primary)', outline: 'none',
-                }}
-              />
-              <div style={{ display: 'flex', gap: 6, marginTop: 10, justifyContent: 'flex-end' }}>
-                <button onClick={() => { setNodeTagInput(null); setNodeTagDraft('') }}
-                  style={{ fontSize: 11, padding: '4px 10px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer' }}>
-                  취소
-                </button>
-                <button onClick={addNodeTag}
-                  style={{ fontSize: 11, padding: '4px 10px', background: '#7c3aed', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}>
-                  저장
-                </button>
-              </div>
-            </div>
-          </>
-        )
-      })()}
-
-      {/* R1407: 색상 태그 피커 */}
-      {showColorTagPicker && (() => {
-        const closeTag = () => setShowColorTagPicker(null)
-        const currentColor = nodeColorTags[showColorTagPicker.uuid]
-        return (
-          <>
-            <div style={{ position: 'fixed', inset: 0, zIndex: 1999 }} onClick={closeTag} />
-            <div style={{
-              position: 'fixed', left: showColorTagPicker.x, top: showColorTagPicker.y,
-              zIndex: 2000, background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 6, padding: '8px 10px', boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-            }}>
-              <div style={{ fontSize: 10, color: 'var(--text-primary)', fontWeight: 600, marginBottom: 6 }}>색상 태그</div>
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                {COLOR_TAG_PALETTE.map(c => (
-                  <span
-                    key={c}
-                    onClick={() => {
-                      setNodeColorTags(prev => ({ ...prev, [showColorTagPicker.uuid]: c }))
-                      setNodeColors(prev => { const next = { ...prev, [showColorTagPicker.uuid]: c }; localStorage.setItem('node-colors', JSON.stringify(next)); return next })
-                      closeTag()
-                    }}
-                    style={{
-                      width: 20, height: 20, borderRadius: '50%', background: c, cursor: 'pointer',
-                      border: currentColor === c ? '2px solid #fff' : '2px solid transparent',
-                      boxShadow: currentColor === c ? '0 0 4px rgba(255,255,255,0.4)' : 'none',
-                    }}
-                  />
-                ))}
-                {/* 태그 제거 */}
-                <span
-                  onClick={() => {
-                    setNodeColorTags(prev => { const next = { ...prev }; delete next[showColorTagPicker.uuid]; return next })
-                    setNodeColors(prev => { const next = { ...prev }; delete next[showColorTagPicker.uuid]; localStorage.setItem('node-colors', JSON.stringify(next)); return next })
-                    closeTag()
-                  }}
-                  style={{
-                    width: 20, height: 20, borderRadius: '50%', cursor: 'pointer',
-                    border: '1px dashed var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 10, color: 'var(--text-muted)',
-                  }}
-                  title="색상 제거"
-                >x</span>
-              </div>
-            </div>
-          </>
-        )
-      })()}
-
-      {/* R1440: 씬 JSON 임포트 모달 */}
-      {showImportModal && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 10000,
-          background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }} onClick={() => setShowImportModal(false)}>
-          <div
-            style={{
-              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 8, padding: 16, width: 400, maxHeight: '70vh',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
-              {'\uD83D\uDCE5'} 씬 JSON 임포트
-            </div>
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 6 }}>
-              CCSceneNode JSON을 붙여넣으세요. UUID 충돌 시 자동 재생성됩니다.
-            </div>
-            <textarea
-              value={importJson}
-              onChange={e => { setImportJson(e.target.value); setImportError(null) }}
-              placeholder='{"uuid":"...","name":"Node","active":true,...}'
-              style={{
-                width: '100%', height: 160, fontSize: 10, fontFamily: 'monospace',
-                background: 'var(--bg-input)', color: 'var(--text-primary)',
-                border: importError ? '1px solid var(--error, #f85149)' : '1px solid var(--border)',
-                borderRadius: 4, padding: 8, resize: 'vertical', boxSizing: 'border-box',
-              }}
-            />
-            {importError && (
-              <div style={{ fontSize: 9, color: 'var(--error, #f85149)', marginTop: 4 }}>{importError}</div>
-            )}
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10 }}>
-              <button
-                onClick={() => setShowImportModal(false)}
-                style={{
-                  fontSize: 10, padding: '4px 12px', borderRadius: 4, cursor: 'pointer',
-                  background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)',
-                }}
-              >취소</button>
-              <button
-                onClick={() => {
-                  try {
-                    const parsed = JSON.parse(importJson)
-                    // validate minimal CCSceneNode shape
-                    if (!parsed || typeof parsed !== 'object') throw new Error('JSON 객체가 아닙니다')
-                    const node = parsed as Record<string, unknown>
-                    if (typeof node.name !== 'string' && typeof node.uuid !== 'string') {
-                      throw new Error('유효한 CCSceneNode가 아닙니다 (name/uuid 필수)')
-                    }
-                    // UUID 충돌 검사 → 자동 재생성
-                    const existingUuids = new Set<string>()
-                    nodeMap.forEach((_, uuid) => existingUuids.add(uuid))
-                    function regenerateUuids(obj: Record<string, unknown>): void {
-                      if (typeof obj.uuid === 'string' && existingUuids.has(obj.uuid)) {
-                        obj.uuid = `import-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-                      }
-                      if (Array.isArray(obj.children)) {
-                        for (const child of obj.children) {
-                          if (child && typeof child === 'object') regenerateUuids(child as Record<string, unknown>)
-                        }
-                      }
-                    }
-                    regenerateUuids(node)
-                    // 노드를 현재 씬에 삽입 — 선택 상태로 설정
-                    const uuid = (node.uuid as string) ?? `import-${Date.now()}`
-                    const name = (node.name as string) ?? 'Imported'
-                    const pos = (node.position as { x?: number; y?: number }) ?? {}
-                    const size = (node.size as { x?: number; y?: number; width?: number; height?: number }) ?? {}
-                    const w = size.width ?? size.x ?? 100
-                    const h = size.height ?? size.y ?? 100
-                    updateNode(uuid, {
-                      name,
-                      x: pos.x ?? 0,
-                      y: pos.y ?? 0,
-                      width: typeof w === 'number' ? w : 100,
-                      height: typeof h === 'number' ? h : 100,
-                      active: (node.active as boolean) ?? true,
-                    })
-                    setSelectedUuid(uuid)
-                    setSelectedUuids(new Set([uuid]))
-                    setShowImportModal(false)
-                    setImportJson('')
-                  } catch (err: unknown) {
-                    setImportError((err as Error).message ?? 'JSON 파싱 실패')
-                  }
-                }}
-                disabled={!importJson.trim()}
-                style={{
-                  fontSize: 10, padding: '4px 12px', borderRadius: 4, cursor: 'pointer',
-                  background: 'var(--accent)', border: 'none', color: '#fff',
-                  opacity: importJson.trim() ? 1 : 0.5,
-                }}
-              >임포트</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 컨텍스트 메뉴 + 태그 모달 + 색상 피커 + 임포트 모달 (추출) */}
+      <SceneViewContextMenu />
       {/* R1455: 뷰 북마크 저장 토스트 */}
       {viewBookmarkToast && (
         <div style={{
@@ -4434,6 +3629,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         </div>
       )}
     </div>
+    </SceneViewProvider>
   )
 }
 
