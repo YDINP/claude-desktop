@@ -4,6 +4,7 @@ import './styles/hq.css'
 import { ProjectProvider, useProject } from './stores/project-store'
 import { useUIStore } from './stores/ui-store'
 import { useChatStore } from './domains/chat/store'
+import { useShallow } from 'zustand/react/shallow'
 import type { ChatMessage } from './domains/chat/domain'
 import { initChatAdapter } from './domains/chat/adapter'
 import { registerChatCommands } from './domains/chat/commands'
@@ -42,7 +43,23 @@ function CCEditorWindow() {
 
 function AppContent() {
   const project = useProject()
-  const chat = useChatStore()
+  const chat = useChatStore(useShallow(s => ({
+    messages: s.messages,
+    isStreaming: s.isStreaming,
+    sessionId: s.sessionId,
+    sessionInputTokens: s.sessionInputTokens,
+    sessionOutputTokens: s.sessionOutputTokens,
+    pendingPermission: s.pendingPermission,
+    setPendingPermission: s.setPendingPermission,
+    setSessionId: s.setSessionId,
+    hydrate: s.hydrate,
+    clearMessages: s.clearMessages,
+    editMessage: s.editMessage,
+    truncateAfter: s.truncateAfter,
+    ensureAssistantMessage: s.ensureAssistantMessage,
+    finishStreaming: s.finishStreaming,
+    compressMessages: s.compressMessages,
+  })))
 
   // ── Domain hooks ──
   const workspace = useWorkspaceManager({
@@ -97,7 +114,7 @@ function AppContent() {
 
   // ── Changed files tracking ──
   const [changedFiles, setChangedFiles] = useState<ChangedFile[]>([])
-  const trackChangedFile = (toolName: string, toolInput: unknown) => {
+  const trackChangedFile = useCallback((toolName: string, toolInput: unknown) => {
     const input = toolInput as { file_path?: string }
     if (!input?.file_path) return
     const op: ChangedFile['op'] = toolName === 'Write' ? 'write' : 'edit'
@@ -112,7 +129,7 @@ function AppContent() {
       }
       return [...prev, entry]
     })
-  }
+  }, [])
 
   // ── UI overlays (from ui-store) ──
   const setPendingInsert = useUIStore(s => s.setPendingInsert)

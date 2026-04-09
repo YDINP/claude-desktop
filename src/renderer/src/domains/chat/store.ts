@@ -157,16 +157,24 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   },
 
   updateToolUse: (toolId, output, isError) => {
-    set(s => ({
-      messages: s.messages.map(msg => ({
-        ...msg,
-        toolUses: msg.toolUses.map(t =>
-          t.id === toolId
-            ? { ...t, status: (isError ? 'error' : 'done') as ToolUseItem['status'], output }
-            : t
-        ),
-      })),
-    }))
+    const msgs = get().messages
+    // Fast path: tool use는 거의 항상 마지막 assistant 메시지에 존재
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      const msg = msgs[i]
+      if (msg.toolUses.some(t => t.id === toolId)) {
+        const updated = msgs.slice()
+        updated[i] = {
+          ...msg,
+          toolUses: msg.toolUses.map(t =>
+            t.id === toolId
+              ? { ...t, status: (isError ? 'error' : 'done') as ToolUseItem['status'], output }
+              : t
+          ),
+        }
+        set({ messages: updated })
+        return
+      }
+    }
   },
 
   markLastMessageError: () => {

@@ -19,6 +19,8 @@ export interface ChatContext {
   sessionId: string | null
   sessionInputTokens: number
   sessionOutputTokens: number
+  pendingPermission: import('../domains/chat/domain').PendingPermission | null
+  setPendingPermission: (p: import('../domains/chat/domain').PendingPermission | null) => void
   finishStreaming: () => void
   hydrate: (msgs: ChatMessage[], sessionId: string | null) => void
   clearMessages: () => void

@@ -34,6 +34,7 @@ import type { ResizeHandlers } from '../../hooks/useResizeHandlers'
 import type { ChatMessage } from '../../domains/chat/domain'
 import type { ProjectContext, ChatContext } from '../../types/app-props'
 import { useUIStore } from '../../stores/ui-store'
+import { useShallow } from 'zustand/react/shallow'
 import { useCocosStore } from '../../domains/cocos/store'
 
 const PANEL_TAB_INFO: Partial<Record<SidebarTab, { icon: string; titleKey: string; titleFallback: string }>> = {
@@ -100,7 +101,7 @@ export function AppLayout({
 }: AppLayoutProps) {
   const { features } = useFeatureFlags()
 
-  // ── UI state from stores ────────────────────────────────────────────────
+  // ── UI state from stores (shallow equality → 무관 필드 변경 시 리렌더 방지) ──
   const {
     paletteOpen, setPaletteOpen,
     shortcutsOpen, setShortcutsOpen,
@@ -113,7 +114,19 @@ export function AppLayout({
     activeSidebarIconTab, setActiveSidebarIconTab,
     chatFocusTrigger, chatSearchTrigger,
     scrollToMessageId, setScrollToMessageId,
-  } = useUIStore()
+  } = useUIStore(useShallow(s => ({
+    paletteOpen: s.paletteOpen, setPaletteOpen: s.setPaletteOpen,
+    shortcutsOpen: s.shortcutsOpen, setShortcutsOpen: s.setShortcutsOpen,
+    settingsOpen: s.settingsOpen, setSettingsOpen: s.setSettingsOpen,
+    lightbox: s.lightbox, setLightbox: s.setLightbox,
+    pendingInsert: s.pendingInsert, setPendingInsert: s.setPendingInsert,
+    ccTab: s.ccTab, setCCTab: s.setCCTab,
+    ccSplitRatio: s.ccSplitRatio, setCCSplitRatio: s.setCCSplitRatio,
+    mainPanelTab: s.mainPanelTab, setMainPanelTab: s.setMainPanelTab,
+    activeSidebarIconTab: s.activeSidebarIconTab, setActiveSidebarIconTab: s.setActiveSidebarIconTab,
+    chatFocusTrigger: s.chatFocusTrigger, chatSearchTrigger: s.chatSearchTrigger,
+    scrollToMessageId: s.scrollToMessageId, setScrollToMessageId: s.setScrollToMessageId,
+  })))
 
   // CC layout from cocos store (single source of truth)
   const ccLayout = useCocosStore(s => s.layoutMode)
