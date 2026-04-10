@@ -1024,3 +1024,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2824 | 테스트 **2,045개** 돌파 — CC파서/핸들러/오버레이/키보드/노드오퍼 257 추가 (100파일) | ✅ |
 | R2825 | SceneView 뷰포트 컬링 (화면밖 노드 스킵) + 씬 저장 직렬화 큐 (per-path Promise 체인) | ✅ |
 | R2826 | 3.x settings.json 해상도 감지 + component applies 필터 + useCCSceneMouse/Assets/shrinkLabel 64테스트 (총 2,109) | ✅ |
+| R2827 | 3.x UIOpacity 가드 + Inspector 10렌더러 React.memo + renderers/NodeInspector/SceneToolbar 84테스트 (총 2,193) | ✅ |
