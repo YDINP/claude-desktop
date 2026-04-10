@@ -1019,3 +1019,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2819 | 렌더링 버그 — 부모 회전/스케일 자식 시각 반영 (worldRotZ/worldScaleX/Y) | ✅ |
 | R2820 | 호환성 — 3.x UITransform 자동생성 + Label spacingY + rotation CCVec3 통일 (14파일) | ✅ |
 | R2821 | Atlas 스프라이트 프레임 추출 (plist/meta→SVG viewBox 크롭) + color plugin 30테스트 (총 1,620) | ✅ |
+| R2822 | Widget 레이아웃 계산 (alignFlags→position/size) + BMFont 폴백 + plugin 102테스트 (총 1,729) | ✅ |
