@@ -1,4 +1,6 @@
+// QA: 🔍 노드 검색, 비활성 노드 숨기기, 엣지 가이드선, 미니맵 — 클릭: 뷰포트 이동, 📐, 尺
 import { useCCSceneCtx } from './CCSceneContext'
+import { t } from '../../../utils/i18n'
 
 /** CCFileSceneView 상단 툴바 + breadcrumb (context에서 모든 상태 참조) */
 export function CCSceneToolbar() {
@@ -88,7 +90,7 @@ export function CCSceneToolbar() {
         {/* W/E/R 도구 토글 버튼 */}
         {(['move', 'rotate', 'scale'] as const).map(tool => (
           <button key={tool} onClick={() => setTransformTool(tool)}
-            title={tool === 'move' ? 'W: 이동 도구' : tool === 'rotate' ? 'E: 회전 도구' : 'R: 스케일 도구'}
+            title={tool === 'move' ? t('toolbar.toolMove') : tool === 'rotate' ? t('toolbar.toolRotate') : t('toolbar.toolScale')}
             style={{
               padding: '1px 6px', fontSize: 10, borderRadius: 3, cursor: 'pointer', flexShrink: 0,
               background: transformTool === tool ? 'rgba(88,166,255,0.2)' : 'transparent',
@@ -101,18 +103,18 @@ export function CCSceneToolbar() {
         <span style={{ color: resOverride ? '#fbbf24' : 'var(--text-muted)', flex: 1, position: 'relative' }}>
           <span
             onClick={() => setShowResPicker(p => !p)}
-            title="클릭: 캔버스 해상도 preset 선택 (뷰 전용)"
+            title={t('toolbar.canvasPreset')}
             style={{ cursor: 'pointer', borderBottom: '1px dashed currentColor' }}
           >{effectiveW}×{effectiveH}</span>
           {resOverride && (
-            <span onClick={() => setResOverride(null)} title="해상도 리셋" style={{ marginLeft: 3, cursor: 'pointer', color: '#f85149', fontSize: 8 }}>↺</span>
+            <span onClick={() => setResOverride(null)} title={t('toolbar.resReset')} style={{ marginLeft: 3, cursor: 'pointer', color: '#f85149', fontSize: 8 }}>↺</span>
           )}
           {' '}| {flatNodes.length}개
           {/* R1596: 활성 노드 수 표시 */}
           {(() => {
             const activeCount = flatNodes.filter(fn => fn.node.active !== false).length
             if (activeCount === flatNodes.length) return null
-            return <span style={{ color: '#4ade80', marginLeft: 2 }}>{activeCount}활성</span>
+            return <span style={{ color: '#4ade80', marginLeft: 2 }}>{t('toolbar.activeCount').replace('{n}', String(activeCount))}</span>
           })()}
           {showResPicker && (
             <div style={{
@@ -163,7 +165,7 @@ export function CCSceneToolbar() {
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <input
             type="text"
-            placeholder="🔍 노드 검색"
+            placeholder={t('toolbar.nodeSearch')}
             value={svSearch}
             onChange={e => setSvSearch(e.target.value)}
             onKeyDown={e => { if (e.key === 'Escape') setSvSearch('') }}
@@ -189,9 +191,9 @@ export function CCSceneToolbar() {
           }
           return (
             <>
-              <span onClick={() => navigate(-1)} title="이전 검색 결과 (R2581)"
+              <span onClick={() => navigate(-1)} title={t('toolbar.prevResult')}
                 style={{ fontSize: 9, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#58a6ff', userSelect: 'none', flexShrink: 0 }}>‹</span>
-              <span onClick={() => navigate(1)} title="다음 검색 결과 (R2581)"
+              <span onClick={() => navigate(1)} title={t('toolbar.nextResult')}
                 style={{ fontSize: 9, padding: '1px 4px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#58a6ff', userSelect: 'none', flexShrink: 0 }}>›</span>
             </>
           )
@@ -209,7 +211,7 @@ export function CCSceneToolbar() {
             if (!m) return '#1a1a2e'
             return `#${m.slice(0, 3).map(n => parseInt(n).toString(16).padStart(2, '0')).join('')}`
           })() : (bgColorOverride ?? bgColor)}
-          title="배경색 변경 (뷰 전용)"
+          title={t('toolbar.bgColor')}
           onChange={e => setBgColorOverride(e.target.value)}
           onDoubleClick={() => setBgColorOverride(null)}
           style={{ width: 18, height: 18, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }}
@@ -218,66 +220,66 @@ export function CCSceneToolbar() {
         <span ref={overlayPanelRef} style={{ position: 'relative', flexShrink: 0 }}>
           <button
             onClick={() => { setShowOverlayPanel(p => !p); setShowToolPanel(false) }}
-            title="오버레이 표시 설정 패널"
+            title={t('toolbar.overlayPanel')}
             style={{ padding: '1px 6px', fontSize: 10, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showOverlayPanel ? '#58a6ff' : 'var(--border)'}`, background: showOverlayPanel ? 'rgba(88,166,255,0.15)' : 'none', color: showOverlayPanel ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
-          >오버레이 {showOverlayPanel ? '▲' : '▼'}</button>
+          >{t('toolbar.overlayBtn')} {showOverlayPanel ? '▲' : '▼'}</button>
           {showOverlayPanel && (
             <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 300, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', minWidth: 300, maxHeight: '75vh', overflowY: 'auto', boxShadow: '0 4px 16px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {/* 기본 */}
-              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>기본</div>
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionBasic')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                <button onClick={() => setBgPattern(p => p === 'solid' ? 'checker' : 'solid')} title={`배경 패턴: ${bgPattern === 'solid' ? '단색' : '체크무늬'}`} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: bgPattern === 'checker' ? 'rgba(88,166,255,0.12)' : 'none', color: bgPattern === 'checker' ? '#58a6ff' : 'var(--text-muted)' }}>⊞ 배경</button>
-                <button onClick={() => setShowGrid(g => !g)} title={`그리드 오버레이 (${snapSize}px)`} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showGrid ? 'rgba(100,220,100,0.5)' : 'var(--border)'}`, background: showGrid ? 'rgba(100,220,100,0.1)' : 'none', color: showGrid ? 'rgba(100,220,100,0.9)' : 'var(--text-muted)' }}># 그리드</button>
+                <button onClick={() => setBgPattern(p => p === 'solid' ? 'checker' : 'solid')} title={t('toolbar.bgPattern').replace('{s}', bgPattern === 'solid' ? t('toolbar.bgSolid') : t('toolbar.bgChecker'))} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: bgPattern === 'checker' ? 'rgba(88,166,255,0.12)' : 'none', color: bgPattern === 'checker' ? '#58a6ff' : 'var(--text-muted)' }}>⊞ 배경</button>
+                <button onClick={() => setShowGrid(g => !g)} title={t('toolbar.gridOverlay').replace('{n}', String(snapSize))} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showGrid ? 'rgba(100,220,100,0.5)' : 'var(--border)'}`, background: showGrid ? 'rgba(100,220,100,0.1)' : 'none', color: showGrid ? 'rgba(100,220,100,0.9)' : 'var(--text-muted)' }}># 그리드</button>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>스냅</span>
+                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{t('toolbar.snapLabel')}</span>
                   {/* R1674: SceneView snap 간격 custom 입력 — datalist 로 프리셋 제공 */}
                   <datalist id="snap-size-list-panel"><option value={1}/><option value={5}/><option value={10}/><option value={25}/><option value={50}/><option value={100}/></datalist>
-                  <input type="number" min={1} max={500} value={snapSize} list="snap-size-list-panel" onChange={e => { const v = parseInt(e.target.value); if (v > 0) setSnapSize(v) }} title={`Ctrl+드래그 스냅 크기: ${snapSize}px`} style={{ width: 36, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }} />
+                  <input type="number" min={1} max={500} value={snapSize} list="snap-size-list-panel" onChange={e => { const v = parseInt(e.target.value); if (v > 0) setSnapSize(v) }} title={t('toolbar.snapTitle').replace('{n}', String(snapSize))} style={{ width: 36, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }} />
                 </span>
-                <button onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')} title={`그리드: ${gridStyle === 'none' ? '없음' : gridStyle === 'line' ? '선' : '점'}`} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: gridStyle !== 'none' ? 'rgba(88,166,255,0.12)' : 'none', color: gridStyle !== 'none' ? '#58a6ff' : 'var(--text-muted)' }}>{gridStyle === 'dot' ? '· 점' : '⊹ 선'}</button>
-                <button onClick={() => setShowCrossGuide(g => !g)} title="중심선 가이드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrossGuide ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showCrossGuide ? 'rgba(251,146,60,0.1)' : 'none', color: showCrossGuide ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>⊕ 중심선</button>
-                <button onClick={() => setShowEdgeGuides(g => !g)} title="엣지 가이드선" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEdgeGuides ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showEdgeGuides ? 'rgba(129,140,248,0.1)' : 'none', color: showEdgeGuides ? 'rgba(129,140,248,0.9)' : 'var(--text-muted)' }}>⊢ 엣지</button>
-                <button onClick={() => addUserGuide('V')} title="수직 가이드라인 추가 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', opacity: showUserGuides ? 1 : 0.5 }}>┃V</button>
-                <button onClick={() => addUserGuide('H')} title="수평 가이드라인 추가 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', opacity: showUserGuides ? 1 : 0.5 }}>━H</button>
-                <button onClick={() => setShowUserGuides(g => !g)} title="가이드라인 표시/숨김 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUserGuides ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showUserGuides ? 'rgba(251,146,60,0.2)' : 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>🔸</button>
-                <button onClick={clearUserGuides} title="가이드라인 전체 삭제 (R2734)" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>✕G</button>
-                <button onClick={() => setShowRuler(r => !r)} title="눈금자" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showRuler ? 'rgba(88,166,255,0.12)' : 'none', color: showRuler ? '#58a6ff' : 'var(--text-muted)' }}>尺 눈금자</button>
-                <button onClick={() => setShowCrosshair(v => !v)} title="마우스 크로스헤어" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrosshair ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showCrosshair ? 'rgba(148,163,184,0.12)' : 'none', color: showCrosshair ? '#94a3b8' : 'var(--text-muted)' }}>✛ 크로스</button>
+                <button onClick={() => setGridStyle(s => s === 'none' ? 'line' : s === 'line' ? 'dot' : 'none')} title={t('toolbar.gridStyle').replace('{s}', gridStyle === 'none' ? t('toolbar.gridNone') : gridStyle === 'line' ? t('toolbar.gridLine') : t('toolbar.gridDot'))} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: gridStyle !== 'none' ? 'rgba(88,166,255,0.12)' : 'none', color: gridStyle !== 'none' ? '#58a6ff' : 'var(--text-muted)' }}>{gridStyle === 'dot' ? t('toolbar.gridDotBtn') : t('toolbar.gridLineBtn')}</button>
+                <button onClick={() => setShowCrossGuide(g => !g)} title={t('toolbar.crossGuide')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrossGuide ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showCrossGuide ? 'rgba(251,146,60,0.1)' : 'none', color: showCrossGuide ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>⊕ 중심선</button>
+                <button onClick={() => setShowEdgeGuides(g => !g)} title={t('toolbar.edgeGuide')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showEdgeGuides ? 'rgba(129,140,248,0.5)' : 'var(--border)'}`, background: showEdgeGuides ? 'rgba(129,140,248,0.1)' : 'none', color: showEdgeGuides ? 'rgba(129,140,248,0.9)' : 'var(--text-muted)' }}>⊢ 엣지</button>
+                <button onClick={() => addUserGuide('V')} title={t('toolbar.guideV')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', opacity: showUserGuides ? 1 : 0.5 }}>┃V</button>
+                <button onClick={() => addUserGuide('H')} title={t('toolbar.guideH')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)', opacity: showUserGuides ? 1 : 0.5 }}>━H</button>
+                <button onClick={() => setShowUserGuides(g => !g)} title={t('toolbar.guideToggle')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showUserGuides ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: showUserGuides ? 'rgba(251,146,60,0.2)' : 'none', color: showUserGuides ? 'rgba(251,146,60,0.9)' : 'var(--text-muted)' }}>🔸</button>
+                <button onClick={clearUserGuides} title={t('toolbar.guideClear')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>✕G</button>
+                <button onClick={() => setShowRuler(r => !r)} title={t('toolbar.ruler')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showRuler ? 'rgba(88,166,255,0.12)' : 'none', color: showRuler ? '#58a6ff' : 'var(--text-muted)' }}>{t('toolbar.rulerBtn')}</button>
+                <button onClick={() => setShowCrosshair(v => !v)} title={t('toolbar.crosshair')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCrosshair ? 'rgba(148,163,184,0.5)' : 'var(--border)'}`, background: showCrosshair ? 'rgba(148,163,184,0.12)' : 'none', color: showCrosshair ? '#94a3b8' : 'var(--text-muted)' }}>{t('toolbar.crosshairBtn')}</button>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>선택색</span>
-                  <input type="color" value={selectionColor} title="선택 노드 테두리 색상 (더블클릭: 초기화)" onChange={e => setSelectionColor(e.target.value)} onDoubleClick={() => setSelectionColor('#58a6ff')} style={{ width: 18, height: 18, border: `2px solid ${selectionColor}`, borderRadius: 3, padding: 0, cursor: 'pointer', background: 'transparent' }} />
+                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{t('toolbar.selColorLabel')}</span>
+                  <input type="color" value={selectionColor} title={t('toolbar.selColorTitle')} onChange={e => setSelectionColor(e.target.value)} onDoubleClick={() => setSelectionColor('#58a6ff')} style={{ width: 18, height: 18, border: `2px solid ${selectionColor}`, borderRadius: 3, padding: 0, cursor: 'pointer', background: 'transparent' }} />
                 </span>
               </div>
               {/* 렌더링 모드 */}
-              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>렌더링 모드</div>
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionRender')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                <button onClick={() => setWireframeMode(w => !w)} title="와이어프레임 모드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${wireframeMode ? '#58a6ff' : 'var(--border)'}`, background: wireframeMode ? 'rgba(88,166,255,0.12)' : 'none', color: wireframeMode ? '#58a6ff' : 'var(--text-muted)' }}>⬚ 와이어프레임</button>
-                <button onClick={() => setSoloMode(m => !m)} title="솔로 모드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${soloMode ? '#f97316' : 'var(--border)'}`, background: soloMode ? 'rgba(249,115,22,0.12)' : 'none', color: soloMode ? '#f97316' : 'var(--text-muted)' }}>◎ 솔로</button>
-                <button onClick={() => setDepthColorMode(d => !d)} title="깊이 색조 모드" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthColorMode ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: depthColorMode ? 'rgba(167,139,250,0.12)' : 'none', color: depthColorMode ? '#a78bfa' : 'var(--text-muted)' }}>🌈 깊이색</button>
+                <button onClick={() => setWireframeMode(w => !w)} title={t('toolbar.wireframe')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${wireframeMode ? '#58a6ff' : 'var(--border)'}`, background: wireframeMode ? 'rgba(88,166,255,0.12)' : 'none', color: wireframeMode ? '#58a6ff' : 'var(--text-muted)' }}>{t('toolbar.wireframeBtn')}</button>
+                <button onClick={() => setSoloMode(m => !m)} title={t('toolbar.solo')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${soloMode ? '#f97316' : 'var(--border)'}`, background: soloMode ? 'rgba(249,115,22,0.12)' : 'none', color: soloMode ? '#f97316' : 'var(--text-muted)' }}>{t('toolbar.soloBtn')}</button>
+                <button onClick={() => setDepthColorMode(d => !d)} title={t('toolbar.depthColor')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${depthColorMode ? 'rgba(167,139,250,0.5)' : 'var(--border)'}`, background: depthColorMode ? 'rgba(167,139,250,0.12)' : 'none', color: depthColorMode ? '#a78bfa' : 'var(--text-muted)' }}>{t('toolbar.depthColorBtn')}</button>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>최대깊이</span>
+                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{t('toolbar.maxDepthLabel')}</span>
                   <input type="number" min={0} max={20} value={depthFilterMax ?? ''} placeholder="∞"
                     onChange={e => { const v = parseInt(e.target.value); setDepthFilterMax(v > 0 ? v : null) }}
-                    title="깊이 필터: 이 깊이 초과 노드 dim (비우면 제한 없음)"
+                    title={t('toolbar.depthFilter')}
                     style={{ width: 28, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: depthFilterMax ? '#a78bfa' : 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }} />
                 </span>
               </div>
               {/* 노드 레이블 */}
-              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>노드 레이블</div>
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionLabels')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                <button onClick={() => setShowNodeNames(n => !n)} title="노드 이름" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNodeNames ? '#58a6ff' : 'var(--border)'}`, background: showNodeNames ? 'rgba(88,166,255,0.12)' : 'none', color: showNodeNames ? '#58a6ff' : 'var(--text-muted)' }}>Abc 이름</button>
-                <button onClick={() => setShowZOrder(z => !z)} title="Z-order 배지" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showZOrder ? '#fbbf24' : 'var(--border)'}`, background: showZOrder ? 'rgba(251,191,36,0.12)' : 'none', color: showZOrder ? '#fbbf24' : 'var(--text-muted)' }}>z 순서</button>
-                <button onClick={() => setShowHelp(h => !h)} title="단축키 도움말" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showHelp ? '#58a6ff' : 'var(--border)'}`, background: showHelp ? 'rgba(88,166,255,0.12)' : 'none', color: showHelp ? '#58a6ff' : 'var(--text-muted)' }}>? 도움말</button>
-                <button onClick={() => setShowLabelText(v => !v)} title="Label 텍스트 표시" style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLabelText ? 'rgba(255,220,80,0.5)' : 'var(--border)'}`, background: showLabelText ? 'rgba(255,220,80,0.12)' : 'none', color: showLabelText ? 'rgba(255,220,80,0.9)' : 'var(--text-muted)' }}>T Label</button>
+                <button onClick={() => setShowNodeNames(n => !n)} title={t('toolbar.nodeNames')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showNodeNames ? '#58a6ff' : 'var(--border)'}`, background: showNodeNames ? 'rgba(88,166,255,0.12)' : 'none', color: showNodeNames ? '#58a6ff' : 'var(--text-muted)' }}>{t('toolbar.nodeNamesBtn')}</button>
+                <button onClick={() => setShowZOrder(z => !z)} title={t('toolbar.zOrder')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showZOrder ? '#fbbf24' : 'var(--border)'}`, background: showZOrder ? 'rgba(251,191,36,0.12)' : 'none', color: showZOrder ? '#fbbf24' : 'var(--text-muted)' }}>{t('toolbar.zOrderBtn')}</button>
+                <button onClick={() => setShowHelp(h => !h)} title={t('toolbar.help')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showHelp ? '#58a6ff' : 'var(--border)'}`, background: showHelp ? 'rgba(88,166,255,0.12)' : 'none', color: showHelp ? '#58a6ff' : 'var(--text-muted)' }}>{t('toolbar.helpBtn')}</button>
+                <button onClick={() => setShowLabelText(v => !v)} title={t('toolbar.labelText')} style={{ padding: '1px 4px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showLabelText ? 'rgba(255,220,80,0.5)' : 'var(--border)'}`, background: showLabelText ? 'rgba(255,220,80,0.12)' : 'none', color: showLabelText ? 'rgba(255,220,80,0.9)' : 'var(--text-muted)' }}>{t('toolbar.labelTextBtn')}</button>
                 {/* R1697: 레이블 폰트 사이즈 A- A+ */}
                 <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <button onClick={() => setLabelFontSize(s => Math.max(6, s - 1))} title="라벨 폰트 줄이기" style={{ padding: '0 3px', fontSize: 9, borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>A-</button>
+                  <button onClick={() => setLabelFontSize(s => Math.max(6, s - 1))} title={t('toolbar.fontSmaller')} style={{ padding: '0 3px', fontSize: 9, borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>A-</button>
                   <span style={{ fontSize: 8, color: 'var(--text-muted)', minWidth: 12, textAlign: 'center' }}>{labelFontSize}</span>
-                  <button onClick={() => setLabelFontSize(s => Math.min(24, s + 1))} title="라벨 폰트 키우기" style={{ padding: '0 3px', fontSize: 9, borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>A+</button>
+                  <button onClick={() => setLabelFontSize(s => Math.min(24, s + 1))} title={t('toolbar.fontLarger')} style={{ padding: '0 3px', fontSize: 9, borderRadius: 2, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>A+</button>
                 </span>
               </div>
               {/* 오버레이 배지 */}
-              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>오버레이 배지</div>
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionBadges')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                 {([
                   ['W×H', showSizeLabels, setShowSizeLabels, '노드 크기 표시'],
@@ -343,7 +345,7 @@ export function CCSceneToolbar() {
               {/* R2709: 커스텀 비율 입력 */}
               {showCustomRatio && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingTop: 2 }}>
-                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>비율</span>
+                  <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{t('toolbar.ratioLabel')}</span>
                   <input type="number" min={1} value={customRatioW} onChange={e => setCustomRatioW(Math.max(1, parseInt(e.target.value) || 1))} style={{ width: 32, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }} />
                   <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>:</span>
                   <input type="number" min={1} value={customRatioH} onChange={e => setCustomRatioH(Math.max(1, parseInt(e.target.value) || 1))} style={{ width: 32, fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-muted)', padding: '1px 3px', textAlign: 'center' }} />
@@ -356,17 +358,17 @@ export function CCSceneToolbar() {
                   if (c.type !== 'cc.Node' && c.type !== 'cc.UITransform' && c.type !== 'cc.UIOpacity')
                     typeCounts.set(c.type, (typeCounts.get(c.type) ?? 0) + 1)
                 }))
-                const types = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([t]) => t)
+                const types = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([tp]) => tp)
                 if (types.length === 0) return null
-                const shortName = (t: string) => t.replace('cc.','').replace('dragonBones.','').slice(0, 8)
+                const shortName = (tp: string) => tp.replace('cc.','').replace('dragonBones.','').slice(0, 8)
                 return (<>
-                  <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>컴포넌트 필터</div>
+                  <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionCompFilter')}</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                    {types.map(t => (
-                      <button key={t} onClick={() => setCompFilterType(v => v === t ? null : t)}
-                        title={`${t} 노드만 강조`}
-                        style={{ padding: '1px 4px', fontSize: 8, borderRadius: 3, cursor: 'pointer', border: `1px solid ${compFilterType === t ? 'rgba(139,92,246,0.6)' : 'var(--border)'}`, background: compFilterType === t ? 'rgba(139,92,246,0.15)' : 'none', color: compFilterType === t ? '#a78bfa' : 'var(--text-muted)' }}
-                      >{shortName(t)}</button>
+                    {types.map(tp => (
+                      <button key={tp} onClick={() => setCompFilterType(v => v === tp ? null : tp)}
+                        title={t('toolbar.compFilterTitle').replace('{t}', tp)}
+                        style={{ padding: '1px 4px', fontSize: 8, borderRadius: 3, cursor: 'pointer', border: `1px solid ${compFilterType === tp ? 'rgba(139,92,246,0.6)' : 'var(--border)'}`, background: compFilterType === tp ? 'rgba(139,92,246,0.15)' : 'none', color: compFilterType === tp ? '#a78bfa' : 'var(--text-muted)' }}
+                      >{shortName(tp)}</button>
                     ))}
                   </div>
                 </>)
@@ -378,18 +380,18 @@ export function CCSceneToolbar() {
         <span ref={toolPanelRef} style={{ position: 'relative', flexShrink: 0 }}>
           <button
             onClick={() => { setShowToolPanel(p => !p); setShowOverlayPanel(false) }}
-            title="뷰/도구 패널"
+            title={t('toolbar.toolPanel')}
             style={{ padding: '1px 6px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showToolPanel ? '#58a6ff' : 'var(--border)'}`, background: showToolPanel ? 'rgba(88,166,255,0.15)' : 'none', color: showToolPanel ? '#58a6ff' : 'var(--text-muted)', userSelect: 'none' }}
-          >도구 {showToolPanel ? '▲' : '▼'}</button>
+          >{t('toolbar.toolBtn')} {showToolPanel ? '▲' : '▼'}</button>
           {showToolPanel && (
             <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 300, background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', minWidth: 200, maxHeight: '75vh', overflowY: 'auto', boxShadow: '0 4px 16px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {/* 뷰 이동 */}
-              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>뷰 이동</div>
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionMove')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                 <button onClick={handleFit} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>⊞ Fit</button>
-                <button onClick={panToCenter} disabled={!selectedUuid && multiSelected.size === 0} title="선택 노드 중심으로 이동" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: !selectedUuid && multiSelected.size === 0 ? 'not-allowed' : 'pointer', border: '1px solid var(--border)', background: 'none', color: !selectedUuid && multiSelected.size === 0 ? 'var(--text-muted-disabled)' : 'var(--text-muted)', opacity: !selectedUuid && multiSelected.size === 0 ? 0.5 : 1 }}>⊕C 중심이동</button>
+                <button onClick={panToCenter} disabled={!selectedUuid && multiSelected.size === 0} title={t('toolbar.panToCenter')} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: !selectedUuid && multiSelected.size === 0 ? 'not-allowed' : 'pointer', border: '1px solid var(--border)', background: 'none', color: !selectedUuid && multiSelected.size === 0 ? 'var(--text-muted-disabled)' : 'var(--text-muted)', opacity: !selectedUuid && multiSelected.size === 0 ? 0.5 : 1 }}>⊕C 중심이동</button>
                 {/* R2540: Go-to XY — CC 좌표 직접 입력으로 뷰 이동 */}
-                <input placeholder="x,y 이동" title="R2540 Go-to XY: CC 좌표로 이동 (예: 100,-50) Enter"
+                <input placeholder={t('toolbar.goToXY')} title={t('toolbar.goToXYTitle')}
                   onKeyDown={e => {
                     if (e.key !== 'Enter') return
                     const svg = svgRef.current; if (!svg) return
@@ -407,38 +409,38 @@ export function CCSceneToolbar() {
                 />
               </div>
               {/* 북마크 */}
-              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>뷰 북마크 (Ctrl+클릭: 저장)</div>
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionBookmark')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                 {viewBookmarks.map((bm, i) => (
                   <button key={i}
                     onClick={e => { if (e.ctrlKey || e.metaKey) setViewBookmarks(prev => { const n=[...prev]; n[i]=viewRef.current; return n }); else if (bm) setView(bm) }}
-                    title={bm ? `북마크 ${i+1} 복원 (Ctrl: 저장)` : `북마크 ${i+1} 비어있음`}
+                    title={bm ? t('toolbar.bookmarkTitle').replace('{n}', String(i+1)) : t('toolbar.bookmarkEmpty').replace('{n}', String(i+1))}
                     style={{ padding: '0 6px', fontSize: 9, borderRadius: 2, cursor: 'pointer', border: `1px solid ${bm ? 'rgba(251,146,60,0.5)' : 'var(--border)'}`, background: bm ? 'rgba(251,146,60,0.08)' : 'none', color: bm ? '#fb923c' : 'var(--text-muted)', lineHeight: '18px' }}
-                  >북마크 {i+1}</button>
+                  >{t('toolbar.bookmarkBtn').replace('{n}', String(i+1))}</button>
                 ))}
               </div>
               {/* 편집 잠금 */}
-              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>잠금</div>
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionLock')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                <button onClick={() => setViewLock(l => !l)} title={viewLock ? '편집 잠금 해제' : '편집 잠금'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${viewLock ? '#f85149' : 'var(--border)'}`, background: viewLock ? 'rgba(248,81,73,0.12)' : 'none', color: viewLock ? '#f85149' : 'var(--text-muted)' }}>{viewLock ? '🔒 잠금됨' : '🔓 잠금해제'}</button>
+                <button onClick={() => setViewLock(l => !l)} title={viewLock ? t('toolbar.viewLockOff') : t('toolbar.viewLockOn')} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${viewLock ? '#f85149' : 'var(--border)'}`, background: viewLock ? 'rgba(248,81,73,0.12)' : 'none', color: viewLock ? '#f85149' : 'var(--text-muted)' }}>{viewLock ? t('toolbar.viewLockedBtn') : t('toolbar.viewUnlockedBtn')}</button>
                 {/* R2711: 노드 잠금 버튼 */}
                 {!viewLock && selectedUuid && (
-                  <button onClick={() => toggleLock(selectedUuid)} title={lockedUuids.has(selectedUuid) ? '노드 잠금 해제' : '노드 잠금'} style={{ fontSize: 9, padding: '1px 5px', background: lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.12)' : 'var(--bg-secondary)', border: `1px solid ${lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, borderRadius: 3, color: lockedUuids.has(selectedUuid) ? '#fbbf24' : 'var(--text-muted)', cursor: 'pointer' }}>{lockedUuids.has(selectedUuid) ? '🔒 노드잠금' : '🔓 노드잠금'}</button>
+                  <button onClick={() => toggleLock(selectedUuid)} title={lockedUuids.has(selectedUuid) ? t('toolbar.nodeLockOff') : t('toolbar.nodeLockOn')} style={{ fontSize: 9, padding: '1px 5px', background: lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.12)' : 'var(--bg-secondary)', border: `1px solid ${lockedUuids.has(selectedUuid) ? 'rgba(251,191,36,0.5)' : 'var(--border)'}`, borderRadius: 3, color: lockedUuids.has(selectedUuid) ? '#fbbf24' : 'var(--text-muted)', cursor: 'pointer' }}>{lockedUuids.has(selectedUuid) ? t('toolbar.nodeLockedBtn') : t('toolbar.nodeUnlockedBtn')}</button>
                 )}
-                <button onClick={() => setHideInactiveNodes(h => !h)} title={hideInactiveNodes ? '비활성 노드 표시' : '비활성 노드 숨기기'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${hideInactiveNodes ? '#fbbf24' : 'var(--border)'}`, background: hideInactiveNodes ? 'rgba(251,191,36,0.12)' : 'none', color: hideInactiveNodes ? '#fbbf24' : 'var(--text-muted)' }}>👁 비활성 숨기기</button>
+                <button onClick={() => setHideInactiveNodes(h => !h)} title={hideInactiveNodes ? t('toolbar.hideInactive') : t('toolbar.showInactive')} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${hideInactiveNodes ? '#fbbf24' : 'var(--border)'}`, background: hideInactiveNodes ? 'rgba(251,191,36,0.12)' : 'none', color: hideInactiveNodes ? '#fbbf24' : 'var(--text-muted)' }}>{t('toolbar.hideInactiveBtn')}</button>
               </div>
               {/* 미니맵/도구 */}
-              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>도구</div>
+              <div style={{ fontSize: 8, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', paddingBottom: 2, marginBottom: 2 }}>{t('toolbar.sectionTools')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                <button onClick={() => setShowMinimap(m => !m)} title="미니맵" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showMinimap ? 'rgba(88,166,255,0.12)' : 'none', color: showMinimap ? '#58a6ff' : 'var(--text-muted)' }}>⊟ 미니맵</button>
-                <button onClick={() => { setMeasureMode(m => { if (m) setMeasureLine(null); return !m }); measureStartRef.current = null }} title={measureMode ? '측정 도구 종료' : '거리 측정'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${measureMode ? '#ff6b6b' : 'var(--border)'}`, background: measureMode ? 'rgba(255,107,107,0.12)' : 'none', color: measureMode ? '#ff6b6b' : 'var(--text-muted)' }}>📏 거리측정</button>
-                <button onClick={() => refImgSrc ? setRefImgSrc(null) : refImgInputRef.current?.click()} title={refImgSrc ? '레퍼런스 이미지 제거' : '레퍼런스 이미지 로드'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: refImgSrc ? 'rgba(100,200,100,0.12)' : 'none', color: refImgSrc ? '#4ade80' : 'var(--text-muted)' }}>📐 레퍼런스</button>
-                {refImgSrc && (<input type="range" min={0.05} max={1} step={0.05} value={refImgOpacity} onChange={e => setRefImgOpacity(parseFloat(e.target.value))} title={`투명도 ${Math.round(refImgOpacity * 100)}%`} style={{ width: 60 }} />)}
-                <button onClick={handleSvgExport} title="씬 SVG 파일 내보내기" style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>SVG</button>
+                <button onClick={() => setShowMinimap(m => !m)} title={t('toolbar.minimapBtn')} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: showMinimap ? 'rgba(88,166,255,0.12)' : 'none', color: showMinimap ? '#58a6ff' : 'var(--text-muted)' }}>{t('toolbar.minimapBtn')}</button>
+                <button onClick={() => { setMeasureMode(m => { if (m) setMeasureLine(null); return !m }); measureStartRef.current = null }} title={measureMode ? t('toolbar.measureOff') : t('toolbar.measureOn')} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${measureMode ? '#ff6b6b' : 'var(--border)'}`, background: measureMode ? 'rgba(255,107,107,0.12)' : 'none', color: measureMode ? '#ff6b6b' : 'var(--text-muted)' }}>{t('toolbar.measureBtn')}</button>
+                <button onClick={() => refImgSrc ? setRefImgSrc(null) : refImgInputRef.current?.click()} title={refImgSrc ? t('toolbar.refImgOff') : t('toolbar.refImgOn')} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: refImgSrc ? 'rgba(100,200,100,0.12)' : 'none', color: refImgSrc ? '#4ade80' : 'var(--text-muted)' }}>{t('toolbar.refImgBtn')}</button>
+                {refImgSrc && (<input type="range" min={0.05} max={1} step={0.05} value={refImgOpacity} onChange={e => setRefImgOpacity(parseFloat(e.target.value))} title={t('toolbar.refImgOpacity').replace('{n}', String(Math.round(refImgOpacity * 100)))} style={{ width: 60 }} />)}
+                <button onClick={handleSvgExport} title={t('toolbar.svgExport')} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: '1px solid var(--border)', background: 'none', color: 'var(--text-muted)' }}>SVG</button>
                 {cameraFrames.length > 0 && (
-                  <button onClick={() => setShowCameraFrames(v => !v)} title={showCameraFrames ? '카메라 프레임 숨기기' : '카메라 프레임 표시'} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCameraFrames ? 'rgba(255,200,60,0.5)' : 'var(--border)'}`, background: showCameraFrames ? 'rgba(255,200,60,0.1)' : 'none', color: showCameraFrames ? 'rgba(255,200,60,0.9)' : 'var(--text-muted)' }}>📷</button>
+                  <button onClick={() => setShowCameraFrames(v => !v)} title={showCameraFrames ? t('toolbar.camFrameOff') : t('toolbar.camFrameOn')} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: 'pointer', border: `1px solid ${showCameraFrames ? 'rgba(255,200,60,0.5)' : 'var(--border)'}`, background: showCameraFrames ? 'rgba(255,200,60,0.1)' : 'none', color: showCameraFrames ? 'rgba(255,200,60,0.9)' : 'var(--text-muted)' }}>📷</button>
                 )}
-                <button onClick={e => handleScreenshotAI(e)} title="씬 스크린샷 → Claude 분석 / Shift+클릭: PNG 저장" disabled={screenshotSending} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}>{screenshotSending ? '⟳' : '📷'} 스크린샷</button>
+                <button onClick={e => handleScreenshotAI(e)} title={t('toolbar.screenshotTitle')} disabled={screenshotSending} style={{ padding: '1px 5px', fontSize: 9, borderRadius: 3, cursor: screenshotSending ? 'wait' : 'pointer', border: '1px solid var(--border)', background: screenshotSending ? 'rgba(255,200,50,0.12)' : 'none', color: screenshotSending ? '#fbbf24' : 'var(--text-muted)', opacity: screenshotSending ? 0.6 : 1 }}>{screenshotSending ? '⟳' : t('toolbar.screenshotBtn')}</button>
               </div>
             </div>
           )}

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import { t } from '../../../utils/i18n'
 import type { SceneNode } from './types'
 import type { ViewportPreset } from './sceneViewConstants'
 import { VP_KEY, NT_KEY, DEFAULT_TEMPLATES } from './sceneViewConstants'
@@ -198,18 +199,18 @@ export function SceneViewToolbarExtras({
               return next
             })
           }}
-          title="현재 뷰를 프리셋으로 저장 (최대 5개)"
+          title={t('extras.savePreset')}
           style={{ fontSize: 9, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
         >{'\uD83D\uDCD0'}+</button>
         {/* Default presets */}
         <button
           onClick={() => { setView({ offsetX: 0, offsetY: 0, zoom: 1 }) }}
-          title="1:1 뷰"
+          title={t('extras.viewPreset11')}
           style={{ fontSize: 8, padding: '1px 4px', background: view.zoom === 1 ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: view.zoom === 1 ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
         >1:1</button>
         <button
           onClick={() => { setView({ offsetX: 0, offsetY: 0, zoom: 2 }) }}
-          title="2:1 뷰"
+          title={t('extras.viewPreset21')}
           style={{ fontSize: 8, padding: '1px 4px', background: view.zoom === 2 ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: view.zoom === 2 ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
         >2:1</button>
         {/* User presets */}
@@ -228,7 +229,7 @@ export function SceneViewToolbarExtras({
                   return next
                 })
               }}
-              title="프리셋 삭제"
+              title={t('extras.presetDelete')}
               style={{ fontSize: 8, padding: '1px 2px', background: 'none', border: '1px solid var(--border)', borderLeft: 'none', borderRadius: '0 2px 2px 0', color: '#f85149', cursor: 'pointer', lineHeight: 1 }}
             >x</button>
           </div>
@@ -266,7 +267,7 @@ export function SceneViewToolbarExtras({
             <button
               onClick={() => setShowSceneHistory(true)}
               style={{ padding: '3px 8px', fontSize: 10, border: 'none', cursor: 'pointer', background: 'transparent', color: '#64748b' }}
-              title="더 많은 씬 보기"
+              title={t('extras.moreScenes')}
             >+</button>
           )}
         </div>

@@ -2,6 +2,7 @@ import React from 'react'
 import { useSceneViewCtx } from './SceneViewContext'
 import { cocosToSvg } from './utils'
 import { LAYER_COLOR_PALETTE } from './sceneViewConstants'
+import { t } from '../../../utils/i18n'
 
 /**
  * SceneViewPanel 내 SVG 뷰포트 위에 absolute position으로 렌더링되는 오버레이 패널들.
@@ -52,7 +53,7 @@ export function SceneViewOverlays() {
                   setHiddenLayers(new Set(topLevelNodes.map(n => n.uuid)))
                 }
               }}
-              title={showAllToggle ? '모두 숨김' : '모두 표시'}
+              title={showAllToggle ? t('overlay.hideAll') : t('overlay.showAll')}
               style={{
                 fontSize: 12, padding: '1px 3px',
                 background: 'none', border: 'none', cursor: 'pointer',
@@ -102,18 +103,18 @@ export function SceneViewOverlays() {
                   onDragStart={() => setLayerDragIdx(layerIdx)}
                   onDragEnd={() => { setLayerDragIdx(null); setLayerDropIdx(null) }}
                   style={{ cursor: 'grab', color: 'rgba(255,255,255,0.3)', fontSize: 10, flexShrink: 0, userSelect: 'none' }}
-                  title="R1450: 드래그하여 레이어 순서 변경"
+                  title={t('overlay.layerReorder')}
                 >{'\u22EE\u22EE'}</span>
                 <button
                   onClick={() => setHiddenLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
-                  title={isHidden ? '표시' : '숨김'}
+                  title={isHidden ? t('overlay.layerShow') : t('overlay.layerHide')}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, opacity: isHidden ? 0.4 : 1, lineHeight: 1 }}
                 >
                   {isHidden ? '\uD83D\uDE48' : '\uD83D\uDC41'}
                 </button>
                 <button
                   onClick={() => setLockedLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
-                  title={isLocked ? '잠금 해제' : '잠금'}
+                  title={isLocked ? t('overlay.layerUnlock') : t('overlay.layerLock')}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, opacity: isLocked ? 1 : 0.4, lineHeight: 1 }}
                 >
                   {isLocked ? '\uD83D\uDD12' : '\uD83D\uDD13'}
@@ -132,7 +133,7 @@ export function SceneViewOverlays() {
                       return next
                     })
                   }}
-                  title={lc ? `색상: ${lc} (클릭하여 변경)` : '색상 라벨 추가'}
+                  title={lc ? t('overlay.layerColorChange').replace('{c}', lc) : t('overlay.layerColorAdd')}
                   style={{
                     width: 8, height: 8, borderRadius: '50%', padding: 0, flexShrink: 0,
                     background: lc ?? 'rgba(255,255,255,0.15)',
@@ -230,7 +231,7 @@ export function SceneViewOverlays() {
               cursor: 'crosshair',
               userSelect: 'none',
             }}
-            title="미니맵 — 클릭: 뷰포트 이동 / 더블클릭: 숨기기"
+            title={t('overlay.minimapTitle')}
             onDoubleClick={e => { e.stopPropagation(); setShowMinimap(false) }}
             onClick={e => {
               const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
@@ -294,7 +295,7 @@ export function SceneViewOverlays() {
       {!showMinimap && (
         <button
           onClick={() => setShowMinimap(true)}
-          title="미니맵 표시"
+          title={t('overlay.minimapShow')}
           style={{
             position: 'absolute', bottom: 28, right: 6,
             fontSize: 9, padding: '1px 4px',
@@ -312,7 +313,7 @@ export function SceneViewOverlays() {
         <div style={{ position: 'absolute', bottom: 52, right: 6 }}>
           <button
             onClick={() => setShowChangeHistory(v => !v)}
-            title="최근 노드 이동 히스토리"
+            title={t('overlay.changeHistory')}
             style={{
               fontSize: 9, padding: '1px 4px',
               background: showChangeHistory ? 'var(--accent-dim)' : 'rgba(15,15,20,0.8)',

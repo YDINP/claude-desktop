@@ -1,4 +1,5 @@
 import { useCCSceneCtx } from './CCSceneContext'
+import { t } from '../../../utils/i18n'
 
 /** 씬 레벨 SVG 오버레이 (노드 렌더링 후, <g transform> 내부) */
 export function CCSceneSVGOverlays() {
@@ -510,7 +511,7 @@ export function CCSceneSVGOverlays() {
                 onDoubleClick={e => {
                   e.stopPropagation()
                   // R2529: 더블클릭으로 레이블 편집
-                  const input = window.prompt('핀 레이블 (비워두면 좌표 표시)', pm.label ?? '')
+                  const input = window.prompt(t('svgOverlay.pinLabelPrompt'), pm.label ?? '')
                   if (input !== null) setPinMarkers(prev => prev.map(p => p.id === pm.id ? { ...p, label: input || undefined } : p))
                 }}
               >

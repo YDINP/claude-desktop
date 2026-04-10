@@ -1,6 +1,7 @@
 import { useCCSceneCtx } from './CCSceneContext'
 import { CCSceneContextMenu, CCSceneNodePickMenu } from './CCSceneContextMenu'
 import { CCSceneMinimap } from './CCSceneMinimap'
+import { t } from '../../../utils/i18n'
 
 function useHudCtx() {
   const ctx = useCCSceneCtx()
@@ -232,18 +233,18 @@ export function CCSceneOuterHUD() {
             {/* R2521: Local/World 좌표 토글 */}
             <span
               onClick={() => setShowWorldPos(v => !v)}
-              title={showWorldPos ? '세계 좌표 표시 중 — 클릭하여 로컬로 전환 (R2521)' : '로컬 좌표 표시 중 — 클릭하여 세계로 전환 (R2521)'}
+              title={showWorldPos ? t('hud.worldCoordOn') : t('hud.worldCoordOff')}
               style={{ cursor: 'pointer', color: showWorldPos ? '#34d399' : '#888', fontSize: 8, flexShrink: 0, userSelect: 'none' }}
             >{showWorldPos ? 'W' : 'L'}</span>
             <span style={{ pointerEvents: 'none', color: dragOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>pos</span> {showWorldPos ? `${parseFloat(fn.worldX.toFixed(2))},${parseFloat(fn.worldY.toFixed(2))}` : `${parseFloat(pos.x.toFixed(2))},${parseFloat(pos.y.toFixed(2))}`}{/* R1611: 드래그 delta */}{dragOverride?.uuid === node.uuid && dragRef.current && ` (Δ${(dragOverride.x - dragRef.current.startNodeX).toFixed(0)},${(dragOverride.y - dragRef.current.startNodeY).toFixed(0)})`}</span>
             <span style={{ pointerEvents: 'none', color: resizeOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>size</span> {parseFloat(w.toFixed(2))}×{parseFloat(h.toFixed(2))}</span>
             {(rotZ !== 0 || rotateOverride?.uuid === node.uuid) && <span style={{ pointerEvents: 'none', color: rotateOverride?.uuid === node.uuid ? '#ff9944' : '#ccc' }}><span style={{ color: '#888' }}>rot</span> {rotZ.toFixed(1)}°</span>}
             {/* 정렬 버튼 */}
-            {alignBtn('⊙', '중앙 정렬', 0, 0)}
-            {alignBtn('◁', '좌측 정렬', -(effectiveW / 2 - w / 2), pos.y)}
-            {alignBtn('▷', '우측 정렬', effectiveW / 2 - w / 2, pos.y)}
-            {alignBtn('△', '상단 정렬', pos.x, effectiveH / 2 - h / 2)}
-            {alignBtn('▽', '하단 정렬', pos.x, -(effectiveH / 2 - h / 2))}
+            {alignBtn('⊙', t('hud.alignCenter'), 0, 0)}
+            {alignBtn('◁', t('hud.alignLeft'), -(effectiveW / 2 - w / 2), pos.y)}
+            {alignBtn('▷', t('hud.alignRight'), effectiveW / 2 - w / 2, pos.y)}
+            {alignBtn('△', t('hud.alignTop'), pos.x, effectiveH / 2 - h / 2)}
+            {alignBtn('▽', t('hud.alignBottom'), pos.x, -(effectiveH / 2 - h / 2))}
             {/* R2476: opacity 인라인 슬라이더 */}
             {onOpacity && node.opacity != null && (
               <label style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }} title={`opacity: ${node.opacity} (R2476)`}>
@@ -259,12 +260,12 @@ export function CCSceneOuterHUD() {
             )}
             {multiSelected.size > 1 && (
               <span style={{ color: '#ff9944', flexShrink: 0, pointerEvents: 'none' }}>
-                ⊕{multiSelected.size}개
+                {t('hud.multiCount').replace('{n}', String(multiSelected.size))}
               </span>
             )}
             {/* R1616: 자식/컴포넌트 수 표시 */}
             {node.children.length > 0 && (
-              <span style={{ color: '#555', flexShrink: 0, pointerEvents: 'none' }} title={`자식 ${node.children.length}개`}>▸{node.children.length}</span>
+              <span style={{ color: '#555', flexShrink: 0, pointerEvents: 'none' }} title={t('hud.childCount').replace('{n}', String(node.children.length))}>▸{node.children.length}</span>
             )}
             {/* R2490: 컴포넌트 타입 아이콘 목록 */}
             {node.components && node.components.length > 0 && (() => {
