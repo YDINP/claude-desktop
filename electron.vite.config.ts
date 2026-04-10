@@ -17,6 +17,7 @@ export default defineConfig({
         output: {
           manualChunks: {
             'vendor-react': ['react', 'react-dom'],
+            'vendor-zustand': ['zustand'],
             'vendor-syntax': ['react-syntax-highlighter'],
             'vendor-markdown': ['react-markdown', 'remark-gfm'],
             'vendor-katex': ['katex', 'rehype-katex', 'remark-math'],

@@ -62,6 +62,7 @@ interface ConfigSchema {
   systemPromptProfiles: SystemPromptProfile[]
   notificationSettings: NotificationSettings
   featureFlags: FeatureFlags
+  anthropicApiKey: string
 }
 
 const defaults: ConfigSchema = {
@@ -89,6 +90,7 @@ const defaults: ConfigSchema = {
   systemPromptProfiles: [],
   notificationSettings: { responseComplete: true, backgroundOnly: true, longSession: false, contextWarning: true },
   featureFlags: DEFAULT_FEATURES,
+  anthropicApiKey: '',
 }
 
 export class AppConfig {
@@ -325,6 +327,14 @@ export class AppConfig {
 
   setNotificationSettings(s: NotificationSettings): void {
     this.store.set('notificationSettings', s)
+  }
+
+  getAnthropicApiKey(): string {
+    return (this.store.get('anthropicApiKey') as string | undefined) ?? ''
+  }
+
+  setAnthropicApiKey(key: string): void {
+    this.store.set('anthropicApiKey', key)
   }
 
   getFeatures(): FeatureFlags {

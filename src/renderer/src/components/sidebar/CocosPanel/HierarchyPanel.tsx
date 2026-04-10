@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useRef } from 'react'
+import { t } from '../../../utils/i18n'
 import type { CCSceneNode } from '@shared/ipc-schema'
-import { CCFileSceneTree } from './SceneTree'
+import { VirtualSceneTree } from './SceneTree'
 import { TreeSearch } from './TreeSearch'
 import type { UseCCFileProjectUIReturn } from './useCCFileProjectUI'
 
@@ -11,6 +12,7 @@ interface HierarchyPanelProps {
 }
 
 export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPanelProps) {
+  const treeScrollRef = useRef<HTMLDivElement>(null)
   const {
     sceneFile, projectInfo,
     prefabPickerOpen, setPrefabPickerOpen,
@@ -44,7 +46,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
             <div style={{ padding: '3px 6px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0, background: 'rgba(0,0,0,0.15)' }}>
               {/* R1472: 프리팹 편집 모드 배지 */}
               <span style={{ fontSize: 9, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: sceneFile.scenePath.endsWith('.prefab') ? '#f0a' : 'var(--text-muted)' }}>
-                {sceneFile.scenePath.endsWith('.prefab') ? '🧩 프리팹' : '계층'}
+                {sceneFile.scenePath.endsWith('.prefab') ? t('hierarchy.header.prefab', '🧩 프리팹') : t('hierarchy.header.scene', '계층')}
               </span>
               {(() => {
                 let nodes = 0; let inactive = 0; let comps = 0
@@ -59,7 +61,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                 if (comps > 500) warns.push(`컴포넌트 수 과다 (${comps})`)
                 if (inactive > nodes * 0.5 && nodes > 10) warns.push(`비활성 노드 과다 (${inactive}/${nodes})`)
                 return (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: '#555', flexShrink: 0 }} title={`노드 ${nodes}개 / 비활성 ${inactive}개 / 컴포넌트 ${comps}개`}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: '#555', flexShrink: 0 }} title={t('hierarchy.nodeStats', `노드 ${nodes}개 / 비활성 ${inactive}개 / 컴포넌트 ${comps}개`).replace('{n}', String(nodes)).replace('{i}', String(inactive)).replace('{c}', String(comps))}>
                     {nodes}N/{comps}C
                     {/* R1639: 컴포넌트 칩 클릭 → 첫 번째 해당 타입 노드 선택 */}
                     {topTypes.map(([type, cnt]) => (
@@ -73,7 +75,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                           const found = walk(sceneFile.root)
                           if (found) onSelectNode(found)
                         }}
-                        style={{ background: 'rgba(88,166,255,0.1)', border: '1px solid rgba(88,166,255,0.25)', borderRadius: 3, padding: '0 3px', color: '#58a6ff', fontSize: 8, cursor: 'pointer' }} title={`${type} — 클릭: 첫 번째 노드 선택`}>
+                        style={{ background: 'rgba(88,166,255,0.1)', border: '1px solid rgba(88,166,255,0.25)', borderRadius: 3, padding: '0 3px', color: '#58a6ff', fontSize: 8, cursor: 'pointer' }} title={t('hierarchy.nodeSelectTitle', `${type} — 클릭: 첫 번째 노드 선택`).replace('{t}', type)}>
                         {type.replace('cc.', '')}:{cnt}
                       </span>
                     ))}
@@ -89,7 +91,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
               {projectInfo.scenes.some(s => s.endsWith('.prefab')) && (
                 <span
                   onClick={() => setPrefabPickerOpen(p => !p)}
-                  title="프리팹 삽입 (🧩)"
+                  title={t('hierarchy.prefabInsert', '프리팹 삽입 (🧩)')}
                   style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: prefabPickerOpen ? '#a78bfa' : '#666', position: 'relative' }}
                 >
                   {insertingPrefab ? '⟳' : '🧩'}
@@ -101,7 +103,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                     }}
                     onMouseLeave={() => setPrefabPickerOpen(false)}
                     >
-                      <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>프리팹 선택</div>
+                      <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>{t('hierarchy.prefabPicker', '프리팹 선택')}</div>
                       {projectInfo.scenes.filter(s => s.endsWith('.prefab')).map(p => (
                         <div
                           key={p}
@@ -118,11 +120,11 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                   )}
                 </span>
               )}
-              <span onClick={expandAll} title="전체 펼치기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊞</span>
-              <span onClick={collapseAll} title="전체 접기" style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊟</span>
+              <span onClick={expandAll} title={t('hierarchy.expandAll', '전체 펼치기')} style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊞</span>
+              <span onClick={collapseAll} title={t('hierarchy.collapseAll', '전체 접기')} style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: '#666' }}>⊟</span>
               {/* R1710: 씬 트리 구조 텍스트 복사 */}
               <span
-                title="씬 트리 구조 텍스트 복사 (R1710)"
+                title={t('hierarchy.copyTree', '씬 트리 구조 텍스트 복사 (R1710)')}
                 onClick={() => {
                   if (!sceneFile?.root) return
                   const lines: string[] = []
@@ -139,11 +141,11 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
               >⎘</span>
               {/* R1655: 깊이 N까지 펼치기 */}
               {([1, 2, 3] as const).map(d => (
-                <span key={d} onClick={() => collapseToDepth(d)} title={`깊이 ${d}까지 펼치기`} style={{ cursor: 'pointer', fontSize: 9, flexShrink: 0, color: '#666', fontWeight: 700 }}>D{d}</span>
+                <span key={d} onClick={() => collapseToDepth(d)} title={t('hierarchy.depthExpand', `깊이 ${d}까지 펼치기`).replace('{d}', String(d))} style={{ cursor: 'pointer', fontSize: 9, flexShrink: 0, color: '#666', fontWeight: 700 }}>D{d}</span>
               ))}
               <span
                 onClick={() => setHideInactive(h => !h)}
-                title={hideInactive ? '비활성 노드 표시' : '비활성 노드 숨기기'}
+                title={hideInactive ? t('hierarchy.showInactive', '비활성 노드 표시') : t('hierarchy.hideInactive', '비활성 노드 숨기기')}
                 style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: hideInactive ? '#58a6ff' : '#666' }}
               >{hideInactive ? '◑' : '●'}</span>
               {/* R1715: 색상 태그 필터 */}
@@ -151,7 +153,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                 const usedColors = [...new Set(Object.values(nodeColors).filter(Boolean))]
                 return usedColors.map(color => (
                   <span key={color}
-                    title={`색상 태그 필터: ${color === colorTagFilter ? '해제' : color}`}
+                    title={color === colorTagFilter ? t('hierarchy.colorFilterClear', '색상 태그 필터 해제') : t('hierarchy.colorFilter', `색상 태그 필터: ${color}`).replace('{c}', color)}
                     onClick={() => setColorTagFilter(colorTagFilter === color ? null : color)}
                     style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block', cursor: 'pointer', flexShrink: 0, border: colorTagFilter === color ? '2px solid #fff' : '1px solid rgba(0,0,0,0.3)', boxSizing: 'border-box' }}
                   />
@@ -160,13 +162,13 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
               {/* R1654: 컴포넌트 필터 토글 버튼 */}
               <span
                 onClick={() => setShowNodeFilters(v => !v)}
-                title={nodeFilters.length > 0 ? `컴포넌트 필터 활성 (${nodeFilters.length})` : '컴포넌트 타입 필터'}
+                title={nodeFilters.length > 0 ? t('hierarchy.compFilterActive', `컴포넌트 필터 활성 (${nodeFilters.length})`).replace('{n}', String(nodeFilters.length)) : t('hierarchy.compFilter', '컴포넌트 타입 필터')}
                 style={{ cursor: 'pointer', fontSize: 11, flexShrink: 0, color: nodeFilters.length > 0 ? '#58a6ff' : showNodeFilters ? '#aaa' : '#666' }}
               >⊳</span>
               {/* R1729: cc.Label Find & Replace 토글 */}
               <span
                 onClick={() => setShowLabelReplace(v => !v)}
-                title="cc.Label 텍스트 찾기/바꾸기 (R1729)"
+                title={t('hierarchy.labelReplace', 'cc.Label 텍스트 찾기/바꾸기 (R1729)')}
                 style={{ cursor: 'pointer', fontSize: 9, flexShrink: 0, color: showLabelReplace ? '#58a6ff' : '#666', fontWeight: showLabelReplace ? 700 : 400, letterSpacing: -0.5 }}
               >ab</span>
             </div>
@@ -234,13 +236,13 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                     )
                   })}
                   {nodeFilters.length > 0 && (
-                    <span onClick={() => setNodeFilters([])} title="필터 초기화" style={{ fontSize: 9, cursor: 'pointer', color: '#f85149', userSelect: 'none' }}>✕</span>
+                    <span onClick={() => setNodeFilters([])} title={t('hierarchy.filterReset', '필터 초기화')} style={{ fontSize: 9, cursor: 'pointer', color: '#f85149', userSelect: 'none' }}>✕</span>
                   )}
                 </div>
                 {/* R1667: custom type 입력 */}
                 <div style={{ display: 'flex', gap: 3, marginTop: 3 }}>
                   <input
-                    placeholder="custom type (예: MyScript)"
+                    placeholder={t('hierarchy.customTypePlaceholder', 'custom type (예: MyScript)')}
                     onKeyDown={e => {
                       if (e.key === 'Enter') {
                         const val = (e.currentTarget.value ?? '').trim()
@@ -263,33 +265,33 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
             {showLabelReplace && (
               <div style={{ padding: '4px 6px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>찾기</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>{t('hierarchy.findLabel', '찾기')}</span>
                   <input
                     value={labelFindText}
                     onChange={e => setLabelFindText(e.target.value)}
-                    placeholder="찾을 텍스트..."
+                    placeholder={t('hierarchy.findPlaceholder', '찾을 텍스트...')}
                     style={{ flex: 1, fontSize: 10, padding: '2px 4px', background: 'var(--input-bg, rgba(255,255,255,0.05))', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-primary)', outline: 'none' }}
                   />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>바꿈</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 32, flexShrink: 0 }}>{t('hierarchy.replaceLabel', '바꿈')}</span>
                   <input
                     value={labelReplaceText}
                     onChange={e => setLabelReplaceText(e.target.value)}
-                    placeholder="바꿀 텍스트..."
+                    placeholder={t('hierarchy.replacePlaceholder', '바꿀 텍스트...')}
                     style={{ flex: 1, fontSize: 10, padding: '2px 4px', background: 'var(--input-bg, rgba(255,255,255,0.05))', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-primary)', outline: 'none' }}
                   />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 9, color: 'var(--text-muted)', flex: 1 }}>
-                    {labelFindText.trim() ? `${labelReplaceMatches.length}개 매칭` : 'cc.Label 텍스트 일괄 치환'}
+                    {labelFindText.trim() ? `${labelReplaceMatches.length}${t('hierarchy.matchCount', '개 매칭')}` : t('hierarchy.labelBulkReplace', 'cc.Label 텍스트 일괄 치환')}
                   </span>
                   {labelReplaceMatches.length > 0 && (
                     <span
                       onClick={handleLabelReplaceAll}
                       title={`${labelReplaceMatches.length}개 cc.Label에서 "${labelFindText}" → "${labelReplaceText}" 교체`}
                       style={{ fontSize: 9, padding: '2px 6px', borderRadius: 2, cursor: 'pointer', background: 'rgba(88,166,255,0.15)', color: '#58a6ff', border: '1px solid rgba(88,166,255,0.3)', userSelect: 'none' }}
-                    >전체 교체 ({labelReplaceMatches.length})</span>
+                    >{t('hierarchy.replaceBtn', `전체 교체 (${labelReplaceMatches.length})`).replace('{n}', String(labelReplaceMatches.length))}</span>
                   )}
                 </div>
               </div>
@@ -324,7 +326,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                   {/* R2322: 클릭으로 파일 탐색기에서 열기 */}
                   <div
                     style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}
-                    title={`탐색기에서 열기: ${sceneFile.scenePath}`}
+                    title={t('hierarchy.fileOpenTitle', `탐색기에서 열기: ${sceneFile.scenePath}`).replace('{p}', sceneFile.scenePath)}
                     onClick={() => {
                       const winPath = sceneFile.scenePath.replace(/\//g, '\\')
                       window.api.shellExec?.(`explorer /select,"${winPath}"`)
@@ -342,7 +344,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                           const first = nodeMap.get(inactiveUuids[0])
                           if (first) { onSelectNode(first); setMultiSelectedUuids(inactiveUuids) }
                         }}
-                        style={{ color: '#888', cursor: 'pointer' }} title={`비활성 노드 ${inactiveCount}개 — 클릭으로 모두 선택`}
+                        style={{ color: '#888', cursor: 'pointer' }} title={t('hierarchy.inactiveTitle', `비활성 노드 ${inactiveCount}개 — 클릭으로 모두 선택`).replace('{n}', String(inactiveCount))}
                       >{inactiveCount}◌</span>
                     )}
                     {topComps.map(([type, cnt]) => (
@@ -354,7 +356,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                           const first = uuids.length > 0 ? nodeMap.get(uuids[0]) : null
                           if (first) { onSelectNode(first); setMultiSelectedUuids(uuids) }
                         }}
-                        title={`${type} 보유 노드 ${cnt}개 — 클릭으로 모두 선택 (R1731)`}
+                        title={t('hierarchy.compSelectTitle', `${cnt}개 ${type} 노드 — 클릭으로 모두 선택 (R1731)`).replace('{n}', String(cnt)).replace('{t}', type)}
                         style={{ color: '#666', cursor: 'pointer' }}
                         onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
                         onMouseLeave={e => (e.currentTarget.style.color = '#666')}
@@ -374,7 +376,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
                   const barColor = (type: string) => COMP_BAR_COLORS[type] ?? '#64748b'
                   return (
                     <div style={{ padding: '4px 8px', borderTop: '1px solid var(--border)', fontSize: 8 }}>
-                      <div style={{ color: 'var(--text-muted)', marginBottom: 3 }}>컴포넌트 분포 ({totalComps}개)</div>
+                      <div style={{ color: 'var(--text-muted)', marginBottom: 3 }}>{t('hierarchy.compDist', `컴포넌트 분포 (${totalComps}개)`).replace('{n}', String(totalComps))}</div>
                       {Object.entries(compCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([type, count]) => (
                         <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
                           <span style={{ width: 48, fontSize: 8, color: 'var(--text-muted)', textAlign: 'right', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{type.replace('cc.', '')}</span>
@@ -393,7 +395,7 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
             {/* 즐겨찾기 */}
             {favorites.size > 0 && (
               <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: 2, flexShrink: 0 }}>
-                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', padding: '1px 6px' }}>★ 즐겨찾기</div>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', padding: '1px 6px' }}>{t('hierarchy.favorites', '★ 즐겨찾기')}</div>
                 {[...favorites].map(uuid => {
                   const favNode = nodeMap.get(uuid)
                   if (!favNode) return null
@@ -407,10 +409,10 @@ export function HierarchyPanel({ ctx, selectedNode, onSelectNode }: HierarchyPan
               </div>
             )}
             {/* 씬 트리 */}
-            <div style={{ flex: 1, overflow: 'auto' }}>
-              <CCFileSceneTree
-                node={filteredRoot ?? sceneFile.root}
-                depth={0}
+            <div ref={treeScrollRef} style={{ flex: 1, overflow: 'auto' }}>
+              <VirtualSceneTree
+                root={filteredRoot ?? sceneFile.root}
+                scrollContainerRef={treeScrollRef}
                 selected={selectedNode}
                 onSelect={onSelectNode}
                 onReparent={handleReparent}

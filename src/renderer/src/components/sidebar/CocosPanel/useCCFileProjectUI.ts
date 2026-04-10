@@ -207,7 +207,7 @@ export function useCCFileProjectUI({ fileProject, selectedNode, onSelectNode }: 
       try {
         const projPath = projectInfo.projectPath
         const projJsonPath = projPath + '/project.json'
-        const content = await window.api.fsReadFile?.(projJsonPath) as string | null
+        const content = await window.api.readFile?.(projJsonPath) as string | null
         let designWidth = 960, designHeight = 640
         let physicsEngine = 'none'
         const buildTargets: string[] = []
@@ -228,7 +228,7 @@ export function useCCFileProjectUI({ fileProject, selectedNode, onSelectNode }: 
         }
         try {
           const settingsPath = projPath + '/settings/project.json'
-          const settingsContent = await window.api.fsReadFile?.(settingsPath) as string | null
+          const settingsContent = await window.api.readFile?.(settingsPath) as string | null
           if (settingsContent) {
             const sj = JSON.parse(settingsContent) as Record<string, unknown>
             const generalObj = sj.general as Record<string, unknown> | undefined

@@ -284,7 +284,7 @@ export function useNodeInspector({ node, sceneFile, saveScene, onUpdate }: UseNo
   // R1670: 위치/크기 % 토글
   const [showPct, setShowPct] = useState(false)
 
-  const rotation = typeof draft.rotation === 'number' ? draft.rotation : (draft.rotation as { z: number }).z ?? 0
+  const rotation = draft.rotation.z ?? 0
 
   // debounce 타이머 ref
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)

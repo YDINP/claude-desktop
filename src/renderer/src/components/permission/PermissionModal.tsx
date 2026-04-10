@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { t } from '../../utils/i18n'
 
 interface PermissionRequest { requestId: string; toolName: string; input: unknown }
 
@@ -55,7 +56,7 @@ export function PermissionModal({
         ref={modalRef}
         role="dialog"
         aria-modal="true"
-        aria-label="권한 요청"
+        aria-label={t('permission.dialog', '권한 요청')}
         onKeyDown={e => { if (modalRef.current) trapFocus(modalRef.current, e) }}
         style={{
         background: 'var(--bg-secondary)',

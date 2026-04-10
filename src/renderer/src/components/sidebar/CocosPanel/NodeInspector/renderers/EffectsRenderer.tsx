@@ -1,8 +1,9 @@
 import React from 'react'
 import type { RendererProps } from './types'
+import { t } from '../../../../../utils/i18n'
 
 /** cc.AudioSource, cc.Camera, cc.DirectionalLight, cc.PointLight, cc.SpotLight, cc.MotionStreak, cc.ParticleSystem, cc.ParticleSystem2D, cc.BlockInputEvents Quick Edit renderer */
-export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function EffectsRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.AudioSource') {
               const volume = Number(p.volume ?? 1)
@@ -26,7 +27,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 56, whiteSpace: 'nowrap', flexShrink: 0 }}>clip</span>
                     <span
-                      title={clipUuid ? `${clipUuid}\n드래그로 클립 교체 가능` : '오디오 클립을 여기에 드래그'}
+                      title={clipUuid ? `${clipUuid}\n${t('effects.clipDrag')}` : t('effects.clipEmpty')}
                       style={{ fontSize: 8, color: clipUuid ? '#facc15' : 'var(--text-muted)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, border: '1px dashed transparent', borderRadius: 3, padding: '1px 3px', cursor: 'copy', background: 'rgba(255,255,255,0.04)' }}
                       onDragOver={e => {
                         if (e.dataTransfer.types.includes('application/cc-asset')) {
@@ -59,7 +60,7 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
                     >{clipUuid ?? '(none)'}</span>
                     {clipUuid && (
                       <span
-                        title="클립 UUID 복사"
+                        title={t('effects.clipCopy')}
                         onClick={() => navigator.clipboard.writeText(clipUuid).catch(() => {})}
                         style={{ fontSize: 9, cursor: 'pointer', color: '#555', flexShrink: 0 }}
                         onMouseEnter={e => (e.currentTarget.style.color = '#facc15')}
@@ -535,3 +536,4 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
             }
             return null
 }
+export const EffectsRenderer = React.memo(EffectsRendererInner)

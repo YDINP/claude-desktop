@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
+import { MiscSelectionTools } from './misc-selection'
+import { t } from '../../../utils/i18n'
 
 export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, onSelectNode, lockedUuids, onSetLockedUuids }: BatchPluginProps) {
   const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
@@ -93,14 +95,14 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
                 return { ...n, children }
               }
               await saveScene(patch(sceneFile.root))
-              setBatchMsg('✓ 위치 교환 (R2531)')
+              setBatchMsg(t('batch.misc.s_pos_swap_r2531', '✓ 위치 교환 (R2531)'))
               setTimeout(() => setBatchMsg(null), 2000)
             }}
-              title="두 노드 위치 교환 (R2531)"
+              title={t('batch.misc.t_node_pos_swap_r2531', '두 노드 위치 교환 (R2531)')}
               style={{ fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(52,211,153,0.4)', borderRadius: 2, color: '#34d399', userSelect: 'none', marginLeft: 'auto' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.4)')}
-            >⇄ 교환</span>
+            >{t('batch.misc.j_swap', '⇄ 교환')}</span>
           </div>
         )
       })()}
@@ -144,8 +146,8 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
           else if (mode === 'center') ns.forEach(n => targetMap.set(n.uuid, avgV))
           else if (mode === 'distrib') {
             sorted.forEach((n, i) => {
-              const t = sorted.length === 1 ? minV : minV + (maxV - minV) * i / (sorted.length - 1)
-              targetMap.set(n.uuid, t)
+              const frac = sorted.length === 1 ? minV : minV + (maxV - minV) * i / (sorted.length - 1)
+              targetMap.set(n.uuid, frac)
             })
           }
           await patchNodes(n => {
@@ -157,17 +159,17 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const btnS: React.CSSProperties = { fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(52,211,153,0.3)', background: 'rgba(52,211,153,0.08)', color: '#34d399', lineHeight: 1.6 }
         return (
           <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(52,211,153,0.05)', border: '1px solid rgba(52,211,153,0.18)', borderRadius: 4 }}>
-            <div style={{ fontSize: 9, color: '#34d399', fontWeight: 600, marginBottom: 3 }}>⊟ 정렬 (R2503)</div>
+            <div style={{ fontSize: 9, color: '#34d399', fontWeight: 600, marginBottom: 3 }}>{t('batch.misc.j_align_r2503', '⊟ 정렬 (R2503)')}</div>
             <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              <span style={btnS} onClick={() => applyAlign('x', 'min')} title="X 최솟값 정렬">◁ L</span>
-              <span style={btnS} onClick={() => applyAlign('x', 'center')} title="X 중앙 정렬">↔ CX</span>
-              <span style={btnS} onClick={() => applyAlign('x', 'max')} title="X 최댓값 정렬">▷ R</span>
-              <span style={btnS} onClick={() => applyAlign('x', 'distrib')} title="X 균등 분배">⇹ DH</span>
+              <span style={btnS} onClick={() => applyAlign('x', 'min')} title={t('batch.misc.t_x_align', 'X 최솟값 정렬')}>◁ L</span>
+              <span style={btnS} onClick={() => applyAlign('x', 'center')} title={t('batch.misc.t_x_align2', 'X 중앙 정렬')}>↔ CX</span>
+              <span style={btnS} onClick={() => applyAlign('x', 'max')} title={t('batch.misc.t_x_align3', 'X 최댓값 정렬')}>▷ R</span>
+              <span style={btnS} onClick={() => applyAlign('x', 'distrib')} title={t('batch.misc.t_x_equal_distrib', 'X 균등 분배')}>⇹ DH</span>
               <span style={{ width: 1, background: 'rgba(52,211,153,0.2)', margin: '0 1px' }} />
-              <span style={btnS} onClick={() => applyAlign('y', 'max')} title="Y 최댓값 정렬">△ T</span>
-              <span style={btnS} onClick={() => applyAlign('y', 'center')} title="Y 중앙 정렬">↕ CY</span>
-              <span style={btnS} onClick={() => applyAlign('y', 'min')} title="Y 최솟값 정렬">▽ B</span>
-              <span style={btnS} onClick={() => applyAlign('y', 'distrib')} title="Y 균등 분배">⇳ DV</span>
+              <span style={btnS} onClick={() => applyAlign('y', 'max')} title={t('batch.misc.t_y_align', 'Y 최댓값 정렬')}>△ T</span>
+              <span style={btnS} onClick={() => applyAlign('y', 'center')} title={t('batch.misc.t_y_align2', 'Y 중앙 정렬')}>↕ CY</span>
+              <span style={btnS} onClick={() => applyAlign('y', 'min')} title={t('batch.misc.t_y_align3', 'Y 최솟값 정렬')}>▽ B</span>
+              <span style={btnS} onClick={() => applyAlign('y', 'distrib')} title={t('batch.misc.t_y_equal_distrib', 'Y 균등 분배')}>⇳ DV</span>
             </div>
           </div>
         )
@@ -225,7 +227,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
               <span key={axis} onClick={() => applyDistribute(axis)} title={`${axis.toUpperCase()}축 균등 배분 (첫/끝 노드 고정, ${distNodes.length}개)`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>{label}</span>
             ))}
-            <span style={{ fontSize: 8, color: '#555' }}>{distNodes.length}개</span>
+            <span style={{ fontSize: 8, color: '#555' }}>{distNodes.length}{t('batch.misc.j_count', '개')}</span>
           </div>
         )
       })()}
@@ -280,13 +282,13 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }
         return (
           <div style={{ marginBottom: 4, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>균등갭</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>{t('batch.misc.j_eqgap', '균등갭')}</span>
             <input type="number" value={evenSpacing} onChange={e => setEvenSpacing(Number(e.target.value))}
-              style={mkNiS(44)} title="고정 갭 px" min={0} />
-            <span onClick={() => applyEvenGap('x', 'auto')} style={bsP} title="X 방향 자동 균등 간격 (R2733)">Auto H</span>
-            <span onClick={() => applyEvenGap('y', 'auto')} style={bsP} title="Y 방향 자동 균등 간격 (R2733)">Auto V</span>
-            <span onClick={() => applyEvenGap('x', 'fixed')} style={bsP} title="X 방향 고정 갭 (R2733)">Fix H</span>
-            <span onClick={() => applyEvenGap('y', 'fixed')} style={bsP} title="Y 방향 고정 갭 (R2733)">Fix V</span>
+              style={mkNiS(44)} title={t('batch.misc.t_fixed_px', '고정 갭 px')} min={0} />
+            <span onClick={() => applyEvenGap('x', 'auto')} style={bsP} title={t('batch.misc.t_x_dir_auto_equal_gap_r2733', 'X 방향 자동 균등 간격 (R2733)')}>Auto H</span>
+            <span onClick={() => applyEvenGap('y', 'auto')} style={bsP} title={t('batch.misc.t_y_dir_auto_equal_gap_r2733', 'Y 방향 자동 균등 간격 (R2733)')}>Auto V</span>
+            <span onClick={() => applyEvenGap('x', 'fixed')} style={bsP} title={t('batch.misc.t_x_dir_fixed_r2733', 'X 방향 고정 갭 (R2733)')}>Fix H</span>
+            <span onClick={() => applyEvenGap('y', 'fixed')} style={bsP} title={t('batch.misc.t_y_dir_fixed_r2733', 'Y 방향 고정 갭 (R2733)')}>Fix V</span>
           </div>
         )
       })()}
@@ -320,15 +322,15 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }
         return (
           <div style={{ marginBottom: 4, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>위치그라데이션 (R2695)</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('batch.misc.j_posgradation_r2695', '위치그라데이션 (R2695)')}</span>
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>from</span>
             <input type="number" value={posGradFrom} onChange={e => setPosGradFrom(Number(e.target.value))}
               style={mkNiS(44)} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>to</span>
             <input type="number" value={posGradTo} onChange={e => setPosGradTo(Number(e.target.value))}
               style={mkNiS(44)} />
-            <span onClick={() => applyPosGrad('x')} style={bsP} title="X 방향 위치 선형 보간">→X</span>
-            <span onClick={() => applyPosGrad('y')} style={bsP} title="Y 방향 위치 선형 보간">↑Y</span>
+            <span onClick={() => applyPosGrad('x')} style={bsP} title={t('batch.misc.t_x_dir_pos', 'X 방향 위치 선형 보간')}>→X</span>
+            <span onClick={() => applyPosGrad('y')} style={bsP} title={t('batch.misc.t_y_dir_pos', 'Y 방향 위치 선형 보간')}>↑Y</span>
           </div>
         )
       })()}
@@ -379,10 +381,10 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Align</span>
             {modes.map(([mode, label]) => (
               <span key={mode} onClick={() => applyAlign(mode)}
-                title={`${mode === 'L' ? '왼쪽 가장자리' : mode === 'R' ? '오른쪽 가장자리' : mode === 'T' ? '위 가장자리' : mode === 'B' ? '아래 가장자리' : mode === 'CX' ? '수평 중앙' : '수직 중앙'} 정렬 (R2533)`}
+                title={`${mode === 'L' ? t('batch.misc.s_label', '왼쪽 가장자리') : mode === 'R' ? t('batch.misc.s_label2', '오른쪽 가장자리') : mode === 'T' ? t('batch.misc.s_label3', '위 가장자리') : mode === 'B' ? t('batch.misc.s_label4', '아래 가장자리') : mode === 'CX' ? t('batch.misc.s_label5', '수평 중앙') : t('batch.misc.s_label6', '수직 중앙')} 정렬 (R2533)`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none', background: 'rgba(251,146,60,0.05)' }}>{label}</span>
             ))}
-            <span style={{ fontSize: 8, color: '#555' }}>{alnNodes.length}개</span>
+            <span style={{ fontSize: 8, color: '#555' }}>{alnNodes.length}{t('batch.misc.j_count', '개')}</span>
           </div>
         )
       })()}
@@ -411,10 +413,10 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>역전 (R2561)</span>
-            <span onClick={() => applyReverse('x')} title="X축 위치 순서 뒤집기 — 좌우 반전 배치 (R2561)"
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_reverse_r2561', '역전 (R2561)')}</span>
+            <span onClick={() => applyReverse('x')} title={t('batch.misc.t_x_pos_invert_arrange_r2561', 'X축 위치 순서 뒤집기 — 좌우 반전 배치 (R2561)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none', background: 'rgba(251,146,60,0.05)' }}>⇄X</span>
-            <span onClick={() => applyReverse('y')} title="Y축 위치 순서 뒤집기 — 상하 반전 배치 (R2561)"
+            <span onClick={() => applyReverse('y')} title={t('batch.misc.t_y_pos_invert_arrange_r2561', 'Y축 위치 순서 뒤집기 — 상하 반전 배치 (R2561)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none', background: 'rgba(251,146,60,0.05)' }}>⇅Y</span>
           </div>
         )
@@ -431,10 +433,10 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }, `scale${axis.toUpperCase()} flip (${flipNodes.length}개)`)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>반전 (R2575)</span>
-            <span onClick={() => applyFlip('x')} title="scaleX 부호 반전 — 좌우 미러 (R2575)"
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_invert_r2575', '반전 (R2575)')}</span>
+            <span onClick={() => applyFlip('x')} title={t('batch.misc.t_scalex_invert_mirror_r2575', 'scaleX 부호 반전 — 좌우 미러 (R2575)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>↔H</span>
-            <span onClick={() => applyFlip('y')} title="scaleY 부호 반전 — 상하 미러 (R2575)"
+            <span onClick={() => applyFlip('y')} title={t('batch.misc.t_scaley_invert_mirror_r2575', 'scaleY 부호 반전 — 상하 미러 (R2575)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.05)' }}>↕V</span>
           </div>
         )
@@ -459,10 +461,10 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>대칭 (R2587)</span>
-            <span onClick={() => applyMirror('x')} title="X축 대칭 이동 — 바운딩박스 중심 기준 좌우 반전 (R2587)"
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_sym_r2587', '대칭 (R2587)')}</span>
+            <span onClick={() => applyMirror('x')} title={t('batch.misc.t_x_sym_move_ref_invert_r2587', 'X축 대칭 이동 — 바운딩박스 중심 기준 좌우 반전 (R2587)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>⟺X</span>
-            <span onClick={() => applyMirror('y')} title="Y축 대칭 이동 — 바운딩박스 중심 기준 상하 반전 (R2587)"
+            <span onClick={() => applyMirror('y')} title={t('batch.misc.t_y_sym_move_ref_invert_r2587', 'Y축 대칭 이동 — 바운딩박스 중심 기준 상하 반전 (R2587)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>⟺Y</span>
           </div>
         )
@@ -489,9 +491,9 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>교환 (R2589)</span>
-            <span onClick={applySwap} title="두 노드의 위치(position) 교환 (R2589)"
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }}>⇄ 위치</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_swap_r2589', '교환 (R2589)')}</span>
+            <span onClick={applySwap} title={t('batch.misc.t_node_pos_position_swap_r2589', '두 노드의 위치(position) 교환 (R2589)')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24', userSelect: 'none', background: 'rgba(251,191,36,0.05)' }}>{t('batch.misc.j_pos', '⇄ 위치')}</span>
           </div>
         )
       })()}
@@ -514,9 +516,9 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>셔플 (R2611)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_shuffle_r2611', '셔플 (R2611)')}</span>
             <span onClick={applyPosShuffle} title={`${uuids.length}개 노드 위치를 무작위 교환 (R2611)`}
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(129,140,248,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(129,140,248,0.05)' }}>⇌ 위치</span>
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(129,140,248,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(129,140,248,0.05)' }}>{t('batch.misc.j_pos2', '⇌ 위치')}</span>
           </div>
         )
       })()}
@@ -550,10 +552,10 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>미러 (R2632)</span>
-            <span onClick={() => applyMirror('x')} title="선택 노드 X 위치를 그룹 중심 기준 반전 (R2632)"
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_mirror_r2632', '미러 (R2632)')}</span>
+            <span onClick={() => applyMirror('x')} title={t('batch.misc.t_select_node_x_pos_ref_invert_r2632', '선택 노드 X 위치를 그룹 중심 기준 반전 (R2632)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none', background: 'rgba(244,114,182,0.05)' }}>⇔ X</span>
-            <span onClick={() => applyMirror('y')} title="선택 노드 Y 위치를 그룹 중심 기준 반전 (R2632)"
+            <span onClick={() => applyMirror('y')} title={t('batch.misc.t_select_node_y_pos_ref_invert_r2632', '선택 노드 Y 위치를 그룹 중심 기준 반전 (R2632)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none', background: 'rgba(244,114,182,0.05)' }}>⇕ Y</span>
           </div>
         )
@@ -585,13 +587,13 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const niS = mkNiS(46)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>원형배치 (R2639)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_circlearrange_r2639', '원형배치 (R2639)')}</span>
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>r=</span>
-            <input type="number" value={circleRadius} min={10} step={10} onChange={e => setCircleRadius(parseInt(e.target.value) || 200)} style={niS} title="원 반지름 (CC 단위)" />
+            <input type="number" value={circleRadius} min={10} step={10} onChange={e => setCircleRadius(parseInt(e.target.value) || 200)} style={niS} title={t('batch.misc.t_cc', '원 반지름 (CC 단위)')} />
             <span onClick={applyCircleArrange}
               title={`선택된 ${uuids.length}개 노드를 반지름 ${circleRadius}인 원형으로 균등 배치 (R2639)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}
-            >○배치</span>
+            >{t('batch.misc.j_arrange', '○배치')}</span>
           </div>
         )
       })()}
@@ -630,17 +632,17 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const niS = mkNiS(34, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>격자배치 (R2643)</span>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>열</span>
-            <input type="number" value={gridCols} min={1} max={20} step={1} onChange={e => setGridCols(parseInt(e.target.value) || 3)} style={niS} title="열 수" />
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_gridarrange_r2643', '격자배치 (R2643)')}</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('batch.misc.j_label', '열')}</span>
+            <input type="number" value={gridCols} min={1} max={20} step={1} onChange={e => setGridCols(parseInt(e.target.value) || 3)} style={niS} title={t('batch.misc.t_label', '열 수')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dx</span>
-            <input type="number" value={gridSpacingX} step={10} onChange={e => setGridSpacingX(parseInt(e.target.value) || 150)} style={niS} title="가로 간격" />
+            <input type="number" value={gridSpacingX} step={10} onChange={e => setGridSpacingX(parseInt(e.target.value) || 150)} style={niS} title={t('batch.misc.t_gap', '가로 간격')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dy</span>
-            <input type="number" value={gridSpacingY} step={10} onChange={e => setGridSpacingY(parseInt(e.target.value) || 150)} style={niS} title="세로 간격" />
+            <input type="number" value={gridSpacingY} step={10} onChange={e => setGridSpacingY(parseInt(e.target.value) || 150)} style={niS} title={t('batch.misc.t_gap2', '세로 간격')} />
             <span onClick={applyGridArrange}
               title={`선택된 ${uuids.length}개 노드를 ${gridCols}열 격자로 배치 (R2643)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
-            >⊞배치</span>
+            >{t('batch.misc.j_arrange2', '⊞배치')}</span>
           </div>
         )
       })()}
@@ -678,9 +680,9 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Z-sort (R2582)</span>
-            <span onClick={() => applySortByPos('x')} title="X축 위치 순으로 형제 Z-order 재정렬 (R2582)"
+            <span onClick={() => applySortByPos('x')} title={t('batch.misc.t_x_pos_z_order_align_r2582', 'X축 위치 순으로 형제 Z-order 재정렬 (R2582)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>X↗</span>
-            <span onClick={() => applySortByPos('y')} title="Y축 위치 순으로 형제 Z-order 재정렬 (R2582)"
+            <span onClick={() => applySortByPos('y')} title={t('batch.misc.t_y_pos_z_order_align_r2582', 'Y축 위치 순으로 형제 Z-order 재정렬 (R2582)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>Y↗</span>
           </div>
         )
@@ -698,16 +700,16 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
             return { ...n, children: result }
           }
           await saveScene(patch(sceneFile.root))
-          setBatchMsg(`✓ ${dir === 'front' ? '최전면' : '최후면'} 이동 (${uuids.length}개)`)
+          setBatchMsg(`✓ ${dir === 'front' ? t('batch.misc.s_label7', '최전면') : t('batch.misc.s_label8', '최후면')} 이동 (${uuids.length}개)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>Z이동 (R2653)</span>
-            <span onClick={() => applyZMove('front')} title="선택 노드를 형제 중 최전면(맨 뒤 배열)으로 이동 (R2653)"
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>▲맨앞</span>
-            <span onClick={() => applyZMove('back')} title="선택 노드를 형제 중 최후면(맨 앞 배열)으로 이동 (R2653)"
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>▼맨뒤</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_zmove_r2653', 'Z이동 (R2653)')}</span>
+            <span onClick={() => applyZMove('front')} title={t('batch.misc.t_select_node_move_r2653', '선택 노드를 형제 중 최전면(맨 뒤 배열)으로 이동 (R2653)')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>{t('batch.misc.j_label2', '▲맨앞')}</span>
+            <span onClick={() => applyZMove('back')} title={t('batch.misc.t_select_node_move_r26532', '선택 노드를 형제 중 최후면(맨 앞 배열)으로 이동 (R2653)')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>{t('batch.misc.j_label3', '▼맨뒤')}</span>
           </div>
         )
       })()}
@@ -744,15 +746,15 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>복제 (R2649)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_dup_r2649', '복제 (R2649)')}</span>
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dx</span>
-            <input type="number" value={cloneOffsetX} step={10} onChange={e => setCloneOffsetX(parseInt(e.target.value) || 0)} style={niS} title="복제 X 오프셋" />
+            <input type="number" value={cloneOffsetX} step={10} onChange={e => setCloneOffsetX(parseInt(e.target.value) || 0)} style={niS} title={t('batch.misc.t_dup_x_offset', '복제 X 오프셋')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>dy</span>
-            <input type="number" value={cloneOffsetY} step={10} onChange={e => setCloneOffsetY(parseInt(e.target.value) || 0)} style={niS} title="복제 Y 오프셋" />
+            <input type="number" value={cloneOffsetY} step={10} onChange={e => setCloneOffsetY(parseInt(e.target.value) || 0)} style={niS} title={t('batch.misc.t_dup_y_offset', '복제 Y 오프셋')} />
             <span onClick={applyDuplicate}
               title={`선택 노드 복제 후 (${cloneOffsetX}, ${cloneOffsetY}) 오프셋 (R2649)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}
-            >⎘복제</span>
+            >{t('batch.misc.j_dup', '⎘복제')}</span>
           </div>
         )
       })()}
@@ -815,7 +817,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
                   style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none', background: 'rgba(52,211,153,0.05)' }}>{axis === 'x' ? '→' : '↓'}{g > 0 ? `+${g}` : ''}</span>
               ))
             ))}
-            <span style={{ fontSize: 8, color: '#555' }}>{stkNodes.length}개</span>
+            <span style={{ fontSize: 8, color: '#555' }}>{stkNodes.length}{t('batch.misc.j_count', '개')}</span>
           </div>
         )
       })()}
@@ -899,10 +901,10 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(34,211,238,0.4)', color: '#22d3ee', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기배수 (R2689)</span>
-            <input type="number" value={sizeFactor} min={0.1} max={10} step={0.1} onChange={e => setSizeFactor(parseFloat(e.target.value) || 1)} style={niS} title="크기 배수" />
-            <span onClick={() => applyScaleBySize(sizeFactor)} title={`W/H ×${sizeFactor} (R2689)`} style={bs}>확대</span>
-            <span onClick={() => applyScaleBySize(1 / sizeFactor)} title={`W/H ×${(1/sizeFactor).toFixed(2)} 축소 (R2689)`} style={bs}>축소</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc.j_sizemult_r2689', '크기배수 (R2689)')}</span>
+            <input type="number" value={sizeFactor} min={0.1} max={10} step={0.1} onChange={e => setSizeFactor(parseFloat(e.target.value) || 1)} style={niS} title={t('batch.misc.t_size_mult', '크기 배수')} />
+            <span onClick={() => applyScaleBySize(sizeFactor)} title={`W/H ×${sizeFactor} (R2689)`} style={bs}>{t('batch.misc.j_enlarge', '확대')}</span>
+            <span onClick={() => applyScaleBySize(1 / sizeFactor)} title={`W/H ×${(1/sizeFactor).toFixed(2)} 축소 (R2689)`} style={bs}>{t('batch.misc.j_label4', '축소')}</span>
           </div>
         )
       })()}
@@ -918,17 +920,17 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale지정 (R2690)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc.j_scaleassign_r2690', 'scale지정 (R2690)')}</span>
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>X</span>
-            <input type="number" value={absScaleX} min={-10} max={10} step={0.1} onChange={e => setAbsScaleX(parseFloat(e.target.value) || 1)} style={niS} title="절대 scaleX" />
+            <input type="number" value={absScaleX} min={-10} max={10} step={0.1} onChange={e => setAbsScaleX(parseFloat(e.target.value) || 1)} style={niS} title={t('batch.misc.t_scalex', '절대 scaleX')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>Y</span>
-            <input type="number" value={absScaleY} min={-10} max={10} step={0.1} onChange={e => setAbsScaleY(parseFloat(e.target.value) || 1)} style={niS} title="절대 scaleY" />
+            <input type="number" value={absScaleY} min={-10} max={10} step={0.1} onChange={e => setAbsScaleY(parseFloat(e.target.value) || 1)} style={niS} title={t('batch.misc.t_scaley', '절대 scaleY')} />
             <span onClick={applyAbsScale}
               title={`scale = (${absScaleX}, ${absScaleY}) (R2690)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >지정</span>
+            >{t('batch.misc.j_assign', '지정')}</span>
           </div>
         )
       })()}
@@ -947,8 +949,8 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>정사각 (R2659)</span>
-            {([['max', '大'], ['min', '小'], ['W기준', 'w'], ['H기준', 'h']] as [string, 'max' | 'min' | 'w' | 'h'][]).map(([label, basis]) => (
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_square_r2659', '정사각 (R2659)')}</span>
+            {([['max', '大'], ['min', '小'], [t('batch.misc.s_w_ref', 'W기준'), 'w'], [t('batch.misc.s_h_ref', 'H기준'), 'h']] as [string, 'max' | 'min' | 'w' | 'h'][]).map(([label, basis]) => (
               <span key={basis} onClick={() => applySquarify(basis)} title={`W=H 정사각형화 (${label}) (R2659)`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>{label}</span>
             ))}
@@ -973,14 +975,14 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const niS = mkNiS(30, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>비율 (R2660)</span>
-            <input type="number" value={aspectRatioW} min={1} step={1} onChange={e => setAspectRatioW(parseInt(e.target.value) || 16)} style={niS} title="비율 가로" />
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.misc.j_ratio_r2660', '비율 (R2660)')}</span>
+            <input type="number" value={aspectRatioW} min={1} step={1} onChange={e => setAspectRatioW(parseInt(e.target.value) || 16)} style={niS} title={t('batch.misc.t_ratio', '비율 가로')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>:</span>
-            <input type="number" value={aspectRatioH} min={1} step={1} onChange={e => setAspectRatioH(parseInt(e.target.value) || 9)} style={niS} title="비율 세로" />
+            <input type="number" value={aspectRatioH} min={1} step={1} onChange={e => setAspectRatioH(parseInt(e.target.value) || 9)} style={niS} title={t('batch.misc.t_ratio2', '비율 세로')} />
             <span onClick={() => applyAspectRatio('w')} title={`W 고정, H를 ${aspectRatioW}:${aspectRatioH} 비율로 조정 (R2660)`}
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>W기준</span>
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>{t('batch.misc.j_wref', 'W기준')}</span>
             <span onClick={() => applyAspectRatio('h')} title={`H 고정, W를 ${aspectRatioW}:${aspectRatioH} 비율로 조정 (R2660)`}
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>H기준</span>
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', userSelect: 'none' }}>{t('batch.misc.j_href', 'H기준')}</span>
           </div>
         )
       })()}
@@ -1046,16 +1048,16 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         const applyAnchorXGrad = async () => {
           if (!sceneFile.root) return
           await patchOrdered((n, idx, total) => {
-            const t = total > 1 ? idx / (total - 1) : 0
-            const ax = parseFloat((anchorXFrom + (anchorXTo - anchorXFrom) * t).toFixed(3))
+            const frac = total > 1 ? idx / (total - 1) : 0
+            const ax = parseFloat((anchorXFrom + (anchorXTo - anchorXFrom) * frac).toFixed(3))
             return { ...n, anchor: { x: ax, y: n.anchor?.y ?? 0.5 } }
           }, `anchor.X ${anchorXFrom}→${anchorXTo} (${uuids.length}개)`)
         }
         const applyAnchorYGrad = async () => {
           if (!sceneFile.root) return
           await patchOrdered((n, idx, total) => {
-            const t = total > 1 ? idx / (total - 1) : 0
-            const ay = parseFloat((anchorYFrom + (anchorYTo - anchorYFrom) * t).toFixed(3))
+            const frac = total > 1 ? idx / (total - 1) : 0
+            const ay = parseFloat((anchorYFrom + (anchorYTo - anchorYFrom) * frac).toFixed(3))
             return { ...n, anchor: { x: n.anchor?.x ?? 0.5, y: ay } }
           }, `anchor.Y ${anchorYFrom}→${anchorYTo} (${uuids.length}개)`)
         }
@@ -1064,24 +1066,24 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         return (
           <>
             <div style={{ display: 'flex', gap: 3, marginBottom: 4, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>ancX분배 (R2628)</span>
-              <input type="number" value={anchorXFrom} min={0} max={1} step={0.1} onChange={e => setAnchorXFrom(parseFloat(e.target.value) || 0)} style={niS} title="시작 anchor.x" />
+              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>{t('batch.misc.j_ancxdistrib_r2628', 'ancX분배 (R2628)')}</span>
+              <input type="number" value={anchorXFrom} min={0} max={1} step={0.1} onChange={e => setAnchorXFrom(parseFloat(e.target.value) || 0)} style={niS} title={t('batch.misc.t_start_anchor_x', '시작 anchor.x')} />
               <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-              <input type="number" value={anchorXTo} min={0} max={1} step={0.1} onChange={e => setAnchorXTo(parseFloat(e.target.value) || 0)} style={niS} title="끝 anchor.x" />
+              <input type="number" value={anchorXTo} min={0} max={1} step={0.1} onChange={e => setAnchorXTo(parseFloat(e.target.value) || 0)} style={niS} title={t('batch.misc.t_end_anchor_x', '끝 anchor.x')} />
               <span onClick={applyAnchorXGrad} title={`anchor.X ${anchorXFrom}→${anchorXTo} 균등 분배 (R2628)`} style={btnS}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-              >분배</span>
+              >{t('batch.misc.j_distrib', '분배')}</span>
             </div>
             <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>ancY분배 (R2628)</span>
-              <input type="number" value={anchorYFrom} min={0} max={1} step={0.1} onChange={e => setAnchorYFrom(parseFloat(e.target.value) || 0)} style={niS} title="시작 anchor.y" />
+              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>{t('batch.misc.j_ancydistrib_r2628', 'ancY분배 (R2628)')}</span>
+              <input type="number" value={anchorYFrom} min={0} max={1} step={0.1} onChange={e => setAnchorYFrom(parseFloat(e.target.value) || 0)} style={niS} title={t('batch.misc.t_start_anchor_y', '시작 anchor.y')} />
               <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-              <input type="number" value={anchorYTo} min={0} max={1} step={0.1} onChange={e => setAnchorYTo(parseFloat(e.target.value) || 0)} style={niS} title="끝 anchor.y" />
+              <input type="number" value={anchorYTo} min={0} max={1} step={0.1} onChange={e => setAnchorYTo(parseFloat(e.target.value) || 0)} style={niS} title={t('batch.misc.t_end_anchor_y', '끝 anchor.y')} />
               <span onClick={applyAnchorYGrad} title={`anchor.Y ${anchorYFrom}→${anchorYTo} 균등 분배 (R2628)`} style={btnS}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-              >분배</span>
+              >{t('batch.misc.j_distrib', '분배')}</span>
             </div>
           </>
         )
@@ -1168,9 +1170,9 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
                 setBatchMsg(`✓ 이름 ${names.length}개 복사 (R2580)`)
                 setTimeout(() => setBatchMsg(null), 2000)
               }}
-              title={`선택 노드 이름 목록 복사 (줄바꿈 구분) — R2580`}
+              title={t('batch.misc.t_select_node_name_copy_r2580', '선택 노드 이름 목록 복사 (줄바꿈 구분) — R2580')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none', background: 'rgba(148,163,184,0.05)' }}
-            >📋 이름</span>
+            >{t('batch.misc.j_name', '📋 이름')}</span>
             {/* R2584: 선택 노드 UUID 목록 클립보드 복사 */}
             <span
               onClick={() => {
@@ -1182,7 +1184,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
                 setBatchMsg(`✓ UUID ${uuidList.length}개 복사 (R2584)`)
                 setTimeout(() => setBatchMsg(null), 2000)
               }}
-              title={`선택 노드 UUID 목록 복사 (줄바꿈 구분) — R2584`}
+              title={t('batch.misc.t_select_node_uuid_copy_r2584', '선택 노드 UUID 목록 복사 (줄바꿈 구분) — R2584')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}
             >📋 UUID</span>
           </div>
@@ -1192,7 +1194,7 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
       {sceneFile.root && uuids.length >= 2 && (() => {
         return (
           <div style={{ display: 'flex', gap: 4, marginBottom: 4, paddingLeft: 52, flexWrap: 'wrap' }}>
-            {([{ label: '⊞2열', cols: 2 }, { label: '⊞3열', cols: 3 }, { label: '⊞√N', cols: 0 }] as { label: string; cols: number }[]).map(({ label, cols: colsArg }) => (
+            {([{ label: t('batch.misc.s_2', '⊞2열'), cols: 2 }, { label: t('batch.misc.s_3', '⊞3열'), cols: 3 }, { label: '⊞√N', cols: 0 }] as { label: string; cols: number }[]).map(({ label, cols: colsArg }) => (
               <span
                 key={label}
                 title={`선택 노드를 ${colsArg === 0 ? 'sqrt(N)' : colsArg}열 그리드로 배치 (R2570)`}
@@ -1225,299 +1227,13 @@ export function MiscPlugin({ nodes, sceneFile, saveScene, onMultiSelectChange, o
         )
       })()}
 
-      {/* R2500: 선택 반전 — onMultiSelectChange */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyInvertSelect = () => {
-          if (!sceneFile.root) return
-          const allUuids: string[] = []
-          function collectAll(n: CCSceneNode) { allUuids.push(n.uuid); n.children.forEach(collectAll) }
-          sceneFile.root.children.forEach(collectAll)
-          const inverted = allUuids.filter(u => !uuidSet.has(u))
-          onMultiSelectChange?.(inverted)
-          setBatchMsg(`✓ 선택 반전: ${inverted.length}개 (R2500)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>선택 반전 (R2500)</span>
-            <span onClick={applyInvertSelect} style={mkBtnS('#818cf8')} title="선택 반전 onMultiSelectChange R2500">⊘ 반전</span>
-          </div>
-        )
-      })()}
-
-      {/* R2507: 하위 노드 포함 선택 확장 collectDesc */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyExpandDesc = () => {
-          if (!sceneFile.root) return
-          const expanded = new Set<string>(uuids)
-          function collectDesc(n: CCSceneNode) {
-            if (expanded.has(n.uuid)) {
-              n.children.forEach(function addAll(c: CCSceneNode) { expanded.add(c.uuid); c.children.forEach(addAll) })
-            }
-            n.children.forEach(collectDesc)
-          }
-          collectDesc(sceneFile.root)
-          onMultiSelectChange?.(Array.from(expanded))
-          setBatchMsg(`✓ 하위 노드 포함: ${expanded.size}개 (R2507)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>하위 노드 포함 (R2507)</span>
-            <span onClick={applyExpandDesc} style={mkBtnS('#34d399')} title="collectDesc 하위 노드 포함 선택 확장">⬇+자식</span>
-          </div>
-        )
-      })()}
-
-      {/* R2509: 선택 필터 — 활성 노드만 선택 / 비활성 노드만 선택 */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyFilter = (active: boolean) => {
-          if (!sceneFile.root) return
-          const filtered: string[] = []
-          function walk(n: CCSceneNode) {
-            if (uuidSet.has(n.uuid)) {
-              const isActive = n.active !== false
-              if (active ? isActive : !isActive) filtered.push(n.uuid)
-            }
-            n.children.forEach(walk)
-          }
-          walk(sceneFile.root)
-          onMultiSelectChange?.(filtered)
-          setBatchMsg(`✓ ${active ? '활성' : '비활성'} 필터: ${filtered.length}개 (R2509)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>필터 (R2509)</span>
-            <span onClick={() => applyFilter(true)} style={mkBtnS('#34d399')} title="활성 노드만 선택">활성 노드만 선택</span>
-            <span onClick={() => applyFilter(false)} style={mkBtnS('#f472b6')} title="비활성 노드만 선택">비활성 노드만 선택</span>
-          </div>
-        )
-      })()}
-
-      {/* R2510: 같은 이름 노드 일괄 선택 sameNameUuids */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applySameNameSelect = () => {
-          if (!sceneFile.root) return
-          const selectedNames = new Set<string>()
-          function collectNames(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selectedNames.add(n.name); n.children.forEach(collectNames) }
-          collectNames(sceneFile.root)
-          const sameNameUuids: string[] = []
-          function findSame(n: CCSceneNode) { if (selectedNames.has(n.name)) sameNameUuids.push(n.uuid); n.children.forEach(findSame) }
-          findSame(sceneFile.root)
-          onMultiSelectChange?.(sameNameUuids)
-          setBatchMsg(`✓ 같은 이름 노드 일괄 선택: ${sameNameUuids.length}개 (R2510)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>같은이름 (R2510)</span>
-            <span onClick={applySameNameSelect} style={mkBtnS('#fbbf24')} title="같은 이름 노드 일괄 선택 sameNameUuids R2510">≡이름</span>
-          </div>
-        )
-      })()}
-
-      {/* R2512: JSON 복사 ⎘ JSON */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyJsonCopy = () => {
-          if (!sceneFile.root) return
-          const selected: CCSceneNode[] = []
-          function collect(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selected.push(n); n.children.forEach(collect) }
-          collect(sceneFile.root)
-          const json = JSON.stringify(selected, null, 2)
-          navigator.clipboard.writeText(json).catch(() => {})
-          setBatchMsg(`✓ JSON 복사 ${selected.length}개 (R2512)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>JSON (R2512)</span>
-            <span onClick={applyJsonCopy} style={mkBtnS('#34d399')} title="JSON 복사 R2512">⎘ JSON</span>
-          </div>
-        )
-      })()}
-
-      {/* R2515: 부모 노드 선택 parentOfMap ⬆ 부모 */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyParentSelect = () => {
-          if (!sceneFile.root) return
-          const parentOfMap = new Map<string, string>()
-          function buildParentMap(n: CCSceneNode) {
-            n.children.forEach(c => { parentOfMap.set(c.uuid, n.uuid); buildParentMap(c) })
-          }
-          buildParentMap(sceneFile.root)
-          const parentUuids = new Set<string>()
-          uuids.forEach(u => { const p = parentOfMap.get(u); if (p) parentUuids.add(p) })
-          onMultiSelectChange?.(Array.from(parentUuids))
-          setBatchMsg(`✓ ⬆ 부모 선택: ${parentUuids.size}개 (R2515)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>부모선택 (R2515)</span>
-            <span onClick={applyParentSelect} style={mkBtnS('#818cf8')} title="parentOfMap ⬆ 부모 노드 선택 R2515">⬆ 부모</span>
-          </div>
-        )
-      })()}
-
-      {/* R2522: 직접 자식 선택 collectChildren ⬇ 자식 */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyChildSelect = () => {
-          if (!sceneFile.root) return
-          const childUuids: string[] = []
-          function collectChildren(n: CCSceneNode) {
-            if (uuidSet.has(n.uuid)) n.children.forEach(c => childUuids.push(c.uuid))
-            n.children.forEach(collectChildren)
-          }
-          collectChildren(sceneFile.root)
-          if (childUuids.length > 0) onMultiSelectChange?.(childUuids)
-          setBatchMsg(`✓ ⬇ 자식 선택: ${childUuids.length}개 (R2522)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>자식선택 (R2522)</span>
-            <span onClick={applyChildSelect} style={mkBtnS('#34d399')} title="collectChildren ⬇ 자식 직접 자식 선택 R2522">⬇ 자식</span>
-          </div>
-        )
-      })()}
-
-      {/* R2545: 컴포넌트 타입 필터 coll2545 commonTypes replace('cc.', '') */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const coll2545: CCSceneNode[] = []
-        function collectComp(n: CCSceneNode) { if (uuidSet.has(n.uuid)) coll2545.push(n); n.children.forEach(collectComp) }
-        collectComp(sceneFile.root)
-        const typeCount = new Map<string, number>()
-        coll2545.forEach(n => n.components.forEach(c => typeCount.set(c.type, (typeCount.get(c.type) || 0) + 1)))
-        const commonTypes = Array.from(typeCount.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8)
-        if (commonTypes.length === 0) return null
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>컴프필터 (R2545)</span>
-            {commonTypes.map(([type, cnt]) => (
-              <span key={type} onClick={() => {
-                if (!sceneFile.root) return
-                const filtered: string[] = []
-                function walk(n: CCSceneNode) {
-                  if (n.components.some(c => c.type === type)) filtered.push(n.uuid)
-                  n.children.forEach(walk)
-                }
-                walk(sceneFile.root)
-                onMultiSelectChange?.(filtered)
-                setBatchMsg(`✓ ${type.replace('cc.', '')} 노드 선택: ${filtered.length}개 (R2545)`)
-                setTimeout(() => setBatchMsg(null), 2000)
-              }} style={mkBtnS('#818cf8')} title={`${type} 컴포넌트 보유 노드 선택`}>
-                {type.replace('cc.', '')}({cnt})
-              </span>
-            ))}
-          </div>
-        )
-      })()}
-
-      {/* R2556: 같은 Layer 노드 선택 targetLayer sameLayerUuids findSameLayer */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyLayerSelect = () => {
-          if (!sceneFile.root) return
-          const selectedNodes: CCSceneNode[] = []
-          function collectSel(n: CCSceneNode) { if (uuidSet.has(n.uuid)) selectedNodes.push(n); n.children.forEach(collectSel) }
-          collectSel(sceneFile.root)
-          const targetLayer = selectedNodes[0]?.layer ?? selectedNodes[0]?.group
-          if (targetLayer == null) return
-          const sameLayerUuids: string[] = []
-          function findSameLayer(n: CCSceneNode) {
-            if ((n.layer ?? n.group) === targetLayer) sameLayerUuids.push(n.uuid)
-            n.children.forEach(findSameLayer)
-          }
-          findSameLayer(sceneFile.root)
-          onMultiSelectChange?.(sameLayerUuids)
-          setBatchMsg(`✓ Layer=${targetLayer} 선택: ${sameLayerUuids.length}개 (R2556)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>같은Layer (R2556)</span>
-            <span onClick={applyLayerSelect} style={mkBtnS('#fbbf24')} title="targetLayer sameLayerUuids findSameLayer 같은 Layer 노드 선택 R2556">≡Layer</span>
-          </div>
-        )
-      })()}
-
-      {/* R2635: 선택 홀수/짝수 필터 — 짝수 홀수 i % 2 === 0 */}
-      {sceneFile.root && uuids.length >= 2 && (() => {
-        const applyOddEven = (even: boolean) => {
-          if (!sceneFile.root) return
-          const ordered: string[] = []
-          function collectOrdered(n: CCSceneNode) { if (uuidSet.has(n.uuid)) ordered.push(n.uuid); n.children.forEach(collectOrdered) }
-          collectOrdered(sceneFile.root)
-          const filtered = ordered.filter((_, i) => even ? i % 2 === 0 : i % 2 !== 0)
-          onMultiSelectChange?.(filtered)
-          setBatchMsg(`✓ ${even ? '짝수' : '홀수'} 필터: ${filtered.length}개 (R2635)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>홀짝 (R2635)</span>
-            <span onClick={() => applyOddEven(true)} style={mkBtnS('#818cf8')} title="짝수 인덱스 필터 i % 2 === 0 R2635">짝수</span>
-            <span onClick={() => applyOddEven(false)} style={mkBtnS('#a78bfa')} title="홀수 인덱스 필터 R2635">홀수</span>
-          </div>
-        )
-      })()}
-
-      {/* R2644: 선택 노드 통계 패널 selStats */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const statsNodes: CCSceneNode[] = []
-        function collectStats(n: CCSceneNode) { if (uuidSet.has(n.uuid)) statsNodes.push(n); n.children.forEach(collectStats) }
-        collectStats(sceneFile.root)
-        if (statsNodes.length === 0) return null
-        const xs = statsNodes.map(n => (n.position as { x: number }).x ?? 0)
-        const ys = statsNodes.map(n => (n.position as { y: number }).y ?? 0)
-        const ws = statsNodes.map(n => n.size?.x ?? n.size?.width ?? 0)
-        const hs = statsNodes.map(n => n.size?.y ?? n.size?.height ?? 0)
-        const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length
-        const selStats = {
-          x: { min: Math.min(...xs), max: Math.max(...xs), avg: Math.round(avg(xs)) },
-          y: { min: Math.min(...ys), max: Math.max(...ys), avg: Math.round(avg(ys)) },
-          w: { min: Math.min(...ws), max: Math.max(...ws), avg: Math.round(avg(ws)) },
-          h: { min: Math.min(...hs), max: Math.max(...hs), avg: Math.round(avg(hs)) },
-        }
-        const sS: React.CSSProperties = { fontSize: 8, color: '#94a3b8', fontFamily: 'monospace' }
-        const lS: React.CSSProperties = { fontSize: 8, color: 'var(--text-muted)' }
-        return (
-          <div style={{ marginBottom: 5, padding: '3px 6px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 4 }}>
-            <div style={{ fontSize: 9, color: '#818cf8', fontWeight: 600, marginBottom: 2 }}>📊 통계 (R2644) — {statsNodes.length}개</div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <span style={lS}>X:</span><span style={sS}>{selStats.x.min}~{selStats.x.max} avg={selStats.x.avg}</span>
-              <span style={lS}>Y:</span><span style={sS}>{selStats.y.min}~{selStats.y.max} avg={selStats.y.avg}</span>
-              <span style={lS}>W:</span><span style={sS}>{selStats.w.min}~{selStats.w.max} avg={selStats.w.avg}</span>
-              <span style={lS}>H:</span><span style={sS}>{selStats.h.min}~{selStats.h.max} avg={selStats.h.avg}</span>
-            </div>
-          </div>
-        )
-      })()}
-
-      {/* R2725: BatchInspector 일괄 잠금 lockedUuids onSetLockedUuids */}
-      {sceneFile.root && uuids.length >= 1 && (() => {
-        const applyLock = () => {
-          const newLocked = new Set(lockedUuids ?? [])
-          uuids.forEach(u => newLocked.add(u))
-          onSetLockedUuids?.(() => newLocked)
-          setBatchMsg(`✓ 일괄 잠금 ${uuids.length}개 (R2725)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        const applyUnlock = () => {
-          const newLocked = new Set(lockedUuids ?? [])
-          uuids.forEach(u => newLocked.delete(u))
-          onSetLockedUuids?.(() => newLocked)
-          setBatchMsg(`✓ 일괄 잠금 해제 ${uuids.length}개 (R2725)`)
-          setTimeout(() => setBatchMsg(null), 2000)
-        }
-        return (
-          <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>일괄 잠금 (R2725)</span>
-            <span onClick={applyLock} style={mkBtnS('#f472b6')} title="lockedUuids onSetLockedUuids 일괄 잠금 R2725">🔒 잠금</span>
-            <span onClick={applyUnlock} style={mkBtnS('#34d399')} title="일괄 잠금 해제 R2725">🔓 해제</span>
-          </div>
-        )
-      })()}
+      {/* R2500~R2725: 선택 유틸리티 (misc-selection.tsx로 분리) */}
+      <MiscSelectionTools
+        uuids={uuids} uuidSet={uuidSet} sceneFile={sceneFile}
+        setBatchMsg={setBatchMsg} onMultiSelectChange={onMultiSelectChange}
+        lockedUuids={lockedUuids} onSetLockedUuids={onSetLockedUuids}
+        mkBtnS={mkBtnS}
+      />
     </div>
   )
 }

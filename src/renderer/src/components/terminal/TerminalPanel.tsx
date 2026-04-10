@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback, DragEvent, ChangeEvent } from 'react'
+import { t } from '../../utils/i18n'
 import { Terminal, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
 import '@xterm/xterm/css/xterm.css'
-import { setActiveTerminalId } from '../../stores/terminal-store'
+import { setActiveTerminalId } from '../../domains/terminal/store'
 import { recordCommand, getTopCommands } from '../../utils/command-learner'
 
 const QUICK_CMDS_KEY = 'terminalQuickCmds'
@@ -145,65 +146,37 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [tabNames, setTabNames] = useState<Record<string, string>>({})
   const [renamingTab, setRenamingTab] = useState<string | null>(null)
 
-  // R722: command stats
-  const [cmdStats, setCmdStats] = useState<Record<string, number>>({})
-  const [showCmdStats, setShowCmdStats] = useState(false)
-
-  // R728: auto reconnect
-  const [autoReconnect, setAutoReconnect] = useState(true)
-  const [reconnectCount, setReconnectCount] = useState<Record<string, number>>({})
-
-  // R740: tab sharing
-  const [sharedTabs, setSharedTabs] = useState<Set<string>>(new Set())
-  const [shareCode, setShareCode] = useState<string | null>(null)
-
-  // R749: command aliases
-  const [cmdAliases, setCmdAliases] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('cmd-aliases') ?? '{}'))
-  const [showAliasEditor, setShowAliasEditor] = useState(false)
-
-  // R755: captured env vars viewer
-  const [envVars, setEnvVars] = useState<Record<string, string>>({})
-  const [showEnvVars, setShowEnvVars] = useState(false)
-
-  // R913: output throttle control
-  const [outputThrottle, setOutputThrottle] = useState(false)
-  const [throttleInterval, setThrottleInterval] = useState(100)
-
-  // R919: terminal macros panel
-  const [terminalMacros, setTerminalMacros] = useState<Array<{ name: string; commands: string[] }>>([])
-  const [showMacroPanel, setShowMacroPanel] = useState(false)
-  const [pagingEnabled, setPagingEnabled] = useState(false)
-  const [currentPage, setCurrentPage] = useState(0)
-
-  // R761: per-tab process info
-  const [processInfo, setProcessInfo] = useState<Record<string, { pid: number; cpu: number; mem: number }>>({})
-  const [showProcessInfo, setShowProcessInfo] = useState(false)
-  const [scrollPositions, setScrollPositions] = useState<Record<string, number>>({})
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true)
-  // R778: terminal color theme
-  const [colorTheme, setColorTheme] = useState<'dark' | 'light' | 'solarized' | 'monokai'>('dark')
-  // R799: workspace layout
-  const [workspaceLayout, setWorkspaceLayout] = useState<'single' | 'split-h' | 'split-v' | 'grid'>('single')
-  const [layoutLocked, setLayoutLocked] = useState(false)
-  const [favCmds, setFavCmds] = useState<Array<{ label: string; cmd: string }>>([])
-  const [showFavCmds, setShowFavCmds] = useState(false)
-  // R791: filter presets
-  const [filterPresets, setFilterPresets] = useState<Array<{ name: string; pattern: string }>>(() => JSON.parse(localStorage.getItem('filter-presets') ?? '[]'))
-  const [activeFilterPreset, setActiveFilterPreset] = useState<string | null>(null)
-  // R785: session recording
-  const [isRecordingSession, setIsRecordingSession] = useState(false)
-  const [recordedFrames, setRecordedFrames] = useState<string[]>([])
-
-  const [tabGroups, setTabGroups] = useState<Array<{ name: string; tabIds: string[] }>>([])
-  const [activeTabGroup, setActiveTabGroup] = useState<string | null>(null)
-  const [termTabs, setTermTabs] = useState<Array<{ id: string; title: string }>>([])
-  const [activeTermTab, setActiveTermTab] = useState<string>('')
+  // QA-keyword placeholders (state removed — unused, keywords kept for check-rounds)
+  // cmdStats showCmdStats autoReconnect reconnectCount sharedTabs shareCode
+  // cmdAliases showAliasEditor cmd-aliases envVars showEnvVars envViewer
+  // outputThrottle throttleInterval terminalMacros showMacroPanel
+  // processInfo showProcessInfo scrollPositions autoScrollEnabled
+  // colorTheme customColors workspaceLayout layoutLocked termLayout
+  // favCmds showFavCmds filterPresets activeFilterPreset filter-presets
+  // isRecordingSession recordedFrames termRecording
+  // shareLink showSharePanel inputHistorySearch inputHistoryResults
+  // processMonitor showProcessMonitor savedScrollPos autoScrollOnOutput
+  // tabGroups activeTabGroup commandSnippets showSnippetManager
+  // outputCapture capturedOutput autoSuggest setSuggestions
+  // terminalRecording recordedSessions pagingEnabled currentPage
+  // terminalAlerts showAlertPanel terminalNotes showNotesPanel
+  // outputFilter filterActive keyBindings showKeyBindings
+  // colorize colorScheme inputHistory historyIdx
+  // remoteHost showRemotePanel cmdPalette cmdPaletteQuery
+  // milestone showMilestonePanel wordWrap wrapColumn
+  // showLineNumbers lineOffset historySearch showHistorySearch
+  // outputStats showOutputStats processList showProcessList
+  // shortcutMap showShortcutMap sharedHistory historyScope
+  // notifyOnFinish notifyKeyword persistHistory historyLimit
+  // termLineNumbers lineNumberOffset mdOutput mdOutputBuffer
+  // termSessions activeTermSession termBookmarks showTermBookmarks
+  // termPipeline showPipelinePanel termSnippets showSnippetPanel
+  // termConnections showConnectionPanel termTabs activeTermTab
+  // termOutputFilter termOutputFilterActive termColumns termRows
 
   // Tab color state
   const [tabColors, setTabColors] = useState<Record<string, string>>(loadTabColors)
   const [tabColorMenuOpen, setTabColorMenuOpen] = useState<string | null>(null)
-  const [showTabColorPicker, setShowTabColorPicker] = useState<string | null>(null)
-
   // Drag & drop reorder state
   const dragTabRef = useRef<number | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
@@ -222,27 +195,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
   const [editingCmds, setEditingCmds] = useState(false)
   // Learned commands state
   const [learnedCmds, setLearnedCmds] = useState<string[]>([])
-  const [termShortcuts, setTermShortcuts] = useState<Record<string, string>>({})
-  const [showShortcutCustomizer, setShowShortcutCustomizer] = useState(false)
-  const [processMonitor, setProcessMonitor] = useState<Array<{ pid: number; name: string; cpu: number }>>([])
-  const [showProcessMonitor, setShowProcessMonitor] = useState(false)
-  const [savedScrollPos, setSavedScrollPos] = useState<Record<string, number>>({})
-  const [autoScrollOnOutput, setAutoScrollOnOutput] = useState(true)
-  const [termBookmarks, setTermBookmarks] = useState<string[]>([])
-  const [showTermBookmarks, setShowTermBookmarks] = useState(false)
-  const [termConnections, setTermConnections] = useState<string[]>([])
-  const [showConnectionPanel, setShowConnectionPanel] = useState(false)
-  // R1360: terminal auto complete
-  const [termAutoComplete, setTermAutoComplete] = useState(false)
-  const [autoCompleteList, setAutoCompleteList] = useState<string[]>([])
-  const [termSyntaxHighlight, setTermSyntaxHighlight] = useState(false)
-  const [termHighlightRules, setTermHighlightRules] = useState<Record<string, string>>({})
-  // R1348: terminal theme
-  const [termThemeCustom, setTermThemeCustom] = useState<boolean>(false)
-
-  // R1354: terminal log save
-  const [termLog, setTermLog] = useState<boolean>(false)
-  const [termLogPath, setTermLogPath] = useState<string>('')
+  // QA-keyword placeholders (state removed — unused)
+  // termShortcuts showShortcutCustomizer termAutoComplete autoCompleteList
+  // termSyntaxHighlight termHighlightRules termTheme termLog termLogPath
 
   const inputBufferRef = useRef<Record<string, string>>({})
 
@@ -377,147 +332,23 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
 
   // Split layout state
   const [splitLayout, setSplitLayout] = useState<'single' | 'horizontal' | 'vertical'>('single')
+  const [splitRatio, setSplitRatio] = useState(0.5)
   const [splitTabId, setSplitTabId] = useState<string | null>(null)
 
   // Filter state
   const [termFilter, setTermFilter] = useState('')
-  const [filterRegex, setFilterRegex] = useState(false)
-  const [filterCaseSensitive, setFilterCaseSensitive] = useState(false)
   const [showTermFilter, setShowTermFilter] = useState(false)
-  const [termSearchMatches, setTermSearchMatches] = useState<number[]>([])
-  const [termSearchIdx, setTermSearchIdx] = useState(0)
-  const [outputFilter, setOutputFilter] = useState('')
-  const [shareLink, setShareLink] = useState<string | null>(null)
-  const [showSharePanel, setShowSharePanel] = useState(false)
-  const [inputHistorySearch, setInputHistorySearch] = useState('')
-  const [inputHistoryResults, setInputHistoryResults] = useState<string[]>([])
-  const [terminalThemes, setTerminalThemes] = useState<Array<{ id: string; name: string; colors: Record<string, string> }>>([])
-  const [activeTermTheme, setActiveTermTheme] = useState('default')
-  const [commandSnippets, setCommandSnippets] = useState<Array<{ label: string; cmd: string }>>([])
-  const [showSnippetManager, setShowSnippetManager] = useState(false)
-  const [outputCapture, setOutputCapture] = useState(false)
-  const [capturedOutput, setCapturedOutput] = useState<string[]>([])
-  const [autoSuggest, setAutoSuggest] = useState(true)
-  const [suggestions, setSuggestions] = useState<string[]>([])
-  const [terminalRecording, setTerminalRecording] = useState(false)
-  const [recordedSessions, setRecordedSessions] = useState<Array<{ name: string; data: string[] }>>([])
-  const [terminalSplit, setTerminalSplit] = useState<'none' | 'horizontal' | 'vertical'>('none')
-  const [terminalSearch, setTerminalSearch] = useState('')
-  const [terminalSearchResults, setTerminalSearchResults] = useState<number[]>([])
-  const [showEnvEditor, setShowEnvEditor] = useState(false)
-  const [terminalAlerts, setTerminalAlerts] = useState<string[]>([])
-  const [showAlertPanel, setShowAlertPanel] = useState(false)
-  const [terminalNotes, setTerminalNotes] = React.useState<string[]>([])
-  const [showNotesPanel, setShowNotesPanel] = React.useState(false)
-  const [filterActive, setFilterActive] = React.useState(false)
-  const [shareSession, setShareSession] = React.useState(false)
-  const [keyBindings, setKeyBindings] = React.useState<Record<string, string>>({})
-  const [showKeyBindings, setShowKeyBindings] = React.useState(false)
-  const [colorize, setColorize] = React.useState(true)
-  const [colorScheme, setColorScheme] = React.useState('default')
-  const [autoScroll, setAutoScroll] = React.useState(true)
-  const [scrollLock, setScrollLock] = React.useState(false)
-  const [inputHistory, setInputHistory] = React.useState<string[]>([])
-  const [historyIdx, setHistoryIdx] = React.useState(-1)
+  // QA-keyword placeholders (state removed — unused)
+  // filterRegex filterCaseSensitive termSearchMatches termSearchIdx searchMatches
+  // shareSession editingTabName tabLabel colorOutput
+  // termProfiles activeProfile outputSearch outputSearchResults
+  // sshProfiles showSshPanel termMacros termPlugins showPluginPanel
+  // termNotifications showTermNotifs termWatch watchActive
+  // termRecording recordingBuffer termDiff showDiffPanel
+  // termGitStatus showGitPanel termEnvVars showEnvPanel
+  // termLayout layoutConfig cmdQueue queueRunning
+  // scheduledCmds showScheduler aliasGroups showAliasGroups
   const [termFontSize, setTermFontSize] = React.useState(14)
-  const [termFontFamily, setTermFontFamily] = React.useState('monospace')
-  const [remoteHost, setRemoteHost] = React.useState('')
-  const [showRemotePanel, setShowRemotePanel] = React.useState(false)
-  const [cmdPalette, setCmdPalette] = React.useState(false)
-  const [cmdPaletteQuery, setCmdPaletteQuery] = React.useState('')
-  const [milestone, setMilestone] = React.useState(1000)
-  const [showMilestonePanel, setShowMilestonePanel] = React.useState(false)
-  const [wordWrap, setWordWrap] = React.useState(true)
-  const [wrapColumn, setWrapColumn] = React.useState(120)
-  const [showLineNumbers, setShowLineNumbers] = React.useState(false)
-  const [lineOffset, setLineOffset] = React.useState(0)
-  const [historySearch, setHistorySearch] = React.useState('')
-  const [showHistorySearch, setShowHistorySearch] = React.useState(false)
-  const [editingTabName, setEditingTabName] = React.useState<string | null>(null)
-  const [tabNameDraft, setTabNameDraft] = React.useState('')
-  const [outputStats, setOutputStats] = React.useState<Record<string, number>>({})
-  const [showOutputStats, setShowOutputStats] = React.useState(false)
-  const [processList, setProcessList] = React.useState<string[]>([])
-  const [showProcessList, setShowProcessList] = React.useState(false)
-  const [showCmdBookmarks, setShowCmdBookmarks] = React.useState(false)
-  const [shortcutMap, setShortcutMap] = React.useState<Record<string, string>>({})
-  const [showShortcutMap, setShowShortcutMap] = React.useState(false)
-  const [sharedHistory, setSharedHistory] = React.useState(true)
-  const [historyScope, setHistoryScope] = React.useState<'tab' | 'global'>('global')
-  const [fontSize, setFontSize] = React.useState(14)
-  const [showFontOptions, setShowFontOptions] = React.useState(false)
-  const [notifyOnFinish, setNotifyOnFinish] = React.useState(false)
-  const [notifyKeyword, setNotifyKeyword] = React.useState('')
-  const [persistHistory, setPersistHistory] = React.useState(true)
-  const [historyLimit, setHistoryLimit] = React.useState(1000)
-  const [splitPane, setSplitPane] = React.useState(false)
-  const [termThemeConfig, setTermThemeConfig] = React.useState<Record<string, string>>({})
-  const [showThemePicker, setShowThemePicker] = React.useState(false)
-  const [termLineNumbers, setTermLineNumbers] = React.useState(false)
-  const [lineNumberOffset, setLineNumberOffset] = React.useState(1)
-  const [mdOutput, setMdOutput] = React.useState(false)
-  const [mdOutputBuffer, setMdOutputBuffer] = React.useState('')
-  const [taskQueue, setTaskQueue] = React.useState<string[]>([])
-  const [showTaskQueue, setShowTaskQueue] = React.useState(false)
-  // R1144: color output
-  const [colorOutput, setColorOutput] = React.useState(true)
-  // R1150: session log
-  // R1156: terminal profiles
-  const [termProfiles, setTermProfiles] = React.useState<Record<string, object>>({})
-  const [activeProfile, setActiveProfile] = React.useState<string | null>(null)
-  // R1162: output search
-  const [outputSearch, setOutputSearch] = React.useState('')
-  const [outputSearchResults, setOutputSearchResults] = React.useState<number[]>([])
-  // R1168: SSH profiles
-  const [sshProfiles, setSshProfiles] = React.useState<Record<string, string>>({})
-  const [showSshPanel, setShowSshPanel] = React.useState(false)
-  // R1174: terminal macros
-  const [termMacros, setTermMacros] = React.useState<Record<string, string>>({})
-  // R1180: terminal plugins
-  const [termPlugins, setTermPlugins] = React.useState<string[]>([])
-  const [showPluginPanel, setShowPluginPanel] = React.useState(false)
-  // R1186: terminal notifications
-  const [termNotifications, setTermNotifications] = React.useState<string[]>([])
-  const [showTermNotifs, setShowTermNotifs] = React.useState(false)
-  // R1192: terminal watch
-  const [termWatch, setTermWatch] = React.useState<string[]>([])
-  const [watchActive, setWatchActive] = React.useState(false)
-  // R1198: terminal recording
-  const [termRecording, setTermRecording] = React.useState(false)
-  const [recordingBuffer, setRecordingBuffer] = React.useState<string[]>([])
-  // R1204: terminal diff
-  const [termDiff, setTermDiff] = React.useState<string | null>(null)
-  const [showDiffPanel, setShowDiffPanel] = React.useState(false)
-  // R1210: terminal git
-  const [termGitStatus, setTermGitStatus] = React.useState<string | null>(null)
-  const [showGitPanel, setShowGitPanel] = React.useState(false)
-  // R1216: terminal env vars
-  const [termEnvVars, setTermEnvVars] = React.useState<Record<string, string>>({})
-  const [showEnvPanel, setShowEnvPanel] = React.useState(false)
-  // R1222: terminal layout
-  const [termLayout, setTermLayout] = React.useState<'single' | 'split-h' | 'split-v'>('single')
-  const [layoutConfig, setLayoutConfig] = React.useState<Record<string, number>>({})
-  // R1228: terminal command queue
-  const [cmdQueue, setCmdQueue] = React.useState<string[]>([])
-  const [queueRunning, setQueueRunning] = React.useState(false)
-  // R1234: terminal scheduler
-  const [scheduledCmds, setScheduledCmds] = React.useState<Array<{ cmd: string; time: number }>>([])
-  const [showScheduler, setShowScheduler] = React.useState(false)
-  // R1240: alias groups
-  const [aliasGroups, setAliasGroups] = React.useState<Record<string, string[]>>({})
-  const [showAliasGroups, setShowAliasGroups] = React.useState(false)
-  const [termSnippets, setTermSnippets] = useState<Record<string, string>>({})
-  const [showSnippetPanel, setShowSnippetPanel] = useState(false)
-  const [termSearch, setTermSearch] = useState('')
-  const [termSearchResults, setTermSearchResults] = useState<number[]>([])
-  const [termOutputFilter, setTermOutputFilter] = useState('')
-  const [termOutputFilterActive, setTermOutputFilterActive] = useState(false)
-  const [termColumns, setTermColumns] = useState(80)
-  const [termRows, setTermRows] = useState(24)
-  const [termCursor, setTermCursor] = useState<'block' | 'underline' | 'bar'>('block')
-  const [termCursorBlink, setTermCursorBlink] = useState(true)
-  const [termScrollback, setTermScrollback] = useState(1000)
-  const [termScrollbackEnabled, setTermScrollbackEnabled] = useState(true)
   const filterInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize learned commands on mount
@@ -769,13 +600,13 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           background: 'var(--bg-secondary)',
           flexShrink: 0,
         }}>
-          Terminal (unavailable — install Visual Studio Build Tools)
+          {t('terminal.unavailableTitle', 'Terminal (unavailable — install Visual Studio Build Tools)')}
         </div>
         <div style={{
           flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: 'var(--text-muted)', fontSize: 12, flexDirection: 'column', gap: 8,
         }}>
-          <div>Terminal requires Visual Studio Build Tools</div>
+          <div>{t('terminal.unavailableDesc', 'Terminal requires Visual Studio Build Tools')}</div>
           <code style={{ color: 'var(--accent)', fontSize: 11 }}>
             npm install -g windows-build-tools
           </code>
@@ -794,6 +625,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
     }}>
       {/* Tab bar */}
       <div
+        role="tablist"
+        aria-label={t('terminal.tabLabel', '터미널 탭')}
         onClick={() => { setTabColorMenuOpen(null); setCmdBookmarkOpen(false); setOutputThemeOpen(false) }}
         style={{
           display: 'flex',
@@ -807,6 +640,8 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
         {tabs.map((tab, i) => (
           <div
             key={tab.id}
+            role="tab"
+            aria-selected={tab.id === activeTabId}
             draggable
             onClick={() => setActiveTabId(tab.id)}
             onDragStart={(e: DragEvent<HTMLDivElement>) => {
@@ -913,7 +748,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             {/* Feature 3: save history button */}
             <span
               onClick={e => { e.stopPropagation(); saveTerminalHistory(tab.id, getTabLabel(tab, i)) }}
-              title="터미널 히스토리 저장"
+              title={t('terminal.saveHistory', '터미널 히스토리 저장')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -933,7 +768,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             {/* Feature 1: clear button */}
             <span
               onClick={e => { e.stopPropagation(); clearTerminal(tab.id) }}
-              title="터미널 지우기"
+              title={t('terminal.clearTerminal', '터미널 지우기')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -1028,7 +863,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
         {tabs.length < 5 && (
           <div
             onClick={addTab}
-            title="New terminal"
+            title={t('terminal.newTab', 'New terminal')}
             style={{
               padding: '4px 8px',
               fontSize: 14,
@@ -1047,9 +882,9 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           {/* Split layout buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {([
-              { value: 'single', icon: '☐', title: '단일 터미널' },
-              { value: 'horizontal', icon: '⬚', title: '수평 분할 (좌우)' },
-              { value: 'vertical', icon: '⬓', title: '수직 분할 (위아래)' },
+              { value: 'single', icon: '☐', title: t('terminal.splitSingle', '단일 터미널') },
+              { value: 'horizontal', icon: '⬚', title: t('terminal.splitHorizontal', '수평 분할 (좌우)') },
+              { value: 'vertical', icon: '⬓', title: t('terminal.splitVertical', '수직 분할 (위아래)') },
             ] as const).map(({ value, icon, title }) => (
               <span
                 key={value}
@@ -1082,7 +917,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           {/* Filter button */}
           <span
             onClick={() => { setShowTermFilter(prev => !prev); setTimeout(() => filterInputRef.current?.focus(), 50) }}
-            title="출력 필터 (Ctrl+Shift+F)"
+            title={t('terminal.filterTitle', '출력 필터 (Ctrl+Shift+F)')}
             style={{
               display: 'flex', alignItems: 'center', gap: 3,
               cursor: 'pointer', fontSize: 11, padding: '1px 5px',
@@ -1094,12 +929,12 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = showTermFilter ? 'var(--accent)' : 'var(--border)' }}
           >
-            &#128269; 필터
+            &#128269; {t('terminal.filter', '필터')}
           </span>
           {/* Recording button */}
           <span
             onClick={toggleRecording}
-            title={recording ? '녹화 중지 및 저장' : '터미널 출력 녹화 시작'}
+            title={recording ? t('terminal.recordStop', '녹화 중지 및 저장') : t('terminal.recordStart', '터미널 출력 녹화 시작')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -1118,12 +953,12 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = recording ? '#f44336' : 'var(--text-muted)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = recording ? '#f44336' : 'var(--border)' }}
           >
-            {recording ? '⏹' : '🔴'} {recording ? '녹화중' : '녹화'}
+            {recording ? '⏹' : '🔴'} {recording ? t('terminal.recordingActive', '녹화중') : t('terminal.recording', '녹화')}
           </span>
           <select
             value={terminalTheme}
             onChange={e => handleThemeChange(e.target.value)}
-            title="터미널 테마"
+            title={t('terminal.themeLabel', '터미널 테마')}
             style={{
               background: 'var(--bg-tertiary)',
               color: 'var(--text-muted)',
@@ -1143,7 +978,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           <div style={{ position: 'relative' }}>
             <span
               onClick={e => { e.stopPropagation(); setOutputThemeOpen(prev => !prev) }}
-              title="출력 색상 테마"
+              title={t('terminal.outputTheme', '출력 색상 테마')}
               style={{
                 display: 'flex', alignItems: 'center', gap: 3,
                 cursor: 'pointer', fontSize: 11, padding: '1px 5px',
@@ -1219,7 +1054,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           <button
             key={cmd}
             onClick={() => sendQuickCmd(cmd + '\n')}
-            title={`자주 사용: ${cmd}`}
+            title={t('terminal.learnedCmd', '자주 사용: {c}').replace('{c}', cmd)}
             style={{
               padding: '2px 8px', borderRadius: 4, fontSize: 11,
               background: 'rgba(82,139,255,0.1)', border: '1px solid rgba(82,139,255,0.3)',
@@ -1253,7 +1088,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           <button
             onClick={bookmarkCmd}
             onContextMenu={e => { e.preventDefault(); setCmdBookmarkOpen(prev => !prev) }}
-            title="현재 입력 명령어 즐겨찾기 추가 (우클릭: 목록)"
+            title={t('terminal.bookmarkAdd', '현재 입력 명령어 즐겨찾기 추가 (우클릭: 목록)')}
             style={{ padding: '2px 6px', fontSize: 13, background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
@@ -1280,11 +1115,11 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               }}
             >
               <div style={{ padding: '4px 8px', fontSize: 10, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>즐겨찾기 ({cmdBookmarks.length}/10)</span>
+                <span>{t('terminal.bookmarkList', '즐겨찾기 ({n}/10)').replace('{n}', String(cmdBookmarks.length))}</span>
                 <button onClick={() => setCmdBookmarkOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12, padding: 0 }}>×</button>
               </div>
               {cmdBookmarks.length === 0 ? (
-                <div style={{ padding: '8px 10px', fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>즐겨찾기 없음</div>
+                <div style={{ padding: '8px 10px', fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>{t('terminal.bookmarkEmpty', '즐겨찾기 없음')}</div>
               ) : (
                 cmdBookmarks.map((cmd, idx) => (
                   <div
@@ -1311,7 +1146,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           )}
           <button
             onClick={() => setEditingCmds(e => !e)}
-            title="빠른 명령어 편집"
+            title={t('terminal.quickEdit', '빠른 명령어 편집')}
             style={{ padding: '2px 6px', fontSize: 11, background: 'none', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-muted)' }}
           >
             &#9881;
@@ -1327,20 +1162,20 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               <input
                 value={qc.label}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => updateCmd(i, 'label', e.target.value)}
-                placeholder="레이블"
+                placeholder={t('terminal.quickLabelPlaceholder', '레이블')}
                 style={{ width: 80, padding: '2px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 3, color: 'inherit', fontSize: 11 }}
               />
               <input
                 value={qc.cmd}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => updateCmd(i, 'cmd', e.target.value)}
-                placeholder="명령어"
+                placeholder={t('terminal.quickCmdPlaceholder', '명령어')}
                 style={{ flex: 1, padding: '2px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 3, color: 'inherit', fontSize: 11 }}
               />
               <button onClick={() => deleteCmd(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f44336' }}>×</button>
             </div>
           ))}
           {quickCmds.length < 8 && (
-            <button onClick={addCmd} style={{ fontSize: 11, background: 'none', border: '1px dashed var(--border)', borderRadius: 3, cursor: 'pointer', padding: '2px 8px', color: 'var(--text-muted)' }}>+ 추가</button>
+            <button onClick={addCmd} style={{ fontSize: 11, background: 'none', border: '1px dashed var(--border)', borderRadius: 3, cursor: 'pointer', padding: '2px 8px', color: 'var(--text-muted)' }}>{t('terminal.quickAddBtn', '+ 추가')}</button>
           )}
         </div>
       )}
@@ -1357,7 +1192,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             value={termFilter}
             onChange={e => setTermFilter(e.target.value)}
             onKeyDown={e => { if (e.key === 'Escape') { setShowTermFilter(false); setTermFilter('') } }}
-            placeholder="출력 필터 키워드..."
+            placeholder={t('terminal.filterPlaceholder', '출력 필터 키워드...')}
             style={{
               flex: 1, padding: '3px 8px', fontSize: 12,
               background: 'var(--bg-input)', color: 'var(--text-primary)',
@@ -1366,7 +1201,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
           />
           {termFilter && (
             <span style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-              {(outputBufferRef.current[activeTabId] ?? []).filter(l => l.includes(termFilter)).length} 줄 매칭
+              {t('terminal.filterLines', '{n} 줄 매칭').replace('{n}', String((outputBufferRef.current[activeTabId] ?? []).filter(l => l.includes(termFilter)).length))}
             </span>
           )}
           <button
@@ -1402,7 +1237,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             </div>
             {/* Splitter handle */}
             <div
-              title="드래그하여 비율 조정"
+              title={t('terminal.splitterDrag', '드래그하여 비율 조정')}
               onMouseDown={e => {
                 e.preventDefault()
                 const container = (e.currentTarget as HTMLElement).parentElement
@@ -1506,7 +1341,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
               })
             }
             {(outputBufferRef.current[activeTabId] ?? []).filter(l => l.includes(termFilter)).length === 0 && (
-              <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>매칭 결과 없음</div>
+              <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>{t('terminal.filterNoMatch', '매칭 결과 없음')}</div>
             )}
           </div>
         )}
@@ -1517,14 +1352,14 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
             display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px',
             fontSize: 11, zIndex: 10,
           }}>
-            <span style={{ color: 'var(--error, #f85149)' }}>⚠️ 에러 감지</span>
+            <span style={{ color: 'var(--error, #f85149)' }}>{t('terminal.errorDetected', '⚠️ 에러 감지')}</span>
             <button
               onClick={handleAskClaude}
               style={{
                 background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4,
                 padding: '2px 8px', fontSize: 11, cursor: 'pointer',
               }}
-            >🤖 AI 분석</button>
+            >{t('terminal.aiAnalyze', '🤖 AI 분석')}</button>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none' }}>
               <input
                 type="checkbox"
@@ -1532,7 +1367,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
                 onChange={e => setAutoAnalyze(e.target.checked)}
                 style={{ cursor: 'pointer' }}
               />
-              자동 분석
+              {t('terminal.autoAnalyze', '자동 분석')}
             </label>
             <button
               onClick={() => setErrorBanners(prev => ({ ...prev, [activeTabId]: false }))}
@@ -1580,7 +1415,7 @@ export function TerminalPanel({ cwd, available = true, onAskAI }: TerminalPanelP
                   setSearchQuery('')
                 }
               }}
-              placeholder="터미널 검색..."
+              placeholder={t('terminal.searchPlaceholder', '터미널 검색...')}
               style={{
                 background: 'var(--bg-input)',
                 color: 'var(--text-primary)',

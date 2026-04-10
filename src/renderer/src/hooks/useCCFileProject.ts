@@ -30,6 +30,9 @@ export function useCCFileProject() {
   const suppressWatchRef = useRef(false)
   const undoStackRef = useRef<CCSceneNode[]>([])
   const redoStackRef = useRef<CCSceneNode[]>([])
+  // 저장 큐 — 동시 실행 방지
+  const savingRef = useRef(false)
+  const pendingSaveRef = useRef<CCSceneNode | null>(null)
 
   /** 폴더 선택 다이얼로그로 프로젝트 열기 */
   const openProject = useCallback(async () => {
@@ -114,7 +117,14 @@ export function useCCFileProject() {
       setLoading(true)
       setError(null)
       try {
-        const result = await window.api.ccFileReadScene?.(scenePath, projectInfo)
+        // 30초 타임아웃 — 대형 씬 파싱 시 무한 대기 방지
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('씬 파일 로드 타임아웃 (30초)')), 30000)
+        )
+        const result = await Promise.race([
+          window.api.ccFileReadScene?.(scenePath, projectInfo),
+          timeoutPromise,
+        ])
         if (!result) {
           setError('씬 파일 로드 실패')
         } else if ('error' in result) {
@@ -134,33 +144,48 @@ export function useCCFileProject() {
   // R1437: 충돌 상태
   const [conflictInfo, setConflictInfo] = useState<{ root: CCSceneNode } | null>(null)
 
-  /** 내부 저장 + 재로드 (히스토리 스택 없이) */
+  /** 내부 저장 + 재로드 (히스토리 스택 없이, 직렬화 포함) */
   const _saveRaw = useCallback(async (root: CCSceneNode): Promise<{ success: boolean; error?: string; conflict?: boolean }> => {
-    const sf = sceneFileRef.current
-    const pi = projectInfoRef.current
-    if (!sf) return { success: false, error: '씬 파일이 로드되지 않았습니다.' }
+    if (savingRef.current) {
+      pendingSaveRef.current = root
+      return { success: true } // 큐에 등록됨
+    }
+    savingRef.current = true
+    let result: { success: boolean; error?: string; conflict?: boolean } = { success: false, error: 'API 없음' }
     try {
+      const sf = sceneFileRef.current
+      const pi = projectInfoRef.current
+      if (!sf) { result = { success: false, error: '씬 파일이 로드되지 않았습니다.' }; return result }
       suppressWatchRef.current = true
-      const result = await window.api.ccFileSaveScene?.(sf, root)
+      const res = await window.api.ccFileSaveScene?.(sf, root)
       // R1437: 충돌 감지
-      if (result?.conflict) {
+      if (res?.conflict) {
         suppressWatchRef.current = false
         setConflictInfo({ root })
-        return { success: false, conflict: true, error: result.error ?? '파일이 외부에서 변경되었습니다.' }
+        result = { success: false, conflict: true, error: res.error ?? '파일이 외부에서 변경되었습니다.' }
+        return result
       }
-      if (result?.success && pi) {
+      if (res?.success && pi) {
         const fresh = await window.api.ccFileReadScene?.(sf.scenePath, pi)
         if (fresh && !('error' in fresh)) setSceneFile(fresh)
-        // CC 에디터가 실행 중이면 씬 리로드 시도 (실패 무시)
         if (pi.port) window.api.ccReloadScene?.(pi.port).catch(() => {})
       } else {
         suppressWatchRef.current = false
       }
       setConflictInfo(null)
-      return result ?? { success: false, error: 'API 없음' }
+      result = res ?? { success: false, error: 'API 없음' }
+      return result
     } catch (e) {
       suppressWatchRef.current = false
-      return { success: false, error: String(e) }
+      result = { success: false, error: String(e) }
+      return result
+    } finally {
+      savingRef.current = false
+      if (pendingSaveRef.current) {
+        const next = pendingSaveRef.current
+        pendingSaveRef.current = null
+        _saveRaw(next) // 큐에 있던 최신 요청 실행 (await 불필요)
+      }
     }
   }, [])
 

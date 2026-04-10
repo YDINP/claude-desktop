@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
-import type { ToolUseItem } from '../../stores/chat-store'
+import type { ToolUseItem } from '../../domains/chat'
 
 interface OpsFeedProps {
   toolUses?: ToolUseItem[]

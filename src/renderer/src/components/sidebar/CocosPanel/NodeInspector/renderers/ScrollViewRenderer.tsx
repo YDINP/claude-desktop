@@ -12,7 +12,7 @@ function findContentNode(n: CCSceneNode): CCSceneNode | null {
 }
 
 /** cc.PageView, cc.PageViewIndicator, cc.ScrollView, cc.Scrollbar Quick Edit renderer */
-export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x, saveScene }: RendererPropsWithSave): React.ReactElement | null {
+function ScrollViewRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x, saveScene }: RendererPropsWithSave): React.ReactElement | null {
   const contentNode = useMemo(() => comp.type === 'cc.ScrollView' ? findContentNode(draft) : null, [comp.type, draft])
             const p = comp.props
             if (comp.type === 'cc.PageView') {
@@ -490,3 +490,4 @@ export function ScrollViewRenderer({ comp, draft, applyAndSave, sceneFile, origI
             // R1556: cc.TiledMap / cc.TiledLayer Quick Edit
             return null
 }
+export const ScrollViewRenderer = React.memo(ScrollViewRendererInner)

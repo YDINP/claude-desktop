@@ -2,7 +2,7 @@ import React from 'react'
 import type { RendererProps } from './types'
 
 /** cc.Animation, cc.SkeletalAnimation, dragonBones.ArmatureDisplay, sp.Skeleton Quick Edit renderer */
-export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function AnimationRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Animation') {
               const clips = (p._resolvedClips as Array<{ name: string }> | undefined) ?? []
@@ -413,3 +413,4 @@ export function AnimationRenderer({ comp, draft, applyAndSave, sceneFile, origId
             // R2416: cc.BlockInputEvents — enabled 퀵 편집
             return null
 }
+export const AnimationRenderer = React.memo(AnimationRendererInner)

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { aguiSubscribe } from '../../utils/agui-store'
 import type { AguiRun } from '../../utils/agui-store'
+import { t } from '../../utils/i18n'
 
 function fmtMs(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -51,20 +52,20 @@ function RunCard({ run }: { run: AguiRun }) {
           <button
             onClick={copyLog}
             title="런 로그 복사"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', fontSize: 10, color: logCopied ? '#4caf50' : 'var(--border)' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', fontSize: 10, color: logCopied ? 'var(--success-bright)' : 'var(--border)' }}
           >{logCopied ? '✓' : '📋'}</button>
         </span>
       </div>
       {expanded && (
         <div style={{ padding: '0 10px 8px' }}>
           {run.steps.length === 0 ? (
-            <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>도구 호출 없음</div>
+            <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>{t('run.noTools', '도구 호출 없음')}</div>
           ) : run.steps.map(step => (
             <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0' }}>
-              <span style={{ color: step.status === 'done' ? '#4ade80' : step.status === 'error' ? '#f87171' : '#60a5fa', fontSize: 11 }}>
+              <span style={{ color: step.status === 'done' ? '#4ade80' : step.status === 'error' ? 'var(--error)' : '#60a5fa', fontSize: 11 }}>
                 {step.status === 'running' ? '⟳' : step.status === 'done' ? '✓' : '✗'}
               </span>
-              <span style={{ flex: 1, color: step.status === 'error' ? '#f87171' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ flex: 1, color: step.status === 'error' ? 'var(--error)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {step.name}
               </span>
               {step.finishedAt && (
@@ -119,7 +120,7 @@ export function RunTimeline() {
                   })
                 }}
                 title="전체 런 요약 복사"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: allCopied ? '#4caf50' : 'var(--text-muted)', fontSize: 10, padding: '0 2px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: allCopied ? 'var(--success-bright)' : 'var(--text-muted)', fontSize: 10, padding: '0 2px' }}
               >{allCopied ? '✓' : '📋'}</button>
             )}
             {activeRuns.length > 0 && finishedRuns.length > 0 && (
@@ -144,7 +145,7 @@ export function RunTimeline() {
       <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
         {displayRuns.length === 0 ? (
           <div style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'center', marginTop: 32 }}>
-            아직 실행된 런이 없습니다
+            {t('run.empty', '아직 실행된 런이 없습니다')}
           </div>
         ) : shownRuns.map(run => <RunCard key={run.id} run={run} />)}
       </div>

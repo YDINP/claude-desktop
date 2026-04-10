@@ -4,6 +4,7 @@ import type {
   CCVec2, CCVec3, CCColor, CCFileProjectInfo,
 } from '../../shared/ipc-schema'
 import { buildUUIDMap } from './cc-asset-resolver'
+import type { UUIDMap } from './cc-asset-resolver'
 // CCSceneNode is used by extractSceneMeta (R1459)
 
 type RawEntry = Record<string, unknown>
@@ -11,11 +12,23 @@ type RawEntry = Record<string, unknown>
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /**
- * CC 2.x .fire / CC 3.x .scene / .prefab 파일 파싱 → CCSceneFile
- * - flat JSON 배열 → CCSceneNode 트리로 변환
- * - 파일 확장자(.fire/.scene/.prefab) 또는 내부 필드(_trs/_lpos)로 버전 자동 감지
+ * CC 2.x .fire / CC 3.x .scene / .prefab 파일을 파싱하여 CCSceneFile 반환
+ *
+ * @param scenePath - 씬/프리팹 파일의 절대 경로 (.fire / .scene / .prefab)
+ * @param projectInfo - 프로젝트 버전 정보 (version: '2x'|'3x', assetsDir 등)
+ * @param prebuiltUuidMap - 외부에서 캐시된 UUID 맵 (없으면 assetsDir을 스캔해 자동 빌드)
+ * @returns CCSceneFile — root 트리, _raw 원본 배열, scriptNames 포함
+ * @throws `씬 파일 파싱 실패: ...` — 파일 읽기 실패 또는 JSON 파싱 오류
+ * @throws `씬 루트 노드를 찾을 수 없습니다: ...` — SceneAsset/Prefab 루트 ref 누락
+ * @throws `루트 노드 파싱 실패 (depth 초과): ...` — 루트 노드가 depth 100 초과로 null 반환
+ *
+ * @remarks
+ * - flat JSON 배열 → CCSceneNode 트리로 변환 (재귀적 _children 탐색)
+ * - 버전 감지: projectInfo.version 우선, 없으면 detectVersionFromRaw 자동 감지
+ * - Widget 레이아웃(resolveWidgetLayout), 이벤트 핸들러(extractEventHandlers) 자동 처리
+ * - depth > 100 노드는 null로 처리되어 children 배열에서 제거 (순환 참조 방지)
  */
-export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo): CCSceneFile {
+export async function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo, prebuiltUuidMap?: UUIDMap): Promise<CCSceneFile> {
   let raw: RawEntry[]
   try {
     raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
@@ -35,10 +48,14 @@ export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo):
 
   if (!root) throw new Error(`루트 노드 파싱 실패 (depth 초과): ${scenePath}`)
 
+  // R3: Widget 레이아웃 기본 계산 — 부모 크기 기준으로 position/size 재계산
+  resolveWidgetLayout(root)
+
   // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames 맵 (인스펙터 표시용)
   const scriptNames: Record<string, string> = {}
   if (projectInfo.assetsDir) {
-    const uuidMap = buildUUIDMap(projectInfo.assetsDir)
+    // 외부에서 캐시된 맵이 주입된 경우 재스캔 생략 (cc-file-handlers의 getCachedUUIDMap 활용)
+    const uuidMap = prebuiltUuidMap ?? await buildUUIDMap(projectInfo.assetsDir)
     const scriptUuidToName = new Map<string, string>()
     for (const [uuid, meta] of uuidMap) {
       if (meta.type === 'script') {
@@ -142,7 +159,7 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
     name: (e._name as string | undefined) ?? '',
     active: (e._active as boolean | undefined) ?? true,
     position: trs.position,
-    rotation: trs.rotationZ,   // 2x stores Z-axis rotation (euler)
+    rotation: { x: 0, y: 0, z: trs.rotationZ },
     scale: trs.scale,
     size,
     anchor,
@@ -252,6 +269,7 @@ const LABEL_EXTRACTOR_3X = (e: RawEntry): Record<string, unknown> => ({
   fontFamily: e._fontFamily ?? e.fontFamily ?? '',
   isSystemFontUsed: e._isSystemFontUsed ?? e.isSystemFontUsed ?? true,
   spacingX: e._spacingX ?? e.spacingX ?? 0,
+  spacingY: e._spacingY ?? e.spacingY ?? 0,
   overflow: e._overflow ?? e.overflow ?? 0,
 })
 
@@ -377,16 +395,10 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
       strokeColor: sc ? { r: (sc as { r?: number }).r ?? 0, g: (sc as { g?: number }).g ?? 0, b: (sc as { b?: number }).b ?? 0, a: (sc as { a?: number }).a ?? 255 } : undefined,
     }
   },
-  // R1589: cc.Sprite / cc.Sprite2D — 스프라이트 컴포넌트
+  // R1589: cc.Sprite / cc.Sprite2D — 스프라이트 컴포넌트 (alias)
   'cc.Sprite': e => ({
     type: (e._N$type ?? e._type ?? e.type ?? 0) as number,  // 0=SIMPLE,1=SLICED,2=TILED,3=FILLED
     sizeMode: (e._N$sizeMode ?? e._sizeMode ?? e.sizeMode ?? 1) as number,  // 0=CUSTOM,1=TRIMMED,2=RAW
-    trim: !!(e._N$trim ?? e._trim ?? e.trim ?? true),
-    grayscale: !!(e._N$grayscale ?? e._grayscale ?? e.grayscale ?? false),
-  }),
-  'cc.Sprite2D': e => ({
-    type: (e._N$type ?? e._type ?? e.type ?? 0) as number,
-    sizeMode: (e._N$sizeMode ?? e._sizeMode ?? e.sizeMode ?? 1) as number,
     trim: !!(e._N$trim ?? e._trim ?? e.trim ?? true),
     grayscale: !!(e._N$grayscale ?? e._grayscale ?? e.grayscale ?? false),
   }),
@@ -526,7 +538,7 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     visible: !!(e._N$visible ?? e._visible ?? e.visible ?? true),
     opacity: (e._N$opacity ?? e._opacity ?? e.opacity ?? 1) as number,
   }),
-  // R1551: cc.RigidBody — 2D 물리 강체
+  // R1551: cc.RigidBody / cc.RigidBody2D — 2D 물리 강체 (alias)
   'cc.RigidBody': e => ({
     type: (e._N$type ?? e._type ?? e.type ?? 0) as number,  // 0=DYNAMIC, 1=STATIC, 2=KINEMATIC
     mass: (e._N$mass ?? e._mass ?? e.mass ?? 1) as number,
@@ -537,48 +549,22 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     allowSleep: !!(e._N$allowSleep ?? e._allowSleep ?? e.allowSleep ?? true),
     bullet: !!(e._N$bullet ?? e._bullet ?? e.bullet ?? false),
   }),
-  'cc.RigidBody2D': e => ({
-    type: (e._N$type ?? e._type ?? e.type ?? 0) as number,
-    mass: (e._N$mass ?? e._mass ?? e.mass ?? 1) as number,
-    linearDamping: (e._N$linearDamping ?? e._linearDamping ?? e.linearDamping ?? 0) as number,
-    angularDamping: (e._N$angularDamping ?? e._angularDamping ?? e.angularDamping ?? 0) as number,
-    gravityScale: (e._N$gravityScale ?? e._gravityScale ?? e.gravityScale ?? 1) as number,
-    fixedRotation: !!(e._N$fixedRotation ?? e._fixedRotation ?? e.fixedRotation ?? false),
-  }),
-  // R1551: cc.BoxCollider — 박스 콜라이더
+  // R1551: cc.BoxCollider / cc.BoxCollider2D — 박스 콜라이더 (alias)
   'cc.BoxCollider': e => ({
     offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
     size: (e._N$size ?? e._size ?? e.size) as { width?: number; height?: number } | undefined,
     tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
     sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
   }),
-  'cc.BoxCollider2D': e => ({
-    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
-    size: (e._N$size ?? e._size ?? e.size) as { width?: number; height?: number } | undefined,
-    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
-    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
-  }),
-  // R1551: cc.CircleCollider — 원형 콜라이더
+  // R1551: cc.CircleCollider / cc.CircleCollider2D — 원형 콜라이더 (alias)
   'cc.CircleCollider': e => ({
     offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
     radius: (e._N$radius ?? e._radius ?? e.radius ?? 0) as number,
     tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
     sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
   }),
-  'cc.CircleCollider2D': e => ({
-    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
-    radius: (e._N$radius ?? e._radius ?? e.radius ?? 0) as number,
-    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
-    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
-  }),
-  // R1574: cc.PolygonCollider — 폴리곤 콜라이더
+  // R1574: cc.PolygonCollider / cc.PolygonCollider2D — 폴리곤 콜라이더 (alias)
   'cc.PolygonCollider': e => ({
-    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
-    points: (e._N$points ?? e._points ?? e.points ?? []) as Array<{ x?: number; y?: number }>,
-    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
-    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
-  }),
-  'cc.PolygonCollider2D': e => ({
     offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
     points: (e._N$points ?? e._points ?? e.points ?? []) as Array<{ x?: number; y?: number }>,
     tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
@@ -612,6 +598,13 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     debugBones: !!(e._N$debugBones ?? e._debugBones ?? e.debugBones ?? false),
   }),
 }
+
+// 동일 구조의 2x/3x alias 쌍 등록 (맵 복사 없이 참조 공유)
+COMPONENT_PROP_EXTRACTORS['cc.Sprite2D'] = COMPONENT_PROP_EXTRACTORS['cc.Sprite']!
+COMPONENT_PROP_EXTRACTORS['cc.RigidBody2D'] = COMPONENT_PROP_EXTRACTORS['cc.RigidBody']!
+COMPONENT_PROP_EXTRACTORS['cc.BoxCollider2D'] = COMPONENT_PROP_EXTRACTORS['cc.BoxCollider']!
+COMPONENT_PROP_EXTRACTORS['cc.CircleCollider2D'] = COMPONENT_PROP_EXTRACTORS['cc.CircleCollider']!
+COMPONENT_PROP_EXTRACTORS['cc.PolygonCollider2D'] = COMPONENT_PROP_EXTRACTORS['cc.PolygonCollider']!
 
 // R1524: cc.Animation 클립 이름 해결 (embedded __id__ or external __uuid__)
 function resolveAnimationClipNames(e: RawEntry, raw: RawEntry[]): { name: string }[] {
@@ -723,11 +716,18 @@ function parseNode3x(
 
   // CC 3.x position/rotation/scale: _lpos/_lrot(euler)/_lscale
   const lpos = e._lpos as { x?: number; y?: number; z?: number } | undefined
-  const lrot = e._lrot as { x?: number; y?: number; z?: number } | undefined
+  const lrot = e._lrot as { x?: number; y?: number; z?: number; w?: number } | undefined
   const lscale = e._lscale as { x?: number; y?: number; z?: number } | undefined
 
   const position: CCVec3 = { x: lpos?.x ?? 0, y: lpos?.y ?? 0, z: lpos?.z ?? 0 }
-  const rotation: CCVec3 = { x: lrot?.x ?? 0, y: lrot?.y ?? 0, z: lrot?.z ?? 0 }
+
+  // 3.x: _lrot quaternion → euler Z (degrees), 2.x parseTRS2x와 동일한 변환
+  const qx = lrot?.x ?? 0, qy = lrot?.y ?? 0, qz = lrot?.z ?? 0, qw = lrot?.w ?? 1
+  const sinZ = 2 * (qw * qz + qx * qy)
+  const cosZ = 1 - 2 * (qy * qy + qz * qz)
+  const eulerZ = Math.round(Math.atan2(sinZ, cosZ) * (180 / Math.PI) * 1000) / 1000
+  const rotation: CCVec3 = { x: 0, y: 0, z: eulerZ }
+  const lrotW: number | undefined = lrot?.w
   const scale: CCVec3 = { x: lscale?.x ?? 1, y: lscale?.y ?? 1, z: lscale?.z ?? 1 }
 
   // Size/Anchor from UITransform (CC 3.x separates transform from size)
@@ -777,6 +777,7 @@ function parseNode3x(
     children,
     ...(eventHandlers.length > 0 ? { eventHandlers } : {}),
     _rawIndex: idx,
+    ...(lrotW !== undefined ? { _lrotW: lrotW } : {}),
   }
 }
 
@@ -1093,10 +1094,18 @@ export function findCanvasNode(root: CCSceneNode): CCSceneNode | null {
 }
 
 /**
- * R1447: 씬에서 디자인 해상도 획득
- * - 2x: cc.Canvas._designResolution 또는 _designResolution 직접 필드
- * - 3x: Camera 컴포넌트의 orthoHeight 기반 추정 (width = orthoHeight * aspect)
- * - fallback: { width: 960, height: 640 }
+ * 씬 파일에서 프로젝트 디자인 해상도를 추출
+ *
+ * @param sceneFile - parseCCScene으로 파싱된 씬 파일 객체
+ * @returns `{ width, height }` — 디자인 해상도 (픽셀 단위)
+ *
+ * @remarks
+ * 해상도 탐색 우선순위:
+ * 1. **CC 2.x**: `_raw` 내 `cc.Canvas._designResolution` (또는 `_N$designResolution`)
+ * 2. **CC 3.x**: `projectInfo.projectPath/settings/v2/packages/project.json`의
+ *    `general.designResolution`
+ * 3. **CC 3.x 폴백**: `_raw` 내 `cc.Camera._orthoHeight` × 2 × (16/9) 비율 추정
+ * 4. **최종 폴백**: `{ width: 960, height: 640 }`
  */
 export function getDesignResolution(sceneFile: CCSceneFile): { width: number; height: number } {
   const raw = sceneFile._raw as RawEntry[] | undefined
@@ -1115,14 +1124,30 @@ export function getDesignResolution(sceneFile: CCSceneFile): { width: number; he
     }
   }
 
-  if (version === '3x' && raw) {
-    // 3x: Camera 컴포넌트의 orthoHeight 기반 추정
-    for (const entry of raw) {
-      if (entry.__type__ === 'cc.Camera') {
-        const orthoH = entry._orthoHeight as number | undefined
-        if (orthoH && orthoH > 0) {
-          // 기본 16:9 비율 가정
-          return { width: Math.round(orthoH * 2 * (16 / 9)), height: orthoH * 2 }
+  if (version === '3x') {
+    // 3x-1: settings/v2/packages/project.json general.designResolution
+    const projectPath = sceneFile.projectInfo?.projectPath
+    if (projectPath) {
+      try {
+        const settingsPath = `${projectPath}/settings/v2/packages/project.json`
+        const raw3x = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')) as Record<string, unknown>
+        const general = raw3x.general as Record<string, unknown> | undefined
+        const dr = general?.designResolution as { width?: number; height?: number } | undefined
+        if (dr?.width && dr?.height) return { width: dr.width, height: dr.height }
+      } catch {
+        // settings.json 없으면 Camera 기반 추정으로 폴백
+      }
+    }
+
+    // 3x-2: Camera 컴포넌트의 orthoHeight 기반 추정
+    if (raw) {
+      for (const entry of raw) {
+        if (entry.__type__ === 'cc.Camera') {
+          const orthoH = entry._orthoHeight as number | undefined
+          if (orthoH && orthoH > 0) {
+            // 기본 16:9 비율 가정
+            return { width: Math.round(orthoH * 2 * (16 / 9)), height: orthoH * 2 }
+          }
         }
       }
     }
@@ -1317,11 +1342,7 @@ export function diffScenes(
     // anchor
     if (bNode.anchor.x !== aNode.anchor.x || bNode.anchor.y !== aNode.anchor.y) changedFields.push('anchor')
     // rotation
-    if (typeof bNode.rotation !== typeof aNode.rotation ||
-        (typeof bNode.rotation === 'number'
-          ? bNode.rotation !== aNode.rotation
-          : Math.abs((bNode.rotation as {z?:number}).z ?? 0) - Math.abs((aNode.rotation as {z?:number}).z ?? 0) > 0.001)
-    ) changedFields.push('rotation')
+    if (Math.abs(bNode.rotation.z - aNode.rotation.z) > 0.001) changedFields.push('rotation')
     // color
     if (bNode.color.r !== aNode.color.r || bNode.color.g !== aNode.color.g || bNode.color.b !== aNode.color.b || bNode.color.a !== aNode.color.a) changedFields.push('color')
     // components count
@@ -1386,12 +1407,13 @@ export interface CCSceneStreamState {
  * 실제 파싱은 sync이지만 청크 단위로 루트 자식을 잘라서 반환.
  * chunkSize: 최상위 자식 노드 최대 파싱 수 (기본 50, 0 = 전체)
  */
-export function parseCCSceneChunked(
+export async function parseCCSceneChunked(
   scenePath: string,
   projectInfo: CCFileProjectInfo,
   chunkSize = 50,
-  chunkOffset = 0
-): { scene: CCSceneFile; state: CCSceneStreamState } {
+  chunkOffset = 0,
+  prebuiltUuidMap?: UUIDMap
+): Promise<{ scene: CCSceneFile; state: CCSceneStreamState }> {
   let raw: RawEntry[]
   try {
     raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
@@ -1409,10 +1431,13 @@ export function parseCCSceneChunked(
       : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
   if (!root) throw new Error(`루트 노드 파싱 실패: ${scenePath}`)
 
+  // R3: Widget 레이아웃 기본 계산
+  resolveWidgetLayout(root)
+
   // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames (인스펙터 표시용)
   const scriptNamesChunked: Record<string, string> = {}
   if (projectInfo.assetsDir) {
-    const uuidMap = buildUUIDMap(projectInfo.assetsDir)
+    const uuidMap = prebuiltUuidMap ?? await buildUUIDMap(projectInfo.assetsDir)
     const scriptUuidToName = new Map<string, string>()
     for (const [uuid, meta] of uuidMap) {
       if (meta.type === 'script') {
@@ -1446,7 +1471,7 @@ export function parseCCSceneChunked(
       : root
 
   return {
-    scene: { projectInfo, scenePath, root: chunkedRoot, _raw: raw, scriptNames: scriptNamesChunked },
+    scene: { projectInfo, scenePath, root: chunkedRoot, scriptNames: scriptNamesChunked },
     state: {
       done: parsedTopChildren >= totalTopChildren,
       parsedTopChildren,
@@ -1466,4 +1491,104 @@ export function isLargeScene(scenePath: string): boolean {
   } catch {
     return false
   }
+}
+
+// ── R3: Widget 레이아웃 기본 계산 ────────────────────────────────────────────
+
+/**
+ * Widget alignFlags 비트마스크:
+ * TOP=1, VMID=2, BOT=4, LEFT=8, HMID=16, RIGHT=32
+ */
+const WIDGET_TOP = 1
+const WIDGET_VMID = 2
+const WIDGET_BOT = 4
+const WIDGET_LEFT = 8
+const WIDGET_HMID = 16
+const WIDGET_RIGHT = 32
+
+/**
+ * R3: 노드 트리를 순회하며 Widget 컴포넌트 기반으로 position/size 재계산.
+ * CC 런타임이 부모 크기 기준으로 Widget 제약을 적용하는 것을 시뮬레이션.
+ * 부모 → 자식 순서로 top-down 처리해야 부모 크기가 확정된 후 자식을 계산할 수 있다.
+ */
+export function resolveWidgetLayout(root: CCSceneNode): void {
+  // 루트의 자식부터 처리 (루트 자체는 Widget 대상이 아님)
+  for (const child of root.children) {
+    resolveWidgetForSubtree(child, root.size.x, root.size.y)
+  }
+}
+
+function resolveWidgetForSubtree(node: CCSceneNode, parentW: number, parentH: number): void {
+  const widgetComp = node.components.find(c => c.type === 'cc.Widget')
+  if (widgetComp && parentW > 0 && parentH > 0) {
+    const props = widgetComp.props
+    const flags = (props.alignFlags as number | undefined) ?? 0
+    if (flags > 0) {
+      applyWidgetFlags(node, flags, props, parentW, parentH)
+    }
+  }
+
+  // 자식도 재귀 처리 (현재 노드의 확정된 size를 부모 크기로 전달)
+  for (const child of node.children) {
+    resolveWidgetForSubtree(child, node.size.x, node.size.y)
+  }
+}
+
+function applyWidgetFlags(
+  node: CCSceneNode,
+  flags: number,
+  props: Record<string, unknown>,
+  parentW: number,
+  parentH: number
+): void {
+  const left = (props.left as number | undefined) ?? 0
+  const right = (props.right as number | undefined) ?? 0
+  const top = (props.top as number | undefined) ?? 0
+  const bottom = (props.bottom as number | undefined) ?? 0
+  const hCenter = (props.horizontalCenter as number | undefined) ?? 0
+  const vCenter = (props.verticalCenter as number | undefined) ?? 0
+
+  const ax = node.anchor.x
+  const ay = node.anchor.y
+  let w = node.size.x
+  let h = node.size.y
+  let x = node.position.x
+  let y = node.position.y
+
+  // ── Horizontal axis ──
+  const hasLeft = !!(flags & WIDGET_LEFT)
+  const hasRight = !!(flags & WIDGET_RIGHT)
+  const hasHMid = !!(flags & WIDGET_HMID)
+
+  if (hasLeft && hasRight) {
+    // 양쪽 고정: 부모 폭에서 left/right 제외 → 새 width, x는 left + anchor 기반
+    w = parentW - left - right
+    x = left + w * ax - parentW * 0.5
+  } else if (hasLeft) {
+    x = left + w * ax - parentW * 0.5
+  } else if (hasRight) {
+    x = parentW * 0.5 - right - w * (1 - ax)
+  } else if (hasHMid) {
+    x = hCenter
+  }
+
+  // ── Vertical axis ──
+  const hasTop = !!(flags & WIDGET_TOP)
+  const hasBot = !!(flags & WIDGET_BOT)
+  const hasVMid = !!(flags & WIDGET_VMID)
+
+  if (hasTop && hasBot) {
+    h = parentH - top - bottom
+    y = bottom + h * ay - parentH * 0.5
+  } else if (hasBot) {
+    y = bottom + h * ay - parentH * 0.5
+  } else if (hasTop) {
+    y = parentH * 0.5 - top - h * (1 - ay)
+  } else if (hasVMid) {
+    y = vCenter
+  }
+
+  // 결과 반영 (position.z는 유지)
+  node.position = { x, y, z: node.position.z }
+  node.size = { x: Math.max(0, w), y: Math.max(0, h) }
 }

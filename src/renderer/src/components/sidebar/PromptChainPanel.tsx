@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { t } from '../../utils/i18n'
 
 const PRESET_TEMPLATES = [
   {
@@ -353,11 +354,8 @@ export function PromptChainPanel() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative' }}>
       {/* Header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 8px', borderBottom: '1px solid var(--border)', flexShrink: 0,
-      }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>프롬프트 체이닝</span>
+      <div className="panel-header" style={{ flexShrink: 0 }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{t('chain.title', '프롬프트 체이닝')}</span>
         <div style={{ display: 'flex', gap: 4 }}>
           <button
             onClick={() => setShowTemplates(true)}
@@ -370,7 +368,7 @@ export function PromptChainPanel() {
             onClick={addChain}
             style={{ ...btnBase, padding: '3px 8px', background: 'var(--accent)', color: '#fff' }}
           >
-            + 새 체인
+            {t('chain.newChain', '+ 새 체인')}
           </button>
         </div>
       </div>
@@ -480,7 +478,7 @@ export function PromptChainPanel() {
                 }}
                 title="결과 초기화"
               >
-                초기화
+                {t('chain.reset', '초기화')}
               </button>
               <button
                 onClick={() => runChain(selectedChain.id)}
@@ -493,7 +491,7 @@ export function PromptChainPanel() {
                   opacity: (isRunning || selectedChain.steps.length === 0) ? 0.6 : 1,
                 }}
               >
-                {isRunning ? '실행 중...' : '▶ 실행'}
+                {isRunning ? t('chain.running', '실행 중...') : t('chain.run', '▶ 실행')}
               </button>
             </div>
           </div>
@@ -522,14 +520,14 @@ export function PromptChainPanel() {
                 border: '1px dashed var(--border)', fontSize: 12,
               }}
             >
-              + 스텝 추가
+              {t('chain.addStep', '+ 스텝 추가')}
             </button>
           </div>
         </div>
       ) : (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            + 새 체인 버튼으로 체인을 만드세요
+            {t('chain.emptyHint', '+ 새 체인 버튼으로 체인을 만드세요')}
           </span>
         </div>
       )}
@@ -546,25 +544,25 @@ export function PromptChainPanel() {
               style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16 }}
             >×</button>
           </div>
-          {PRESET_TEMPLATES.map(t => (
-            <div key={t.id} style={{
+          {PRESET_TEMPLATES.map(tmpl => (
+            <div key={tmpl.id} style={{
               border: '1px solid var(--border)', borderRadius: 6, padding: 10,
               marginBottom: 8, background: 'var(--bg-secondary)',
             }}>
-              <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 2 }}>{t.name}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>{t.desc}</div>
+              <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 2 }}>{tmpl.name}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>{tmpl.desc}</div>
               <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 8 }}>
-                {t.steps.map((s, i) => (
+                {tmpl.steps.map((s, i) => (
                   <span key={i}>{i > 0 ? ' → ' : ''}{s.label}</span>
                 ))}
               </div>
               <button
-                onClick={() => importTemplate(t)}
+                onClick={() => importTemplate(tmpl)}
                 style={{
                   background: 'var(--accent)', color: '#fff', border: 'none',
                   borderRadius: 4, padding: '4px 10px', fontSize: 11, cursor: 'pointer',
                 }}
-              >가져오기</button>
+              >{t('chain.import', '가져오기')}</button>
             </div>
           ))}
         </div>
@@ -729,7 +727,7 @@ function StepCard({ step, index, total, onUpdate, onDelete, onMoveUp, onMoveDown
           borderTop: '1px solid var(--border)',
         }}>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>결과</span>
+            <span>{t('chain.result', '결과')}</span>
             <button onClick={copyResult} title="결과 복사"
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: resultCopied ? '#4ade80' : 'var(--text-muted)', padding: '0 2px' }}>
               {resultCopied ? '✓' : '📋'}
@@ -759,7 +757,7 @@ function StepCard({ step, index, total, onUpdate, onDelete, onMoveUp, onMoveDown
           padding: '4px 8px', borderTop: '1px solid var(--border)',
           fontSize: 10, color: '#60a5fa', fontStyle: 'italic',
         }}>
-          처리 중...
+          {t('chain.processing', '처리 중...')}
         </div>
       )}
     </div>

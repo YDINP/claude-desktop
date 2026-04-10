@@ -8,7 +8,7 @@
  */
 import { eventBus } from './eventBus'
 import { commandBus } from './commandBus'
-import type { StreamEvent, PermissionRequest, CCEvent, CCStatus } from '../../../shared/ipc-schema'
+// StreamEvent, PermissionRequest, CCEvent, CCStatus — 각 adapter에서 직접 import
 
 let initialized = false
 const cleanups: (() => void)[] = []
@@ -24,108 +24,33 @@ export function initIpcBridge(): void {
   }
 
   // ── Main→Renderer 이벤트 → EventBus ──────────────────────────────────────
+  // 주의: claude:message, claude:permission, cc:event, cc:statusChange,
+  //       cc:fileChanged, fs:change, app:closeTab, app:fontSizeShortcut,
+  //       app:themeChanged 는 각 adapter/hook 에서 직접 window.api 구독.
+  //       여기서 중복 구독하면 이벤트가 2번 처리됨 (P0-1).
 
-  // Claude streaming
-  if (api.onClaudeMessage) {
-    const unsub = api.onClaudeMessage((event: unknown) => {
-      eventBus.emit({ type: 'claude:message', payload: event as StreamEvent })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // Claude permission
-  if (api.onClaudePermission) {
-    const unsub = api.onClaudePermission((req: unknown) => {
-      eventBus.emit({ type: 'claude:permission', payload: req as PermissionRequest })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // CC live events
-  if (api.onCCEvent) {
-    const unsub = api.onCCEvent((event: unknown) => {
-      eventBus.emit({ type: 'cc:event', payload: event as CCEvent })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  if (api.onCCStatusChange) {
-    const unsub = api.onCCStatusChange((status: unknown) => {
-      eventBus.emit({ type: 'cc:statusChange', payload: status as CCStatus })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // CC file watcher
-  if (api.onCCFileChanged) {
-    const unsub = api.onCCFileChanged((path: unknown) => {
-      eventBus.emit({ type: 'cc:fileChanged', payload: { path: path as string } })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // Terminal
+  // Terminal — eventBus 경유로만 소비되므로 유일하게 유지
   if (api.onTerminalData) {
-    const unsub = api.onTerminalData((data: unknown) => {
-      const d = data as { id: string; data: string }
-      eventBus.emit({ type: 'terminal:data', payload: d })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // Filesystem watcher
-  if (api.onDirChanged) {
-    const unsub = api.onDirChanged((info: unknown) => {
-      const i = info as { path: string; type: string }
-      eventBus.emit({ type: 'fs:change', payload: i })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  // App-level shortcuts
-  if (api.onCloseTab) {
-    const unsub = api.onCloseTab(() => {
-      eventBus.emit({ type: 'app:closeTab', payload: {} })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  if (api.onFontSizeShortcut) {
-    const unsub = api.onFontSizeShortcut((delta: unknown) => {
-      eventBus.emit({ type: 'app:fontSizeShortcut', payload: { delta: delta as number } })
-    })
-    if (typeof unsub === 'function') cleanups.push(unsub)
-  }
-
-  if (api.onNativeThemeChanged) {
-    const unsub = api.onNativeThemeChanged((isDark: unknown) => {
-      eventBus.emit({ type: 'app:themeChanged', payload: { isDark: isDark as boolean } })
+    const unsub = api.onTerminalData((id: string, data: string) => {
+      eventBus.emit({ type: 'terminal:data', payload: { id, data } })
     })
     if (typeof unsub === 'function') cleanups.push(unsub)
   }
 
   // ── CommandBus → window.api 핸들러 ───────────────────────────────────────
 
-  // chat
-  commandBus.register('chat:interrupt', ({ sessionId }) =>
-    api.claudeInterrupt?.(sessionId)
-  )
-  commandBus.register('chat:close', ({ sessionId }) =>
-    api.claudeClose?.(sessionId)
-  )
-  commandBus.register('chat:permissionReply', ({ requestId, allow, sessionId }) =>
-    api.claudePermissionReply?.({ requestId, allow, sessionId })
-  )
+  // chat 커맨드는 chat/commands.ts에서 등록 (store 연동 로직 포함)
+  // 여기서 중복 등록하면 commandBus가 덮어써서 store 로직이 누락됨
 
-  // terminal
+  // terminal — preload 시그니처: (id, cwd), (id, data), (id, cols, rows), (id)
   commandBus.register('terminal:create', ({ id, cwd }) =>
-    api.terminalCreate?.({ id, cwd })
+    api.terminalCreate?.(id, cwd)
   )
   commandBus.register('terminal:write', ({ id, data }) =>
-    api.terminalWrite?.({ id, data })
+    api.terminalWrite?.(id, data)
   )
   commandBus.register('terminal:resize', ({ id, cols, rows }) =>
-    api.terminalResize?.({ id, cols, rows })
+    api.terminalResize?.(id, cols, rows)
   )
   commandBus.register('terminal:close', ({ id }) =>
     api.terminalClose?.(id)
@@ -138,8 +63,9 @@ export function initIpcBridge(): void {
   commandBus.register('fs:readDir', ({ path }) =>
     api.readDir?.(path)
   )
+  // preload saveFile 시그니처: (content, defaultName) — 다이얼로그 기반 저장
   commandBus.register('fs:saveFile', ({ path, content }) =>
-    api.saveFile?.({ path, content })
+    api.saveFile?.(content, path)
   )
   commandBus.register('fs:watchDir', ({ path }) =>
     api.watchDir?.(path)
@@ -156,9 +82,9 @@ export function initIpcBridge(): void {
     api.sessionDelete?.(sessionId)
   )
 
-  // cocos file
+  // cocos file — preload 시그니처: (sceneFile, modifiedRoot) — 순서 역전 주의
   commandBus.register('cocos:saveScene', ({ root, sceneFile }) =>
-    api.ccFileSaveScene?.({ root, sceneFile })
+    api.ccFileSaveScene?.(sceneFile, root)
   )
 }
 

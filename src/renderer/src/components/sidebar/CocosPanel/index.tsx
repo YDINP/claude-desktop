@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { t } from '../../../utils/i18n'
 import { useCCFileProject } from '../../../hooks/useCCFileProject'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { SceneTabContent } from './SceneTab'
@@ -64,16 +65,16 @@ function CCFileProjectUI(props: CCFileProjectUIProps) {
       {/* 안내 (프로젝트 미선택) */}
       {!projectInfo?.detected && !loading && (
         <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, lineHeight: 1.7 }}>
-          <div style={{ marginBottom: 8, fontWeight: 600, color: 'var(--text-primary)' }}>파일 직접 편집 모드</div>
-          <div>CC Extension 없이 .fire / .scene 파일을 직접 파싱·편집합니다.</div>
+          <div style={{ marginBottom: 8, fontWeight: 600, color: 'var(--text-primary)' }}>{t('cocos.fileEditMode', '파일 직접 편집 모드')}</div>
+          <div>{t('cocos.fileEditDesc', 'CC Extension 없이 .fire / .scene 파일을 직접 파싱·편집합니다.')}</div>
           <div style={{ marginTop: 6, fontSize: 10 }}>
-            • CC 2.x (.fire) / CC 3.x (.scene) 모두 지원<br />
-            • 에디터 미실행 상태에서도 씬 트리 조회 가능<br />
-            • 저장 시 원본 파일 직접 수정 (자동 백업)
+            {t('cocos.fileEditSupport', '• CC 2.x (.fire) / CC 3.x (.scene) 모두 지원')}<br />
+            {t('cocos.fileEditOffline', '• 에디터 미실행 상태에서도 씬 트리 조회 가능')}<br />
+            {t('cocos.fileEditSave', '• 저장 시 원본 파일 직접 수정 (자동 백업)')}
           </div>
           {recentFiles.length > 0 && (
             <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>최근 파일</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cocos.recentFiles', '최근 파일')}</div>
               {recentFiles.map(f => (
                 <div
                   key={f}

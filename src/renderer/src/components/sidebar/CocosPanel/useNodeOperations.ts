@@ -59,8 +59,7 @@ export function useNodeOperations({
     const rounded = Math.round(angle * 10) / 10
     await patchNodes(n => {
       if (n.uuid !== uuid) return n
-      const rot = typeof n.rotation === 'number' ? rounded : { ...(n.rotation as object), z: rounded }
-      return { ...n, rotation: rot }
+      return { ...n, rotation: { ...n.rotation, z: rounded } }
     }, 'rotation')
   }, [patchNodes])
 

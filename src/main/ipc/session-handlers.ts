@@ -130,6 +130,15 @@ export function registerSessionHandlers() {
       // Build index from disk (first run or migration)
       index = await buildIndexFromDisk()
       if (index.length > 0) await writeIndex(index)
+    } else {
+      // Reconcile: find orphan session files not in index
+      const diskIndex = await buildIndexFromDisk()
+      const indexedIds = new Set(index.map(s => s.id))
+      const orphans = diskIndex.filter(s => !indexedIds.has(s.id))
+      if (orphans.length > 0) {
+        index = [...index, ...orphans]
+        await writeIndex(index)
+      }
     }
     // Pinned sessions float to top; within each group preserve index order (respects manual reorder)
     const pinned = index.filter(s => s.pinned)
@@ -833,7 +842,7 @@ ${messages.map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'assistant'}
       if (!await fileExists(filePath)) continue
       try {
         const session = JSON.parse(await readFile(filePath, 'utf-8'))
-        const messages: any[] = session.messages ?? []
+        const messages: { text?: unknown; role?: unknown }[] = session.messages ?? []
         messages.forEach((msg, idx) => {
           const text = typeof msg.text === 'string' ? msg.text : ''
           if (text.toLowerCase().includes(q)) {
@@ -846,7 +855,7 @@ ${messages.map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'assistant'}
               sessionId: meta.id,
               sessionTitle: meta.title ?? 'Untitled',
               messageIndex: idx,
-              role: msg.role ?? 'assistant',
+              role: typeof msg.role === 'string' ? msg.role : 'assistant',
               excerpt,
               updatedAt: meta.updatedAt ?? 0,
             })

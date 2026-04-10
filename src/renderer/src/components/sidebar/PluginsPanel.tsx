@@ -170,7 +170,7 @@ export function PluginsPanel() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
                       <span style={{
                         width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                        background: enabled ? '#4caf50' : '#666',
+                        background: enabled ? 'var(--success-bright)' : '#666',
                         display: 'inline-block',
                       }} />
                       <span style={{
@@ -190,9 +190,9 @@ export function PluginsPanel() {
                         onClick={() => toggleEnabled(plugin.filename)}
                         style={{
                           padding: '2px 7px', fontSize: 10, cursor: 'pointer', borderRadius: 3,
-                          background: enabled ? 'rgba(76,175,80,0.15)' : 'var(--bg-hover)',
-                          color: enabled ? '#4caf50' : 'var(--text-muted)',
-                          border: `1px solid ${enabled ? '#4caf50' : 'var(--border)'}`,
+                          background: enabled ? 'rgba(74,222,128,0.15)' : 'var(--bg-hover)',
+                          color: enabled ? 'var(--success-bright)' : 'var(--text-muted)',
+                          border: `1px solid ${enabled ? 'var(--success-bright)' : 'var(--border)'}`,
                         }}
                       >
                         {enabled ? '비활성화' : '활성화'}
@@ -236,7 +236,7 @@ export function PluginsPanel() {
                           })
                         }}
                         title="코드 복사"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: copiedCode === plugin.filename ? '#4caf50' : 'var(--text-muted)', padding: '0 3px' }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: copiedCode === plugin.filename ? 'var(--success-bright)' : 'var(--text-muted)', padding: '0 3px' }}
                       >
                         {copiedCode === plugin.filename ? '✓ 복사됨' : '📋 복사'}
                       </button>

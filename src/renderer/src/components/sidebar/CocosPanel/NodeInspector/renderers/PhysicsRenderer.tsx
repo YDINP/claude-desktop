@@ -2,7 +2,7 @@ import React from 'react'
 import type { RendererProps } from './types'
 
 /** cc.BoxCollider, cc.BoxCollider2D, cc.CircleCollider, cc.CircleCollider2D, cc.PolygonCollider, cc.PolygonCollider2D, cc.RigidBody, cc.RigidBody2D Quick Edit renderer */
-export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function PhysicsRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.BoxCollider' || comp.type === 'cc.BoxCollider2D') {
               const off = p.offset as { x?: number; y?: number } | undefined
@@ -560,3 +560,4 @@ export function PhysicsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
             // R1549: dragonBones.ArmatureDisplay — DragonBones Quick Edit
             return null
 }
+export const PhysicsRenderer = React.memo(PhysicsRendererInner)

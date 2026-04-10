@@ -501,16 +501,16 @@
 - Subagent 워크플로우 시각화 + Prompt 체이닝
 - QA 라운드 x2 (Round 77, 82) ✅ Critical 0, Warning 0
 
-### Phase 4 — 예정 (Round 83~90)
-- 스트리밍 UX 완성: 자동 스크롤 제어, ▌ 커서 애니메이션, 배치 렌더링
-- 채팅 인터랙션: 메시지 재생성(↺), 스트리밍 중단(■), 인라인 편집
-- 세션 관리: 태그 시스템, 즐겨찾기 핀, 날짜별 그룹 헤더
-- StatusBar: 실시간 토큰 카운터, API 비용 추산(세션/월별)
-- 커맨드 팔레트: 최근 항목, AI 제안 명령어
-- 알림/토스트 시스템: 성공/에러/정보 컴포넌트
-- 키보드 단축키 오버레이 (? 키)
-- PromptChain 템플릿 라이브러리
-- AG-UI 이벤트 모델 기반 에이전트 실행 표준화
+### Phase 4 — ✅ 대부분 완료 (R2745)
+- ~~스트리밍 UX 완성: 자동 스크롤 제어, ▌ 커서 애니메이션, 배치 렌더링~~ ✅
+- ~~채팅 인터랙션: 메시지 재생성(↺), 스트리밍 중단(■), 인라인 편집~~ ✅
+- ~~세션 관리: 태그 시스템, 즐겨찾기 핀, 날짜별 그룹 헤더~~ ✅ (이전 라운드에서 구현)
+- ~~StatusBar: 실시간 토큰 카운터, API 비용 추산(세션/월별)~~ ✅
+- ~~커맨드 팔레트: 최근 항목, AI 제안 명령어~~ ✅ (Ctrl+K)
+- ~~알림/토스트 시스템: 성공/에러/정보 컴포넌트~~ ✅ (이전 라운드에서 구현)
+- ~~키보드 단축키 오버레이 (? 키)~~ ✅ (이전 라운드에서 구현)
+- PromptChain 템플릿 라이브러리 — 미착수
+- AG-UI 이벤트 모델 기반 에이전트 실행 표준화 — 미착수
 
 ### Phase DD6 — ✅ 완료 (Round 513~523) — CC 씬에디터 완성 단계
 
@@ -942,3 +942,91 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2742 | SceneView 가이드라인 auto-snap — 드래그 시 8px 이내 가이드에 자동 snap | ✅ |
 | R2743 | BatchInspector 색상 밝기 조절 — +/- delta로 RGB 일괄 증감 | ✅ |
 | R2744 | QA 체크 3개 추가 (R2741/R2742/R2743) — QA 2629→2632 Pass | ✅ |
+| R2745 | Phase 4 스트리밍 UX — 재생성 action bar(항상 표시), Stop 펄스 애니메이션, Escape 중단, StatusBar 토큰/비용 표시, Ctrl+K 커맨드팔레트 | ✅ |
+| R2746 | 커스텀 슬래시 커맨드 Phase 1~3 — SlashCommandRegistry handler/plugin/recent/grouped 확장, $ARGUMENTS 치환, 카테고리 그룹 드롭다운 UI | ✅ |
+| R2747 | 사이드바 패널 6개 생성 (Calendar/Tasks/Notes/Clipboard/Diff/Remote) — QA Warning 57→0 | ✅ |
+| R2748 | component.tsx 리팩토링 — 10,334줄→68줄 hub + 18개 분리 파일, 빌드 에러 수정 | ✅ |
+| R2749 | SceneViewPanel 리팩토링 — 5,894→4,439줄 + 4개 훅(keyboard/mouse/actions/constants) 추출 | ✅ |
+| R2750 | ChatPanel 리팩토링 — 2,498→1,497줄 + 7개 분리(ModelSelector/ExportButtons/chatUtils 등), 데드코드 350줄 제거 | ✅ |
+| R2751 | SessionList 리팩토링 — 2,402→618줄 + 3개 분리(sessionUtils/TagDot/SessionItem), 데드코드 1,800줄 제거 | ✅ |
+| R2752 | 중복 제거 — useCopyToClipboard(9패널)/useLocalStorage/useExpandedId/download.ts 공통 훅·유틸 추출 | ✅ |
+| R2753 | CCFileSceneView 리팩토링 — 5,525→4,961줄 (ccSceneTypes/useCCSceneOverlayState/useCCSceneAssets/useCCSceneKeyboard 추출) | ✅ |
+| R2754 | InputBar 2,086→1,565줄 (SlashCommandDropdown/SuggestionDropdown/QuickActionsBar 추출, phantom useState 180개 제거) | ✅ |
+| R2755 | MessageBubble 2,070→1,272줄 (CodeBlock 848줄 추출) | ✅ |
+| R2756 | SceneInspector 1,869→1,227줄 (InspectorComponents 추출), TerminalPanel 1,621→1,442줄, misc 1,523→1,238줄 | ✅ |
+| R2757 | UX/UI 일관성 — --success-bright CSS변수, 색상 하드코딩 제거, empty state/borderRadius 통일 | ✅ |
+| R2758 | 아키텍처 Phase D — session/terminal 도메인 모듈 생성 (zustand store, adapter, commands) | ✅ |
+| R2759 | 감사 CRITICAL — _lrot.w 복원, 6패널 Sidebar 연결, GitPanel 삭제, remote IPC 구현 | ✅ |
+| R2760 | Kernel ipcBridge 시그니처 8건 수정 + initIpcBridge App.tsx 초기화 + adapter 연결 | ✅ |
+| R2761 | store 이중 구현 통합 — chat-store/terminal-store 삭제, domains로 이관 | ✅ |
+| R2762 | 보안 강화 — CodeBlock Proxy 샌드박스, XSS 이스케이프, shell:exec 블록리스트 확장 | ✅ |
+| R2763 | 에러 핸들링 — StatsPanel/FileViewer/AppLayout catch 추가, phantom useState 주석 전환 | ✅ |
+| R2764 | 이중 IPC 구독 제거 — ipcBridge 9개 이벤트 구독 제거, terminal:data만 유지 | ✅ |
+| R2765 | 보안 강화 2차 — Mermaid strict, bypassCSP false, richToHtml hex-only 검증 | ✅ |
+| R2766 | session 도메인 dead code 삭제 + Sidebar 7탭 UI 버튼 추가 | ✅ |
+| R2767 | CodeBlock iframe sandbox + shell:exec 화이트리스트 + ChatPanel useEffect 3훅 분리 | ✅ |
+| R2768 | cc:open-file 이벤트명 통일 + 워크스페이스 대화복원 + selectedModel/ccLayout/fontSize 통합 | ✅ |
+| R2769 | syntax-highlighter 공통 모듈 추출 + SessionItem React.memo | ✅ |
+| R2770 | ui-store 생성 — AppLayout props 10개 제거, 모달 상태 zustand 중앙 관리 | ✅ |
+| R2771 | API 키 설정 UI — SettingsPanel AI 탭 + WelcomeScreen 미설정 경고 배너 | ✅ |
+| R2772 | aria 접근성 — Sidebar tablist/tab, SessionList listbox, FileTree tree | ✅ |
+| R2773 | SessionList/SceneTree 가상 스크롤 + localStorage 키 cd- 접두사 통일 | ✅ |
+| R2774 | AppLayout props 15개 추가 이관 (ccTab/mainPanelTab/chatFocusTrigger 등) | ✅ |
+| R2775 | 공통 CSS 클래스 6개 추출 (panel-header/empty/btn/search/item) | ✅ |
+| R2776 | 세션 전환 스트리밍 중단 (경쟁 조건 해소) + handleSend 이중 전송 방지 | ✅ |
+| R2777 | 저장소 우선순위 — theme/accent electron-store 우선, localStorage 캐시 동기화 | ✅ |
+| R2778 | 세션 전환 스트리밍 경쟁 조건 해소 + handleSend 이중 전송 가드 | ✅ |
+| R2779 | 씬 저장 직렬화 큐 (pendingSaveRef) + useDebounce 공통 훅 3곳 적용 | ✅ |
+| R2780 | vitest 도입 — cc-file-parser/saver/chat-store/SlashCommandRegistry 76 테스트 | ✅ |
+| R2781 | CCFileSceneView 4,961→4,374줄 — useCCSceneMouse/CCSceneContextMenu/CCSceneMinimap 추출 | ✅ |
+| R2782 | 테스트 확장 — 공통 훅/유틸 28 테스트 추가 (총 104) + CSS panel-scroll/divider | ✅ |
+| R2783 | adapter/ipcBridge/terminal 테스트 44개 추가 (총 151) | ✅ |
+| R2784 | SceneViewPanel 4,440→3,636줄 — Context 도입 + ContextMenu/Overlays/SnapshotBar 추출 | ✅ |
+| R2785 | 테스트 추가 — 공통 훅/유틸 28개 (총 104→151) + CSS panel-scroll/divider | ✅ |
+| R2786 | 5차 감사 7건 — local:// 경로 검증, IPC 중복 가드, 세션 고아 복구, stale closure, 메모리 누수 3건 | ✅ |
+| R2787 | i18n 기반 — t() 함수 + SettingsPanel 언어 선택 UI (한국어/English) | ✅ |
+| R2788 | as any 11건 → 구체 타입 교체 + cc-asset-resolver/storage-migrate/i18n 테스트 56개 (총 197) | ✅ |
+| R2789 | CCFileSceneView Context 분리 4,374→2,530줄 — CCSceneContext/Toolbar/HUD/SVGOverlays 추출 | ✅ |
+| R2790 | 6차 감사 — scene/ 고아 디렉토리 삭제, NodePropertyPanel 삭제, stub console.log 정리 | ✅ |
+| R2791 | SceneViewPanel 3,636→2,401줄 — InfoPanels/ToolbarExtras/QuickActions/EditBar/ShortcutsHelp 추출 | ✅ |
+| R2792 | Sidebar 9탭 lazy loading + useWorkspaceManager/ui-store 테스트 40개 (총 236) | ✅ |
+| R2793 | i18n 57키 추가 — WelcomeScreen/Sidebar/StatusBar/ChatPanel 한영 전환 | ✅ |
+| R2794 | i18n 55키 추가 — 6패널+MessageBubble 한영 전환 (총 112키) + 7차 감사 dead export 정리 | ✅ |
+| R2795 | AppLayout any→ProjectContext/ChatContext 타입 강화 + undo/redo UndoEntry[] + kernel @future | ✅ |
+| R2796 | 테스트 86개 추가 — useSessionManager/useSettingsSync/cc-file-watcher/remote-handlers (총 322) | ✅ |
+| R2797 | :any 6건→unknown 교체 + useChatScroll/Search/project-store/syntaxLanguages 65테스트 (총 387) | ✅ |
+| R2798 | Main 모듈 88테스트 (session/fs/app-config) + console.log 9건 정리 (총 475) | ✅ |
+| R2799 | i18n 95키 추가 — SettingsPanel/InputBar/AppLayout 전체 (총 207키) | ✅ |
+| R2800 | 성능 최적화 — useShallow selector(AppLayout+App), updateToolUse O(1) fast-path, trackChangedFile useCallback | ✅ |
+| R2801 | ChatPanel useShallow + vendor-zustand chunk + useChatEvents/cocos-adapter/chat-commands 45테스트 (총 520) | ✅ |
+| R2802 | useFeatureFlags/command-handlers/cc-version-detector 41테스트 (총 561) + 최종 스캔 완료 | ✅ |
+| R2803 | aria 접근성 확장 6컴포넌트 (CommandPalette/ChatPanel/InputBar/Terminal/Settings) | ✅ |
+| R2804 | work-history/command-learner/clipboard-store/toast 67테스트 (총 628) | ✅ |
+| R2805 | 빈 catch 8건→warn + JSDoc + cost-tracker 14테스트 (총 642) | ✅ |
+| R2806 | i18n ~150키 확장 (6패널+adapter, 총 ~360키) + 통합테스트 24개 (총 670) | ✅ |
+| R2807 | ErrorBoundary + React.memo 8컴포넌트 + monaco/cocos-utils/sessionUtils/chatUtils 77테스트 (총 747) | ✅ |
+| R2808 | i18n 178키 (CocosPanel/Terminal/SceneToolbar, 총 ~540키) + SceneView 유틸/타입 108테스트 (총 855) | ✅ |
+| R2809 | 테스트 **1,000개** 달성 + i18n 33키(총~573) + Sidebar 18패널 ErrorBoundary 래핑 | ✅ |
+| R2810 | 테스트 **1,106개** + i18n ~597키 + FileViewer/FileTabBar 한영 전환 | ✅ |
+| R2811 | i18n hq 컴포넌트 + ResourceBar/OpsFeed/AgentBay/sessionUtils 51테스트 (총 1,157) | ✅ |
+| R2812 | ToastContainer/TitleBar/WelcomeScreen/CalendarPanel/NotesPanel 84 렌더테스트 (총 1,241) | ✅ |
+| R2813 | TasksPanel/ClipboardPanel/DiffPanel/RemotePanel 75 렌더테스트 (총 1,316) | ✅ |
+| R2814 | BookmarksPanel/SnippetPanel/StatusBar/CommandPalette 62 렌더테스트 (총 1,378) | ✅ |
+| R2815 | SettingsPanel/SearchPanel/ConnectionPanel/StatsPanel/OutlinePanel 78 렌더테스트 (총 1,456) | ✅ |
+| R2816 | GlobalSearch/ChangedFiles/ModelSelector/ExportButtons/MiniMap 76테스트 (총 1,532) | ✅ |
+| R2817 | CC Editor 감사 — 3.x rotation quat→euler 버그 수정, enabled 저장 누락 수정, 컴포넌트 기본값 확장 (총 1,533) | ✅ |
+| R2818 | CC 3.x rotation 라운드트립 테스트 + buildUUIDMap async + transform 24테스트 (총 1,575) | ✅ |
+| R2819 | 렌더링 버그 — 부모 회전/스케일 자식 시각 반영 (worldRotZ/worldScaleX/Y) | ✅ |
+| R2820 | 호환성 — 3.x UITransform 자동생성 + Label spacingY + rotation CCVec3 통일 (14파일) | ✅ |
+| R2821 | Atlas 스프라이트 프레임 추출 (plist/meta→SVG viewBox 크롭) + color plugin 30테스트 (총 1,620) | ✅ |
+| R2822 | Widget 레이아웃 계산 (alignFlags→position/size) + BMFont 폴백 + plugin 102테스트 (총 1,729) | ✅ |
+| R2823 | Overflow:SHRINK 텍스트 축소 + parseCCSceneChunked 경량화 + UUID 캐시 클리어 + preset/history/component 65테스트 (총 1,788) | ✅ |
+| R2824 | 테스트 **2,045개** 돌파 — CC파서/핸들러/오버레이/키보드/노드오퍼 257 추가 (100파일) | ✅ |
+| R2825 | SceneView 뷰포트 컬링 (화면밖 노드 스킵) + 씬 저장 직렬화 큐 (per-path Promise 체인) | ✅ |
+| R2826 | 3.x settings.json 해상도 감지 + component applies 필터 + useCCSceneMouse/Assets/shrinkLabel 64테스트 (총 2,109) | ✅ |
+| R2827 | 3.x UIOpacity 가드 + Inspector 10렌더러 React.memo + renderers/NodeInspector/SceneToolbar 84테스트 (총 2,193) | ✅ |
+| R2828 | CC i18n 145키(총~750) + Effects/Physics/Particle/ScrollView/Animation 66 렌더러 테스트 (총 2,259) | ✅ |
+| R2829 | CC 엔진 경량화 (extractor 통합/캐시 주입/단일패스/IPC 타임아웃) + Layout/Keyboard/Hierarchy/SceneTab 119테스트 (총 2,378) | ✅ |
+| R2830 | CC-COMPAT.md 호환 매트릭스 + COMP_SKIP 41개 + memo 3컴포넌트 + Generic/QuickEdit/Transform/Header 128테스트 (총 2,506) | ✅ |
+| R2831 | useCCFileProject(30) + BuildTab/AssetBrowser/BackupManager/ProjectHeader 67테스트 (총 2,603) | ✅ |
+| R2832 | BatchInspector 21플러그인 i18n 530키(총~1,280) + 엣지케이스 37테스트 + JSDoc (총 2,640) | ✅ |

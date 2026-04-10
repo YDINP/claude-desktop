@@ -1,4 +1,6 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback } from 'react'
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
+import { useDebounce } from '../../hooks/useDebounce'
 
 const SEARCH_HISTORY_KEY = 'global-search-history'
 
@@ -32,8 +34,7 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
   const [sortOrder, setSortOrder] = useState<'relevance' | 'date'>('relevance')
   const [searchHistory, setSearchHistory] = useState<string[]>(loadSearchHistory)
   const [showHistory, setShowHistory] = useState(false)
-  const [copiedResultKey, setCopiedResultKey] = useState<string | null>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const { copiedKey: copiedResultKey, copy: copyExcerpt } = useCopyToClipboard()
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) { setResults([]); setSearched(false); return }
@@ -55,11 +56,12 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
     }
   }, [])
 
+  const debouncedSearch = useDebounce(search, 400)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value
     setQuery(v)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => search(v), 400)
+    debouncedSearch(v)
   }
 
   const fmtDate = (ts: number) => {
@@ -85,7 +87,6 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
           onKeyDown={e => {
             if (e.key === 'Escape') { setQuery(''); setResults([]); setSearched(false) }
             else if (e.key === 'Enter' && query.trim().length >= 2) {
-              if (debounceRef.current) clearTimeout(debounceRef.current)
               search(query)
             }
           }}
@@ -178,9 +179,9 @@ export function GlobalSearchPanel({ onSelectSession }: Props) {
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, marginLeft: 6 }}>
                 <button
-                  onClick={e => { e.stopPropagation(); const key = `${r.sessionId}-${r.messageIndex}-${i}`; navigator.clipboard.writeText(r.excerpt).then(() => { setCopiedResultKey(key); setTimeout(() => setCopiedResultKey(k => k === key ? null : k), 1500) }) }}
+                  onClick={e => { e.stopPropagation(); const key = `${r.sessionId}-${r.messageIndex}-${i}`; copyExcerpt(r.excerpt, key) }}
                   title="발췌 복사"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: '0 2px', color: copiedResultKey === `${r.sessionId}-${r.messageIndex}-${i}` ? '#4caf50' : 'var(--text-muted)' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, padding: '0 2px', color: copiedResultKey === `${r.sessionId}-${r.messageIndex}-${i}` ? 'var(--success-bright)' : 'var(--text-muted)' }}
                 >{copiedResultKey === `${r.sessionId}-${r.messageIndex}-${i}` ? '✓' : '📋'}</button>
                 <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
                   {fmtDate(r.updatedAt)}

@@ -1,8 +1,9 @@
 import React from 'react'
 import type { RendererProps } from './types'
+import { t } from '../../../../../utils/i18n'
 
 /** cc.Canvas, cc.Widget, cc.ProgressBar, cc.UIOpacity, cc.UITransform, cc.Mask Quick Edit renderer */
-export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function UIRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Canvas') {
               const dr = (p._N$designResolution ?? p._designResolution ?? p.designResolution ?? {}) as { width?: number; height?: number }
@@ -212,7 +213,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                   {/* R2362: isAbs* 전환 버튼 (절대px / %) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 50, whiteSpace: 'nowrap', flexShrink: 0 }}>unit</span>
-                    <span title="모든 isAbs* = true (절대 px)"
+                    <span title={t('ui.absMode')}
                       onClick={() => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props,
                           isAbsTop: true, _isAbsTop: true, _N$isAbsTop: true,
@@ -225,7 +226,7 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                         applyAndSave({ components: updated })
                       }}
                       style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#60a5fa', userSelect: 'none' }}>px</span>
-                    <span title="모든 isAbs* = false (%)"
+                    <span title={t('ui.relMode')}
                       onClick={() => {
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props,
                           isAbsTop: false, _isAbsTop: false, _N$isAbsTop: false,
@@ -254,9 +255,9 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
                   {/* R1753: Widget 프리셋 버튼 (Stretch / Center / None) */}
                   <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
                     {[
-                      { label: '⊞ Stretch', title: '4방향 모두 0 stretch', patch: { isAlignTop: true, _isAlignTop: true, _N$isAlignTop: true, isAlignBottom: true, _isAlignBottom: true, _N$isAlignBottom: true, isAlignLeft: true, _isAlignLeft: true, _N$isAlignLeft: true, isAlignRight: true, _isAlignRight: true, _N$isAlignRight: true, isAlignHorizontalCenter: false, _isAlignHorizontalCenter: false, _N$isAlignHorizontalCenter: false, isAlignVerticalCenter: false, _isAlignVerticalCenter: false, _N$isAlignVerticalCenter: false, top: 0, _top: 0, _N$top: 0, bottom: 0, _bottom: 0, _N$bottom: 0, left: 0, _left: 0, _N$left: 0, right: 0, _right: 0, _N$right: 0 } },
-                      { label: '⊕ Center', title: '가로/세로 중앙 정렬', patch: { isAlignTop: false, _isAlignTop: false, _N$isAlignTop: false, isAlignBottom: false, _isAlignBottom: false, _N$isAlignBottom: false, isAlignLeft: false, _isAlignLeft: false, _N$isAlignLeft: false, isAlignRight: false, _isAlignRight: false, _N$isAlignRight: false, isAlignHorizontalCenter: true, _isAlignHorizontalCenter: true, _N$isAlignHorizontalCenter: true, isAlignVerticalCenter: true, _isAlignVerticalCenter: true, _N$isAlignVerticalCenter: true } },
-                      { label: '✕ None', title: '정렬 해제', patch: { isAlignTop: false, _isAlignTop: false, _N$isAlignTop: false, isAlignBottom: false, _isAlignBottom: false, _N$isAlignBottom: false, isAlignLeft: false, _isAlignLeft: false, _N$isAlignLeft: false, isAlignRight: false, _isAlignRight: false, _N$isAlignRight: false, isAlignHorizontalCenter: false, _isAlignHorizontalCenter: false, _N$isAlignHorizontalCenter: false, isAlignVerticalCenter: false, _isAlignVerticalCenter: false, _N$isAlignVerticalCenter: false } },
+                      { label: '⊞ Stretch', title: t('ui.stretchPreset'), patch: { isAlignTop: true, _isAlignTop: true, _N$isAlignTop: true, isAlignBottom: true, _isAlignBottom: true, _N$isAlignBottom: true, isAlignLeft: true, _isAlignLeft: true, _N$isAlignLeft: true, isAlignRight: true, _isAlignRight: true, _N$isAlignRight: true, isAlignHorizontalCenter: false, _isAlignHorizontalCenter: false, _N$isAlignHorizontalCenter: false, isAlignVerticalCenter: false, _isAlignVerticalCenter: false, _N$isAlignVerticalCenter: false, top: 0, _top: 0, _N$top: 0, bottom: 0, _bottom: 0, _N$bottom: 0, left: 0, _left: 0, _N$left: 0, right: 0, _right: 0, _N$right: 0 } },
+                      { label: '⊕ Center', title: t('ui.centerPreset'), patch: { isAlignTop: false, _isAlignTop: false, _N$isAlignTop: false, isAlignBottom: false, _isAlignBottom: false, _N$isAlignBottom: false, isAlignLeft: false, _isAlignLeft: false, _N$isAlignLeft: false, isAlignRight: false, _isAlignRight: false, _N$isAlignRight: false, isAlignHorizontalCenter: true, _isAlignHorizontalCenter: true, _N$isAlignHorizontalCenter: true, isAlignVerticalCenter: true, _isAlignVerticalCenter: true, _N$isAlignVerticalCenter: true } },
+                      { label: '✕ None', title: t('ui.nonePreset'), patch: { isAlignTop: false, _isAlignTop: false, _N$isAlignTop: false, isAlignBottom: false, _isAlignBottom: false, _N$isAlignBottom: false, isAlignLeft: false, _isAlignLeft: false, _N$isAlignLeft: false, isAlignRight: false, _isAlignRight: false, _N$isAlignRight: false, isAlignHorizontalCenter: false, _isAlignHorizontalCenter: false, _N$isAlignHorizontalCenter: false, isAlignVerticalCenter: false, _isAlignVerticalCenter: false, _N$isAlignVerticalCenter: false } },
                     ].map(({ label, title, patch }) => (
                       <span key={label} title={title}
                         onClick={() => {
@@ -523,3 +524,4 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
             // R1569: cc.PageView — direction/scrollThreshold/autoPageTurningThreshold Quick Edit
             return null
 }
+export const UIRenderer = React.memo(UIRendererInner)

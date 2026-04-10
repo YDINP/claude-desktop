@@ -1,4 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react'
+import { useDebounce } from '../../hooks/useDebounce'
+import { t } from '../../utils/i18n'
 
 interface SearchResult {
   filePath: string
@@ -22,7 +24,6 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
   const [wholeWord, setWholeWord] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedExts, setSelectedExts] = useState<Set<string>>(new Set())
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [replaceMode, setReplaceMode] = useState(false)
   const [replaceText, setReplaceText] = useState('')
@@ -39,25 +40,25 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
   }
 
   const [history, setHistory] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('searchHistory') ?? '[]') } catch { return [] }
+    try { return JSON.parse(localStorage.getItem('cd-search-history') ?? '[]') } catch { return [] }
   })
   const [showHistory, setShowHistory] = useState(false)
 
   const saveHistory = (q: string) => {
     const next = [q, ...history.filter(h => h !== q)].slice(0, 20)
     setHistory(next)
-    localStorage.setItem('searchHistory', JSON.stringify(next))
+    localStorage.setItem('cd-search-history', JSON.stringify(next))
   }
 
   const removeHistoryItem = (item: string) => {
     const next = history.filter(h => h !== item)
     setHistory(next)
-    localStorage.setItem('searchHistory', JSON.stringify(next))
+    localStorage.setItem('cd-search-history', JSON.stringify(next))
   }
 
   const clearHistory = () => {
     setHistory([])
-    localStorage.removeItem('searchHistory')
+    localStorage.removeItem('cd-search-history')
   }
 
   const doSearch = useCallback(async (q: string) => {
@@ -75,10 +76,11 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
     }
   }, [rootPath, caseSensitive, useRegex, wholeWord])
 
+  const debouncedSearch = useDebounce(doSearch, 400)
+
   const handleChange = (val: string) => {
     setQuery(val)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => doSearch(val), 400)
+    debouncedSearch(val)
   }
 
   const handleSubmit = (q: string) => {
@@ -256,7 +258,7 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
               onClick={() => clearHistory()}
             >
-              전체 삭제
+              {t('search.clearHistory', '전체 삭제')}
             </div>
           </div>
         )}
@@ -306,7 +308,7 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
               disabled={replacing || !results.length}
               style={{ padding: '4px 8px', background: replacing || !results.length ? 'var(--bg-secondary)' : '#f44336', border: 'none', borderRadius: 4, color: replacing || !results.length ? 'var(--text-muted)' : '#fff', cursor: replacing || !results.length ? 'default' : 'pointer', fontSize: 11, whiteSpace: 'nowrap' }}
             >
-              {replacing ? '...' : '모두 바꾸기'}
+              {replacing ? t('search.replacing', '...') : t('search.replaceAll', '모두 바꾸기')}
             </button>
           </div>
           {replaceResult && (
@@ -380,13 +382,13 @@ export function SearchPanel({ rootPath, onFileClick }: { rootPath: string; onFil
       {/* Results */}
       <div style={{ flex: 1, overflowY: 'auto', paddingTop: 4 }}>
         {isSearching && (
-          <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)' }}>검색 중...</div>
+          <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)' }}>{t('search.searching', '검색 중...')}</div>
         )}
         {error && (
-          <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--error)' }}>오류: {error}</div>
+          <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--error)' }}>{t('search.error', '오류: ')}{error}</div>
         )}
         {!isSearching && query.length >= 2 && grouped.length === 0 && !error && (
-          <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)' }}>결과 없음</div>
+          <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)' }}>{t('search.noResults', '결과 없음')}</div>
         )}
         {grouped.map(group => {
           const isCollapsed = collapsedFiles.has(group.filePath)

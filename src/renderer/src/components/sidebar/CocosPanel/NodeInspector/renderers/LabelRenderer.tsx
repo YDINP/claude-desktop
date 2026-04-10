@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import type { RendererProps } from './types'
+import { t } from '../../../../../utils/i18n'
 
 /** cc.Label Quick Edit — extracted to satisfy Rules of Hooks */
 function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement {
@@ -74,11 +75,11 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       {/* R1773: 텍스트 길이 배지 */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, alignSelf: 'flex-end' }}>
                         <span style={{ fontSize: 8, color: str.length === 0 ? '#f87171' : 'var(--text-muted)' }}>
-                          {str.length === 0 ? '⚠ 빈 문자열' : `${str.length}자`}
+                          {str.length === 0 ? t('label.emptyStr') : t('label.charCount').replace('{n}', String(str.length))}
                         </span>
                         {/* R1805: string 복사 버튼 */}
                         {str.length > 0 && (
-                          <span title="텍스트 복사"
+                          <span title={t('label.copyText')}
                             onClick={() => navigator.clipboard.writeText(str).catch(() => {})}
                             style={{ fontSize: 9, cursor: 'pointer', color: '#555', padding: '0 2px' }}
                             onMouseEnter={e => (e.currentTarget.style.color = '#58a6ff')}
@@ -187,7 +188,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                   {/* R1757: fontFamily 입력 + 폰트 에셋 드롭다운 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative', flexWrap: 'wrap' }} ref={fontDropdownRef}>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>fontFam</span>
-                    <input type="text" key={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} defaultValue={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} placeholder="폰트 이름 (빈칸=기본)"
+                    <input type="text" key={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} defaultValue={String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')} placeholder={t('label.fontPlaceholder')}
                       onBlur={e => {
                         const v = e.target.value.trim()
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontFamily: v, _fontFamily: v, _N$fontFamily: v } } : c)
@@ -196,7 +197,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                       style={{ flex: 1, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
                     />
                     <button
-                      title="프로젝트 폰트 에셋 선택"
+                      title={t('label.fontAssetSelect')}
                       onClick={() => setFontDropdownOpen(v => !v)}
                       style={{ fontSize: 9, padding: '1px 5px', background: fontDropdownOpen ? 'var(--accent)' : 'var(--bg-primary)', border: '1px solid var(--border)', color: fontDropdownOpen ? '#fff' : 'var(--text-muted)', borderRadius: 3, cursor: 'pointer', flexShrink: 0 }}
                     >F▾</button>
@@ -207,7 +208,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                         border: '1px dashed var(--border)', color: '#555',
                         transition: 'border-color 0.1s, background 0.1s',
                       }}
-                      title="폰트 파일을 여기에 드롭"
+                      title={t('label.fontDrop')}
                       onDragOver={e => {
                         if (e.dataTransfer.types.includes('application/cc-asset')) {
                           e.preventDefault()
@@ -286,7 +287,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                     {(['', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New'] as const).map(ff => {
                       const curFf = String(p.fontFamily ?? p._fontFamily ?? p._N$fontFamily ?? '')
                       return (
-                        <span key={ff} title={ff || '기본 (빈칸)'}
+                        <span key={ff} title={ff || t('label.fontDefault')}
                           onClick={() => {
                             const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, fontFamily: ff, _fontFamily: ff, _N$fontFamily: ff } } : c)
                             applyAndSave({ components: updated })
@@ -355,7 +356,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                     {(() => {
                       const wrapVal = !!(p.enableWrapText ?? p._enableWrapText ?? p._N$enableWrapText ?? true)
                       return (
-                        <span title={wrapVal ? '줄바꿈 활성 (클릭시 해제)' : '줄바꿈 비활성 (클릭시 활성)'}
+                        <span title={wrapVal ? t('label.wrapOn') : t('label.wrapOff')}
                           onClick={() => {
                             const nv = !wrapVal
                             const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, enableWrapText: nv, _enableWrapText: nv, _N$enableWrapText: nv } } : c)
@@ -424,7 +425,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                           applyAndSave({ components: updated })
                         }}
                         style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: '#93c5fd', borderRadius: 3, padding: '1px 4px' }}
-                        title="밑줄 두께 (CC3.x underlineHeight, 기본 2px)"
+                        title={t('label.underlineHeight')}
                       />
                       <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
                       {[1, 2, 3, 4, 6].map(v => (
@@ -445,7 +446,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                     return (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         <span
-                          title={isStrike ? '취소선 해제' : '취소선 활성'}
+                          title={isStrike ? t('label.strikeOn') : t('label.strikeOff')}
                           onClick={() => {
                             const nv = !isStrike
                             const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, isStrikethrough: nv, _isStrikethrough: nv, isStrike: nv, _isStrike: nv, _N$isStrike: nv } } : c)
@@ -462,7 +463,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                             applyAndSave({ components: updated })
                           }}
                           style={{ width: 44, fontSize: 10, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '1px 4px' }}
-                          title="문자 간격 (charSpacing)"
+                          title={t('label.charSpacing')}
                         />
                         {[-2, 0, 2, 4, 8].map(v => (
                           <span key={v} title={`charSpacing = ${v}`}
@@ -479,13 +480,13 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
                   {/* R1746: 텍스트 대소문자 변환 버튼 */}
                   {str && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>변환</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 }}>{t('label.transformSection')}</span>
                       {[
-                        { label: 'ABC', title: '모두 대문자', fn: (s: string) => s.toUpperCase() },
-                        { label: 'abc', title: '모두 소문자', fn: (s: string) => s.toLowerCase() },
-                        { label: 'Abc', title: '단어 첫 글자 대문자', fn: (s: string) => s.replace(/\b\w/g, c => c.toUpperCase()) },
+                        { label: 'ABC', title: t('label.caseUpper'), fn: (s: string) => s.toUpperCase() },
+                        { label: 'abc', title: t('label.caseLower'), fn: (s: string) => s.toLowerCase() },
+                        { label: 'Abc', title: t('label.caseTitle'), fn: (s: string) => s.replace(/\b\w/g, c => c.toUpperCase()) },
                         /* R1759: trim */
-                        { label: 'trim', title: '앞뒤 공백 제거', fn: (s: string) => s.trim() },
+                        { label: 'trim', title: t('label.caseTrim'), fn: (s: string) => s.trim() },
                       ].map(({ label, title, fn }) => (
                         <span key={label} title={title}
                           onClick={() => {
@@ -641,7 +642,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
 }
 
 /** cc.LabelOutline, cc.LabelShadow, cc.RichText, cc.Label Quick Edit renderer */
-export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function LabelRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const [showRichPreview, setShowRichPreview] = React.useState(false)
             const p = comp.props
             if (comp.type === 'cc.LabelOutline' || comp.type === 'cc.LabelShadow') {
@@ -744,9 +745,11 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
               const HALIGN = ['Left', 'Center', 'Right']
               const OVERFLOW = ['None', 'Clamp', 'Shrink', 'Resize']
               // R1767: RichText 마크업 → HTML 변환 (미리보기용)
+              const isValidColor = (c: string) => /^#[0-9a-fA-F]{3,8}$/.test(c)
               const richToHtml = (src: string) => src
                 .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                .replace(/&lt;color=(#[0-9a-fA-F]{3,8})&gt;(.*?)&lt;\/color&gt;/gs, '<span style="color:$1">$2</span>')
+                .replace(/&lt;color=(#[0-9a-fA-F]{3,8})&gt;(.*?)&lt;\/color&gt;/gs, (_m, col: string, body: string) =>
+                  `<span style="color:${isValidColor(col) ? col : '#ffffff'}">${body}</span>`)
                 .replace(/&lt;size=(\d+)&gt;(.*?)&lt;\/size&gt;/gs, '<span style="font-size:$1px">$2</span>')
                 .replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gs, '<b>$1</b>')
                 .replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gs, '<i>$1</i>')
@@ -764,10 +767,10 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                       />enabled
                     </label>
                     {/* R1767: 미리보기 토글 */}
-                    <span title={showRichPreview ? '미리보기 숨기기' : '미리보기 표시'}
+                    <span title={showRichPreview ? t('label.richPreviewHide') : t('label.richPreviewShow')}
                       onClick={() => setShowRichPreview(v => !v)}
                       style={{ fontSize: 9, cursor: 'pointer', color: showRichPreview ? '#58a6ff' : '#556', padding: '0 3px', border: '1px solid var(--border)', borderRadius: 2 }}
-                    >{showRichPreview ? '👁 미리보기' : '👁'}</span>
+                    >{showRichPreview ? t('label.richPreviewBtn') : '👁'}</span>
                   </div>
                   {showRichPreview && (
                     <div style={{ marginBottom: 4, padding: '4px 6px', background: '#111', border: '1px solid #333', borderRadius: 3, fontSize: 11, minHeight: 24, color: '#fff', lineHeight: 1.5, wordBreak: 'break-all' }}
@@ -775,7 +778,7 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
                   )}
                   {/* R1808: string applyAndSave */}
                   <div style={{ marginBottom: 4 }}>
-                    <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>내용 (HTML 태그 지원)</label>
+                    <label style={{ display: 'block', fontSize: 11, marginBottom: 2 }}>{t('label.richContentLabel')}</label>
                     <textarea
                       defaultValue={String(p.string ?? '')}
                       rows={3}
@@ -1058,3 +1061,4 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
             // R1538: cc.EditBox — 텍스트/플레이스홀더/maxLength 편집
             return null
 }
+export const LabelRenderer = React.memo(LabelRendererInner)

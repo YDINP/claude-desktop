@@ -47,6 +47,7 @@ export const BATCH_PLUGINS: BatchPlugin[] = [
     group: 'component',
     title: '컴포넌트',
     minNodes: 1,
+    applies: (nodes) => nodes.some(n => n.components.length > 0),
     Component: ComponentPlugin,
   },
   {

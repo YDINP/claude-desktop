@@ -20,6 +20,8 @@ interface WorkflowCommandMeta {
   description: string
   filePath: string
   source: 'commands' | 'workflows' | 'global-commands'
+  /** .md 내 $ARGUMENTS 플레이스홀더 존재 여부 */
+  hasArguments: boolean
 }
 
 /**
@@ -68,6 +70,7 @@ async function scanDir(dirPath: string, source: 'commands' | 'workflows'): Promi
           description,
           filePath,
           source,
+          hasArguments: content.includes('$ARGUMENTS'),
         })
       } catch {
         // 파일 읽기 실패 시 스킵
@@ -104,7 +107,7 @@ async function scanGlobalCommands(): Promise<WorkflowCommandMeta[]> {
         try {
           const content = await readFile(entryPath, 'utf-8')
           const description = extractDescription(content) || `글로벌 커맨드: ${cmd}`
-          results.set(cmd, { cmd, label: `/${cmd}`, description, filePath: entryPath, source: 'global-commands' })
+          results.set(cmd, { cmd, label: `/${cmd}`, description, filePath: entryPath, source: 'global-commands', hasArguments: content.includes('$ARGUMENTS') })
         } catch { /* skip */ }
       } else if (entry.isDirectory()) {
         // 서브폴더: skill.md 또는 폴더명.md 탐색
@@ -117,7 +120,7 @@ async function scanGlobalCommands(): Promise<WorkflowCommandMeta[]> {
           try {
             const content = await readFile(filePath, 'utf-8')
             const description = extractDescription(content) || `글로벌 스킬: ${cmd}`
-            results.set(cmd, { cmd, label: `/${cmd}`, description, filePath, source: 'global-commands' })
+            results.set(cmd, { cmd, label: `/${cmd}`, description, filePath, source: 'global-commands', hasArguments: content.includes('$ARGUMENTS') })
             break
           } catch { /* try next */ }
         }

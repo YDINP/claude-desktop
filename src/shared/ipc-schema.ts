@@ -101,6 +101,8 @@ export interface CCEvent {
   type: 'connected' | 'scene:ready' | 'scene:saved' | 'node:select' | 'node:deselect'
   uuids?: string[]
   version?: string
+  /** IPC 레이어에서 포트 구분용으로 주입되는 내부 필드 */
+  _ccPort?: number
 }
 
 export interface CCStatus {
@@ -184,8 +186,8 @@ export interface CCSceneNode {
   name: string
   active: boolean
   position: CCVec3
-  /** 2.x: z-euler number | 3.x: {x,y,z} euler */
-  rotation: CCVec3 | number
+  /** euler degrees {x,y,z}. 2.x는 x=0, y=0, z=euler로 정규화됨 */
+  rotation: CCVec3
   scale: CCVec3
   /** UITransform / _contentSize 기반 */
   size: CCVec2
@@ -201,6 +203,8 @@ export interface CCSceneNode {
   eventHandlers?: { component: string; event: string; handler: string; target?: string }[]
   /** 원본 flat 배열 인덱스 (직접 편집용) */
   _rawIndex?: number
+  /** CC 3.x _lrot quaternion w 컴포넌트 보존용 (라운드트립 손실 방지) */
+  _lrotW?: number
 }
 
 export interface CCSceneFile {

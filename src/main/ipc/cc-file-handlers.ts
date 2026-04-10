@@ -3,9 +3,10 @@ import http from 'http'
 import { readFile } from 'fs/promises'
 import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene, parseCCSceneChunked, isLargeScene } from '../cc/cc-file-parser'
-import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile, recordSceneMtime, forceOverwriteScene } from '../cc/cc-file-saver'
+import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile, recordSceneMtime, forceOverwriteScene, clearMtimeMap } from '../cc/cc-file-saver'
 import { ccFileWatcher } from '../cc/cc-file-watcher'
 import { buildUUIDMap, extractReferencedUUIDs, resolveTextureUrl } from '../cc/cc-asset-resolver'
+import type { UUIDMap } from '../cc/cc-asset-resolver'
 import {
   CC_FILE_DETECT,
   CC_FILE_OPEN_PROJECT,
@@ -19,12 +20,15 @@ let _registered = false
 let _watchUnsubscribe: (() => void) | null = null
 let _partialUpdateUnsubscribe: (() => void) | null = null
 
+// per-scenePath 저장 직렬화 큐 — 동시 저장 요청 시 순서 보장
+const _saveQueues = new Map<string, Promise<unknown>>()
+
 // UUID 맵 캐시 (assetsDir → map, 30초 TTL) — buildUUIDMap은 디렉토리 전체 스캔이므로 캐싱 필수
-const _uuidMapCache = new Map<string, { map: ReturnType<typeof buildUUIDMap>; ts: number }>()
-function getCachedUUIDMap(assetsDir: string): ReturnType<typeof buildUUIDMap> {
+const _uuidMapCache = new Map<string, { map: UUIDMap; ts: number }>()
+async function getCachedUUIDMap(assetsDir: string): Promise<UUIDMap> {
   const cached = _uuidMapCache.get(assetsDir)
   if (cached && Date.now() - cached.ts < 30000) return cached.map
-  const map = buildUUIDMap(assetsDir)
+  const map = await buildUUIDMap(assetsDir)
   _uuidMapCache.set(assetsDir, { map, ts: Date.now() })
   return map
 }
@@ -64,6 +68,9 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
       properties: ['openDirectory'],
     })
     if (result.canceled || result.filePaths.length === 0) return null
+    // 프로젝트 전환 시 이전 프로젝트의 mtime/UUID 캐시 클리어
+    clearMtimeMap()
+    _uuidMapCache.clear()
     return detectCCVersion(result.filePaths[0])
   })
 
@@ -80,7 +87,9 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     projectInfo: CCFileProjectInfo
   ) => {
     try {
-      const result = parseCCScene(scenePath, projectInfo)
+      // assetsDir가 있으면 캐시된 UUID 맵을 미리 확보해서 parseCCScene 내부 재스캔 방지
+      const uuidMap = projectInfo.assetsDir ? await getCachedUUIDMap(projectInfo.assetsDir) : undefined
+      const result = await parseCCScene(scenePath, projectInfo, uuidMap)
       // R1437: 로드 시 mtime 기록
       recordSceneMtime(scenePath)
       return result
@@ -90,12 +99,16 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   })
 
   /** 수정된 씬 트리 → 파일 저장 (temp→rename 원자적, .bak 백업) */
-  ipcMain.handle(CC_FILE_SAVE_SCENE, async (
+  ipcMain.handle(CC_FILE_SAVE_SCENE, (
     _e,
     sceneFile: CCSceneFile,
     modifiedRoot: CCSceneNode
   ) => {
-    return saveCCScene(sceneFile, modifiedRoot)
+    const scenePath = sceneFile.scenePath
+    const prev = _saveQueues.get(scenePath) ?? Promise.resolve()
+    const current = prev.then(() => saveCCScene(sceneFile, modifiedRoot)).catch((err) => ({ success: false, error: String(err) }))
+    _saveQueues.set(scenePath, current)
+    return current
   })
 
   /** R2327: 다른 이름으로 저장 (Save As) */
@@ -156,7 +169,8 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     chunkOffset = 0
   ) => {
     try {
-      return parseCCSceneChunked(scenePath, projectInfo, chunkSize, chunkOffset)
+      const uuidMap = projectInfo.assetsDir ? await getCachedUUIDMap(projectInfo.assetsDir) : undefined
+      return await parseCCSceneChunked(scenePath, projectInfo, chunkSize, chunkOffset, uuidMap)
     } catch (e) {
       return { error: String(e) }
     }
@@ -183,7 +197,7 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
 
   /** UUID 맵 빌드 (assetsDir 전수 스캔) */
   ipcMain.handle('cc:file:buildUUIDMap', async (_e, assetsDir: string) => {
-    const map = getCachedUUIDMap(assetsDir)
+    const map = await getCachedUUIDMap(assetsDir)
     // Map → plain object (IPC 전달 가능하도록)
     const obj: Record<string, { uuid: string; path: string; relPath: string; type: string }> = {}
     for (const [k, v] of map) obj[k] = v
@@ -192,7 +206,7 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
 
   /** UUID → 텍스처 data URL 변환 (base64) */
   ipcMain.handle('cc:file:resolveTexture', async (_e, uuid: string, assetsDir: string) => {
-    const map = getCachedUUIDMap(assetsDir)
+    const map = await getCachedUUIDMap(assetsDir)
     const asset = map.get(uuid)
     if (!asset) return null
     if (asset.type !== 'texture' && asset.type !== 'sprite-atlas') return null
@@ -212,14 +226,15 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     }
   })
 
-  /** UUID → 스프라이트 dataURL + spriteFrame meta border값 반환 (9-slice용) */
+  /** UUID → 스프라이트 dataURL + spriteFrame meta border값 + atlas frame rect 반환 */
   ipcMain.handle('cc:file:resolveSprite', async (_e, uuid: string, assetsDir: string) => {
-    const map = getCachedUUIDMap(assetsDir)
+    const map = await getCachedUUIDMap(assetsDir)
     const asset = map.get(uuid)
     if (!asset) return null
     if (asset.type !== 'texture' && asset.type !== 'sprite-atlas') return null
     try {
-      let imgPath = asset.path
+      const originalPath = asset.path
+      let imgPath = originalPath
       if (imgPath.endsWith('.plist')) {
         const pngPath = imgPath.slice(0, -5) + 'png'
         try { await readFile(pngPath); imgPath = pngPath } catch { /* ignore */ }
@@ -228,23 +243,60 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
       const ext = imgPath.split('.').pop()?.toLowerCase() ?? 'png'
       const mime: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif' }
       const dataUrl = `data:${mime[ext] ?? 'image/png'};base64,${data.toString('base64')}`
-      // spriteFrame meta에서 border(9-slice inset)값 읽기
+      // spriteFrame meta에서 border(9-slice inset)값 + atlas frame rect 읽기
       let borderTop = 0, borderBottom = 0, borderLeft = 0, borderRight = 0
+      let frame: { x: number; y: number; w: number; h: number; rotated: boolean } | null = null
       try {
-        const metaRaw = await readFile(imgPath + '.meta', 'utf-8')
-        const meta = JSON.parse(metaRaw) as { subMetas?: Record<string, { uuid?: string; borderTop?: number; borderBottom?: number; borderLeft?: number; borderRight?: number }> }
+        // plist atlas → plist.meta에서 읽어야 함 (png.meta 아님)
+        const metaPath = originalPath + '.meta'
+        const metaRaw = await readFile(metaPath, 'utf-8')
+        const meta = JSON.parse(metaRaw) as {
+          subMetas?: Record<string, {
+            uuid?: string
+            // CC 2.x: border/trim 직접
+            borderTop?: number; borderBottom?: number; borderLeft?: number; borderRight?: number
+            trimX?: number; trimY?: number; width?: number; height?: number
+            rawWidth?: number; rawHeight?: number; rotated?: boolean
+            rawTextureUuid?: string
+            // CC 3.x: userData 내부
+            userData?: {
+              borderTop?: number; borderBottom?: number; borderLeft?: number; borderRight?: number
+              trimX?: number; trimY?: number; width?: number; height?: number
+              rawWidth?: number; rawHeight?: number; rotated?: boolean
+              atlasUuid?: string; imageUuidOrDatabaseUri?: string
+            }
+          }>
+        }
         const subMetas = meta.subMetas ?? {}
         for (const sub of Object.values(subMetas)) {
           if (sub.uuid === uuid) {
-            borderTop = sub.borderTop ?? 0
-            borderBottom = sub.borderBottom ?? 0
-            borderLeft = sub.borderLeft ?? 0
-            borderRight = sub.borderRight ?? 0
+            // CC 3.x: userData 내부에 값이 있음 / CC 2.x: 직접
+            const ud = sub.userData
+            borderTop = ud?.borderTop ?? sub.borderTop ?? 0
+            borderBottom = ud?.borderBottom ?? sub.borderBottom ?? 0
+            borderLeft = ud?.borderLeft ?? sub.borderLeft ?? 0
+            borderRight = ud?.borderRight ?? sub.borderRight ?? 0
+            // atlas frame rect 추출 — trimX/trimY가 있고 rawTextureUuid 또는 atlasUuid가 있으면 atlas 소속
+            const trimX = ud?.trimX ?? sub.trimX
+            const trimY = ud?.trimY ?? sub.trimY
+            const fw = ud?.width ?? sub.width
+            const fh = ud?.height ?? sub.height
+            const rawW = ud?.rawWidth ?? sub.rawWidth
+            const rawH = ud?.rawHeight ?? sub.rawHeight
+            const isAtlas = !!(ud?.atlasUuid ?? ud?.imageUuidOrDatabaseUri ?? sub.rawTextureUuid)
+            const rotated = ud?.rotated ?? sub.rotated ?? false
+            // frame이 전체 이미지와 다르면(atlas에서 크롭 필요) frame 정보 반환
+            if (isAtlas && trimX != null && trimY != null && fw != null && fh != null) {
+              const isFullImage = trimX === 0 && trimY === 0 && fw === rawW && fh === rawH
+              if (!isFullImage) {
+                frame = { x: trimX, y: trimY, w: fw, h: fh, rotated }
+              }
+            }
             break
           }
         }
-      } catch { /* meta 없으면 border 0 유지 */ }
-      return { dataUrl, borderTop, borderBottom, borderLeft, borderRight }
+      } catch { /* meta 없으면 border 0, frame null 유지 */ }
+      return { dataUrl, borderTop, borderBottom, borderLeft, borderRight, frame }
     } catch {
       return null
     }
@@ -258,14 +310,14 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   /** R1410: UUID → 에셋 상세 정보 */
   ipcMain.handle('cc:file:getAssetInfo', async (_e, uuid: string, assetsDir: string) => {
     const { getAssetInfo } = await import('../cc/cc-asset-resolver')
-    const map = getCachedUUIDMap(assetsDir)
+    const map = await getCachedUUIDMap(assetsDir)
     return getAssetInfo(uuid, map)
   })
 
   /** R1410: 이미지 에셋 UUID 전체 목록 */
   ipcMain.handle('cc:file:getAllTextureUUIDs', async (_e, assetsDir: string) => {
     const { getAllTextureUUIDs } = await import('../cc/cc-asset-resolver')
-    const map = getCachedUUIDMap(assetsDir)
+    const map = await getCachedUUIDMap(assetsDir)
     return getAllTextureUUIDs(map)
   })
 
@@ -308,12 +360,18 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     })
   })
 
-  /** 폰트 파일 (TTF/OTF/WOFF) → base64 data URL */
+  /** 폰트 파일 (TTF/OTF/WOFF) → base64 data URL, .fnt(BMFont) → 시스템 폰트 폴백 */
   ipcMain.handle('cc:file:resolveFont', async (_e, uuid: string, assetsDir: string) => {
-    const map = getCachedUUIDMap(assetsDir)
+    const map = await getCachedUUIDMap(assetsDir)
     const asset = map.get(uuid)
     if (!asset) return null
     const ext = asset.path.split('.').pop()?.toLowerCase() ?? ''
+    // BMFont(.fnt) → 시스템 폰트 폴백 (비트맵 폰트는 브라우저에서 렌더링 불가)
+    if (ext === 'fnt') {
+      const familyName = (asset.path.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') ?? uuid.slice(0, 8))
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
+      return { dataUrl: '', familyName, fallback: true }
+    }
     const fontExts = ['ttf', 'otf', 'woff', 'woff2', 'eot']
     if (!fontExts.includes(ext)) return null
     try {

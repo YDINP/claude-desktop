@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
-import type { ChatMessage } from '../../stores/chat-store'
+import type { ChatMessage } from '../../domains/chat'
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
+import { t } from '../../utils/i18n'
 
 type OutlineItem = {
   level: 1 | 2 | 3
@@ -52,7 +54,7 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
     return list
   }, [allItems, search, levelFilter, reversed])
   const [copied, setCopied] = useState(false)
-  const [copiedItemKey, setCopiedItemKey] = useState<string | null>(null)
+  const { copiedKey: copiedItemKey, copy: copyHeading } = useCopyToClipboard()
   const copyOutline = useCallback(() => {
     const md = items.map(it => `${'#'.repeat(it.level)} ${it.text}`).join('\n')
     navigator.clipboard.writeText(md).then(() => {
@@ -77,7 +79,7 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
         gap: 6,
       }}>
         <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600 }}>
-          아웃라인
+          {t('outline.header', '아웃라인')}
         </span>
         <span style={{
           fontSize: 10,
@@ -105,14 +107,14 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
           {allItems.length > 0 && (
             <button
               onClick={() => setReversed(v => !v)}
-              title={reversed ? '오래된 항목 먼저' : '최신 항목 먼저'}
+              title={reversed ? t('outline.oldestFirst', '오래된 항목 먼저') : t('outline.newestFirst', '최신 항목 먼저')}
               style={{ padding: '0 5px', fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', background: reversed ? 'var(--accent)' : 'none', color: reversed ? '#fff' : 'var(--text-muted)' }}
             >{reversed ? '↑' : '↓'}</button>
           )}
           {items.length > 0 && (
             <button
               onClick={copyOutline}
-              title="아웃라인 복사"
+              title={t('outline.copyTitle', '아웃라인 복사')}
               style={{ padding: '0 5px', fontSize: 9, borderRadius: 3, border: '1px solid var(--border)', cursor: 'pointer', background: copied ? 'var(--accent)' : 'none', color: copied ? '#fff' : 'var(--text-muted)' }}
             >{copied ? '✓' : '📋'}</button>
           )}
@@ -136,18 +138,9 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setSearch('')}
-          placeholder="헤딩 검색..."
-          style={{
-            width: '100%',
-            background: 'var(--bg-input)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            padding: '3px 8px',
-            fontSize: 11,
-            outline: 'none',
-            boxSizing: 'border-box',
-          }}
+          placeholder={t('outline.searchPlaceholder', '헤딩 검색...')}
+          className="panel-search"
+          style={{ background: 'var(--bg-input)', boxSizing: 'border-box' }}
         />
       </div>
 
@@ -155,7 +148,7 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {items.length === 0 ? (
           <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 11 }}>
-            {allItems.length === 0 ? '헤딩 없음' : '검색 결과 없음'}
+            {allItems.length === 0 ? t('outline.empty', '헤딩 없음') : t('outline.noResults', '검색 결과 없음')}
           </div>
         ) : (
           items.map((item, i) => {
@@ -194,9 +187,9 @@ export function OutlinePanel({ messages, onScrollToMsg }: OutlinePanelProps) {
               >
                 <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.text}</span>
                 <button
-                  onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(`${'#'.repeat(item.level)} ${item.text}`).then(() => { setCopiedItemKey(key); setTimeout(() => setCopiedItemKey(k => k === key ? null : k), 1500) }) }}
-                  title="헤딩 복사"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, padding: '0 2px', color: copiedItemKey === key ? '#4caf50' : 'var(--border)', flexShrink: 0, opacity: 0, transition: 'opacity 0.15s' }}
+                  onClick={e => { e.stopPropagation(); copyHeading(`${'#'.repeat(item.level)} ${item.text}`, key) }}
+                  title={t('outline.copyHeadingTitle', '헤딩 복사')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, padding: '0 2px', color: copiedItemKey === key ? 'var(--success-bright)' : 'var(--border)', flexShrink: 0, opacity: 0, transition: 'opacity 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
                   onMouseLeave={e => { if (copiedItemKey !== key) e.currentTarget.style.opacity = '0' }}
                   ref={el => { if (el && copiedItemKey === key) el.style.opacity = '1' }}

@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense, Component } from 'react'
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
 import type { ReactNode } from 'react'
 import { saveRun, loadRuns } from '../../utils/work-history'
 import type { WorkRun } from '../../utils/work-history'
 import { RunTimeline } from './RunTimeline'
+import { t } from '../../utils/i18n'
 
 // Lazy load to avoid circular deps
 const PromptChainPanel = lazy(() =>
@@ -46,15 +48,15 @@ const STATUS_COLOR: Record<AgentTask['status'], string> = {
   idle: 'var(--text-muted)',
   running: '#60a5fa',
   done: '#4ade80',
-  error: '#f87171',
+  error: 'var(--error)',
 }
 
-const SCHEDULE_LABELS: Record<AgentTask['schedule'], string> = {
-  manual: '수동',
-  onStart: '시작 시',
-  hourly: '매시간',
-  daily: '매일',
-}
+const SCHEDULE_LABELS: () => Record<AgentTask['schedule'], string> = () => ({
+  manual: t('agent.scheduleManualLabel', '수동'),
+  onStart: t('agent.scheduleOnStartLabel', '시작 시'),
+  hourly: t('agent.scheduleHourlyLabel', '매시간'),
+  daily: t('agent.scheduleDailyLabel', '매일'),
+})
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
 
@@ -74,10 +76,10 @@ function saveTasks(tasks: AgentTask[]) {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function relativeTime(ts?: number): string {
-  if (!ts) return '없음'
+  if (!ts) return t('agent.relativeNever', '없음')
   const diff = Date.now() - ts
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return '방금'
+  if (mins < 1) return t('agent.relativeJustNow', '방금')
   if (mins < 60) return `${mins}분 전`
   const hours = Math.floor(mins / 60)
   if (hours < 24) return `${hours}시간 전`
@@ -95,8 +97,8 @@ class ChainErrorBoundary extends Component<{ children: ReactNode }, EBState> {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: 16, fontSize: 12, color: '#f87171', textAlign: 'center' }}>
-          체이닝 패널 로딩 실패
+        <div style={{ padding: 16, fontSize: 12, color: 'var(--error)', textAlign: 'center' }}>
+          {t('agent.chainError', '체이닝 패널 로딩 실패')}
         </div>
       )
     }
@@ -120,7 +122,7 @@ function HistoryEntry({ run }: { run: WorkRun }) {
         <span
           style={{
             fontSize: 11,
-            color: run.success ? '#4ade80' : '#f87171',
+            color: run.success ? '#4ade80' : 'var(--error)',
             flexShrink: 0,
           }}
         >
@@ -143,7 +145,7 @@ function HistoryEntry({ run }: { run: WorkRun }) {
       </div>
       <div style={{ fontSize: 10, color: 'var(--text-muted)', paddingLeft: 15 }}>{date}</div>
       {run.error && (
-        <div style={{ fontSize: 10, color: '#f87171', paddingLeft: 15, marginTop: 2 }}>
+        <div style={{ fontSize: 10, color: 'var(--error)', paddingLeft: 15, marginTop: 2 }}>
           {run.error.slice(0, 80)}
         </div>
       )}
@@ -179,7 +181,7 @@ function StepTimeline({ steps }: { steps: WorkStep[] }) {
                   ? '#60a5fa'
                   : step.status === 'done'
                     ? '#4ade80'
-                    : '#f87171',
+                    : 'var(--error)',
             }}
           >
             {step.status === 'running' ? '⟳' : step.status === 'done' ? '✓' : '✗'}
@@ -224,7 +226,7 @@ export function AgentPanel() {
   const [runningSteps, setRunningSteps] = useState<Record<string, WorkStep[]>>({})
   const [runs, setRuns] = useState<WorkRun[]>([])
   const [taskSearch, setTaskSearch] = useState('')
-  const [copiedResultId, setCopiedResultId] = useState<string | null>(null)
+  const { copiedKey: copiedResultId, copy: copyResult } = useCopyToClipboard()
   const onStartRanRef = useRef(false)
   const mountedRef = useRef(true)
   useEffect(() => {
@@ -255,7 +257,7 @@ export function AgentPanel() {
     // Add initial running step
     setRunningSteps(prev => ({
       ...prev,
-      [id]: [{ label: '실행 중…', status: 'running' }],
+      [id]: [{ label: t('agent.stepRunning', '실행 중…'), status: 'running' }],
     }))
 
     const current = loadTasks().find(t => t.id === id)
@@ -268,7 +270,7 @@ export function AgentPanel() {
 
       const success = !result.error
       const finalStep: WorkStep = {
-        label: success ? '완료' : '오류',
+        label: success ? t('agent.stepDone', '완료') : t('agent.stepError', '오류'),
         output: result.error ?? result.summary,
         elapsed: Date.now() - startTs,
         status: success ? 'done' : 'error',
@@ -312,7 +314,7 @@ export function AgentPanel() {
       const errMsg = String(err)
       setRunningSteps(prev => ({
         ...prev,
-        [id]: [{ label: '오류', output: errMsg, elapsed: Date.now() - startTs, status: 'error' }],
+        [id]: [{ label: t('agent.stepError', '오류'), output: errMsg, elapsed: Date.now() - startTs, status: 'error' }],
       }))
 
       setTasks(prev => {
@@ -446,10 +448,10 @@ export function AgentPanel() {
     : tasks
 
   const tabs: { id: AgentTab; label: string; badge?: number }[] = [
-    { id: 'tasks', label: '태스크', badge: tasks.length > 0 ? enabledCount : undefined },
-    { id: 'chains', label: '체이닝' },
-    { id: 'history', label: '히스토리', badge: runs.length > 0 ? runs.length : undefined },
-    { id: 'timeline', label: '런타임' },
+    { id: 'tasks', label: t('agent.tab.tasks', '태스크'), badge: tasks.length > 0 ? enabledCount : undefined },
+    { id: 'chains', label: t('agent.tab.chains', '체이닝') },
+    { id: 'history', label: t('agent.tab.history', '히스토리'), badge: runs.length > 0 ? runs.length : undefined },
+    { id: 'timeline', label: t('agent.tab.timeline', '런타임') },
   ]
 
   return (
@@ -510,7 +512,7 @@ export function AgentPanel() {
               }}
             >
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
-                에이전트 태스크
+                {t('agent.header', '에이전트 태스크')}
               </span>
               <button
                 onClick={() => setShowForm(v => !v)}
@@ -524,7 +526,7 @@ export function AgentPanel() {
                   cursor: 'pointer',
                 }}
               >
-                {showForm ? '취소' : '+ 새 태스크'}
+                {showForm ? t('agent.cancelForm', '취소') : t('agent.newTask', '+ 새 태스크')}
               </button>
             </div>
 
@@ -545,13 +547,13 @@ export function AgentPanel() {
                 <input
                   value={formName}
                   onChange={e => setFormName(e.target.value)}
-                  placeholder="태스크 이름"
+                  placeholder={t('agent.taskNamePlaceholder', '태스크 이름')}
                   style={inputStyle}
                 />
                 <textarea
                   value={formPrompt}
                   onChange={e => setFormPrompt(e.target.value)}
-                  placeholder="실행할 프롬프트"
+                  placeholder={t('agent.promptPlaceholder', '실행할 프롬프트')}
                   rows={3}
                   style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
                 />
@@ -560,10 +562,10 @@ export function AgentPanel() {
                   onChange={e => setFormSchedule(e.target.value as AgentTask['schedule'])}
                   style={{ ...inputStyle }}
                 >
-                  <option value="manual">수동 실행</option>
-                  <option value="onStart">앱 시작 시</option>
-                  <option value="hourly">매시간</option>
-                  <option value="daily">매일</option>
+                  <option value="manual">{t('agent.scheduleManual', '수동 실행')}</option>
+                  <option value="onStart">{t('agent.scheduleOnStart', '앱 시작 시')}</option>
+                  <option value="hourly">{t('agent.scheduleHourly', '매시간')}</option>
+                  <option value="daily">{t('agent.scheduleDaily', '매일')}</option>
                 </select>
                 <button
                   onClick={addTask}
@@ -577,7 +579,7 @@ export function AgentPanel() {
                     cursor: 'pointer',
                   }}
                 >
-                  저장
+                  {t('agent.saveTasks', '저장')}
                 </button>
               </div>
             )}
@@ -587,7 +589,7 @@ export function AgentPanel() {
               <input
                 value={taskSearch}
                 onChange={e => setTaskSearch(e.target.value)}
-                placeholder="태스크 검색..."
+                placeholder={t('agent.searchPlaceholder', '태스크 검색...')}
                 style={{ ...inputStyle, marginBottom: 8, fontSize: 11, padding: '3px 7px' }}
               />
             )}
@@ -603,11 +605,11 @@ export function AgentPanel() {
                     fontSize: 12,
                   }}
                 >
-                  태스크가 없습니다
+                  {t('agent.empty', '태스크가 없습니다')}
                 </div>
               )}
               {taskSearch.trim() && visibleTasks.length === 0 && (
-                <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 16, fontSize: 11 }}>검색 결과 없음</div>
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 16, fontSize: 11 }}>{t('agent.noResults', '검색 결과 없음')}</div>
               )}
               {visibleTasks.map(task => (
                 <div
@@ -648,7 +650,7 @@ export function AgentPanel() {
                     <button
                       onClick={() => runTask(task.id)}
                       disabled={task.status === 'running'}
-                      title="실행"
+                      title={t('agent.runTitle', '실행')}
                       style={{
                         background: 'none',
                         border: 'none',
@@ -663,7 +665,7 @@ export function AgentPanel() {
                     </button>
                     <button
                       onClick={() => toggleEnabled(task.id)}
-                      title={task.enabled ? '비활성화' : '활성화'}
+                      title={task.enabled ? t('agent.disableTitle', '비활성화') : t('agent.enableTitle', '활성화')}
                       style={{
                         background: 'none',
                         border: 'none',
@@ -678,7 +680,7 @@ export function AgentPanel() {
                     </button>
                     <button
                       onClick={() => deleteTask(task.id)}
-                      title="삭제"
+                      title={t('agent.deleteTitle', '삭제')}
                       style={{
                         background: 'none',
                         border: 'none',
@@ -718,7 +720,7 @@ export function AgentPanel() {
                       paddingLeft: 18,
                     }}
                   >
-                    마지막: {relativeTime(task.lastRun)} / {SCHEDULE_LABELS[task.schedule]}
+                    {t('agent.lastRun', '마지막')}: {relativeTime(task.lastRun)} / {SCHEDULE_LABELS()[task.schedule]}
                   </div>
 
                   {/* Row 4: last result (colored by status) */}
@@ -736,8 +738,8 @@ export function AgentPanel() {
                         {task.lastResult.length > 100 ? '…' : ''}
                       </div>
                       <button
-                        onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(task.lastResult!).then(() => { setCopiedResultId(task.id); setTimeout(() => setCopiedResultId(id => id === task.id ? null : id), 1500) }) }}
-                        title="결과 전체 복사"
+                        onClick={e => { e.stopPropagation(); copyResult(task.lastResult!, task.id) }}
+                        title={t('agent.copyResultTitle', '결과 전체 복사')}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: copiedResultId === task.id ? '#4ade80' : 'var(--text-muted)', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
                       >{copiedResultId === task.id ? '✓' : '📋'}</button>
                     </div>
@@ -766,7 +768,7 @@ export function AgentPanel() {
                     textAlign: 'center',
                   }}
                 >
-                  로딩 중…
+                  {t('agent.loading', '로딩 중…')}
                 </div>
               }
             >
@@ -787,7 +789,7 @@ export function AgentPanel() {
               }}
             >
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
-                실행 히스토리
+                {t('agent.historyHeader', '실행 히스토리')}
               </span>
               {runs.length > 0 && (
                 <button
@@ -802,7 +804,7 @@ export function AgentPanel() {
                     cursor: 'pointer',
                   }}
                 >
-                  전체 삭제
+                  {t('agent.clearHistory', '전체 삭제')}
                 </button>
               )}
             </div>
@@ -816,7 +818,7 @@ export function AgentPanel() {
                     fontSize: 12,
                   }}
                 >
-                  실행 기록이 없습니다
+                  {t('agent.historyEmpty', '실행 기록이 없습니다')}
                 </div>
               ) : (
                 [...runs].reverse().map(run => <HistoryEntry key={run.id} run={run} />)

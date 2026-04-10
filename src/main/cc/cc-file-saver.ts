@@ -23,6 +23,25 @@ export function recordSceneMtime(scenePath: string): void {
   } catch { /* ignore */ }
 }
 
+/**
+ * 로드된 씬의 mtime 기록 맵 클리어
+ *
+ * @param projectPath - 지정하면 해당 경로로 시작하는 씬만 제거, 없으면 전체 클리어
+ *
+ * @remarks
+ * 프로젝트 전환이나 테스트 초기화 시 호출.
+ * clearMtimeMap() 이후 saveCCScene은 mtime 충돌 감지를 건너뜀.
+ */
+export function clearMtimeMap(projectPath?: string): void {
+  if (projectPath) {
+    for (const key of loadedMtimeMap.keys()) {
+      if (key.startsWith(projectPath)) loadedMtimeMap.delete(key)
+    }
+  } else {
+    loadedMtimeMap.clear()
+  }
+}
+
 /** R1437: 강제 덮어쓰기 — mtime 무시하고 저장 */
 export function forceOverwriteScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): SaveResult {
   // mtime 기록 초기화 후 저장
@@ -31,9 +50,21 @@ export function forceOverwriteScene(sceneFile: CCSceneFile, modifiedRoot: CCScen
 }
 
 /**
- * 수정된 CCSceneNode 트리를 원본 flat 배열(_raw)에 패치 후 파일로 저장
- * - 저장 전 .bak 백업 생성
- * - temp → rename 패턴으로 원자적 저장
+ * 수정된 CCSceneNode 트리를 원본 flat 배열(_raw)에 패치하여 파일로 저장
+ *
+ * @param sceneFile - parseCCScene으로 로드한 씬 파일 (반드시 `_raw` 포함)
+ * @param modifiedRoot - 수정된 노드 트리의 루트 (CCSceneNode)
+ * @returns SaveResult — `{ success, backupPath?, error?, conflict?, currentMtime? }`
+ *
+ * @remarks
+ * 저장 프로세스:
+ * 1. `_raw` 없으면 즉시 `success: false` 반환
+ * 2. `_rawIndex == null` 인 신규 노드/컴포넌트를 raw 배열 끝에 추가 (normalizeTree)
+ * 3. `validateCCScene` 실행 — 중복 UUID·순환 참조 시 `success: false`
+ * 4. mtime 충돌 감지 — `loadedMtimeMap`에 기록된 mtime과 현재 mtime 비교
+ *    (차이 > 100ms면 `conflict: true` 반환)
+ * 5. `.bak` 백업 후 `.tmp` 임시 파일 쓰기 → `renameSync` 원자적 교체
+ * 6. 저장 후 `loadedMtimeMap` mtime 갱신
  */
 export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): SaveResult {
   if (!sceneFile._raw) {
@@ -67,6 +98,22 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
         ? buildNewRawNode2x(cur, parentRawIdx)
         : buildNewRawNode3x(cur, parentRawIdx))
       cur = { ...cur, _rawIndex: newIdx }
+      // 3x: 새 노드에 UITransform 엔트리 추가 + uiTransformByNodeIdx 맵 갱신
+      if (version === '3x') {
+        const uitIdx = raw.length
+        raw.push({
+          __type__: 'cc.UITransform',
+          _name: '',
+          _objFlags: 0,
+          '__editorExtras__': {},
+          node: { __id__: newIdx },
+          _enabled: true,
+          _contentSize: { width: cur.size?.x ?? 100, height: cur.size?.y ?? 100 },
+          _anchorPoint: { x: cur.anchor?.x ?? 0.5, y: cur.anchor?.y ?? 0.5 },
+          _priority: 0,
+        })
+        uiTransformByNodeIdx.set(newIdx, uitIdx)
+      }
     }
     // R2459: 새 컴포넌트 정규화 (rawIndex 없는 컴포넌트 → raw 배열에 추가)
     const normalizedComps = cur.components.map(comp => {
@@ -127,17 +174,19 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
       if (!ce) continue
       for (const [propKey, propVal] of Object.entries(comp.props)) {
         if (version === '2x') {
-          // 2x: _N$key or _key
+          // 2x: _N$key → _key → key 순서로 검색, 없으면 _N$key로 신규 생성
           const nKey = '_N$' + propKey
           const uKey = '_' + propKey
           if (nKey in ce) ce[nKey] = propVal
           else if (uKey in ce) ce[uKey] = propVal
           else if (propKey in ce) ce[propKey] = propVal
+          else ce[nKey] = propVal  // 기존 키 없으면 _N$ prefix로 새 키 생성
         } else {
-          // 3x: _key
+          // 3x: _key → key 순서로 검색, 없으면 _key로 신규 생성
           const uKey = '_' + propKey
           if (uKey in ce) ce[uKey] = propVal
           else if (propKey in ce) ce[propKey] = propVal
+          else ce[uKey] = propVal  // 기존 키 없으면 _ prefix로 새 키 생성
         }
       }
     }
@@ -256,6 +305,13 @@ const COMP_DEFAULT_2x: Record<string, Record<string, unknown>> = {
   'cc.AudioSource': { '_N$clip': null, '_N$volume': 1, '_N$loop': false, '_N$playOnLoad': false },
   'cc.Mask':        { '_N$type': 0, '_N$inverted': false },
   'cc.Graphics':    { '_N$lineWidth': 2, '_N$strokeColor': { '__type__': 'cc.Color', r: 255, g: 255, b: 255, a: 255 } },
+  'cc.Camera':       { '_N$depth': -1, '_N$cullingMask': 4294967295, '_N$clearFlags': 7, '_N$backgroundColor': { '__type__': 'cc.Color', r: 0, g: 0, b: 0, a: 255 } },
+  'cc.ParticleSystem': { '_N$playOnLoad': true, '_N$autoRemoveOnFinish': false, '_N$duration': 1, '_N$emissionRate': 10 },
+  'cc.RigidBody':    { '_N$type': 2, '_N$allowSleep': true, '_N$gravityScale': 1, '_N$linearDamping': 0, '_N$angularDamping': 0 },
+  'cc.PhysicsCollider': { '_N$density': 1, '_N$sensor': false, '_N$friction': 0.2, '_N$restitution': 0 },
+  'cc.TiledMap':     { '_N$tmxAsset': null },
+  'cc.PageView':     { '_N$direction': 0, '_N$scrollThreshold': 0.5, '_N$pageTurningSpeed': 0.3, '_N$autoPageTurningThreshold': 100 },
+  'cc.BlockInputEvents': {},
 }
 
 /** CC 3.x 컴포넌트 타입별 기본 필드 맵 (언더스코어 접두사) */
@@ -275,6 +331,14 @@ const COMP_DEFAULT_3x: Record<string, Record<string, unknown>> = {
   'cc.AudioSource': { '_clip': null, '_volume': 1, '_loop': false, '_playOnLoad': false },
   'cc.Mask':        { '_type': 0, '_inverted': false },
   'cc.Graphics':    { '_lineWidth': 2, '_strokeColor': { '__type__': 'cc.Color', r: 255, g: 255, b: 255, a: 255 } },
+  'cc.Camera':       { '_projection': 0, '_priority': 0, '_far': 1000, '_near': 1, '_clearFlags': 7, '_color': { '__type__': 'cc.Color', r: 51, g: 51, b: 51, a: 255 } },
+  'cc.ParticleSystem2D': { '_playOnLoad': true, '_autoRemoveOnFinish': false, '_duration': -1, '_emissionRate': 10 },
+  'cc.RigidBody2D':  { '_type': 2, '_allowSleep': true, '_gravityScale': 1, '_linearDamping': 0, '_angularDamping': 0 },
+  'cc.BoxCollider2D': { '_density': 1, '_sensor': false, '_friction': 0.2, '_restitution': 0, '_size': { '__type__': 'cc.Size', width: 100, height: 100 } },
+  'cc.CircleCollider2D': { '_density': 1, '_sensor': false, '_friction': 0.2, '_restitution': 0, '_radius': 50 },
+  'cc.TiledMap':     { '_tmxAsset': null },
+  'cc.PageView':     { '_direction': 0, '_scrollThreshold': 0.5, '_pageTurningSpeed': 0.3, '_autoPageTurningThreshold': 100 },
+  'cc.BlockInputEvents': {},
 }
 
 function buildNewRawComp2x(type: string, nodeIdx: number): RawEntry {
@@ -312,8 +376,8 @@ function patch2x(e: RawEntry, node: CCSceneNode) {
     a[1] = pos.y ?? 0
     a[2] = pos.z ?? 0
 
-    // rotation: 2x stores as Z-euler number
-    const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as CCVec3).z ?? 0
+    // rotation: z-euler degrees
+    const rotZ = node.rotation.z ?? 0
     const rad = rotZ * Math.PI / 180
     // euler Z → quaternion (2D: only Z axis)
     a[3] = 0          // qx
@@ -356,12 +420,11 @@ function patch3x(
 
   e._lpos = { x: pos.x ?? 0, y: pos.y ?? 0, z: pos.z ?? 0 }
 
-  // rotation: 3x stores euler {x,y,z}
-  if (typeof node.rotation === 'object' && node.rotation !== null) {
-    e._lrot = { x: (node.rotation as CCVec3).x ?? 0, y: (node.rotation as CCVec3).y ?? 0, z: (node.rotation as CCVec3).z ?? 0 }
-  } else {
-    e._lrot = { x: 0, y: 0, z: typeof node.rotation === 'number' ? node.rotation : 0 }
-  }
+  // rotation: euler degrees {x,y,z}, 저장 시 euler Z → quaternion 변환
+  const rotZ = node.rotation.z ?? 0
+  const rad = rotZ * Math.PI / 180
+  // euler Z → quaternion (2D: only Z axis)
+  e._lrot = { x: 0, y: 0, z: Math.sin(rad / 2), w: Math.cos(rad / 2) }
 
   e._lscale = { x: sc.x ?? 1, y: sc.y ?? 1, z: sc.z ?? 1 }
 
@@ -397,6 +460,18 @@ export interface ValidationResult {
 }
 
 /** 순환 참조 + 중복 UUID + rawIndex null 감지 */
+/**
+ * CCSceneNode 트리의 유효성 검사
+ *
+ * @param root - 검사할 노드 트리의 루트
+ * @returns `{ valid, warnings, errors }` — valid는 errors가 0개일 때 true
+ *
+ * @remarks
+ * 검사 항목:
+ * - **errors**: 중복 UUID (`중복 UUID: uuid=... name="..."`)
+ * - **errors**: 순환 참조 (`순환 참조: uuid=... name="..."`) — 조상 체인에 같은 uuid 존재 시
+ * - **warnings**: `_rawIndex == null` 노드 — 저장 시 무시됨
+ */
 export function validateCCScene(root: CCSceneNode): ValidationResult {
   const warnings: string[] = []
   const errors: string[] = []

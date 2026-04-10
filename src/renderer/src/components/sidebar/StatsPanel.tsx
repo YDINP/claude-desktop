@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getDailyCosts, getTodayCost, getMonthlyCost } from '../../utils/cost-tracker'
+import { t } from '../../utils/i18n'
 
 interface StatsData {
   totalSessions: number
@@ -58,15 +59,14 @@ export function StatsPanel() {
     setMonthlyCost(getMonthlyCost())
     setDailyCosts(getDailyCosts(7))
     await Promise.all([
-      window.api.sessionGlobalStats().then(setStats),
+      window.api.sessionGlobalStats().then(setStats).catch(() => {}),
       window.api.sessionList().then((sessions) => {
         const titles = (sessions as Array<{ title?: string }>)
           .map((s) => s.title ?? '')
           .filter(Boolean)
         setSessionTitles(titles)
-      }),
-    ])
-    setRefreshing(false)
+      }).catch(() => {}),
+    ]).finally(() => setRefreshing(false))
   }, [])
 
   useEffect(() => { loadStats() }, [loadStats])
@@ -131,7 +131,7 @@ export function StatsPanel() {
     return { currentStreak: cur, longestStreak: maxStreak }
   }, [heatmapDays])
 
-  if (!stats) return <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 12 }}>로딩 중...</div>
+  if (!stats) return <div style={{ padding: 12, color: 'var(--text-muted)', fontSize: 12 }}>{t('stats.loading', '로딩 중...')}</div>
 
   const maxDay = Math.max(...stats.dailyCounts, 1)
   const days = ['일', '월', '화', '수', '목', '금', '토']
@@ -178,21 +178,21 @@ export function StatsPanel() {
         <button
           onClick={() => {
             const lines = [
-              `📊 Claude Desktop 통계 요약`,
-              `전체 세션: ${stats.totalSessions}`,
-              `최근 7일: ${stats.recentCount}`,
-              ...(stats.totalMessages != null ? [`전체 메시지: ${stats.totalMessages}`] : []),
-              ...(totalTokens > 0 ? [`총 토큰: ${totalTokens.toLocaleString()}`] : []),
-              `현재 연속: ${currentStreak}일 / 최장: ${longestStreak}일`,
-              ...(todayCost > 0 ? [`오늘 비용: $${todayCost.toFixed(4)}`] : []),
-              ...(monthlyCost > 0 ? [`이번 달: $${monthlyCost.toFixed(4)}`] : []),
+              t('stats.copyHeader', '📊 Claude Desktop 통계 요약'),
+              `${t('stats.copyTotal', '전체 세션')}: ${stats.totalSessions}`,
+              `${t('stats.copyRecent', '최근 7일')}: ${stats.recentCount}`,
+              ...(stats.totalMessages != null ? [`${t('stats.copyTotalMsg', '전체 메시지')}: ${stats.totalMessages}`] : []),
+              ...(totalTokens > 0 ? [`${t('stats.copyTotalTokens', '총 토큰')}: ${totalTokens.toLocaleString()}`] : []),
+              `${t('stats.copyStreak', '현재 연속')}: ${currentStreak}일 / ${t('stats.copyLongest', '최장')}: ${longestStreak}일`,
+              ...(todayCost > 0 ? [`${t('stats.copyTodayCost', '오늘 비용')}: $${todayCost.toFixed(4)}`] : []),
+              ...(monthlyCost > 0 ? [`${t('stats.copyMonthCost', '이번 달')}: $${monthlyCost.toFixed(4)}`] : []),
             ]
             navigator.clipboard.writeText(lines.join('\n')).then(() => {
               setStatsCopied(true)
               setTimeout(() => setStatsCopied(false), 1500)
             })
           }}
-          title="통계 요약 복사"
+          title={t('stats.copyTitle', '통계 요약 복사')}
           style={{
             background: 'none', border: '1px solid var(--border)', borderRadius: 4,
             cursor: 'pointer', color: statsCopied ? '#4caf50' : 'var(--text-muted)',
@@ -204,14 +204,14 @@ export function StatsPanel() {
         <button
           onClick={() => loadStats()}
           disabled={refreshing}
-          title="통계 새로고침"
+          title={t('stats.refreshTitle', '통계 새로고침')}
           style={{
             background: 'none', border: '1px solid var(--border)', borderRadius: 4,
             cursor: refreshing ? 'not-allowed' : 'pointer', color: 'var(--text-muted)',
             fontSize: 10, padding: '2px 7px', opacity: refreshing ? 0.5 : 1,
           }}
         >
-          {refreshing ? '⟳' : '↻'} 새로고침
+          {refreshing ? '⟳' : '↻'} {t('stats.refresh', '새로고침')}
         </button>
       </div>
 
@@ -219,22 +219,22 @@ export function StatsPanel() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
         <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 10, textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>{stats.totalSessions}</div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>전체 세션</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.totalSessions', '전체 세션')}</div>
         </div>
         <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 10, textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>{stats.recentCount}</div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>최근 7일</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.recentCount', '최근 7일')}</div>
         </div>
         {stats.totalMessages != null && (
           <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 10, textAlign: 'center' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>{stats.totalMessages}</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>전체 메시지</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.totalMessages', '전체 메시지')}</div>
           </div>
         )}
         {stats.avgMessagesPerSession != null && (
           <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 10, textAlign: 'center' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--accent)' }}>{stats.avgMessagesPerSession}</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>평균 메시지</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.avgMessages', '평균 메시지')}</div>
           </div>
         )}
       </div>
@@ -246,18 +246,18 @@ export function StatsPanel() {
             <div style={{ fontSize: 18, fontWeight: 700, color: currentStreak >= 7 ? '#fbbf24' : 'var(--accent)' }}>
               {currentStreak > 0 ? `🔥 ${currentStreak}` : '0'}
             </div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>현재 연속</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.currentStreak', '현재 연속')}</div>
           </div>
           <div style={{ flex: 1, background: 'var(--bg-tertiary)', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)' }}>{longestStreak}</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>최장 연속</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.longestStreak', '최장 연속')}</div>
           </div>
           {totalDays > 0 && (
             <div style={{ flex: 1, background: 'var(--bg-tertiary)', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>
                 {(stats.totalSessions / totalDays).toFixed(1)}
               </div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>일평균 세션</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.dailyAvg', '일평균 세션')}</div>
             </div>
           )}
         </div>
@@ -266,7 +266,7 @@ export function StatsPanel() {
       {/* 요일별 활동 분포 */}
       {weekdayStats.some(v => v > 0) && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>요일별 활동 분포 (최근 12주)</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>{t('stats.weekdayDist', '요일별 활동 분포 (최근 12주)')}</div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 44 }}>
             {weekdayStats.map((count, i) => {
               const dayNames = ['일', '월', '화', '수', '목', '금', '토']
@@ -290,7 +290,7 @@ export function StatsPanel() {
 
       {/* 7일 활동 바 차트 */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>최근 7일 활동</div>
+        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>{t('stats.last7days', '최근 7일 활동')}</div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 50 }}>
           {stats.dailyCounts.map((count, i) => (
             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
@@ -313,7 +313,7 @@ export function StatsPanel() {
       {/* 7일 메시지 수 차트 */}
       {stats.dailyMessageCounts && stats.dailyMessageCounts.some(v => v > 0) && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>최근 7일 메시지 수</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>{t('stats.last7daysMsg', '최근 7일 메시지 수')}</div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 50 }}>
             {stats.dailyMessageCounts.map((count, i) => {
               const maxMsg = Math.max(...stats.dailyMessageCounts!, 1)
@@ -338,20 +338,20 @@ export function StatsPanel() {
       {/* API 비용 */}
       {(monthlyCost > 0 || todayCost > 0) && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>💰 API 비용</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>{t('stats.apiCost', '💰 API 비용')}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
             <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>${todayCost.toFixed(4)}</div>
-              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>오늘</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.today', '오늘')}</div>
             </div>
             <div style={{ background: 'var(--bg-tertiary)', borderRadius: 6, padding: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>${monthlyCost.toFixed(4)}</div>
-              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>이번달</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>{t('stats.thisMonth', '이번달')}</div>
             </div>
           </div>
           {dailyCosts.length > 0 && (
             <div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>최근 7일 비용</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>{t('stats.last7daysCost', '최근 7일 비용')}</div>
               {(() => {
                 const maxCost = Math.max(...dailyCosts.map(d => d.usd), 0.0001)
                 return (
@@ -380,7 +380,7 @@ export function StatsPanel() {
       {/* 활동 히트맵 */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>활동 히트맵 (최근 12주)</span>
+          <span>{t('stats.heatmap', '활동 히트맵 (최근 12주)')}</span>
           {totalDays > 0 && (
             <span style={{ fontWeight: 400, color: 'var(--accent)' }}>
               {totalDays}일 · {(totalDays / heatmapDays.length * 100).toFixed(0)}%
@@ -416,11 +416,11 @@ export function StatsPanel() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, fontSize: 10, color: 'var(--text-muted)' }}>
-          <span>적음</span>
+          <span>{t('stats.heatmapLow', '적음')}</span>
           {(['#0e4429', '#006d32', '#26a641', '#39d353'] as const).map(c => (
             <div key={c} style={{ width: 10, height: 10, background: c, borderRadius: 1 }} />
           ))}
-          <span>많음</span>
+          <span>{t('stats.heatmapHigh', '많음')}</span>
         </div>
       </div>
 
@@ -436,7 +436,7 @@ export function StatsPanel() {
           }}
         >
           <span style={{ fontSize: 9 }}>{insightsOpen ? '▼' : '▶'}</span>
-          💡 AI 인사이트
+          {t('stats.aiInsights', '💡 AI 인사이트')}
         </button>
 
         {insightsOpen && (
@@ -456,12 +456,12 @@ export function StatsPanel() {
                 opacity: insightLoading ? 0.7 : 1,
               }}
             >
-              {insightLoading ? '분석 중...' : '분석 생성'}
+              {insightLoading ? t('stats.analyzing', '분석 중...') : t('stats.analyze', '분석 생성')}
             </button>
 
             {insightLoading && (
               <div style={{ color: 'var(--text-muted)', fontSize: 11, marginBottom: 6 }}>
-                AI가 통계를 분석하고 있습니다...
+                {t('stats.aiAnalyzing', 'AI가 통계를 분석하고 있습니다...')}
               </div>
             )}
 
@@ -495,13 +495,13 @@ export function StatsPanel() {
           }}
         >
           <span style={{ fontSize: 9 }}>{wordFreqOpen ? '▼' : '▶'}</span>
-          📊 자주 쓴 단어
+          {t('stats.wordFreq', '📊 자주 쓴 단어')}
         </button>
 
         {wordFreqOpen && (
           <div>
             {topWords.length === 0 ? (
-              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>데이터 없음</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{t('stats.noData', '데이터 없음')}</div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {topWords.map(({ word, count }) => {
@@ -548,7 +548,7 @@ export function StatsPanel() {
             }}
           >
             <span style={{ fontSize: 9 }}>{topSessionsOpen ? '▼' : '▶'}</span>
-            💬 메시지 많은 세션 TOP 5
+            {t('stats.topSessions', '💬 메시지 많은 세션 TOP 5')}
           </button>
           {topSessionsOpen && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -559,7 +559,7 @@ export function StatsPanel() {
                 }}>
                   <span style={{ color: 'var(--text-muted)', fontSize: 10, minWidth: 14 }}>{i + 1}.</span>
                   <span style={{ flex: 1, fontSize: 10, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {s.title || '제목 없음'}
+                    {s.title || t('stats.noTitle', '제목 없음')}
                   </span>
                   <span style={{ fontSize: 10, color: 'var(--accent)', flexShrink: 0 }}>{s.messageCount}</span>
                 </div>
@@ -572,7 +572,7 @@ export function StatsPanel() {
       {/* 상위 태그 */}
       {stats.topTags.length > 0 && (
         <div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>자주 쓰는 태그</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>{t('stats.topTags', '자주 쓰는 태그')}</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {stats.topTags.map(({ tag, count }) => (
               <span key={tag} style={{
@@ -591,7 +591,7 @@ export function StatsPanel() {
       )}
 
       {stats.topTags.length === 0 && (
-        <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>태그 없음</div>
+        <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{t('stats.noTags', '태그 없음')}</div>
       )}
     </div>
   )

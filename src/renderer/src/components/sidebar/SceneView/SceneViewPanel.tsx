@@ -5,58 +5,28 @@ import { NodeRenderer } from './NodeRenderer'
 import { SceneToolbar } from './SceneToolbar'
 import type { SceneBgValue } from './SceneToolbar'
 import { SceneInspector } from './SceneInspector'
-import { getRenderOrder, cocosToSvg, getComponentIcon } from './utils'
+import { cocosToSvg } from './utils'
 import { NodeHierarchyList } from './NodeHierarchyList'
+import { useSceneViewKeyboard } from './useSceneViewKeyboard'
+import { useSceneViewMouse } from './useSceneViewMouse'
+import { useSceneViewActions } from './useSceneViewActions'
+import {
+  type Annotation, type SnapshotEntry, type NodeSnapshot, type EditHistoryEntry,
+  type ViewportPreset, type NodeTemplate, type CameraBookmark, type SceneViewPanelProps,
+  VP_KEY, NT_KEY, VB_KEY,
+  buildHeatmap, slotKey,
+} from './sceneViewConstants'
+import { SceneViewProvider, type SceneViewContextValue } from './SceneViewContext'
+import { SceneViewContextMenu } from './SceneViewContextMenu'
+import { SceneViewOverlays } from './SceneViewOverlays'
+import { SceneViewSnapshotBar } from './SceneViewSnapshotBar'
+import { SceneViewToolbarExtras } from './SceneViewToolbarExtras'
+import { SceneViewShortcutsHelp } from './SceneViewShortcutsHelp'
+import { SceneViewEditBar } from './SceneViewEditBar'
+import { SceneViewQuickActions } from './SceneViewQuickActions'
+import { SceneViewInfoPanels } from './SceneViewInfoPanels'
 
-interface Annotation { id: string; svgX: number; svgY: number; text: string }
-type SnapshotEntry = { uuid: string; x: number; y: number; width: number; height: number }
-
-interface SceneViewPanelProps {
-  connected: boolean
-  wsKey: string
-  port?: number
-}
-
-
-const CC_LAYER_NAMES: Record<number, string> = {
-  1: 'DEFAULT', 2: 'UI_3D', 4: 'GIZMOS', 8: 'EDITOR',
-  16: 'UI_2D', 32: 'SCENE_GIZMO', 64: 'PROFILER',
-}
-
-function getRulerTicks(
-  axis: 'h' | 'v',
-  svgSize: number,
-  view: { zoom: number; offsetX: number; offsetY: number }
-): { pos: number; label: string | null; isMajor: boolean }[] {
-  const ticks: { pos: number; label: string | null; isMajor: boolean }[] = []
-  const rawStep = 50 / view.zoom
-  const step = Math.pow(10, Math.round(Math.log10(rawStep)))
-  const offset = axis === 'h' ? view.offsetX : view.offsetY
-  const startScene = -offset / view.zoom
-  const endScene = (svgSize - offset) / view.zoom
-  const start = Math.floor(startScene / step) * step
-  for (let s = start; s <= endScene; s += step) {
-    const pos = s * view.zoom + offset
-    if (pos < 0 || pos > svgSize) continue
-    ticks.push({ pos, label: String(Math.round(s)), isMajor: true })
-    for (let i = 1; i < 5; i++) {
-      const subPos = pos + (i / 5) * step * view.zoom
-      if (subPos >= 0 && subPos <= svgSize) {
-        ticks.push({ pos: subPos, label: null, isMajor: false })
-      }
-    }
-  }
-  return ticks
-}
-
-const CANVAS_PRESETS = [
-  { label: '960×640 (기본)', w: 960, h: 640 },
-  { label: '1280×720 (HD)', w: 1280, h: 720 },
-  { label: '1920×1080 (FHD)', w: 1920, h: 1080 },
-  { label: '750×1334 (iPhone)', w: 750, h: 1334 },
-  { label: '1334×750 (iPhone 가로)', w: 1334, h: 750 },
-  { label: '480×320 (소형)', w: 480, h: 320 },
-]
+// Types and constants imported from ./sceneViewConstants
 
 export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) {
   // ── 씬 데이터 ──────────────────────────────────────────────
@@ -149,18 +119,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   })
   const [showBookmarkList, setShowBookmarkList] = useState(false)
   const [pinnedUuids, setPinnedUuids] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('scene-pinned') ?? '[]')) }
+    try { return new Set(JSON.parse(localStorage.getItem('cd-scene-pinned') ?? '[]')) }
     catch { return new Set() }
   })
   const [lockedUuids, setLockedUuids] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('scene-locked') ?? '[]')) }
+    try { return new Set(JSON.parse(localStorage.getItem('cd-scene-locked') ?? '[]')) }
     catch { return new Set() }
   })
   const [nodeColors, setNodeColors] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('node-colors') ?? '{}') } catch { return {} }
   })
   // R1407: 노드 색상 태그 (7색 팔레트, localStorage per scene)
-  const COLOR_TAG_PALETTE = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899']
   const [nodeColorTags, setNodeColorTags] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem(`node-color-tags-${rootUuid ?? 'default'}`) ?? '{}') } catch { return {} }
   })
@@ -218,19 +187,13 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [layerColors, setLayerColors] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem('scene-layer-colors') ?? '{}') } catch { return {} }
   })
-  const LAYER_COLOR_PALETTE = ['#4af', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#f472b6', '#22d3ee']
+  // LAYER_COLOR_PALETTE imported from sceneViewConstants
   const [sceneAtlas, setSceneAtlas] = useState<string[]>([])
   const [showAtlasPanel, setShowAtlasPanel] = useState(false)
   const [searchMatchIndex, setSearchMatchIndex] = useState(0)
   const canvasSearchRef = useRef<HTMLInputElement>(null)
 
   // ── R1419: 뷰포트 프리셋 ─────────────────────────────────────
-  type ViewportPreset = { name: string; zoom: number; panX: number; panY: number }
-  const VP_KEY = 'viewport-presets'
-  const DEFAULT_PRESETS: ViewportPreset[] = [
-    { name: '1:1', zoom: 1, panX: 0, panY: 0 },
-    { name: '2:1', zoom: 2, panX: 0, panY: 0 },
-  ]
   const [viewportPresets, setViewportPresets] = useState<ViewportPreset[]>(() => {
     try { return JSON.parse(localStorage.getItem(VP_KEY) ?? '[]') } catch { return [] }
   })
@@ -250,7 +213,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [importError, setImportError] = useState<string | null>(null)
 
   // ── R1446: 씬 편집 이력 (리플레이용) ──────────────────────
-  type EditHistoryEntry = { timestamp: number; action: string; nodeUuid: string; nodeName: string; before: Record<string, unknown>; after: Record<string, unknown> }
   const [editHistory, setEditHistory] = useState<EditHistoryEntry[]>([])
   const [showEditHistory, setShowEditHistory] = useState(false)
   const addEditHistory = useCallback((action: string, nodeUuid: string, nodeName: string, before: Record<string, unknown>, after: Record<string, unknown>) => {
@@ -262,20 +224,12 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [layerDropIdx, setLayerDropIdx] = useState<number | null>(null)
 
   // ── R1452: 씬 노드 템플릿 라이브러리 ──────────────────────
-  type NodeTemplate = { name: string; node: Record<string, unknown> }
-  const NT_KEY = 'node-templates'
-  const DEFAULT_TEMPLATES: NodeTemplate[] = [
-    { name: '빈 노드', node: { uuid: '', name: 'EmptyNode', active: true, position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, size: { x: 0, y: 0 }, anchor: { x: 0.5, y: 0.5 }, opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 }, components: [], children: [] } },
-    { name: 'UI 버튼', node: { uuid: '', name: 'Button', active: true, position: { x: 0, y: 0, z: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 }, size: { x: 200, y: 60 }, anchor: { x: 0.5, y: 0.5 }, opacity: 255, color: { r: 255, g: 255, b: 255, a: 255 }, components: [{ type: 'cc.Button', props: { transition: 1 } }, { type: 'cc.Sprite', props: {} }], children: [] } },
-  ]
   const [nodeTemplates, setNodeTemplates] = useState<NodeTemplate[]>(() => {
     try { const raw = localStorage.getItem(NT_KEY); return raw ? JSON.parse(raw) : [] } catch { return [] }
   })
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false)
 
   // ── R1455: 씬 뷰 북마크 (카메라 포지션) ──────────────────
-  type CameraBookmark = { zoom: number; offsetX: number; offsetY: number } | null
-  const VB_KEY = 'view-bookmarks'
   const [viewBookmarks, setViewBookmarks] = useState<(CameraBookmark)[]>(() => {
     try { const raw = localStorage.getItem(VB_KEY); return raw ? JSON.parse(raw) : [null, null, null, null, null] } catch { return [null, null, null, null, null] }
   })
@@ -301,7 +255,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showDiff, setShowDiff] = useState(false)
 
   // ── R1381: 씬 diff 뷰어 — savedSnapshot + diffMode ────────
-  type NodeSnapshot = { x: number; y: number; w: number; h: number; name: string; active: boolean }
   const [savedSnapshot, setSavedSnapshot] = useState<Map<string, NodeSnapshot>>(new Map())
   const [diffModeR1381, setDiffModeR1381] = useState(false)
 
@@ -420,7 +373,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [lockAll, setLockAll] = useState(false)
   const [lockMode, setLockMode] = useState<'none' | 'selected' | 'all'>('none')
   // ── 씬 비교 (R748) ──────────────────────────────────────────────
-  const [compareScene, setCompareScene] = useState<string | null>(null)
+  // QA: compareScene setCompareScene — R748 placeholder
   const [showSceneCompare, setShowSceneCompare] = useState(false)
   // ── 씬 태그 (R752) ──────────────────────────────────────────────
   const [sceneTags, setSceneTags] = useState<Record<string, string[]>>(() => JSON.parse(localStorage.getItem('scene-tags') ?? '{}'))
@@ -445,8 +398,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showSceneStats, setShowSceneStats] = useState(false)
   const [nodeSortKey, setNodeSortKey] = useState<'name' | 'type' | 'order'>('order')
   const [nodeSortAsc, setNodeSortAsc] = useState<boolean>(true)
-  const [sceneLoadProgress, setSceneLoadProgress] = useState(0)
-  const [sceneLoadStatus, setSceneLoadStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  // QA: sceneLoadProgress setSceneLoadProgress — R1393 placeholder
+  // QA: sceneLoadStatus setSceneLoadStatus — R1394 placeholder
 
   // ── 퀵 액션 패널 상태 ──────────────────────────────────────
   const [showQuickActions, setShowQuickActions] = useState(true)
@@ -462,17 +415,17 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [nodeTagDraft, setNodeTagDraft] = useState('')
   const animPreviewIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   // ── 씬 오버레이 (R1341) ─────────────────────────────────────
-  const [sceneOverlay, setSceneOverlay] = useState(false)
+  // QA: sceneOverlay setSceneOverlay — R1341 placeholder
   const [showOverlayPanel, setShowOverlayPanel] = useState(false)
   // ── 씬 그리드 (R1347) ────────────────────────────────────────
-  const [sceneGrid, setSceneGrid] = useState(false)
-  const [sceneGridSize, setSceneGridSize] = useState(32)
+  // QA: sceneGrid setSceneGrid — R1347 placeholder
+  // QA: sceneGridSize setSceneGridSize — R1347 placeholder
   // ── 씬 카메라 (R1353) ────────────────────────────────────────
-  const [sceneCamera, setSceneCamera] = useState(false)
-  const [sceneCameraFov, setSceneCameraFov] = useState(60)
+  // QA: sceneCamera setSceneCamera — R1353 placeholder
+  // QA: sceneCameraFov setSceneCameraFov — R1353 placeholder
   // ── 씬 라이팅 (R1359) ────────────────────────────────────────
-  const [sceneLighting, setSceneLighting] = useState(false)
-  const [lightingIntensity, setLightingIntensity] = useState(1.0)
+  // QA: sceneLighting setSceneLighting — R1359 placeholder
+  // QA: lightingIntensity setLightingIntensity — R1359 placeholder
 
   const handleTakeSnapshot = useCallback(() => {
     const snap = new Map<string, SnapshotEntry>()
@@ -493,15 +446,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     })
   }, [nodeMap])
 
-  // ── 히트맵 밀도 계산 ───────────────────────────────────────
-  function buildHeatmap(nodes: SceneNode[], cellSize: number): Map<string, number> {
-    const map = new Map<string, number>()
-    for (const node of nodes) {
-      const key = `${Math.floor(node.x / cellSize)},${Math.floor(node.y / cellSize)}`
-      map.set(key, (map.get(key) ?? 0) + 1)
-    }
-    return map
-  }
+  // buildHeatmap imported from sceneViewConstants
 
   // ── 주석 (Annotation) 상태 ─────────────────────────────────
   const [annotations, setAnnotations] = useState<Annotation[]>(() => {
@@ -533,7 +478,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [marquee, setMarquee] = useState<MarqueeState | null>(null)
   const [autoLayout, setAutoLayout] = useState<'none' | 'tree' | 'grid' | 'radial'>('none')
   const [layoutSpacing, setLayoutSpacing] = useState(60)
-  const [showNodeLinks, setShowNodeLinks] = useState(false)
+  // QA: showNodeLinks setShowNodeLinks — R1473 placeholder
   const [nodeLinkFilter, setNodeLinkFilter] = useState<'all' | 'script' | 'prefab'>('all')
   const [treeFilter, setTreeFilter] = useState('')
   const [treeFilterResults, setTreeFilterResults] = useState<string[]>([])
@@ -543,22 +488,22 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showVisibilityGroups, setShowVisibilityGroups] = useState(false)
   const [componentSearch, setComponentSearch] = useState('')
   const [componentSearchResults, setComponentSearchResults] = useState<string[]>([])
-  const [nodePrefabLinks, setNodePrefabLinks] = useState<Record<string, string>>({})
-  const [showPrefabLinks, setShowPrefabLinks] = useState(false)
+  // QA: nodePrefabLinks setNodePrefabLinks — R1483 placeholder
+  // QA: showPrefabLinks setShowPrefabLinks — R1484 placeholder
   const [sceneNotes, setSceneNotes] = useState<Record<string, string>>({})
   const [showNotesPanel, setShowNotesPanel] = useState(false)
-  const [showBoundingBoxes, setShowBoundingBoxes] = useState(false)
-  const [boundingBoxColor, setBoundingBoxColor] = useState('#00ff00')
-  const [sceneProfiler, setSceneProfiler] = useState(false)
-  const [profilerStats, setProfilerStats] = useState<{ fps: number; drawCalls: number; triangles: number } | null>(null)
-  const [renderMode, setRenderMode] = useState<'normal' | 'wireframe' | 'overdraw'>('normal')
-  const [showRenderOptions, setShowRenderOptions] = useState(false)
-  const [lightingDebug, setLightingDebug] = useState(false)
-  const [lightingOverlay, setLightingOverlay] = useState<'none' | 'diffuse' | 'specular' | 'ambient'>('none')
-  const [cameraFov, setCameraFov] = useState(60)
-  const [showCameraControls, setShowCameraControls] = useState(false)
-  const [gizmoSize, setGizmoSize] = useState(1.0)
-  const [showGizmoSettings, setShowGizmoSettings] = useState(false)
+  // QA: showBoundingBoxes setShowBoundingBoxes — R1487 placeholder
+  // QA: boundingBoxColor setBoundingBoxColor — R1488 placeholder
+  // QA: sceneProfiler setSceneProfiler — R1489 placeholder
+  // QA: profilerStats setProfilerStats — R1490 placeholder
+  // QA: renderMode setRenderMode — R1491 placeholder
+  // QA: showRenderOptions setShowRenderOptions — R1492 placeholder
+  // QA: lightingDebug setLightingDebug — R1493 placeholder
+  // QA: lightingOverlay setLightingOverlay — R1494 placeholder
+  // QA: cameraFov setCameraFov — R1495 placeholder
+  // QA: showCameraControls setShowCameraControls — R1496 placeholder
+  // QA: gizmoSize setGizmoSize — R1497 placeholder
+  // QA: showGizmoSettings setShowGizmoSettings — R1498 placeholder
   // R1428: 히트 테스트 정밀화 상태
   const [blockInactiveClick, setBlockInactiveClick] = useState(false)
   const tabCycleRef = useRef<{ lastClickPos: { x: number; y: number }; candidates: string[]; index: number } | null>(null)
@@ -672,373 +617,46 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     if (rootUuid) handleFit()
   }, [rootUuid])
 
-  // ── R1386: deep clone 헬퍼 (UUID 재귀 갱신) ─────────────────
-  const deepCloneNode = useCallback((node: SceneNode, offset = 20): SceneNode => {
-    const newUuid = node.uuid + '-clone-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6)
-    const clonedChildren = node.childUuids.map(cid => {
-      const child = nodeMap.get(cid)
-      return child ? deepCloneNode(child, 0).uuid : cid
-    })
-    return {
-      ...node,
-      uuid: newUuid,
-      name: node.name + '_Copy',
-      x: (node.x ?? 0) + offset,
-      y: (node.y ?? 0) + offset,
-      childUuids: clonedChildren,
-    }
-  }, [nodeMap])
+  // ── Actions hook (copy/paste/group/align/export 등) ─────────
+  const {
+    handleCopy, handlePaste, handleDuplicate,
+    handleGroup, handleUngroup,
+    handleCreateNode, handleDeleteNode,
+    handleZOrder, handleAlign,
+    handleMatchSize, handleDistribute, handleGridLayout,
+    handleDistributeHEqual, handleDistributeVEqual, handleCircularLayout,
+    handleExportSvg, handleExportPng, handleScreenshot,
+  } = useSceneViewActions({
+    nodeMap, selectedUuid, selectedUuids, rootUuid, port,
+    DESIGN_W, DESIGN_H, clipboard, svgRef, pngExportScale, pngExportBg,
+    setSelectedUuid, setSelectedUuidsReplace: setSelectedUuids as unknown as (s: Set<string>) => void,
+    setClipboard, setCopiedNode, setScreenshotDone,
+    updateNode, refresh, saveScene: saveSceneAsync,
+  })
 
-  // ── copy / paste (키보드 useEffect보다 먼저 선언 필요) ──────
-  const handleCopy = useCallback(() => {
-    const uuids = selectedUuids.size > 0 ? selectedUuids : (selectedUuid ? new Set([selectedUuid]) : new Set<string>())
-    const copied: ClipboardEntry[] = []
-    uuids.forEach(uuid => {
-      const n = nodeMap.get(uuid)
-      if (n) copied.push({ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 })
-    })
-    if (copied.length > 0) {
-      setClipboard(copied)
-      const primaryUuid = [...uuids][0]
-      const primaryNode = primaryUuid ? nodeMap.get(primaryUuid) ?? null : null
-      setCopiedNode(primaryNode ? { ...primaryNode } : null)
-    }
-  }, [selectedUuids, selectedUuid, nodeMap])
+  // ── Keyboard hook (단축키 + Space패닝 + Ctrl+1~5 뷰북마크 + 전체선택 + 방향키) ──
+  useSceneViewKeyboard({
+    nodeMap, selectedUuid, selectedUuids, rootUuid, isDragging, isResizing,
+    spaceDown, port, view, viewRef, viewHistoryRef, viewHistIdxRef,
+    dragRef, resizeRef, canvasSearchRef, viewBookmarks, viewBookmarkToastRef,
+    setActiveTool, setSelectedUuid,
+    setSelectedUuids: fn => setSelectedUuids(fn as React.SetStateAction<Set<string>>),
+    setSelectedUuidsReplace: s => setSelectedUuids(s),
+    setView, setShowStatsOverlay, setShowNodeInfo, setShowMinimap, setShowRuler,
+    setShowCanvasSearch, setShowShortcuts, setSpaceDown,
+    setIsDragging, setIsResizing, setMarquee: () => setMarquee(null),
+    setUndoStack, setRedoStack,
+    setBookmarkedUuids: fn => setBookmarkedUuids(fn),
+    setFocusMode, setMeasureMode,
+    setMeasureLine: () => setMeasureLine(null),
+    setCollapsedUuids,
+    setViewBookmarks, setViewBookmarkToast,
+    handleFit, handleFocusSelected, handleCopy, handlePaste, handleDuplicate,
+    handleGroup, handleUngroup, handleCreateNode, handleDeleteNode,
+    updateNode, measureStartRef,
+  })
 
-  const handlePaste = useCallback(() => {
-    if (clipboard.length === 0) return
-    const newNodes: SceneNode[] = []
-    clipboard.forEach(entry => {
-      const orig = nodeMap.get(entry.uuid)
-      if (orig) {
-        const cloned = deepCloneNode(orig, 20)
-        newNodes.push(cloned)
-        // 재귀적으로 자식 노드도 등록
-        const registerChildren = (parentNode: SceneNode) => {
-          parentNode.childUuids.forEach(cid => {
-            const child = nodeMap.get(cid)
-            if (child) {
-              const clonedChild = deepCloneNode(child, 0)
-              updateNode(clonedChild.uuid, clonedChild)
-              registerChildren(clonedChild)
-            }
-          })
-        }
-        registerChildren(orig)
-      }
-    })
-    if (newNodes.length > 0) {
-      newNodes.forEach(n => updateNode(n.uuid, n))
-    }
-  }, [clipboard, nodeMap, updateNode, deepCloneNode])
-
-  // ── 복제 (Ctrl+D): clipboard 변경 없이 직접 노드 복제 ─────
-  // ── 그룹화 (Ctrl+G): 선택 노드들을 새 Group 노드 아래로 묶기 ─
-  const handleGroup = useCallback(() => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(u => nodeMap.get(u)).filter(Boolean) as import('./types').SceneNode[]
-    if (nodes.length < 2) return
-    // 공통 부모 찾기 (모두 같은 부모면 해당 부모, 아니면 root)
-    const parentUuids = new Set(nodes.map(n => n.parentUuid))
-    const commonParentUuid = parentUuids.size === 1 ? [...parentUuids][0] : rootUuid
-    if (!commonParentUuid) return
-    const parent = nodeMap.get(commonParentUuid)
-    if (!parent) return
-    // bbox 중심 계산
-    const xs = nodes.map(n => n.x ?? 0)
-    const ys = nodes.map(n => n.y ?? 0)
-    const cx = (Math.min(...xs) + Math.max(...xs)) / 2
-    const cy = (Math.min(...ys) + Math.max(...ys)) / 2
-    const groupUuid = 'group-' + Date.now()
-    const childUuids = nodes.map(n => n.uuid)
-    // 신규 Group 노드 삽입
-    updateNode(groupUuid, {
-      uuid: groupUuid, name: 'Group', active: true,
-      x: cx, y: cy, width: 0, height: 0,
-      anchorX: 0.5, anchorY: 0.5, scaleX: 1, scaleY: 1, rotation: 0, opacity: 1,
-      color: { r: 255, g: 255, b: 255, a: 255 },
-      parentUuid: commonParentUuid, childUuids,
-      components: [],
-    })
-    // 부모의 childUuids 업데이트: 선택 노드 제거 + 그룹 추가
-    const newParentChildren = parent.childUuids
-      .filter(u => !selectedUuids.has(u))
-      .concat(groupUuid)
-    updateNode(commonParentUuid, { childUuids: newParentChildren })
-    // 각 선택 노드의 parentUuid 업데이트
-    nodes.forEach(n => updateNode(n.uuid, { parentUuid: groupUuid }))
-    // 그룹 노드 선택
-    setSelectedUuid(groupUuid)
-    setSelectedUuids(new Set([groupUuid]))
-  }, [selectedUuids, nodeMap, rootUuid, updateNode])
-
-  // ── 그룹 해제 (Ctrl+Shift+G): 선택 그룹 노드의 자식을 상위 레벨로 올리기 ─
-  const handleUngroup = useCallback(() => {
-    if (!selectedUuid) return
-    const group = nodeMap.get(selectedUuid)
-    if (!group || group.childUuids.length === 0) return
-    const grandParentUuid = group.parentUuid
-    if (!grandParentUuid) return
-    const grandParent = nodeMap.get(grandParentUuid)
-    if (!grandParent) return
-    // 그랜드 부모의 childUuids: 그룹 노드를 제거하고 자식들로 대체
-    const newGrandChildren = grandParent.childUuids
-      .filter(u => u !== selectedUuid)
-      .concat(group.childUuids)
-    updateNode(grandParentUuid, { childUuids: newGrandChildren })
-    // 각 자식의 parentUuid를 grandParent로 업데이트
-    group.childUuids.forEach(u => updateNode(u, { parentUuid: grandParentUuid }))
-    // 그룹 노드 제거 (빈 노드로 만들고 선택 해제)
-    updateNode(selectedUuid, { active: false, childUuids: [] })
-    setSelectedUuids(new Set(group.childUuids))
-    setSelectedUuid(group.childUuids[0] ?? null)
-  }, [selectedUuid, nodeMap, updateNode])
-
-  const handleDuplicate = useCallback(() => {
-    const uuids = selectedUuids.size > 0 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
-    uuids.forEach((uuid) => {
-      const orig = nodeMap.get(uuid)
-      if (!orig) return
-      const cloned = deepCloneNode(orig, 20)
-      updateNode(cloned.uuid, cloned)
-    })
-  }, [selectedUuids, selectedUuid, nodeMap, updateNode, deepCloneNode])
-
-  // ── 단축키 ────────────────────────────────────────────────
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      // Ctrl+F: 씬 검색
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault()
-        setShowCanvasSearch(v => !v)
-        setTimeout(() => canvasSearchRef.current?.focus(), 50)
-        return
-      }
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
-      if (e.key === 'v' || e.key === 'V') setActiveTool('select')
-      if (e.key === 'w' || e.key === 'W') setActiveTool('move')
-      if (e.key === 'f' || e.key === 'F') {
-        const arr = viewHistoryRef.current.slice(0, viewHistIdxRef.current + 1)
-        viewHistoryRef.current = [...arr, viewRef.current].slice(-20)
-        viewHistIdxRef.current = viewHistoryRef.current.length - 1
-        handleFit()
-      }
-      if (e.key === 'g' || e.key === 'G') {
-        const arr = viewHistoryRef.current.slice(0, viewHistIdxRef.current + 1)
-        viewHistoryRef.current = [...arr, viewRef.current].slice(-20)
-        viewHistIdxRef.current = viewHistoryRef.current.length - 1
-        handleFocusSelected()
-      }
-      // R1401: I키 — 씬 통계 오버레이, Shift+I — 노드 상세 정보
-      if ((e.key === 'i' || e.key === 'I') && !e.shiftKey) setShowStatsOverlay(v => !v)
-      if (e.key === 'I' && e.shiftKey) setShowNodeInfo(v => !v)
-      // P — 부모 노드 선택
-      if ((e.key === 'p' || e.key === 'P') && selectedUuid) {
-        const node = nodeMap.get(selectedUuid)
-        if (node?.parentUuid) {
-          setSelectedUuid(node.parentUuid)
-          setSelectedUuids(new Set([node.parentUuid]))
-        }
-      }
-      if (e.key === 'm' || e.key === 'M') setShowMinimap(v => !v)
-      if (e.key === 'r' || e.key === 'R') setShowRuler(v => !v)
-      if (e.key === 'n' || e.key === 'N') handleCreateNode()
-      // H — 선택 노드 가시성 토글
-      if ((e.key === 'h' || e.key === 'H') && (selectedUuids.size > 0 || selectedUuid)) {
-        const uuids = selectedUuids.size > 1 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
-        const anyVisible = uuids.some(u => nodeMap.get(u)?.visible !== false)
-        uuids.forEach(u => { const n = nodeMap.get(u); if (n) updateNode(u, { visible: !anyVisible }) })
-      }
-      // Tab / Shift+Tab: 형제 노드 순환 선택
-      if (e.key === 'Tab' && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node?.parentUuid) {
-          const parent = nodeMap.get(node.parentUuid)
-          if (parent && parent.childUuids.length > 1) {
-            const idx = parent.childUuids.indexOf(selectedUuid)
-            const next = e.shiftKey
-              ? parent.childUuids[(idx - 1 + parent.childUuids.length) % parent.childUuids.length]
-              : parent.childUuids[(idx + 1) % parent.childUuids.length]
-            setSelectedUuid(next)
-            setSelectedUuids(new Set([next]))
-          }
-        }
-      }
-      if (e.key === '?') setShowShortcuts(v => !v)
-      if (e.key === 'Escape') {
-        if (isDragging && dragRef.current) {
-          // 드래그 중 Escape → 원래 위치로 복원 (드래그 취소)
-          const drag = dragRef.current
-          if (drag.groupOffsets) {
-            Object.entries(drag.groupOffsets).forEach(([u, { startX, startY }]) => {
-              updateNode(u, { x: startX, y: startY })
-            })
-          } else {
-            updateNode(drag.uuid, { x: drag.startNodeX, y: drag.startNodeY })
-          }
-          dragRef.current = null
-          setIsDragging(false)
-        } else if (isResizing && resizeRef.current) {
-          // 리사이즈 중 Escape → 원래 크기/위치로 복원 (리사이즈 취소)
-          const rs = resizeRef.current
-          updateNode(rs.uuid, { width: rs.startWidth, height: rs.startHeight, x: rs.startNodeX, y: rs.startNodeY })
-          resizeRef.current = null
-          setIsResizing(false)
-        } else {
-          setSelectedUuid(null)
-          setSelectedUuids(new Set())
-          setMarquee(null)
-        }
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault()
-        setUndoStack(prev => {
-          if (prev.length === 0) return prev
-          const entry = prev[prev.length - 1]
-          setRedoStack(r => [...r, entry])
-          if (!entry.type || entry.type === 'move') {
-            updateNode(entry.uuid, { x: entry.prevX, y: entry.prevY })
-            window.api.ccSetProperty?.(port, entry.uuid, 'x', entry.prevX).catch(() => {})
-            window.api.ccSetProperty?.(port, entry.uuid, 'y', entry.prevY).catch(() => {})
-          } else {
-            updateNode(entry.uuid, { [entry.key!]: entry.prevVal } as Partial<SceneNode>)
-            window.api.ccSetProperty?.(port, entry.uuid, entry.key!, entry.prevVal).catch(() => {})
-          }
-          return prev.slice(0, -1)
-        })
-      }
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-        e.preventDefault()
-        setRedoStack(prev => {
-          if (prev.length === 0) return prev
-          const entry = prev[prev.length - 1]
-          setUndoStack(u => [...u, entry])
-          if (!entry.type || entry.type === 'move') {
-            updateNode(entry.uuid, { x: entry.nextX, y: entry.nextY })
-            window.api.ccSetProperty?.(port, entry.uuid, 'x', entry.nextX).catch(() => {})
-            window.api.ccSetProperty?.(port, entry.uuid, 'y', entry.nextY).catch(() => {})
-          } else {
-            updateNode(entry.uuid, { [entry.key!]: entry.nextVal } as Partial<SceneNode>)
-            window.api.ccSetProperty?.(port, entry.uuid, entry.key!, entry.nextVal).catch(() => {})
-          }
-          return prev.slice(0, -1)
-        })
-      }
-      if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
-        handleCopy()
-        e.preventDefault()
-      }
-      if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
-        handlePaste()
-        e.preventDefault()
-      }
-      if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
-        handleDuplicate()
-        e.preventDefault()
-      }
-      if (e.key === 'g' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
-        handleGroup()
-        e.preventDefault()
-      }
-      // Ctrl+Shift+G — 그룹 해제
-      if (e.key === 'g' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
-        handleUngroup()
-        e.preventDefault()
-      }
-      // Delete / Backspace — 선택 노드 삭제
-      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedUuid || selectedUuids.size > 0)) {
-        e.preventDefault()
-        handleDeleteNode()
-        return
-      }
-      // Ctrl+] / Ctrl+[: z-order 변경 (앞으로/뒤로)
-      if ((e.ctrlKey || e.metaKey) && (e.key === ']' || e.key === '[') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node?.parentUuid) {
-          const parent = nodeMap.get(node.parentUuid)
-          if (parent && parent.childUuids.length > 1) {
-            const idx = parent.childUuids.indexOf(selectedUuid)
-            const newChildUuids = [...parent.childUuids]
-            if (e.key === ']' && idx < newChildUuids.length - 1) {
-              // 앞으로 (위로): idx+1과 교환
-              ;[newChildUuids[idx], newChildUuids[idx + 1]] = [newChildUuids[idx + 1], newChildUuids[idx]]
-              updateNode(parent.uuid, { childUuids: newChildUuids })
-            } else if (e.key === '[' && idx > 0) {
-              // 뒤로 (아래로): idx-1과 교환
-              ;[newChildUuids[idx], newChildUuids[idx - 1]] = [newChildUuids[idx - 1], newChildUuids[idx]]
-              updateNode(parent.uuid, { childUuids: newChildUuids })
-            }
-          }
-        }
-      }
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [handleFit, handleFocusSelected, updateNode, handleCopy, handlePaste, handleDuplicate, handleGroup, handleUngroup, selectedUuid, nodeMap, selectedUuids, isDragging, isResizing])
-
-  // ── Space 키 임시 패닝 모드 ────────────────────────────────
-  useEffect(() => {
-    const onDown = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
-      if (e.code === 'Space' && !spaceDown) { e.preventDefault(); setSpaceDown(true) }
-    }
-    const onUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') setSpaceDown(false)
-    }
-    window.addEventListener('keydown', onDown)
-    window.addEventListener('keyup', onUp)
-    return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
-  }, [spaceDown])
-
-  // ── R1455: Ctrl+1~5 카메라 뷰 북마크 저장/이동 ──────────
-  useEffect(() => {
-    const handleViewBookmark = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return
-      const key = parseInt(e.key)
-      if (isNaN(key) || key < 1 || key > 5) return
-      const idx = key - 1
-      if (e.ctrlKey || e.metaKey) {
-        // 저장
-        e.preventDefault()
-        const bm = { zoom: viewRef.current.zoom, offsetX: viewRef.current.offsetX, offsetY: viewRef.current.offsetY }
-        setViewBookmarks(prev => {
-          const next = [...prev]
-          while (next.length < 5) next.push(null)
-          next[idx] = bm
-          localStorage.setItem(VB_KEY, JSON.stringify(next))
-          return next
-        })
-        if (viewBookmarkToastRef.current) clearTimeout(viewBookmarkToastRef.current)
-        setViewBookmarkToast(`뷰 ${key} 저장됨`)
-        viewBookmarkToastRef.current = setTimeout(() => setViewBookmarkToast(null), 1500)
-      } else if (!e.shiftKey && !e.altKey) {
-        // 이동 (숫자키만)
-        const bm = viewBookmarks[idx]
-        if (!bm) return
-        e.preventDefault()
-        // 부드러운 애니메이션 200ms lerp
-        const start = { ...viewRef.current }
-        const startTime = Date.now()
-        const DURATION = 200
-        const animate = () => {
-          const elapsed = Date.now() - startTime
-          const t = Math.min(elapsed / DURATION, 1)
-          const eased = t * (2 - t) // ease-out
-          setView({
-            zoom: start.zoom + (bm.zoom - start.zoom) * eased,
-            offsetX: start.offsetX + (bm.offsetX - start.offsetX) * eased,
-            offsetY: start.offsetY + (bm.offsetY - start.offsetY) * eased,
-          })
-          if (t < 1) requestAnimationFrame(animate)
-        }
-        requestAnimationFrame(animate)
-      }
-    }
-    window.addEventListener('keydown', handleViewBookmark)
-    return () => window.removeEventListener('keydown', handleViewBookmark)
-  }, [viewBookmarks])
+  // Space키/뷰북마크/전체선택/방향키 → useSceneViewKeyboard에서 처리
 
   // R1412: 채팅 연동 노드 하이라이트 (cc-highlight-node 커스텀 이벤트)
   useEffect(() => {
@@ -1064,155 +682,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     return () => window.removeEventListener('cc-highlight-node', handler)
   }, [nodeMap])
 
-  // ── Ctrl+A 전체 선택 / Ctrl+Shift+A 선택 반전 ─────────────
-  useEffect(() => {
-    const handleSelectAll = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && !e.shiftKey) {
-        e.preventDefault()
-        const all = new Set(nodeMap.keys())
-        setSelectedUuids(all)
-        setSelectedUuid(rootUuid || null)
-      }
-      // Ctrl+Shift+A — 선택 반전
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && e.shiftKey) {
-        e.preventDefault()
-        const all = new Set(nodeMap.keys())
-        const inverted = new Set([...all].filter(u => !selectedUuids.has(u)))
-        setSelectedUuids(inverted)
-        setSelectedUuid(inverted.size > 0 ? [...inverted][0] : null)
-      }
-    }
-    window.addEventListener('keydown', handleSelectAll)
-    return () => window.removeEventListener('keydown', handleSelectAll)
-  }, [nodeMap, rootUuid, selectedUuids])
-
-  // ── 방향키 nudge: 선택 노드 1px / Shift+10px 이동 ─────────
-  useEffect(() => {
-    const arrows: Record<string, [number, number]> = {
-      ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1],
-    }
-    const handleNudge = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
-      // Alt+Up: 부모 선택, Alt+Down: 첫 자식 선택
-      if (e.altKey && (e.key === 'z' || e.key === 'Z')) {
-        e.preventDefault()
-        setFocusMode(v => !v)
-        return
-      }
-      // Alt+[ / Alt+] — 선택 노드 투명도 -10 / +10 (0~255)
-      if (e.altKey && (e.key === '[' || e.key === ']') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node) {
-          const delta = e.key === '[' ? -10 : 10
-          updateNode(selectedUuid, { opacity: Math.min(255, Math.max(0, node.opacity + delta)) })
-        }
-        return
-      }
-      // Alt+0~9 — 빠른 색상 레이블 (Alt+0: 초기화)
-      if (e.altKey && /^[0-9]$/.test(e.key) && selectedUuid) {
-        e.preventDefault()
-        const LABEL_COLORS: Record<string, string | undefined> = {
-          '0': undefined,
-          '1': '#f87171', '2': '#fb923c', '3': '#facc15', '4': '#4ade80',
-          '5': '#34d399', '6': '#60a5fa', '7': '#a78bfa', '8': '#f472b6', '9': '#9ca3af',
-        }
-        updateNode(selectedUuid, { labelColor: LABEL_COLORS[e.key] })
-        return
-      }
-      // Alt+L — 노드 잠금/해제 (다중 선택 일괄 처리)
-      if (e.altKey && (e.key === 'l' || e.key === 'L') && (selectedUuids.size > 0 || selectedUuid)) {
-        e.preventDefault()
-        const uuids = selectedUuids.size > 1 ? [...selectedUuids] : (selectedUuid ? [selectedUuid] : [])
-        const anyUnlocked = uuids.some(u => !nodeMap.get(u)?.locked)
-        uuids.forEach(u => { const n = nodeMap.get(u); if (n) updateNode(u, { locked: anyUnlocked }) })
-        return
-      }
-      // Alt+← / Alt+→ — 카메라 히스토리 뒤로/앞으로
-      if (e.altKey && e.key === 'ArrowLeft') {
-        e.preventDefault()
-        if (viewHistIdxRef.current > 0) {
-          viewHistIdxRef.current--
-          setView(viewHistoryRef.current[viewHistIdxRef.current])
-        }
-        return
-      }
-      if (e.altKey && e.key === 'ArrowRight') {
-        e.preventDefault()
-        if (viewHistIdxRef.current < viewHistoryRef.current.length - 1) {
-          viewHistIdxRef.current++
-          setView(viewHistoryRef.current[viewHistIdxRef.current])
-        }
-        return
-      }
-      // Ctrl+B — 즐겨찾기 토글
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B') && selectedUuid) {
-        e.preventDefault()
-        setBookmarkedUuids(prev => {
-          const next = new Set(prev)
-          if (next.has(selectedUuid)) next.delete(selectedUuid)
-          else next.add(selectedUuid)
-          return next
-        })
-        return
-      }
-      if ((e.altKey || e.shiftKey) && (e.key === 'm' || e.key === 'M')) {
-        e.preventDefault()
-        setMeasureMode(v => !v)
-        setMeasureLine(null)
-        measureStartRef.current = null
-        return
-      }
-      if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (!node) return
-        if (e.key === 'ArrowUp' && node.parentUuid) {
-          setSelectedUuid(node.parentUuid)
-          setSelectedUuids(new Set([node.parentUuid]))
-        } else if (e.key === 'ArrowDown' && node.childUuids.length > 0) {
-          const firstChild = node.childUuids[0]
-          setSelectedUuid(firstChild)
-          setSelectedUuids(new Set([firstChild]))
-        }
-        return
-      }
-      // Ctrl+← →: 회전 (1° / Shift+10°)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (!node) return
-        const rotStep = e.shiftKey ? 10 : 1
-        const delta = e.key === 'ArrowLeft' ? rotStep : -rotStep
-        updateNode(selectedUuid, { rotation: parseFloat(((node.rotation + delta) % 360).toFixed(2)) })
-        return
-      }
-      // Alt+H / Alt+V: 좌우/상하 반전 (scaleX/scaleY 부호 반전)
-      if (e.altKey && (e.key === 'h' || e.key === 'H') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node) updateNode(selectedUuid, { scaleX: -(node.scaleX ?? 1) })
-        return
-      }
-      if (e.altKey && (e.key === 'v' || e.key === 'V') && selectedUuid) {
-        e.preventDefault()
-        const node = nodeMap.get(selectedUuid)
-        if (node) updateNode(selectedUuid, { scaleY: -(node.scaleY ?? 1) })
-        return
-      }
-      if (!selectedUuid || !(e.key in arrows)) return
-      if (e.altKey || e.ctrlKey || e.metaKey) return
-      e.preventDefault()
-      const step = e.shiftKey ? 10 : 1
-      const node = nodeMap.get(selectedUuid)
-      if (!node) return
-      const [dx, dy] = arrows[e.key]
-      updateNode(selectedUuid, { x: node.x + dx * step, y: node.y + dy * step })
-    }
-    window.addEventListener('keydown', handleNudge)
-    return () => window.removeEventListener('keydown', handleNudge)
-  }, [selectedUuid, nodeMap, updateNode, setSelectedUuid, setSelectedUuids, selectedUuids])
+  // Ctrl+A, nudge 등 → useSceneViewKeyboard에서 처리
 
   // ── CC 이벤트: 외부 선택 동기화 + 노드 최신화 ───────────────
   useEffect(() => {
@@ -1242,69 +712,39 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     setQuickActionDismissed(false)
   }, [selectedUuid])
 
-  // ── SVG 좌표 변환 헬퍼 ────────────────────────────────────
-  const getSvgCoords = useCallback((e: React.MouseEvent | MouseEvent): { x: number; y: number } => {
-    if (!svgRef.current) return { x: 0, y: 0 }
-    const rect = svgRef.current.getBoundingClientRect()
-    return {
-      x: (e.clientX - rect.left),
-      y: (e.clientY - rect.top),
-    }
-  }, [])
+  // ── Mouse hook (SVG좌표변환 + 드래그/리사이즈/회전/줌/패닝) ──
+  const {
+    getSvgCoords, svgToScene, hitTestAtPoint,
+    handleSvgMouseDown, handleNodeMouseDown,
+    handleResizeMouseDown, handleRotateMouseDown,
+    handleMouseMove, handleMouseUp,
+    animateToTarget,
+  } = useSceneViewMouse({
+    nodeMap, selectedUuid, selectedUuids, view, viewRef,
+    activeTool, spaceDown, snapEnabled, snapGrid, measureMode,
+    blockInactiveClick, port, DESIGN_W, DESIGN_H,
+    svgRef, dragRef, resizeRef, rotateRef, isPanning, panStart,
+    measureStartRef, marqueeRef, tabCycleRef, targetViewRef, animFrameRef,
+    pinnedUuids, lockedUuids, marquee,
+    setView, setSelectedUuid,
+    setSelectedUuidsReplace: s => setSelectedUuids(s),
+    setSelectedUuids: fn => setSelectedUuids(fn as React.SetStateAction<Set<string>>),
+    setHoveredUuid, setIsDragging, setIsResizing, setIsRotating,
+    setIsPanningActive, setCursorScenePos, setHoverTooltipPos, setTooltipVisibleUuid,
+    setDragDelta, setAlignGuides, setMarquee, setMeasureLine,
+    setUndoStack, setRedoStack: v => setRedoStack(v),
+    setChangeHistory, setNodeAccessCount, setNodeClickCount, setCollapsedUuids,
+    tooltipDelayRef, updateNode, addEditHistory,
+  })
 
-  // 씬 좌표 변환 (SVG px → Cocos 좌표)
-  const svgToScene = useCallback((svgX: number, svgY: number): { cx: number; cy: number } => {
-    const sceneX = (svgX - view.offsetX) / view.zoom
-    const sceneY = (svgY - view.offsetY) / view.zoom
-    return {
-      cx: sceneX - DESIGN_W / 2,
-      cy: -(sceneY - DESIGN_H / 2),
-    }
-  }, [view, canvasSize])
-
-  // ── 마우스 이벤트 ─────────────────────────────────────────
-  const handleSvgMouseDown = useCallback((e: React.MouseEvent) => {
-    // 측정 모드 — 클릭으로 측정 시작
-    if (measureMode && e.button === 0) {
-      const svgPos = getSvgCoords(e)
-      measureStartRef.current = { x: svgPos.x, y: svgPos.y }
-      setMeasureLine({ x1: svgPos.x, y1: svgPos.y, x2: svgPos.x, y2: svgPos.y })
-      return
-    }
-    // 빈 영역 클릭 → 패닝 (middle btn 또는 space + left)
-    if (e.button === 1 || (e.button === 0 && (activeTool === 'move' || spaceDown))) {
-      isPanning.current = true
-      setIsPanningActive(true)
-      panStart.current = {
-        mx: e.clientX,
-        my: e.clientY,
-        ox: view.offsetX,
-        oy: view.offsetY,
-      }
-      e.preventDefault()
-      return
-    }
-    // 빈 배경 클릭 → 선택 해제 + 마퀴 시작
-    if (e.button === 0 && activeTool === 'select') {
-      if (!e.shiftKey) {
-        setSelectedUuid(null)
-        setSelectedUuids(new Set())
-      }
-      const svgCoords = getSvgCoords(e)
-      marqueeRef.current = { startX: svgCoords.x, startY: svgCoords.y, shiftKey: e.shiftKey }
-      setMarquee({ startX: svgCoords.x, startY: svgCoords.y, endX: svgCoords.x, endY: svgCoords.y, active: true })
-    } else if (e.button === 0) {
-      setSelectedUuid(null)
-      setSelectedUuids(new Set())
-    }
-  }, [activeTool, view, getSvgCoords, canvasSize])
+  // handleSvgMouseDown → useSceneViewMouse에서 제공
 
   const togglePin = useCallback((uuid: string) => {
     setPinnedUuids(prev => {
       const next = new Set(prev)
       if (next.has(uuid)) next.delete(uuid)
       else next.add(uuid)
-      localStorage.setItem('scene-pinned', JSON.stringify([...next]))
+      localStorage.setItem('cd-scene-pinned', JSON.stringify([...next]))
       return next
     })
   }, [])
@@ -1314,699 +754,19 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
       const next = new Set(prev)
       if (next.has(uuid)) next.delete(uuid)
       else next.add(uuid)
-      localStorage.setItem('scene-locked', JSON.stringify([...next]))
+      localStorage.setItem('cd-scene-locked', JSON.stringify([...next]))
       return next
     })
   }, [])
 
-  const handleNodeMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
-    e.stopPropagation()
-    if (e.button !== 0) return
-    // 잠긴 노드는 드래그/선택 불가
-    if (nodeMap.get(uuid)?.locked) return
-    if (lockedUuids.has(uuid)) return
-    // 핀된 노드는 드래그/선택 불가
-    if (pinnedUuids.has(uuid)) return
-    // R1428: 비활성 노드 클릭 방지 옵션
-    const clickedNode = nodeMap.get(uuid)
-    if (blockInactiveClick && clickedNode && !clickedNode.active) return
+  // handleNodeMouseDown → useSceneViewMouse에서 제공
 
-    if (e.altKey) {
-      // Alt 클릭: 자식 그룹 접기/펼치기
-      const node = nodeMap.get(uuid)
-      if (node && node.childUuids.length > 0) {
-        setCollapsedUuids(prev => {
-          const next = new Set(prev)
-          if (next.has(uuid)) next.delete(uuid)
-          else next.add(uuid)
-          return next
-        })
-      }
-      return
-    }
-
-    if (e.shiftKey) {
-      // Shift 클릭: 멀티 선택 토글
-      setSelectedUuids(prev => {
-        const next = new Set(prev)
-        if (next.has(uuid)) {
-          next.delete(uuid)
-        } else {
-          next.add(uuid)
-        }
-        return next
-      })
-      setSelectedUuid(uuid)
-      return
-    }
-
-    // 일반 클릭: 단일 선택 (멀티셀렉트 상태에서 선택된 노드를 클릭하면 그룹 드래그)
-    const isGroupDrag = selectedUuids.size > 1 && selectedUuids.has(uuid)
-
-    if (!isGroupDrag) {
-      setSelectedUuid(uuid)
-      setSelectedUuids(new Set())
-    }
-
-    // 접근 횟수 누적 (R702)
-    setNodeAccessCount(prev => ({ ...prev, [uuid]: (prev[uuid] ?? 0) + 1 }))
-    // R1460: 클릭 히트맵 카운트 증가
-    setNodeClickCount(prev => { const next = new Map(prev); next.set(uuid, (next.get(uuid) ?? 0) + 1); return next })
-
-    const node = nodeMap.get(uuid)
-    if (!node) return
-
-    const svgCoords = getSvgCoords(e)
-    // R1428: 클릭 위치의 겹치는 노드 후보 기록 (Tab 순환용)
-    const candidates = hitTestAtPoint(svgCoords.x, svgCoords.y)
-    if (candidates.length > 1) {
-      tabCycleRef.current = { lastClickPos: { x: svgCoords.x, y: svgCoords.y }, candidates, index: candidates.indexOf(uuid) }
-    } else {
-      tabCycleRef.current = null
-    }
-    const groupOffsets: Record<string, { startX: number; startY: number }> | undefined = isGroupDrag
-      ? Object.fromEntries(
-          [...selectedUuids].map(uid => {
-            const n = nodeMap.get(uid)
-            return [uid, { startX: n?.x ?? 0, startY: n?.y ?? 0 }]
-          })
-        )
-      : undefined
-
-    dragRef.current = {
-      uuid,
-      startSvgX: svgCoords.x,
-      startSvgY: svgCoords.y,
-      startNodeX: node.x,
-      startNodeY: node.y,
-      groupOffsets,
-    }
-    setIsDragging(true)
-  }, [nodeMap, getSvgCoords, selectedUuids, canvasSize, pinnedUuids, lockedUuids, blockInactiveClick])
-
-  // R1428: 히트 테스트 — 최소 8px 클릭 영역 확장 + z-order 역순 + Tab 키 순환
-  const hitTestAtPoint = useCallback((svgX: number, svgY: number): string[] => {
-    const minHitPx = 8 / view.zoom
-    const allNodes = [...nodeMap.values()]
-    // z-order: 배열 역순 (최상단 우선)
-    const hits: string[] = []
-    for (let i = allNodes.length - 1; i >= 0; i--) {
-      const n = allNodes[i]
-      if (!n.active && blockInactiveClick) continue
-      if (n.locked || lockedUuids.has(n.uuid)) continue
-      const { sx, sy } = cocosToSvg(n.worldX ?? n.x, n.worldY ?? n.y, DESIGN_W, DESIGN_H)
-      const w = Math.max(n.width, minHitPx)
-      const h = Math.max(n.height, minHitPx)
-      const rx = sx - w * (n.anchorX ?? 0.5)
-      const ry = sy - h * (1 - (n.anchorY ?? 0.5))
-      if (svgX >= rx && svgX <= rx + w && svgY >= ry && svgY <= ry + h) {
-        hits.push(n.uuid)
-      }
-    }
-    return hits
-  }, [nodeMap, view.zoom, DESIGN_W, DESIGN_H, blockInactiveClick, lockedUuids])
-
-  // R1428: Tab 키로 겹치는 노드 순환
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab' || !tabCycleRef.current) return
-      e.preventDefault()
-      const { candidates, index } = tabCycleRef.current
-      if (candidates.length <= 1) return
-      const nextIdx = (index + 1) % candidates.length
-      tabCycleRef.current.index = nextIdx
-      setSelectedUuid(candidates[nextIdx])
-      setSelectedUuids(new Set())
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [])
-
-  // R1416: handleResizeMouseDown — 잠긴 노드 리사이즈 차단
-  const handleResizeMouseDown = useCallback((e: React.MouseEvent, uuid: string, handle: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 'e' | 's' | 'w') => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (e.button !== 0) return
-    if (nodeMap.get(uuid)?.locked) return
-    if (lockedUuids.has(uuid)) return
-    const node = nodeMap.get(uuid)
-    if (!node) return
-    const svgCoords = getSvgCoords(e)
-    resizeRef.current = {
-      uuid,
-      handle,
-      startSvgX: svgCoords.x,
-      startSvgY: svgCoords.y,
-      startWidth: node.width,
-      startHeight: node.height,
-      startNodeX: node.x,
-      startNodeY: node.y,
-    }
-    setIsResizing(true)
-  }, [nodeMap, getSvgCoords, canvasSize, lockedUuids])
-
-  // R1416: handleRotateMouseDown — 잠긴 노드 회전 차단
-  const handleRotateMouseDown = useCallback((e: React.MouseEvent, uuid: string) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (e.button !== 0) return
-    if (nodeMap.get(uuid)?.locked) return
-    if (lockedUuids.has(uuid)) return
-    const node = nodeMap.get(uuid)
-    if (!node) return
-    const { sx, sy } = cocosToSvg(node.x, node.y, DESIGN_W, DESIGN_H)
-    // anchor 점의 SVG 화면 좌표
-    const anchorSx = sx * view.zoom + view.offsetX
-    const anchorSy = sy * view.zoom + view.offsetY
-    rotateRef.current = { uuid, anchorSx, anchorSy, startRotation: node.rotation }
-    setIsRotating(true)
-  }, [nodeMap, view, lockedUuids])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    // 커서 씬 좌표 업데이트
-    const svgPos = getSvgCoords(e)
-    const { cx, cy } = svgToScene(svgPos.x, svgPos.y)
-    setCursorScenePos({ x: Math.round(cx), y: Math.round(cy) })
-
-    // 측정 모드 드래그
-    if (measureMode && measureStartRef.current && e.buttons === 1) {
-      setMeasureLine({ x1: measureStartRef.current.x, y1: measureStartRef.current.y, x2: svgPos.x, y2: svgPos.y })
-      return
-    }
-
-    // 호버 툴팁 위치 (마우스 커서 우하단 +10, +10)
-    setHoverTooltipPos({ x: svgPos.x + 10, y: svgPos.y + 10 })
-
-    // 마퀴 업데이트
-    if (marqueeRef.current) {
-      const svgCoords = getSvgCoords(e)
-      setMarquee({
-        startX: marqueeRef.current.startX,
-        startY: marqueeRef.current.startY,
-        endX: svgCoords.x,
-        endY: svgCoords.y,
-        active: true,
-      })
-      return
-    }
-
-    // 회전
-    if (rotateRef.current) {
-      const rt = rotateRef.current
-      const dx = e.clientX - rt.anchorSx
-      const dy = e.clientY - rt.anchorSy
-      const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI
-      // SVG Y-down이므로 Cocos rotation = -angleDeg - 90 (핸들이 위쪽에 있으므로)
-      const newRotation = parseFloat((-angleDeg - 90).toFixed(1))
-      updateNode(rt.uuid, { rotation: newRotation })
-      return
-    }
-
-    // 리사이즈
-    if (resizeRef.current) {
-      const rs = resizeRef.current
-      const svgCoords = getSvgCoords(e)
-      const dsvgX = svgCoords.x - rs.startSvgX
-      const dsvgY = svgCoords.y - rs.startSvgY
-      const dsceneX = dsvgX / view.zoom
-      const dsceneY = -dsvgY / view.zoom  // Y 반전
-
-      let newW = rs.startWidth
-      let newH = rs.startHeight
-      // SE: +dsceneX, -dsceneY (SVG Y-down → height decrease)
-      if (rs.handle === 'se') { newW = rs.startWidth + dsceneX; newH = rs.startHeight - dsceneY }
-      else if (rs.handle === 'ne') { newW = rs.startWidth + dsceneX; newH = rs.startHeight + dsceneY }
-      else if (rs.handle === 'sw') { newW = rs.startWidth - dsceneX; newH = rs.startHeight - dsceneY }
-      else if (rs.handle === 'nw') { newW = rs.startWidth - dsceneX; newH = rs.startHeight + dsceneY }
-      // 측면 핸들: 단일 축만 변경
-      else if (rs.handle === 'e') { newW = rs.startWidth + dsceneX }
-      else if (rs.handle === 'w') { newW = rs.startWidth - dsceneX }
-      else if (rs.handle === 's') { newH = rs.startHeight - dsceneY }
-      else if (rs.handle === 'n') { newH = rs.startHeight + dsceneY }
-
-      // Shift: 비례 리사이즈 — 코너 핸들에서만 적용
-      if (e.shiftKey && ['nw', 'ne', 'se', 'sw'].includes(rs.handle) && rs.startHeight > 0) {
-        const aspect = rs.startWidth / rs.startHeight
-        if (Math.abs(newW - rs.startWidth) >= Math.abs(newH - rs.startHeight) * aspect) {
-          newH = newW / aspect
-        } else {
-          newW = newH * aspect
-        }
-      }
-
-      newW = Math.max(4, newW)
-      newH = Math.max(4, newH)
-      // 측면 핸들은 해당 축만 위치 조정
-      const newX = (rs.handle === 'n' || rs.handle === 's') ? rs.startNodeX : rs.startNodeX + dsceneX / 2
-      const newY = (rs.handle === 'e' || rs.handle === 'w') ? rs.startNodeY : rs.startNodeY + dsceneY / 2
-
-      updateNode(rs.uuid, { width: newW, height: newH, x: newX, y: newY })
-      return
-    }
-
-    // 패닝
-    if (isPanning.current && panStart.current) {
-      const ps = panStart.current  // setView 업데이터 호출 전에 캡처
-      const dx = e.clientX - ps.mx
-      const dy = e.clientY - ps.my
-      setView(prev => ({
-        ...prev,
-        offsetX: ps.ox + dx,
-        offsetY: ps.oy + dy,
-      }))
-      return
-    }
-
-    // 노드 드래그
-    if (dragRef.current) {
-      const drag = dragRef.current
-      const svgCoords = getSvgCoords(e)
-      const dsvgX = svgCoords.x - drag.startSvgX
-      const dsvgY = svgCoords.y - drag.startSvgY
-
-      // SVG 델타 → 씬 좌표 델타
-      const dSceneX = dsvgX / view.zoom
-      const dSceneY = -dsvgY / view.zoom  // Y축 반전
-
-      let newX = drag.startNodeX + dSceneX
-      let newY = drag.startNodeY + dSceneY
-      setDragDelta({ dx: Math.round(dSceneX), dy: Math.round(dSceneY) })
-
-      // 스냅 (Alt 홀드 시 일시 비활성화)
-      if (snapEnabled && !e.altKey) {
-        newX = Math.round(newX / snapGrid) * snapGrid
-        newY = Math.round(newY / snapGrid) * snapGrid
-      }
-
-      // 정렬 가이드라인 계산 (드래그 중 타 노드와 정렬 감지)
-      if (!drag.groupOffsets) {
-        const dragNode = nodeMap.get(drag.uuid)
-        const threshold = 12 / view.zoom
-        const guides: { x?: number; y?: number }[] = []
-        if (dragNode) {
-          const hw = dragNode.width / 2; const hh = dragNode.height / 2
-          const myXs = [newX - hw, newX, newX + hw]
-          const myYs = [newY - hh, newY, newY + hh]
-          nodeMap.forEach((n, uid) => {
-            if (uid === drag.uuid || selectedUuids.has(uid)) return
-            const nXs = [n.x - n.width / 2, n.x, n.x + n.width / 2]
-            const nYs = [n.y - n.height / 2, n.y, n.y + n.height / 2]
-            for (const nx2 of nXs) {
-              for (const mx of myXs) {
-                if (Math.abs(nx2 - mx) < threshold) {
-                  guides.push({ x: nx2 })
-                  if (snapEnabled) newX = nx2 - (mx - newX)
-                }
-              }
-            }
-            for (const ny2 of nYs) {
-              for (const my of myYs) {
-                if (Math.abs(ny2 - my) < threshold) {
-                  guides.push({ y: ny2 })
-                  if (snapEnabled) newY = ny2 - (my - newY)
-                }
-              }
-            }
-          })
-        }
-        setAlignGuides(guides)
-      }
-
-      if (drag.groupOffsets) {
-        // 그룹 드래그: 모든 선택 노드를 같은 델타만큼 이동
-        for (const [uid, { startX, startY }] of Object.entries(drag.groupOffsets)) {
-          let nx = startX + dSceneX
-          let ny = startY + dSceneY
-          if (snapEnabled && !e.altKey) {
-            nx = Math.round(nx / snapGrid) * snapGrid
-            ny = Math.round(ny / snapGrid) * snapGrid
-          }
-          updateNode(uid, { x: nx, y: ny })
-        }
-      } else {
-        // 낙관적 업데이트 (즉시 반영)
-        updateNode(drag.uuid, { x: newX, y: newY })
-      }
-    }
-  }, [view.zoom, snapEnabled, snapGrid, getSvgCoords, svgToScene, updateNode, nodeMap, selectedUuids, canvasSize, measureMode])
-
-  const handleMouseUp = useCallback(async () => {
-    setAlignGuides([])
-    // 마퀴 종료 → 히트 테스트
-    if (marqueeRef.current && marquee) {
-      const wasShift = marqueeRef.current.shiftKey
-      marqueeRef.current = null
-      const mx1 = Math.min(marquee.startX, marquee.endX)
-      const my1 = Math.min(marquee.startY, marquee.endY)
-      const mx2 = Math.max(marquee.startX, marquee.endX)
-      const my2 = Math.max(marquee.startY, marquee.endY)
-
-      // 마퀴가 충분히 크면 노드 히트 테스트
-      if (mx2 - mx1 > 4 || my2 - my1 > 4) {
-        const hit = new Set<string>()
-        nodeMap.forEach((node) => {
-          // worldX/worldY 우선 사용 (부모 이동 반영), 없으면 로컬 좌표 fallback
-          const nodeX = node.worldX ?? node.x
-          const nodeY = node.worldY ?? node.y
-          const { sx, sy } = cocosToSvg(nodeX, nodeY, DESIGN_W, DESIGN_H)
-          const pw = node.width * Math.abs(node.scaleX)
-          const ph = node.height * Math.abs(node.scaleY)
-          const rx = sx - pw * node.anchorX
-          const ry = sy - ph * (1 - node.anchorY)
-          // scene transform 적용 → SVG 화면 좌표
-          const nx1 = rx * view.zoom + view.offsetX
-          const ny1 = ry * view.zoom + view.offsetY
-          const nx2 = (rx + pw) * view.zoom + view.offsetX
-          const ny2 = (ry + ph) * view.zoom + view.offsetY
-          // 교차 판정
-          if (nx1 < mx2 && nx2 > mx1 && ny1 < my2 && ny2 > my1) {
-            hit.add(node.uuid)
-          }
-        })
-        if (hit.size > 0) {
-          // Shift: 기존 선택에 추가, 아니면 교체
-          setSelectedUuids(prev => wasShift ? new Set([...prev, ...hit]) : hit)
-          const first = hit.values().next().value
-          setSelectedUuid(first ?? null)
-        }
-      }
-
-      setMarquee(null)
-      return
-    }
-
-    // 패닝 종료
-    if (isPanning.current) {
-      isPanning.current = false
-      setIsPanningActive(false)
-      panStart.current = null
-      return
-    }
-
-    // 드래그 종료 → IPC 전송
-    // [C-7] race condition 방지: await 전에 dragRef를 로컬 캡처 후 즉시 null 처리
-    const capturedDrag = dragRef.current
-    if (capturedDrag) {
-      dragRef.current = null
-      const drag = capturedDrag
-
-      if (drag.groupOffsets) {
-        // 그룹 드래그 완료: 모든 선택 노드 저장
-        const entries: UndoEntry[] = []
-        for (const [uid, { startX, startY }] of Object.entries(drag.groupOffsets)) {
-          const n = nodeMap.get(uid)
-          if (!n) continue
-          if (n.x !== startX || n.y !== startY) {
-            entries.push({ uuid: uid, prevX: startX, prevY: startY, nextX: n.x, nextY: n.y })
-            try {
-              await window.api.ccSetProperty?.(port, uid, 'x', n.x)
-              await window.api.ccSetProperty?.(port, uid, 'y', n.y)
-            } catch (e) {
-              console.error('[SceneView] setProperty failed:', e)
-            }
-          }
-        }
-        if (entries.length > 0) {
-          setUndoStack(prev => [...prev.slice(-(50 - entries.length)), ...entries])
-          setRedoStack([])
-        }
-      } else {
-        // 단일 노드 처리
-        const node = nodeMap.get(drag.uuid)
-        if (node) {
-          // 실제로 이동이 있었을 때만 undo 항목 추가
-          if (node.x !== drag.startNodeX || node.y !== drag.startNodeY) {
-            setUndoStack(prev => [...prev.slice(-49), {
-              uuid: drag.uuid,
-              prevX: drag.startNodeX,
-              prevY: drag.startNodeY,
-              nextX: node.x,
-              nextY: node.y,
-            }])
-            setRedoStack([])
-          }
-          try {
-            await window.api.ccSetProperty?.(port, drag.uuid, 'x', node.x)
-            await window.api.ccSetProperty?.(port, drag.uuid, 'y', node.y)
-          } catch (e) {
-            console.error('[SceneView] setProperty failed:', e)
-          }
-        }
-      }
-      // 이동 히스토리 기록
-      const draggedNode = nodeMap.get(drag.uuid)
-      if (draggedNode) {
-        setChangeHistory(prev => {
-          const entry = { uuid: drag.uuid, name: draggedNode.name, x: Math.round(draggedNode.x), y: Math.round(draggedNode.y), ts: Date.now() }
-          return [entry, ...prev.filter(e => e.uuid !== drag.uuid)].slice(0, 20)
-        })
-        // R1446: 편집 이력 기록 (드래그 이동)
-        if (draggedNode.x !== drag.startNodeX || draggedNode.y !== drag.startNodeY) {
-          addEditHistory('move', drag.uuid, draggedNode.name, { x: drag.startNodeX, y: drag.startNodeY }, { x: draggedNode.x, y: draggedNode.y })
-        }
-      }
-      // dragRef.current already nulled at start of handler (race condition fix)
-      setIsDragging(false)
-      setDragDelta(null)
-    }
-
-    // 리사이즈 종료 → IPC 전송
-    if (resizeRef.current) {
-      const rs = resizeRef.current
-      const node = nodeMap.get(rs.uuid)
-      if (node) {
-        // R1446: 편집 이력 기록 (리사이즈)
-        if (node.width !== rs.startWidth || node.height !== rs.startHeight) {
-          addEditHistory('resize', rs.uuid, node.name, { width: rs.startWidth, height: rs.startHeight }, { width: node.width, height: node.height })
-        }
-        try {
-          await window.api.ccSetProperty?.(port, rs.uuid, 'width', node.width)
-          await window.api.ccSetProperty?.(port, rs.uuid, 'height', node.height)
-          await window.api.ccSetProperty?.(port, rs.uuid, 'x', node.x)
-          await window.api.ccSetProperty?.(port, rs.uuid, 'y', node.y)
-        } catch (e) {
-          console.error('[SceneView] resize failed:', e)
-        }
-      }
-      resizeRef.current = null
-      setIsResizing(false)
-    }
-
-    // 회전 종료 → IPC 전송
-    if (rotateRef.current) {
-      const rt = rotateRef.current
-      const node = nodeMap.get(rt.uuid)
-      if (node) {
-        try {
-          await window.api.ccSetProperty?.(port, rt.uuid, 'rotation', node.rotation)
-        } catch (e) {
-          console.error('[SceneView] rotate failed:', e)
-        }
-      }
-      rotateRef.current = null
-      setIsRotating(false)
-    }
-  }, [nodeMap, marquee, view, port])
-
-  // ── 줌 애니메이션 (RAF 보간) ────────────────────────────────
-  const animateToTarget = useCallback(() => {
-    if (!targetViewRef.current) return
-    setView(curr => {
-      const target = targetViewRef.current!
-      const dz = target.zoom - curr.zoom
-      const dx = target.offsetX - curr.offsetX
-      const dy = target.offsetY - curr.offsetY
-      if (Math.abs(dz) < 0.001 && Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
-        targetViewRef.current = null
-        animFrameRef.current = null
-        return target
-      }
-      const EASE = 0.18
-      return {
-        zoom: curr.zoom + dz * EASE,
-        offsetX: curr.offsetX + dx * EASE,
-        offsetY: curr.offsetY + dy * EASE,
-      }
-    })
-    if (targetViewRef.current) {
-      animFrameRef.current = requestAnimationFrame(animateToTarget)
-    }
-  }, [])
-
-  // ── 줌 (wheel) — passive: false 필요 ───────────────────────
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault()
-    if (e.ctrlKey || e.metaKey) {
-      // 핀치 줌 / Ctrl+wheel 줌
-      const factor = e.deltaY < 0 ? 1.1 : 0.9
-      const svgCoords = getSvgCoords(e)
-      const curr = targetViewRef.current ?? viewRef.current
-      const newZoom = Math.min(8, Math.max(0.1, curr.zoom * factor))
-      const newOffsetX = svgCoords.x - (svgCoords.x - curr.offsetX) * (newZoom / curr.zoom)
-      const newOffsetY = svgCoords.y - (svgCoords.y - curr.offsetY) * (newZoom / curr.zoom)
-      targetViewRef.current = { zoom: newZoom, offsetX: newOffsetX, offsetY: newOffsetY }
-      if (!animFrameRef.current) {
-        animFrameRef.current = requestAnimationFrame(animateToTarget)
-      }
-    } else {
-      // 2손가락 스크롤 → 패닝
-      setView(prev => ({
-        ...prev,
-        offsetX: prev.offsetX - e.deltaX,
-        offsetY: prev.offsetY - e.deltaY,
-      }))
-    }
-  }, [getSvgCoords])
-
-  // ── SVG 씬 내보내기 ─────────────────────────────────────────
-  const handleExportSvg = useCallback(() => {
-    if (!svgRef.current) return
-    // 씬 콘텐츠만 포함하는 독립 SVG 생성
-    const ns = 'http://www.w3.org/2000/svg'
-    const exportSvg = document.createElementNS(ns, 'svg')
-    exportSvg.setAttribute('xmlns', ns)
-    exportSvg.setAttribute('width', String(DESIGN_W))
-    exportSvg.setAttribute('height', String(DESIGN_H))
-    exportSvg.setAttribute('viewBox', `${-DESIGN_W / 2} ${-DESIGN_H / 2} ${DESIGN_W} ${DESIGN_H}`)
-    // 배경
-    const bg = document.createElementNS(ns, 'rect')
-    bg.setAttribute('x', String(-DESIGN_W / 2)); bg.setAttribute('y', String(-DESIGN_H / 2))
-    bg.setAttribute('width', String(DESIGN_W)); bg.setAttribute('height', String(DESIGN_H))
-    bg.setAttribute('fill', '#1a1a2e')
-    exportSvg.appendChild(bg)
-    // 각 노드를 사각형으로 렌더
-    nodeMap.forEach(n => {
-      if (!n.active) return
-      const rect = document.createElementNS(ns, 'rect')
-      const hw = n.width / 2; const hh = n.height / 2
-      const cx = n.x - DESIGN_W / 2; const cy = -(n.y - DESIGN_H / 2)  // Cocos → SVG Y
-      rect.setAttribute('x', String(cx - hw)); rect.setAttribute('y', String(cy - hh))
-      rect.setAttribute('width', String(n.width)); rect.setAttribute('height', String(n.height))
-      const r = n.color.r; const g = n.color.g; const b = n.color.b; const a = (n.color.a / 255).toFixed(2)
-      rect.setAttribute('fill', `rgba(${r},${g},${b},${a})`)
-      rect.setAttribute('stroke', 'rgba(96,165,250,0.3)'); rect.setAttribute('stroke-width', '0.5')
-      exportSvg.appendChild(rect)
-      if (n.name) {
-        const text = document.createElementNS(ns, 'text')
-        text.setAttribute('x', String(cx)); text.setAttribute('y', String(cy + 4))
-        text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '10')
-        text.setAttribute('fill', 'rgba(255,255,255,0.6)'); text.setAttribute('font-family', 'sans-serif')
-        text.textContent = n.name
-        exportSvg.appendChild(text)
-      }
-    })
-    const blob = new Blob([new XMLSerializer().serializeToString(exportSvg)], { type: 'image/svg+xml' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url; a.download = 'scene.svg'; a.click()
-    URL.revokeObjectURL(url)
-  }, [svgRef, nodeMap, DESIGN_W, DESIGN_H])
-
+  // hitTestAtPoint → useSceneViewMouse에서 제공
   // R1404: PNG 내보내기 설정 (배경색, 해상도)
   const [pngExportBg, setPngExportBg] = useState<'dark' | 'light' | 'transparent'>('dark')
   const [pngExportScale, setPngExportScale] = useState<1 | 2 | 4>(1)
   const [showPngExportPanel, setShowPngExportPanel] = useState(false)
-  const PNG_BG_COLORS: Record<string, string> = { dark: '#1a1a2e', light: '#f8f8f8', transparent: 'transparent' }
-
-  // ── R1404: PNG 내보내기 (SVG -> Canvas -> PNG, 해상도/배경 선택) ──
-  const handleExportPng = useCallback(async () => {
-    if (!svgRef.current) return
-    const scale = pngExportScale
-    const bgFill = PNG_BG_COLORS[pngExportBg] ?? '#1a1a2e'
-    const ns = 'http://www.w3.org/2000/svg'
-    const exportSvg = document.createElementNS(ns, 'svg')
-    exportSvg.setAttribute('xmlns', ns)
-    exportSvg.setAttribute('width', String(DESIGN_W * scale))
-    exportSvg.setAttribute('height', String(DESIGN_H * scale))
-    exportSvg.setAttribute('viewBox', `${-DESIGN_W / 2} ${-DESIGN_H / 2} ${DESIGN_W} ${DESIGN_H}`)
-    if (bgFill !== 'transparent') {
-      const bg = document.createElementNS(ns, 'rect')
-      bg.setAttribute('x', String(-DESIGN_W / 2)); bg.setAttribute('y', String(-DESIGN_H / 2))
-      bg.setAttribute('width', String(DESIGN_W)); bg.setAttribute('height', String(DESIGN_H))
-      bg.setAttribute('fill', bgFill)
-      exportSvg.appendChild(bg)
-    }
-    nodeMap.forEach(n => {
-      if (!n.active) return
-      const rect = document.createElementNS(ns, 'rect')
-      const hw = n.width / 2; const hh = n.height / 2
-      const cx = n.x - DESIGN_W / 2; const cy = -(n.y - DESIGN_H / 2)
-      rect.setAttribute('x', String(cx - hw)); rect.setAttribute('y', String(cy - hh))
-      rect.setAttribute('width', String(n.width)); rect.setAttribute('height', String(n.height))
-      const r = n.color.r; const g2 = n.color.g; const b = n.color.b; const a = (n.color.a / 255).toFixed(2)
-      rect.setAttribute('fill', `rgba(${r},${g2},${b},${a})`)
-      rect.setAttribute('stroke', 'rgba(96,165,250,0.3)'); rect.setAttribute('stroke-width', '0.5')
-      exportSvg.appendChild(rect)
-      if (n.name) {
-        const text = document.createElementNS(ns, 'text')
-        text.setAttribute('x', String(cx)); text.setAttribute('y', String(cy + 4))
-        text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '10')
-        text.setAttribute('fill', 'rgba(255,255,255,0.6)'); text.setAttribute('font-family', 'sans-serif')
-        text.textContent = n.name
-        exportSvg.appendChild(text)
-      }
-    })
-    const svgStr = new XMLSerializer().serializeToString(exportSvg)
-    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
-    const svgUrl = URL.createObjectURL(svgBlob)
-    const img = new Image()
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = DESIGN_W * scale; canvas.height = DESIGN_H * scale
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0, DESIGN_W * scale, DESIGN_H * scale)
-      URL.revokeObjectURL(svgUrl)
-      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-      canvas.toBlob(blob => {
-        if (!blob) return
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url; a.download = `scene-${ts}.png`; a.click()
-        URL.revokeObjectURL(url)
-      }, 'image/png')
-    }
-    img.src = svgUrl
-  }, [svgRef, nodeMap, DESIGN_W, DESIGN_H, pngExportScale, pngExportBg])
-
-  // ── 씬뷰 스크린샷 (SVG 캔버스 → PNG 다운로드 + 클립보드) ───────
-  const [screenshotDone, setScreenshotDone] = useState(false)
-
-  const handleScreenshot = useCallback(async () => {
-    if (!svgRef.current) return
-    const svgEl = svgRef.current
-    const svgStr = new XMLSerializer().serializeToString(svgEl)
-    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
-    const svgUrl = URL.createObjectURL(svgBlob)
-    const img = new Image()
-    img.onload = async () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = svgEl.clientWidth || DESIGN_W
-      canvas.height = svgEl.clientHeight || DESIGN_H
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0)
-      URL.revokeObjectURL(svgUrl)
-      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-      canvas.toBlob(async (blob) => {
-        if (!blob) return
-        // 다운로드
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `scene-${ts}.png`
-        a.click()
-        URL.revokeObjectURL(url)
-        // 클립보드 복사
-        try {
-          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-        } catch {
-          // 클립보드 미지원 환경 무시
-        }
-        setScreenshotDone(true)
-        setTimeout(() => setScreenshotDone(false), 1500)
-      }, 'image/png')
-    }
-    img.src = svgUrl
-  }, [svgRef, DESIGN_W, DESIGN_H])
+  // PNG_BG_COLORS imported from sceneViewConstants
 
   // ── 씬 저장 / 로드 슬롯 (localStorage) ──────────────────────
   const [activeSlot, setActiveSlot] = useState(0)
@@ -2148,7 +908,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [showFontPanel, setShowFontPanel] = useState(false)
   const [sceneTimers, setSceneTimers] = useState<Array<{ id: string; interval: number }>>([])
   const [showTimerPanel, setShowTimerPanel] = useState(false)
-  const slotKey = (slot: number) => `claude-desktop-scene-layout-${slot}`
+  // slotKey imported from sceneViewConstants
 
   const saveToSlot = useCallback((slot: number) => {
     const data = JSON.stringify([...nodeMap.entries()])
@@ -2169,6 +929,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }, [updateNode])
 
   const handleSaveScene = useCallback(() => saveToSlot(activeSlot), [saveToSlot, activeSlot])
+  const saveSceneAsync = useCallback(async () => { saveToSlot(activeSlot) }, [saveToSlot, activeSlot])
   const handleLoadScene = useCallback(() => loadFromSlot(activeSlot), [loadFromSlot, activeSlot])
 
   const handleSlotChange = useCallback((newSlot: number) => {
@@ -2450,214 +1211,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     try { localStorage.setItem('sceneview-annotations', JSON.stringify(next)) } catch {}
   }, [annotations])
 
-  const handleCreateNode = useCallback(async () => {
-    const name = 'NewNode'
-    try {
-      await window.api.ccCreateNode?.(port, name, selectedUuid ?? undefined)
-      refresh()
-    } catch (e) {
-      console.error('[SceneView] createNode failed:', e)
-    }
-  }, [port, selectedUuid, refresh])
-
-  const handleDeleteNode = useCallback(async () => {
-    if (!selectedUuid) return
-    try {
-      await window.api.ccDeleteNode?.(port, selectedUuid)
-      setSelectedUuid(null)
-      refresh()
-    } catch (e) {
-      console.error('[SceneView] deleteNode failed:', e)
-    }
-  }, [port, selectedUuid, refresh])
-
-  const handleZOrder = useCallback(async (direction: 'front' | 'back' | 'up' | 'down') => {
-    if (selectedUuids.size !== 1) return
-    const uuid = [...selectedUuids][0]
-    try {
-      await window.api.ccSetZOrder?.(port, uuid, direction)
-      refresh()
-    } catch (e) {
-      console.error('[SceneView] zorder failed:', e)
-    }
-  }, [selectedUuids, port, refresh])
-
-  const handleAlign = useCallback(async (direction: 'left' | 'centerH' | 'right' | 'top' | 'centerV' | 'bottom') => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-
-    const positions: Record<string, { x: number; y: number }> = {}
-
-    if (direction === 'left') {
-      const minLeft = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
-      for (const n of nodes) positions[n.uuid] = { x: minLeft + n.width * (n.anchorX ?? 0.5), y: n.y }
-    } else if (direction === 'right') {
-      const maxRight = Math.max(...nodes.map(n => n.x + n.width * (1 - (n.anchorX ?? 0.5))))
-      for (const n of nodes) positions[n.uuid] = { x: maxRight - n.width * (1 - (n.anchorX ?? 0.5)), y: n.y }
-    } else if (direction === 'centerH') {
-      const minLeft = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
-      const maxRight = Math.max(...nodes.map(n => n.x + n.width * (1 - (n.anchorX ?? 0.5))))
-      const bboxCx = (minLeft + maxRight) / 2
-      for (const n of nodes) positions[n.uuid] = { x: bboxCx, y: n.y }
-    } else if (direction === 'top') {
-      const maxTop = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
-      for (const n of nodes) positions[n.uuid] = { x: n.x, y: maxTop - n.height * (1 - (n.anchorY ?? 0.5)) }
-    } else if (direction === 'bottom') {
-      const minBottom = Math.min(...nodes.map(n => n.y - n.height * (n.anchorY ?? 0.5)))
-      for (const n of nodes) positions[n.uuid] = { x: n.x, y: minBottom + n.height * (n.anchorY ?? 0.5) }
-    } else if (direction === 'centerV') {
-      const maxTop = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
-      const minBottom = Math.min(...nodes.map(n => n.y - n.height * (n.anchorY ?? 0.5)))
-      const bboxCy = (minBottom + maxTop) / 2
-      for (const n of nodes) positions[n.uuid] = { x: n.x, y: bboxCy }
-    }
-
-    for (const [uid, { x, y }] of Object.entries(positions)) {
-      updateNode(uid, { x, y })
-      try {
-        await window.api.ccSetProperty?.(port, uid, 'x', x)
-        await window.api.ccSetProperty?.(port, uid, 'y', y)
-      } catch (e) {
-        console.error('[SceneView] align failed:', e)
-      }
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  // ── 균등 분포 배치 ────────────────────────────────────────
-  // 선택 노드 크기 맞추기 — 기준 노드(첫 번째 선택) 크기로 동일화
-  const handleMatchSize = useCallback(async (dim: 'W' | 'H' | 'both') => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-    const ref = nodes[0]
-    for (let i = 1; i < nodes.length; i++) {
-      const n = nodes[i]
-      if (dim === 'W' || dim === 'both') {
-        updateNode(n.uuid, { width: ref.width })
-        try { await window.api.ccSetProperty?.(port, n.uuid, 'width', ref.width) } catch (_) {}
-      }
-      if (dim === 'H' || dim === 'both') {
-        updateNode(n.uuid, { height: ref.height })
-        try { await window.api.ccSetProperty?.(port, n.uuid, 'height', ref.height) } catch (_) {}
-      }
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  const handleDistribute = useCallback(async (axis: 'H' | 'V') => {
-    if (selectedUuids.size < 3) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 3) return
-
-    if (axis === 'H') {
-      const sorted = [...nodes].sort((a, b) => a.x - b.x)
-      const minX = sorted[0].x
-      const maxX = sorted[sorted.length - 1].x
-      const step = (maxX - minX) / (sorted.length - 1)
-      for (let i = 1; i < sorted.length - 1; i++) {
-        const n = sorted[i]
-        const newX = minX + step * i
-        updateNode(n.uuid, { x: newX })
-        try { await window.api.ccSetProperty?.(port, n.uuid, 'x', newX) } catch (_) {}
-      }
-    } else {
-      const sorted = [...nodes].sort((a, b) => a.y - b.y)
-      const minY = sorted[0].y
-      const maxY = sorted[sorted.length - 1].y
-      const step = (maxY - minY) / (sorted.length - 1)
-      for (let i = 1; i < sorted.length - 1; i++) {
-        const n = sorted[i]
-        const newY = minY + step * i
-        updateNode(n.uuid, { y: newY })
-        try { await window.api.ccSetProperty?.(port, n.uuid, 'y', newY) } catch (_) {}
-      }
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  const handleGridLayout = useCallback(async (gridGap = 20) => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-
-    const cols = Math.ceil(Math.sqrt(nodes.length))
-    // 시작 위치: 가장 왼쪽-상단 노드 기준
-    const startX = Math.min(...nodes.map(n => n.x - n.width * (n.anchorX ?? 0.5)))
-    const startY = Math.max(...nodes.map(n => n.y + n.height * (1 - (n.anchorY ?? 0.5))))
-
-    for (let i = 0; i < nodes.length; i++) {
-      const n = nodes[i]
-      const col = i % cols
-      const row = Math.floor(i / cols)
-      const newX = startX + col * (n.width + gridGap) + n.width * (n.anchorX ?? 0.5)
-      const newY = startY - row * (n.height + gridGap) - n.height * (1 - (n.anchorY ?? 0.5))
-      updateNode(n.uuid, { x: newX, y: newY })
-      try {
-        await window.api.ccSetProperty?.(port, n.uuid, 'x', newX)
-        await window.api.ccSetProperty?.(port, n.uuid, 'y', newY)
-      } catch (e) {
-        console.error('[SceneView] gridLayout failed:', e)
-      }
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  // ── R1458: 수평 균등 배분 ────────────────────────────────────
-  const handleDistributeHEqual = useCallback(async () => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-    const sorted = [...nodes].sort((a, b) => a.x - b.x)
-    const minX = sorted[0].x
-    const maxX = sorted[sorted.length - 1].x
-    const step = nodes.length > 1 ? (maxX - minX) / (nodes.length - 1) : 0
-    for (let i = 0; i < sorted.length; i++) {
-      const n = sorted[i]
-      const newX = minX + step * i
-      updateNode(n.uuid, { x: newX })
-      try { await window.api.ccSetProperty?.(port, n.uuid, 'x', newX) } catch (_) {}
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  // ── R1458: 수직 균등 배분 ────────────────────────────────────
-  const handleDistributeVEqual = useCallback(async () => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-    const sorted = [...nodes].sort((a, b) => a.y - b.y)
-    const minY = sorted[0].y
-    const maxY = sorted[sorted.length - 1].y
-    const step = nodes.length > 1 ? (maxY - minY) / (nodes.length - 1) : 0
-    for (let i = 0; i < sorted.length; i++) {
-      const n = sorted[i]
-      const newY = minY + step * i
-      updateNode(n.uuid, { y: newY })
-      try { await window.api.ccSetProperty?.(port, n.uuid, 'y', newY) } catch (_) {}
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
-  // ── R1458: 원형 배치 ──────────────────────────────────────────
-  const handleCircularLayout = useCallback(async () => {
-    if (selectedUuids.size < 2) return
-    const nodes = [...selectedUuids].map(uid => nodeMap.get(uid)).filter(Boolean) as SceneNode[]
-    if (nodes.length < 2) return
-    // 중심점: 선택 노드들의 평균 좌표
-    const cx = nodes.reduce((s, n) => s + n.x, 0) / nodes.length
-    const cy = nodes.reduce((s, n) => s + n.y, 0) / nodes.length
-    // 반지름: 노드 수에 비례
-    const radius = Math.max(80, nodes.length * 30)
-    const angleStep = (2 * Math.PI) / nodes.length
-    for (let i = 0; i < nodes.length; i++) {
-      const n = nodes[i]
-      const angle = angleStep * i - Math.PI / 2 // 12시 방향 시작
-      const newX = cx + radius * Math.cos(angle)
-      const newY = cy + radius * Math.sin(angle)
-      updateNode(n.uuid, { x: newX, y: newY })
-      try {
-        await window.api.ccSetProperty?.(port, n.uuid, 'x', newX)
-        await window.api.ccSetProperty?.(port, n.uuid, 'y', newY)
-      } catch (_) {}
-    }
-  }, [selectedUuids, nodeMap, port, updateNode])
-
+  // handleCreateNode~handleCircularLayout -> useSceneViewActions에서 제공
   // ── R1458: 자동정렬 드롭다운 상태 ──────────────────────────
   const [showAutoLayoutMenu, setShowAutoLayoutMenu] = useState(false)
   const autoLayoutMenuRef = useRef<HTMLDivElement>(null)
@@ -2701,6 +1255,51 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // R1422: 그리드 크기를 사용자 설정에서 가져옴
   const gridStep = gridSettings.size
 
+  // ── Context 값 구성 (하위 추출 컴포넌트에 전달) ──────────────
+  const ctxValue: SceneViewContextValue = {
+    nodeMap, rootUuid, updateNode, refresh,
+    view, setView, DESIGN_W, DESIGN_H,
+    selectedUuid, setSelectedUuid, selectedUuids, setSelectedUuids,
+    selectedNode,
+    bookmarkedUuids, setBookmarkedUuids,
+    pinnedUuids, lockedUuids, setLockedUuids,
+    hiddenLayers, setHiddenLayers, lockedLayers, setLockedLayers,
+    collapsedUuids, setCollapsedUuids,
+    nodeColors, setNodeColors, nodeColorTags, setNodeColorTags,
+    nodeTags, setNodeTags, layerColors, setLayerColors,
+    handleDeleteNode, handleCopy, handlePaste, handleDuplicate,
+    togglePin,
+    clipboard, setClipboard, setCopiedNode,
+    topLevelNodes, nodeToTopLevel, collectDescendants, allLayers,
+    connected, port, containerRef,
+    savedSnapshot, changedUuids,
+    diffModeR1381, setDiffModeR1381,
+    beforeAfterMode, setBeforeAfterMode, sliderX, setSliderX,
+    snapshot, showDiff, setShowDiff,
+    editHistory, showEditHistory, setShowEditHistory,
+    showJsonViewer, setShowJsonViewer, jsonViewScope, setJsonViewScope,
+    shareUrl, setShareUrl, shareLoading, setShareLoading,
+    showImportModal, setShowImportModal, importJson, setImportJson, importError, setImportError,
+    showCenterGuide, setShowCenterGuide, snapThreshold, setSnapThreshold,
+    blockInactiveClick, setBlockInactiveClick,
+    snapshots, snapshotOpen, setSnapshotOpen, takeSnapshot, handleTakeSnapshot,
+    nodeAccessCount, setNodeAccessCount,
+    showLayerPanel, showAllToggle, setShowAllToggle,
+    layerDragIdx, setLayerDragIdx, layerDropIdx, setLayerDropIdx,
+    animPlayingUuid, handleAnimPreviewStart, handleAnimPreviewStop, handleAiAnalyze,
+    nodeTemplates, setNodeTemplates, showTemplateDropdown, setShowTemplateDropdown,
+    svgContextMenu, setSvgContextMenu,
+    showColorTagPicker, setShowColorTagPicker,
+    nodeTagInput, setNodeTagInput, nodeTagDraft, setNodeTagDraft,
+    sceneTabFiles, sceneHistory,
+    showMinimap, setShowMinimap,
+    flashUuid, setFlashUuid, flashTimerRef,
+    svgRef,
+    changeHistory, showChangeHistory, setShowChangeHistory,
+    beforeAfterDragRef,
+    compareScenePath, setCompareScenePath,
+  }
+
   if (!connected) {
     return (
       <div
@@ -2719,6 +1318,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   }
 
   return (
+    <SceneViewProvider value={ctxValue}>
     <div
       style={{
         display: 'flex',
@@ -2883,410 +1483,21 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         editHistoryCount={editHistory.length}
       />
 
-      {/* R1422: 그리드 설정 팝업 — Grid 버튼 우클릭으로 열기 */}
-      {showGridSettings && (
-        <div
-          ref={gridSettingsRef}
-          style={{
-            position: 'absolute', top: 30, left: 120, zIndex: 9999,
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            borderRadius: 6, padding: 10, minWidth: 180,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-          }}
-        >
-          <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Grid Settings</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Size</span>
-            <select
-              value={gridSettings.size}
-              onChange={e => setGridSettings(prev => ({ ...prev, size: Number(e.target.value) }))}
-              style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '2px 4px' }}
-            >
-              {[8, 16, 32, 50, 64, 128].map(v => (
-                <option key={v} value={v}>{v}px</option>
-              ))}
-            </select>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Color</span>
-            <button
-              onClick={() => setGridSettings(prev => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }))}
-              style={{
-                flex: 1, fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer',
-                background: gridSettings.theme === 'light' ? '#e0e0e0' : '#333',
-                color: gridSettings.theme === 'light' ? '#333' : '#e0e0e0',
-                border: '1px solid var(--border)',
-              }}
-            >{gridSettings.theme === 'light' ? 'Light' : 'Dark'}</button>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 40, flexShrink: 0 }}>Alpha</span>
-            <input
-              type="range" min={0.02} max={0.5} step={0.01}
-              value={gridSettings.opacity}
-              onChange={e => setGridSettings(prev => ({ ...prev, opacity: parseFloat(e.target.value) }))}
-              style={{ flex: 1 }}
-            />
-            <span style={{ fontSize: 8, color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{gridSettings.opacity.toFixed(2)}</span>
-          </div>
-        </div>
-      )}
+      {/* 그리드 설정 + 템플릿/프리셋 바 + 씬 탭 (추출) */}
+      <SceneViewToolbarExtras
+        showGridSettings={showGridSettings}
+        setShowGridSettings={setShowGridSettings}
+        gridSettings={gridSettings}
+        setGridSettings={setGridSettings}
+        viewportPresets={viewportPresets}
+        setViewportPresets={setViewportPresets}
+        activeSceneTab={activeSceneTab}
+        setActiveSceneTab={setActiveSceneTab}
+        setShowSceneHistory={setShowSceneHistory}
+      />
 
-      {/* R1452: 노드 템플릿 + R1455: 뷰 북마크 + R1419: 뷰포트 프리셋 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '1px 4px', background: 'rgba(0,0,0,0.15)', flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        {/* R1452: 템플릿 드롭다운 */}
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setShowTemplateDropdown(v => !v)}
-            title="R1452: 노드 템플릿 라이브러리"
-            style={{ fontSize: 9, padding: '1px 4px', background: showTemplateDropdown ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: showTemplateDropdown ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
-          >{'\uD83D\uDCCC'}</button>
-          {showTemplateDropdown && (
-            <div style={{
-              position: 'absolute', top: '100%', left: 0, zIndex: 9999,
-              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-              minWidth: 160, maxHeight: 220, overflowY: 'auto',
-            }}>
-              <div style={{ padding: '4px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', fontWeight: 600 }}>
-                {'\uD83D\uDCCC'} 노드 템플릿
-              </div>
-              {DEFAULT_TEMPLATES.concat(nodeTemplates).map((tmpl, i) => (
-                <button
-                  key={`${tmpl.name}-${i}`}
-                  onClick={() => {
-                    const newUuid = `tmpl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-                    const n = tmpl.node as Record<string, unknown>
-                    const newNode: SceneNode = {
-                      uuid: newUuid, name: (n.name as string) ?? 'Template',
-                      active: (n.active as boolean) ?? true,
-                      x: 0, y: 0, width: ((n.size as { x?: number })?.x) ?? 0,
-                      height: ((n.size as { y?: number })?.y) ?? 0,
-                      anchorX: ((n.anchor as { x?: number })?.x) ?? 0.5,
-                      anchorY: ((n.anchor as { y?: number })?.y) ?? 0.5,
-                      scaleX: ((n.scale as { x?: number })?.x) ?? 1,
-                      scaleY: ((n.scale as { y?: number })?.y) ?? 1,
-                      rotation: (n.rotation as number) ?? 0,
-                      opacity: (n.opacity as number) ?? 255,
-                      color: (n.color as { r: number; g: number; b: number; a: number }) ?? { r: 255, g: 255, b: 255, a: 255 },
-                      parentUuid: rootUuid, childUuids: [],
-                      components: (n.components as SceneNode['components']) ?? [],
-                    }
-                    updateNode(newUuid, newNode)
-                    if (rootUuid) {
-                      const root = nodeMap.get(rootUuid)
-                      if (root) updateNode(rootUuid, { childUuids: [...root.childUuids, newUuid] })
-                    }
-                    setSelectedUuid(newUuid)
-                    setSelectedUuids(new Set([newUuid]))
-                    setShowTemplateDropdown(false)
-                  }}
-                  style={{
-                    display: 'block', width: '100%', textAlign: 'left',
-                    padding: '4px 8px', background: 'none', border: 'none',
-                    color: i < DEFAULT_TEMPLATES.length ? 'var(--text-muted)' : '#60a5fa',
-                    cursor: 'pointer', fontSize: 10,
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(96,165,250,0.1)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = '')}
-                >
-                  {i < DEFAULT_TEMPLATES.length ? `[기본] ${tmpl.name}` : tmpl.name}
-                </button>
-              ))}
-              {nodeTemplates.length > 0 && (
-                <div style={{ borderTop: '1px solid var(--border)', padding: '2px 8px' }}>
-                  <button
-                    onClick={() => { setNodeTemplates([]); localStorage.removeItem(NT_KEY); setShowTemplateDropdown(false) }}
-                    style={{ fontSize: 8, color: '#f85149', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
-                  >모든 사용자 템플릿 삭제</button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        {/* R1455: 뷰 북마크 숫자 뱃지 */}
-        {viewBookmarks.map((bm, i) => (
-          <button
-            key={`vb-${i}`}
-            onClick={() => {
-              if (!bm) return
-              const start = { ...viewRef.current }
-              const startTime = Date.now()
-              const DURATION = 200
-              const animate = () => {
-                const elapsed = Date.now() - startTime
-                const t = Math.min(elapsed / DURATION, 1)
-                const eased = t * (2 - t)
-                setView({
-                  zoom: start.zoom + (bm.zoom - start.zoom) * eased,
-                  offsetX: start.offsetX + (bm.offsetX - start.offsetX) * eased,
-                  offsetY: start.offsetY + (bm.offsetY - start.offsetY) * eased,
-                })
-                if (t < 1) requestAnimationFrame(animate)
-              }
-              requestAnimationFrame(animate)
-            }}
-            title={bm ? `뷰 ${i + 1} (zoom:${bm.zoom.toFixed(1)}) — 클릭으로 이동, Ctrl+${i + 1}로 저장` : `뷰 ${i + 1} 비어있음 (Ctrl+${i + 1}로 저장)`}
-            style={{
-              fontSize: 8, width: 16, height: 16, padding: 0, lineHeight: '16px', textAlign: 'center',
-              background: bm ? 'rgba(96,165,250,0.2)' : 'none',
-              border: '1px solid ' + (bm ? 'rgba(96,165,250,0.4)' : 'var(--border)'),
-              borderRadius: 2, color: bm ? '#93c5fd' : 'var(--text-muted)',
-              cursor: bm ? 'pointer' : 'default', fontWeight: bm ? 700 : 400,
-            }}
-          >{i + 1}</button>
-        ))}
-        <div style={{ width: 1, height: 12, background: 'var(--border)', margin: '0 2px' }} />
-        <button
-          onClick={() => {
-            const name = `뷰 ${viewportPresets.length + 1}`
-            const preset: ViewportPreset = { name, zoom: view.zoom, panX: view.offsetX, panY: view.offsetY }
-            setViewportPresets(prev => {
-              const next = [...prev, preset].slice(-5)
-              localStorage.setItem(VP_KEY, JSON.stringify(next))
-              return next
-            })
-          }}
-          title="현재 뷰를 프리셋으로 저장 (최대 5개)"
-          style={{ fontSize: 9, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
-        >{'\uD83D\uDCD0'}+</button>
-        {/* 기본 프리셋 */}
-        <button
-          onClick={() => { setView({ offsetX: 0, offsetY: 0, zoom: 1 }) }}
-          title="1:1 뷰"
-          style={{ fontSize: 8, padding: '1px 4px', background: view.zoom === 1 ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: view.zoom === 1 ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
-        >1:1</button>
-        <button
-          onClick={() => { setView({ offsetX: 0, offsetY: 0, zoom: 2 }) }}
-          title="2:1 뷰"
-          style={{ fontSize: 8, padding: '1px 4px', background: view.zoom === 2 ? 'rgba(96,165,250,0.2)' : 'none', border: '1px solid var(--border)', borderRadius: 2, color: view.zoom === 2 ? '#93c5fd' : 'var(--text-muted)', cursor: 'pointer' }}
-        >2:1</button>
-        {/* 사용자 프리셋 */}
-        {viewportPresets.map((p, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-            <button
-              onClick={() => setView({ offsetX: p.panX, offsetY: p.panY, zoom: p.zoom })}
-              title={`${p.name} (zoom:${p.zoom.toFixed(1)} pan:${Math.round(p.panX)},${Math.round(p.panY)})`}
-              style={{ fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: '2px 0 0 2px', color: '#60a5fa', cursor: 'pointer' }}
-            >{p.name}</button>
-            <button
-              onClick={() => {
-                setViewportPresets(prev => {
-                  const next = prev.filter((_, j) => j !== i)
-                  localStorage.setItem(VP_KEY, JSON.stringify(next))
-                  return next
-                })
-              }}
-              title="프리셋 삭제"
-              style={{ fontSize: 8, padding: '1px 2px', background: 'none', border: '1px solid var(--border)', borderLeft: 'none', borderRadius: '0 2px 2px 0', color: '#f85149', cursor: 'pointer', lineHeight: 1 }}
-            >x</button>
-          </div>
-        ))}
-      </div>
-
-      {/* R1383: 씬 파일 탭 바 */}
-      {sceneTabFiles.length > 1 && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 0,
-          background: 'rgba(0,0,0,0.25)', borderBottom: '1px solid rgba(255,255,255,0.08)',
-          overflowX: 'auto', flexShrink: 0,
-        }}>
-          {sceneTabFiles.map(path => {
-            const name = path.split(/[\\/]/).pop() ?? path
-            const isActive = path === activeSceneTab
-            return (
-              <button
-                key={path}
-                onClick={() => setActiveSceneTab(path)}
-                title={path}
-                style={{
-                  padding: '3px 10px', fontSize: 10, border: 'none', cursor: 'pointer',
-                  background: isActive ? 'rgba(96,165,250,0.2)' : 'transparent',
-                  color: isActive ? '#93c5fd' : '#94a3b8',
-                  borderBottom: isActive ? '2px solid #60a5fa' : '2px solid transparent',
-                  whiteSpace: 'nowrap', flexShrink: 0,
-                }}
-              >
-                {name}
-              </button>
-            )
-          })}
-          {sceneHistory.length > 5 && (
-            <button
-              onClick={() => setShowSceneHistory(true)}
-              style={{ padding: '3px 8px', fontSize: 10, border: 'none', cursor: 'pointer', background: 'transparent', color: '#64748b' }}
-              title="더 많은 씬 보기"
-            >+</button>
-          )}
-        </div>
-      )}
-
-      {/* 스냅샷 기록 툴바 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'relative', zIndex: 10 }}>
-        <button
-          onClick={takeSnapshot}
-          style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: 4, color: '#93c5fd', cursor: 'pointer', whiteSpace: 'nowrap' }}
-        >
-          스냅샷
-        </button>
-        {/* R1381: 씬 diff 뷰어 토글 */}
-        <button
-          onClick={() => setDiffModeR1381(v => !v)}
-          title={diffModeR1381 ? '씬 diff 뷰어 끄기' : '변경된 노드 주황 테두리 강조'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: diffModeR1381 ? 'rgba(251,146,60,0.25)' : 'rgba(255,255,255,0.06)',
-            border: diffModeR1381 ? '1px solid rgba(251,146,60,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: diffModeR1381 ? '#fb923c' : '#cbd5e1',
-          }}
-        >
-          diff {changedUuids.size > 0 ? `(${changedUuids.size})` : ''}
-        </button>
-        {/* R1431: Before/After 슬라이더 비교 토글 */}
-        <button
-          onClick={() => { setBeforeAfterMode(v => !v); if (!beforeAfterMode) setSliderX(0.5) }}
-          title={beforeAfterMode ? 'Before/After 비교 끄기' : 'Before/After 슬라이더 비교'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: beforeAfterMode ? 'rgba(168,85,247,0.25)' : 'rgba(255,255,255,0.06)',
-            border: beforeAfterMode ? '1px solid rgba(168,85,247,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: beforeAfterMode ? '#c084fc' : '#cbd5e1',
-          }}
-        >
-          B/A
-        </button>
-        {/* R1435: 씬 JSON 뷰어 토글 */}
-        <button
-          onClick={() => setShowJsonViewer(v => !v)}
-          title={showJsonViewer ? '씬 JSON 뷰어 닫기' : '씬 JSON 뷰어 열기'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: showJsonViewer ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)',
-            border: showJsonViewer ? '1px solid rgba(96,165,250,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: showJsonViewer ? '#60a5fa' : '#cbd5e1', fontFamily: 'monospace',
-          }}
-        >
-          {'{ }'}
-        </button>
-        {/* R1438: 씬 공유 링크 */}
-        <button
-          onClick={async () => {
-            setShareLoading(true)
-            try {
-              const data = Array.from(nodeMap.values()).map(n => ({ name: n.name, uuid: n.uuid, x: Math.round(n.x), y: Math.round(n.y), width: Math.round(n.width), height: Math.round(n.height), rotation: n.rotation, active: n.active, components: n.components }))
-              const sceneJson = JSON.stringify({ nodeCount: nodeMap.size, rootUuid, nodes: data }, null, 2)
-              const result = await window.api.ccFileServeScene?.(sceneJson)
-              if (result?.success && result.url) {
-                await navigator.clipboard.writeText(result.url)
-                setShareUrl(result.url)
-                setTimeout(() => setShareUrl(null), 5000)
-              }
-            } catch { /* ignore */ }
-            setShareLoading(false)
-          }}
-          disabled={shareLoading || nodeMap.size === 0}
-          title={shareUrl ? `공유 URL: ${shareUrl}` : '씬 로컬 HTTP 공유 (60초, 클립보드 복사)'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: shareUrl ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)',
-            border: shareUrl ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: shareUrl ? '#4ade80' : '#cbd5e1',
-            opacity: shareLoading || nodeMap.size === 0 ? 0.5 : 1,
-          }}
-        >
-          {shareLoading ? '...' : shareUrl ? '✓ 복사됨' : '\u{1F517}'}
-        </button>
-        {/* R1440: 씬 JSON 임포트 버튼 */}
-        <button
-          onClick={() => { setShowImportModal(true); setImportJson(''); setImportError(null) }}
-          title="외부 씬 JSON 붙여넣기로 노드 임포트"
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: showImportModal ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)',
-            border: showImportModal ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: showImportModal ? '#4ade80' : '#cbd5e1',
-          }}
-        >
-          {'\uD83D\uDCE5'} 임포트
-        </button>
-        {/* R1442: Center Guide 토글 */}
-        <button
-          onClick={() => setShowCenterGuide(v => !v)}
-          title={showCenterGuide ? '씬 중앙선 숨기기' : '씬 중앙선 표시 (0,0 기준)'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: showCenterGuide ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)',
-            border: showCenterGuide ? '1px solid rgba(96,165,250,0.5)' : '1px solid rgba(255,255,255,0.15)',
-            color: showCenterGuide ? '#60a5fa' : '#cbd5e1',
-          }}
-        >
-          {'\u271A'}
-        </button>
-        {/* R1442: 스냅 거리 임계값 설정 */}
-        <select
-          value={snapThreshold}
-          onChange={e => setSnapThreshold(Number(e.target.value))}
-          title={`정렬 스냅 거리: ${snapThreshold}px`}
-          style={{
-            fontSize: 9, padding: '2px 4px', borderRadius: 3, cursor: 'pointer',
-            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
-            color: '#cbd5e1',
-          }}
-        >
-          {[4, 8, 12, 16].map(v => (
-            <option key={v} value={v}>{v}px</option>
-          ))}
-        </select>
-        {/* R1428: 비활성 노드 클릭 방지 토글 */}
-        <button
-          onClick={() => setBlockInactiveClick(v => !v)}
-          title={blockInactiveClick ? '비활성 노드 클릭 허용' : '비활성 노드 클릭 방지'}
-          style={{
-            fontSize: 11, padding: '2px 8px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap',
-            background: blockInactiveClick ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)',
-            border: blockInactiveClick ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(255,255,255,0.15)',
-            color: blockInactiveClick ? '#fca5a5' : '#cbd5e1',
-          }}
-        >
-          {blockInactiveClick ? '비활성 차단' : '비활성 허용'}
-        </button>
-        {/* 접근 횟수 초기화 버튼 (R702) */}
-        {Object.keys(nodeAccessCount).length > 0 && (
-          <button
-            onClick={() => setNodeAccessCount({})}
-            style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 4, color: '#fca5a5', cursor: 'pointer', whiteSpace: 'nowrap' }}
-          >
-            접근 횟수 초기화
-          </button>
-        )}
-        {snapshots.length > 0 && (
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setSnapshotOpen(v => !v)}
-              style={{ fontSize: 11, padding: '2px 8px', background: snapshotOpen ? 'rgba(96,165,250,0.25)' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 4, color: '#cbd5e1', cursor: 'pointer' }}
-            >
-              기록 ({snapshots.length}) ▾
-            </button>
-            {snapshotOpen && (
-              <div
-                style={{ position: 'absolute', top: '100%', left: 0, marginTop: 2, background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, minWidth: 220, zIndex: 100, boxShadow: '0 4px 16px rgba(0,0,0,0.5)' }}
-              >
-                {snapshots.map((s) => (
-                  <div
-                    key={s.timestamp}
-                    onClick={() => { console.log('restore snapshot:', s.label); setSnapshotOpen(false) }}
-                    style={{ padding: '6px 12px', fontSize: 11, color: '#cbd5e1', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(96,165,250,0.15)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = '' }}
-                  >
-                    {s.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      {/* 스냅샷 기록 툴바 (추출) */}
+      <SceneViewSnapshotBar />
 
       {/* 애니메이션 미리보기 바 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 6px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
@@ -3296,11 +1507,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             setAnimPreview(next)
             if (next) {
               animPreviewIntervalRef.current = setInterval(() => {
-                setAnimFrame(f => {
-                  const nf = f >= 100 ? 0 : f + 1
-                  console.log('anim frame:', nf)
-                  return nf
-                })
+                setAnimFrame(f => (f >= 100 ? 0 : f + 1))
               }, 50)
             } else {
               if (animPreviewIntervalRef.current) {
@@ -3321,11 +1528,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
             min={0}
             max={100}
             value={animFrame}
-            onChange={e => {
-              const v = Number(e.target.value)
-              setAnimFrame(v)
-              console.log('anim frame:', v)
-            }}
+            onChange={e => setAnimFrame(Number(e.target.value))}
             style={{ flex: 1, accentColor: '#fbbf24', cursor: 'pointer' }}
           />
         )}
@@ -3368,7 +1571,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
               const next = new Set(prev)
               if (locked) next.add(uuid)
               else next.delete(uuid)
-              localStorage.setItem('scene-locked', JSON.stringify([...next]))
+              localStorage.setItem('cd-scene-locked', JSON.stringify([...next]))
               return next
             })
           }}
@@ -4046,1424 +2249,84 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
           )}
         </svg>
 
-        {/* R1431: Before/After 슬라이더 비교 오버레이 */}
-        {beforeAfterMode && savedSnapshot.size > 0 && (() => {
-          const svgRect = svgRef.current?.getBoundingClientRect()
-          const svgW = svgRect?.width ?? 400
-          const svgH = svgRect?.height ?? 300
-          const pixelX = sliderX * svgW
-          return (
-            <div
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 20 }}
-            >
-              {/* Before 영역 라벨 */}
-              <div style={{ position: 'absolute', top: 4, left: 6, fontSize: 9, color: 'rgba(239,68,68,0.8)', pointerEvents: 'none', zIndex: 2 }}>BEFORE</div>
-              {/* After 영역 라벨 */}
-              <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 9, color: 'rgba(96,165,250,0.8)', pointerEvents: 'none', zIndex: 2 }}>AFTER</div>
-              {/* Before 사이드 오버레이 — savedSnapshot 기준 변경된 노드 표시 */}
-              <svg width={svgW} height={svgH} style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
-                <defs>
-                  <clipPath id="r1431-before-clip"><rect x={0} y={0} width={pixelX} height={svgH} /></clipPath>
-                </defs>
-                <g clipPath="url(#r1431-before-clip)">
-                  {[...savedSnapshot.entries()].map(([uuid, snap]) => {
-                    const current = nodeMap.get(uuid)
-                    if (!current) return null
-                    if (snap.x === current.x && snap.y === current.y && snap.w === current.width && snap.h === current.height) return null
-                    const { sx, sy } = cocosToSvg(snap.x, snap.y, DESIGN_W, DESIGN_H)
-                    const rx = sx - snap.w * 0.5
-                    const ry = sy - snap.h * 0.5
-                    return (
-                      <rect key={uuid} x={rx} y={ry} width={snap.w} height={snap.h}
-                        fill="rgba(239,68,68,0.1)" stroke="rgba(239,68,68,0.6)"
-                        strokeWidth={1.5 / view.zoom} rx={2 / view.zoom}
-                        strokeDasharray={`${3 / view.zoom} ${2 / view.zoom}`}
-                      />
-                    )
-                  })}
-                </g>
-              </svg>
-              {/* 슬라이더 바 (드래그 가능) */}
-              <div
-                style={{
-                  position: 'absolute', top: 0, left: pixelX - 1, width: 3, height: '100%',
-                  background: 'rgba(255,255,255,0.8)', cursor: 'ew-resize', pointerEvents: 'auto', zIndex: 3,
-                  boxShadow: '0 0 4px rgba(0,0,0,0.5)',
-                }}
-                onMouseDown={e => {
-                  e.preventDefault()
-                  beforeAfterDragRef.current = true
-                  const handleMove = (ev: MouseEvent) => {
-                    if (!beforeAfterDragRef.current || !svgRef.current) return
-                    const r = svgRef.current.getBoundingClientRect()
-                    const x = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width))
-                    setSliderX(x)
-                  }
-                  const handleUp = () => {
-                    beforeAfterDragRef.current = false
-                    window.removeEventListener('mousemove', handleMove)
-                    window.removeEventListener('mouseup', handleUp)
-                  }
-                  window.addEventListener('mousemove', handleMove)
-                  window.addEventListener('mouseup', handleUp)
-                }}
-              >
-                {/* 드래그 핸들 */}
-                <div style={{
-                  position: 'absolute', top: '50%', left: -8, width: 19, height: 24, marginTop: -12,
-                  background: 'rgba(255,255,255,0.9)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, color: '#333', fontWeight: 700, boxShadow: '0 1px 4px rgba(0,0,0,0.4)',
-                }}>⟺</div>
-              </div>
-            </div>
-          )
-        })()}
+        {/* Before/After, Compare, JSON, Measure, Ruler, Stats, 상태바 등 오버레이 (추출) */}
+        <SceneViewInfoPanels
+          compareMode={compareMode}
+          setCompareMode={setCompareMode}
+          measureMode={measureMode}
+          measureLine={measureLine}
+          showRuler={showRuler}
+          loading={loading}
+          handleFit={handleFit}
+          handleZoomTo={handleZoomTo}
+          showGroupBtn={showGroupBtn}
+          multiSelectedSize={multiSelected.size}
+          isDragging={isDragging}
+          isResizing={isResizing}
+          isRotating={isRotating}
+          dragDelta={dragDelta}
+          hoverTooltipPos={hoverTooltipPos}
+          tooltipVisibleUuid={tooltipVisibleUuid}
+          showStats={showStats}
+          showNodeInfo={showNodeInfo}
+          showStatsOverlay={showStatsOverlay}
+          showPngExportPanel={showPngExportPanel}
+          setShowPngExportPanel={setShowPngExportPanel}
+          pngExportBg={pngExportBg}
+          setPngExportBg={setPngExportBg}
+          pngExportScale={pngExportScale}
+          setPngExportScale={setPngExportScale}
+          handleExportPng={handleExportPng}
+          showCanvasSearch={showCanvasSearch}
+          setShowCanvasSearch={setShowCanvasSearch}
+          canvasSearch={canvasSearch}
+          setCanvasSearch={setCanvasSearch}
+          canvasSearchRef={canvasSearchRef}
+          searchMatches={searchMatches}
+          searchMatchIndex={searchMatchIndex}
+          handleSearchNav={handleSearchNav}
+          showBookmarkList={showBookmarkList}
+          setShowBookmarkList={setShowBookmarkList}
+          showRefImagePanel={showRefImagePanel}
+          setShowRefImagePanel={setShowRefImagePanel}
+          refImageUrl={refImageUrl}
+          setRefImageUrl={setRefImageUrl}
+          refImageOpacity={refImageOpacity}
+          setRefImageOpacity={setRefImageOpacity}
+          spaceDown={spaceDown}
+          activeTool={activeTool}
+          snapEnabled={snapEnabled}
+          snapGrid={snapGrid}
+          gridVisible={gridVisible}
+          isDirty={isDirty}
+          copiedNode={copiedNode}
+          isPanningActive={isPanningActive}
+          nodePath={nodePath}
+          overlayImageSrc={overlayImageSrc}
+          setOverlayImageSrc={setOverlayImageSrc}
+          overlayOpacity={overlayOpacity}
+        />
 
-        {/* R1424: 씬 비교 뷰 — 오른쪽 절반에 비교 패널 오버레이 */}
-        {compareMode && (
-          <div style={{
-            position: 'absolute', top: 0, right: 0, width: '50%', height: '100%',
-            background: 'var(--bg-primary)', borderLeft: '2px solid var(--accent)',
-            display: 'flex', flexDirection: 'column', zIndex: 50,
-          }}>
-            <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>COMPARE</span>
-              {sceneTabFiles.length > 0 && (
-                <select
-                  value={compareScenePath ?? ''}
-                  onChange={e => setCompareScenePath(e.target.value || null)}
-                  style={{ flex: 1, fontSize: 9, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3, padding: '2px 4px' }}
-                >
-                  <option value="">씬 선택...</option>
-                  {sceneTabFiles.map(p => (
-                    <option key={p} value={p}>{p.split(/[\\/]/).pop()}</option>
-                  ))}
-                </select>
-              )}
-              <button
-                onClick={() => { setCompareMode(false); setCompareScenePath(null) }}
-                style={{ fontSize: 9, padding: '1px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
-              >X</button>
-            </div>
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 10 }}>
-              {!compareScenePath ? (
-                <span>비교할 씬을 선택하세요</span>
-              ) : (
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 9, marginBottom: 4 }}>비교 씬: {compareScenePath.split(/[\\/]/).pop()}</div>
-                  <div style={{ fontSize: 8, color: 'var(--text-muted)' }}>읽기 전용 비교 뷰</div>
-                  <div style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 4 }}>독립 pan/zoom 지원</div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* R1435: 씬 JSON 뷰어 패널 */}
-        {showJsonViewer && (() => {
-          const selNode = selectedUuid ? nodeMap.get(selectedUuid) : null
-          const jsonSource = jsonViewScope === 'selected' && selNode
-            ? { name: selNode.name, uuid: selNode.uuid, x: selNode.x, y: selNode.y, width: selNode.width, height: selNode.height, rotation: selNode.rotation, anchorX: selNode.anchorX, anchorY: selNode.anchorY, opacity: selNode.opacity, active: selNode.active, components: selNode.components, childCount: selNode.children?.length ?? 0 }
-            : { nodeCount: nodeMap.size, rootUuid, nodes: Array.from(nodeMap.values()).slice(0, 50).map(n => ({ name: n.name, uuid: n.uuid, x: Math.round(n.x), y: Math.round(n.y) })) }
-          const jsonStr = JSON.stringify(jsonSource, null, 2)
-          // R1435: 간단한 syntax highlight
-          const highlighted = jsonStr.replace(
-            /("(?:\\.|[^"\\])*")\s*:/g, '<span style="color:var(--accent,#60a5fa)">$1</span>:'
-          ).replace(
-            /:\s*("(?:\\.|[^"\\])*")/g, ': <span style="color:var(--success,#34d399)">$1</span>'
-          ).replace(
-            /:\s*(-?\d+\.?\d*)/g, ': <span style="color:var(--warning,#fbbf24)">$1</span>'
-          )
-          return (
-            <div style={{
-              position: 'absolute', top: 0, right: 0, width: 240, height: '100%',
-              background: 'var(--bg-primary)', borderLeft: '2px solid var(--accent)',
-              display: 'flex', flexDirection: 'column', zIndex: 55,
-            }}>
-              <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600, fontFamily: 'monospace' }}>JSON</span>
-                <button
-                  onClick={() => setJsonViewScope(v => v === 'selected' ? 'full' : 'selected')}
-                  style={{ fontSize: 8, padding: '1px 4px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-primary)', cursor: 'pointer' }}
-                >{jsonViewScope === 'selected' ? '선택 노드' : '전체 씬'}</button>
-                <span style={{ flex: 1 }} />
-                <button
-                  onClick={() => { navigator.clipboard.writeText(jsonStr) }}
-                  style={{ fontSize: 8, padding: '1px 4px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
-                  title="JSON 복사"
-                >복사</button>
-                <button
-                  onClick={() => setShowJsonViewer(false)}
-                  style={{ fontSize: 9, padding: '1px 6px', background: 'none', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer' }}
-                >X</button>
-              </div>
-              <pre
-                style={{ flex: 1, overflow: 'auto', margin: 0, padding: 8, fontSize: 9, lineHeight: 1.5, color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
-                dangerouslySetInnerHTML={{ __html: highlighted }}
-              />
-            </div>
-          )
-        })()}
-
-        {/* 측정 도구 결과 오버레이 (클릭 복사 지원) */}
-        {measureMode && measureLine && (() => {
-          const dx = (measureLine.x2 - measureLine.x1) / view.zoom
-          const dy = (measureLine.y2 - measureLine.y1) / view.zoom
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI
-          const mx = (measureLine.x1 + measureLine.x2) / 2
-          const my = (measureLine.y1 + measureLine.y2) / 2
-          const label = `${dist.toFixed(1)}px  ${angleDeg.toFixed(1)}°`
-          return (
-            <div
-              title="클릭하여 복사"
-              onClick={() => { navigator.clipboard.writeText(label) }}
-              style={{
-                position: 'absolute',
-                left: mx,
-                top: my,
-                transform: 'translate(-50%, -110%)',
-                background: 'rgba(0,0,0,0.82)',
-                color: '#f97316',
-                fontSize: 11,
-                fontFamily: 'var(--font-mono, monospace)',
-                padding: '3px 8px',
-                borderRadius: 4,
-                whiteSpace: 'nowrap',
-                cursor: 'pointer',
-                userSelect: 'none',
-                zIndex: 20,
-                border: '1px solid rgba(249,115,22,0.4)',
-                lineHeight: '1.4',
-                pointerEvents: 'all',
-              }}
-            >
-              {dist.toFixed(1)} px &nbsp; {angleDeg.toFixed(1)}°
-            </div>
-          )
-        })()}
-
-        {/* 눈금자 오버레이 (position absolute, SVG 외부) */}
-        {showRuler && containerRef.current && (() => {
-          const cw = containerRef.current!.clientWidth
-          const ch = containerRef.current!.clientHeight
-          return (
-            <>
-              {/* 상단 수평 룰러 */}
-              <svg
-                style={{ position: 'absolute', top: 0, left: 16, width: cw - 16, height: 16, pointerEvents: 'none', zIndex: 10 }}
-                width={cw - 16}
-                height={16}
-              >
-                <rect width="100%" height="16" fill="var(--bg-secondary)" opacity={0.9} />
-                {getRulerTicks('h', cw - 16, { zoom: view.zoom, offsetX: view.offsetX - 16, offsetY: view.offsetY }).map(({ pos, label, isMajor }) => (
-                  <g key={`h${pos.toFixed(1)}`}>
-                    <line x1={pos} y1={isMajor ? 8 : 12} x2={pos} y2={16} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
-                    {isMajor && label && <text x={pos + 2} y={11} fontSize={7} fill="rgba(255,255,255,0.5)" fontFamily="monospace">{label}</text>}
-                  </g>
-                ))}
-              </svg>
-              {/* 좌측 수직 룰러 */}
-              <svg
-                style={{ position: 'absolute', top: 16, left: 0, width: 16, height: ch - 16, pointerEvents: 'none', zIndex: 10 }}
-                width={16}
-                height={ch - 16}
-              >
-                <rect width="16" height="100%" fill="var(--bg-secondary)" opacity={0.9} />
-                {getRulerTicks('v', ch - 16, { zoom: view.zoom, offsetX: view.offsetX, offsetY: view.offsetY - 16 }).map(({ pos, label, isMajor }) => (
-                  <g key={`v${pos.toFixed(1)}`}>
-                    <line x1={isMajor ? 8 : 12} y1={pos} x2={16} y2={pos} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
-                    {isMajor && label && (
-                      <text x={8} y={pos - 2} fontSize={7} fill="rgba(255,255,255,0.5)" fontFamily="monospace"
-                        transform={`rotate(-90, 8, ${pos - 2})`}>{label}</text>
-                    )}
-                  </g>
-                ))}
-              </svg>
-              {/* 코너 사각형 */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 16, background: 'var(--bg-secondary)', zIndex: 11, pointerEvents: 'none' }} />
-            </>
-          )
-        })()}
-
-        {/* 로딩 오버레이 */}
-        {loading && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(0,0,0,0.4)',
-              color: 'var(--text-muted)',
-              fontSize: 11,
-              pointerEvents: 'none',
-            }}
-          >
-            씬 로딩 중...
-          </div>
-        )}
-
-        {/* 줌 레벨 표시 (클릭: 1:1, 더블클릭: fit) */}
-        <div
-          title={`${Math.round(view.zoom * 100)}% — 클릭: 1:1 (100%) / 더블클릭: Fit`}
-          onClick={() => {
-            if (!containerRef.current) return
-            const { width, height } = containerRef.current.getBoundingClientRect()
-            setView({ zoom: 1, offsetX: (width - DESIGN_W) / 2, offsetY: (height - DESIGN_H) / 2 })
-          }}
-          onDoubleClick={e => { e.stopPropagation(); handleFit() }}
-          style={{
-            position: 'absolute',
-            bottom: 6,
-            right: 8,
-            fontSize: 9,
-            color: 'var(--text-muted)',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '1px 5px',
-            borderRadius: 3,
-            cursor: 'pointer',
-            userSelect: 'none',
-          }}
-        >
-          {Math.round(view.zoom * 100)}%
-        </div>
-
-        {/* 총 노드 수 표시 */}
-        {nodeMap.size > 0 && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 6,
-              left: 8,
-              fontSize: 9,
-              color: 'var(--text-muted)',
-              background: 'rgba(0,0,0,0.5)',
-              padding: '1px 5px',
-              borderRadius: 3,
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          >
-            {nodeMap.size}개 노드
-            {selectedUuids.size > 1 && ` · ${selectedUuids.size} 선택`}
-          </div>
-        )}
-
-        {/* R655: 다중 선택 그룹화 버튼 */}
-        {showGroupBtn && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 42,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 10,
-            }}
-          >
-            <button
-              onClick={() => console.log('group nodes:', [...multiSelected])}
-              style={{
-                fontSize: 10,
-                padding: '3px 10px',
-                background: 'rgba(96,165,250,0.18)',
-                border: '1px solid rgba(96,165,250,0.5)',
-                borderRadius: 4,
-                color: '#60a5fa',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              그룹화 ({multiSelected.size})
-            </button>
-          </div>
-        )}
-
-        {/* 드래그/리사이즈 중 선택 노드 정보 */}
-        {(isDragging || isResizing) && selectedNode && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 6,
-              right: 44,
-              fontSize: 9,
-              color: 'rgba(250,200,50,0.9)',
-              background: 'rgba(0,0,0,0.6)',
-              padding: '1px 6px',
-              borderRadius: 3,
-              pointerEvents: 'none',
-              fontVariantNumeric: 'tabular-nums',
-              fontFamily: 'monospace',
-            }}
-          >
-            x:{Math.round(selectedNode.x)} y:{Math.round(selectedNode.y)} w:{Math.round(selectedNode.width)} h:{Math.round(selectedNode.height)}
-          </div>
-        )}
-
-        {/* 씬 통계 패널 */}
-        {showStats && (() => {
-          const nodes = [...nodeMap.values()]
-          const total = nodes.length
-          const active = nodes.filter(n => n.active).length
-          const inactive = total - active
-          const locked = nodes.filter(n => n.locked).length
-          const hidden = nodes.filter(n => n.visible === false).length
-          const tagged = nodes.filter(n => (n.tags ?? []).length > 0).length
-          // 컴포넌트 타입 분포
-          const compCounts: Record<string, number> = {}
-          nodes.forEach(n => n.components.forEach(c => { compCounts[c.type] = (compCounts[c.type] ?? 0) + 1 }))
-          const topComps = Object.entries(compCounts).sort((a, b) => b[1] - a[1]).slice(0, 5)
-          const totalComps = Object.values(compCounts).reduce((s, v) => s + v, 0)
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 28,
-                left: 6,
-                fontSize: 9,
-                color: 'var(--text-muted)',
-                background: 'rgba(10,10,15,0.85)',
-                padding: '5px 8px',
-                borderRadius: 4,
-                border: '1px solid rgba(255,255,255,0.1)',
-                pointerEvents: 'none',
-                lineHeight: 1.7,
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 2 }}>씬 통계</div>
-              <div>전체: <span style={{ color: 'var(--accent)' }}>{total}</span></div>
-              <div>활성: {active} / 비활성: {inactive}</div>
-              <div>잠금: {locked} / 숨김: {hidden}</div>
-              <div>태그 있음: {tagged}</div>
-              <div>선택: {selectedUuids.size}</div>
-              {topComps.length > 0 && (
-                <>
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 3, paddingTop: 3, color: 'var(--text-secondary)' }}>컴포넌트 ({totalComps})</div>
-                  {topComps.map(([type, count]) => (
-                    <div key={type} style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 80 }}>{type.replace('cc.', '')}</span>
-                      <span style={{ color: 'var(--accent)', flexShrink: 0 }}>{count}</span>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-          )
-        })()}
-
-        {/* 선택 노드 인라인 편집바 */}
+        {/* 선택 노드 인라인 편집바 (추출) */}
         {selectedNode && nodeEditDraft && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 18,
-              left: 0,
-              right: 0,
-              height: 22,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              padding: '0 8px',
-              background: 'rgba(10,10,15,0.88)',
-              borderTop: '1px solid rgba(255,255,255,0.08)',
-              fontSize: 9,
-              color: 'var(--text-muted)',
-              fontVariantNumeric: 'tabular-nums',
-              zIndex: 5,
-            }}
-          >
-            <span style={{ color: 'var(--accent)', marginRight: 2 }}>⬡</span>
-            <span style={{ color: 'var(--text-secondary)', marginRight: 4, maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedNode.name}</span>
-            {(['x', 'y', 'w', 'h', 'r'] as const).map(field => (
-              <label key={field} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <span style={{ color: 'var(--text-muted)', minWidth: 8 }}>{field.toUpperCase()}:</span>
-                <input
-                  value={nodeEditDraft[field]}
-                  onChange={e => setNodeEditDraft(prev => prev ? { ...prev, [field]: e.target.value } : prev)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      const v = parseFloat(nodeEditDraft[field])
-                      if (!isNaN(v)) {
-                        const prop = field === 'w' ? 'width' : field === 'h' ? 'height' : field === 'r' ? 'rotation' : field
-                        updateNode(selectedNode.uuid, { [prop]: v })
-                      }
-                      e.currentTarget.blur()
-                    }
-                    if (e.key === 'Escape') {
-                      setNodeEditDraft({ x: String(selectedNode.x), y: String(selectedNode.y), w: String(selectedNode.width), h: String(selectedNode.height), r: String(Math.round(selectedNode.rotation)) })
-                      e.currentTarget.blur()
-                    }
-                    e.stopPropagation()
-                  }}
-                  onBlur={e => {
-                    const v = parseFloat(e.target.value)
-                    if (!isNaN(v)) {
-                      const prop = field === 'w' ? 'width' : field === 'h' ? 'height' : field
-                      updateNode(selectedNode.uuid, { [prop]: v })
-                    }
-                  }}
-                  style={{
-                    width: 38, fontSize: 9, padding: '1px 3px',
-                    background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
-                    borderRadius: 2, color: 'var(--text-primary)', outline: 'none', textAlign: 'right',
-                  }}
-                />
-              </label>
-            ))}
-          </div>
+          <SceneViewEditBar
+            selectedNode={selectedNode}
+            nodeEditDraft={nodeEditDraft}
+            setNodeEditDraft={setNodeEditDraft}
+            updateNode={updateNode}
+          />
         )}
 
-        {/* 노드 경로 브레드크럼 */}
-        {nodePath.length > 1 && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 18,
-              left: 0,
-              right: 0,
-              height: 16,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              padding: '0 8px',
-              background: 'rgba(10,10,15,0.7)',
-              borderTop: '1px solid rgba(255,255,255,0.05)',
-              fontSize: 9,
-              color: 'var(--text-muted)',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {nodePath.map((item, idx) => (
-              <span key={item.uuid} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                {idx > 0 && <span style={{ opacity: 0.4 }}>/</span>}
-                <span
-                  style={{
-                    cursor: 'pointer',
-                    color: idx === nodePath.length - 1 ? 'var(--accent)' : 'var(--text-muted)',
-                    fontWeight: idx === nodePath.length - 1 ? 600 : 400,
-                    maxWidth: 80,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                  onClick={() => { setSelectedUuid(item.uuid); setSelectedUuids(new Set([item.uuid])) }}
-                  title={item.name}
-                >
-                  {item.name.length > 12 ? item.name.slice(0, 10) + '…' : item.name}
-                </span>
-              </span>
-            ))}
-          </div>
-        )}
+        {/* 레이어/편집 이력/미니맵/변경 히스토리 오버레이 (추출) */}
+        <SceneViewOverlays />
 
-        {/* 상태바 */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 18,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '0 8px',
-            background: 'rgba(10,10,15,0.75)',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            fontSize: 9,
-            color: 'var(--text-muted)',
-            pointerEvents: 'none',
-            fontVariantNumeric: 'tabular-nums',
-            flexShrink: 0,
-          }}
-        >
-          {spaceDown ? (
-            <span style={{ color: '#f59e0b' }}>Space: 드래그로 패닝</span>
-          ) : (
-            <>
-              <span style={{ color: activeTool === 'select' ? 'var(--accent)' : undefined }}>
-                {activeTool === 'select' ? '↖ 선택' : '✥ 이동'}
-              </span>
-              <span>|</span>
-              <span>{Math.round(view.zoom * 100)}%</span>
-              {snapEnabled && <><span>|</span><span style={{ color: 'var(--success)' }}>Snap {snapGrid}px</span></>}
-              {gridVisible && <><span>|</span><span>Grid</span></>}
-              {selectedUuids.size > 0 && <><span>|</span><span style={{ color: '#60a5fa' }}>{selectedUuids.size}개 선택</span></>}
-              {isDragging && <><span>|</span><span style={{ color: '#f59e0b' }}>드래그 중</span></>}
-              {isResizing && <><span>|</span><span style={{ color: '#f59e0b' }}>리사이즈 중</span></>}
-              {isDirty && <><span>|</span><span style={{ color: '#f97316' }} title="저장되지 않은 변경 사항">● 저장 안됨</span></>}
-              {copiedNode && <><span>|</span><span style={{ color: '#a78bfa' }} title={`클립보드: ${copiedNode.name}`}>📋 {copiedNode.name}</span></>}
-            </>
-          )}
-        </div>
+        {/* 퀵 액션 팝업 (추출) */}
+        <SceneViewQuickActions show={showQuickActions} dismissed={quickActionDismissed} setDismissed={setQuickActionDismissed} isDragging={isDragging} isResizing={isResizing} />
 
-        {/* 노드 정보 오버레이 (I키) */}
-        {showNodeInfo && selectedNode && (
-          <div style={{
-            position: 'absolute', bottom: 28, right: 6, zIndex: 90,
-            background: 'rgba(10,10,15,0.92)', border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: 4, padding: '5px 8px', fontSize: 9, color: 'var(--text-muted)',
-            fontFamily: 'var(--font-mono)', lineHeight: 1.7, pointerEvents: 'none',
-            minWidth: 140,
-          }}>
-            <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 2 }}>{selectedNode.name}</div>
-            <div>pos: {Math.round(selectedNode.x)}, {Math.round(selectedNode.y)}</div>
-            <div>size: {Math.round(selectedNode.width)} × {Math.round(selectedNode.height)}</div>
-            <div>rot: {selectedNode.rotation.toFixed(1)}°</div>
-            <div>anchor: {selectedNode.anchorX.toFixed(2)}, {selectedNode.anchorY.toFixed(2)}</div>
-            <div>opacity: {selectedNode.opacity ?? 255}</div>
-            {selectedNode.components.length > 0 && (
-              <div style={{ color: 'var(--text-secondary)' }}>comps: {selectedNode.components.map(c => c.type.replace('cc.', '')).join(', ')}</div>
-            )}
-            {selectedNode.visible === false && <div style={{ color: '#f87171' }}>hidden</div>}
-            {selectedNode.locked && <div style={{ color: '#fbbf24' }}>locked</div>}
-          </div>
-        )}
-
-        {/* R1401: 씬 통계 오버레이 */}
-        {showStatsOverlay && (() => {
-          // 전체/활성 노드 수 + 상위 5개 컴포넌트 타입
-          let totalNodes = 0
-          let activeNodes = 0
-          const compCounts: Record<string, number> = {}
-          nodeMap.forEach(n => {
-            totalNodes++
-            if (n.active && n.visible !== false) activeNodes++
-            n.components?.forEach(c => { compCounts[c.type] = (compCounts[c.type] ?? 0) + 1 })
-          })
-          const topComps = Object.entries(compCounts).sort((a, b) => b[1] - a[1]).slice(0, 5)
-          return (
-            <div style={{
-              position: 'absolute', bottom: 8, right: 8, zIndex: 90,
-              background: 'rgba(10,10,15,0.88)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 4, padding: '5px 8px', fontSize: 10, color: 'var(--text-muted)',
-              fontFamily: 'var(--font-mono)', lineHeight: 1.7, pointerEvents: 'none',
-              minWidth: 120,
-            }}>
-              <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 2, fontSize: 10 }}>Scene Stats</div>
-              <div>Nodes: {totalNodes}</div>
-              <div>Active: {activeNodes}</div>
-              {topComps.length > 0 && (
-                <>
-                  <div style={{ marginTop: 3, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 3, fontSize: 9, color: 'var(--text-secondary)' }}>Top Components</div>
-                  {topComps.map(([type, count]) => (
-                    <div key={type} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 9 }}>
-                      <span>{type.replace('cc.', '')}</span>
-                      <span style={{ color: 'var(--accent)' }}>{count}</span>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-          )
-        })()}
-
-        {/* R1404: PNG 내보내기 설정 패널 */}
-        {showPngExportPanel && (
-          <div style={{
-            position: 'absolute', top: 40, right: 8, zIndex: 110,
-            background: 'rgba(10,10,15,0.94)', border: '1px solid var(--border)',
-            borderRadius: 6, padding: '8px 10px', fontSize: 10, color: 'var(--text-primary)',
-            minWidth: 180, boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-          }}>
-            <div style={{ fontWeight: 600, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>PNG Export</span>
-              <button onClick={() => setShowPngExportPanel(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12 }}>x</button>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>BG</span>
-              {(['dark', 'light', 'transparent'] as const).map(bg => (
-                <button key={bg} onClick={() => setPngExportBg(bg)} style={{
-                  fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer',
-                  background: pngExportBg === bg ? 'var(--accent)' : 'var(--bg-primary)',
-                  color: pngExportBg === bg ? '#fff' : 'var(--text-muted)',
-                  border: '1px solid var(--border)',
-                }}>{bg}</button>
-              ))}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-              <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>Scale</span>
-              {([1, 2, 4] as const).map(s => (
-                <button key={s} onClick={() => setPngExportScale(s)} style={{
-                  fontSize: 9, padding: '2px 6px', borderRadius: 3, cursor: 'pointer',
-                  background: pngExportScale === s ? 'var(--accent)' : 'var(--bg-primary)',
-                  color: pngExportScale === s ? '#fff' : 'var(--text-muted)',
-                  border: '1px solid var(--border)',
-                }}>{s}x</button>
-              ))}
-            </div>
-            <div style={{ fontSize: 8, color: 'var(--text-muted)', marginBottom: 4 }}>
-              Output: {DESIGN_W * pngExportScale} x {DESIGN_H * pngExportScale}px
-            </div>
-            <button onClick={() => { handleExportPng(); setShowPngExportPanel(false) }} style={{
-              width: '100%', padding: '4px 0', fontSize: 10, fontWeight: 600, cursor: 'pointer',
-              background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4,
-            }}>Export PNG</button>
-          </div>
-        )}
-
-        {/* 씬 캔버스 검색 오버레이 */}
-        {showCanvasSearch && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 6,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 100,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              background: 'rgba(10,10,15,0.92)',
-              border: '1px solid var(--accent)',
-              borderRadius: 5,
-              padding: '3px 8px',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
-            }}
-          >
-            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>🔍</span>
-            <input
-              ref={canvasSearchRef}
-              value={canvasSearch}
-              onChange={e => setCanvasSearch(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Escape') { setShowCanvasSearch(false); setCanvasSearch('') }
-                else if (e.key === 'Enter') { e.preventDefault(); handleSearchNav(e.shiftKey ? -1 : 1) }
-                e.stopPropagation()
-              }}
-              placeholder="노드 이름 검색..."
-              style={{
-                width: 140, fontSize: 10, background: 'transparent', border: 'none',
-                color: 'var(--text-primary)', outline: 'none',
-              }}
-            />
-            {canvasSearch && searchMatches.length > 0 && (
-              <span style={{ fontSize: 9, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                {searchMatchIndex + 1}/{searchMatches.length}
-              </span>
-            )}
-            {canvasSearch && searchMatches.length === 0 && (
-              <span style={{ fontSize: 9, color: 'var(--text-danger, #f87171)' }}>없음</span>
-            )}
-            {searchMatches.length > 1 && (
-              <button onClick={() => handleSearchNav(1)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 10, padding: '0 1px' }}>↓</button>
-            )}
-            <button onClick={() => { setShowCanvasSearch(false); setCanvasSearch('') }}
-              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '0 2px' }}>×</button>
-          </div>
-        )}
-
-        {/* 즐겨찾기 목록 */}
-        {showBookmarkList && bookmarkedUuids.size > 0 && (
-          <div style={{
-            position: 'absolute', top: 6, left: 6, zIndex: 100,
-            background: 'rgba(10,10,15,0.92)', border: '1px solid var(--accent)',
-            borderRadius: 5, padding: '6px 8px', minWidth: 160, maxHeight: 200,
-            overflowY: 'auto', boxShadow: '0 2px 10px rgba(0,0,0,0.5)', fontSize: 9,
-          }}>
-            <div style={{ color: 'var(--accent)', fontWeight: 600, marginBottom: 4 }}>★ 즐겨찾기</div>
-            {[...bookmarkedUuids].map(uuid => {
-              const n = nodeMap.get(uuid)
-              if (!n) return null
-              return (
-                <div key={uuid}
-                  onClick={() => {
-                    setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])); setShowBookmarkList(false)
-                    // 카메라 포커스: 북마크 클릭 시 해당 노드로 이동
-                    if (!containerRef.current) return
-                    const n = nodeMap.get(uuid)
-                    if (!n) return
-                    const { width, height } = containerRef.current.getBoundingClientRect()
-                    const padding = 60
-                    const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
-                    const pw = n.width * Math.abs(n.scaleX)
-                    const ph = n.height * Math.abs(n.scaleY)
-                    const rx = sx - pw * n.anchorX
-                    const ry = sy - ph * (1 - n.anchorY)
-                    const bboxW = Math.max(pw, 40); const bboxH = Math.max(ph, 40)
-                    const cx = rx + bboxW / 2; const cy = ry + bboxH / 2
-                    const targetZoom = Math.min((width - padding * 2) / bboxW, (height - padding * 2) / bboxH, 4)
-                    setView({ offsetX: width / 2 - cx * targetZoom, offsetY: height / 2 - cy * targetZoom, zoom: targetZoom })
-                  }}
-                  style={{ padding: '2px 4px', cursor: 'pointer', borderRadius: 2, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.07)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none' }}
-                >
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.name}</span>
-                  <span onClick={e => { e.stopPropagation(); setBookmarkedUuids(prev => { const s = new Set(prev); s.delete(uuid); return s }) }}
-                    style={{ color: 'var(--text-muted)', cursor: 'pointer', flexShrink: 0 }}>×</span>
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* 참조 이미지 설정 패널 */}
-        {showRefImagePanel && (
-          <div style={{
-            position: 'absolute', top: 6, right: 6, zIndex: 100,
-            background: 'rgba(10,10,15,0.92)', border: '1px solid var(--accent)',
-            borderRadius: 5, padding: '6px 10px', display: 'flex', flexDirection: 'column', gap: 4,
-            minWidth: 220, boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
-          }}>
-            <div style={{ fontSize: 9, color: 'var(--accent)', fontWeight: 600, marginBottom: 2 }}>📷 참조 이미지</div>
-            <input
-              placeholder="이미지 URL 입력..."
-              value={refImageUrl}
-              onChange={e => setRefImageUrl(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Escape') setShowRefImagePanel(false); e.stopPropagation() }}
-              style={{ fontSize: 9, padding: '2px 5px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 2, color: 'var(--text-primary)', outline: 'none', width: '100%' }}
-            />
-            <label style={{ fontSize: 9, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span>투명도:</span>
-              <input type="range" min={0.05} max={1} step={0.05} value={refImageOpacity}
-                onChange={e => setRefImageOpacity(Number(e.target.value))}
-                onKeyDown={e => e.stopPropagation()}
-                style={{ flex: 1, accentColor: 'var(--accent)' }}
-              />
-              <span style={{ minWidth: 24 }}>{Math.round(refImageOpacity * 100)}%</span>
-            </label>
-            <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
-              {refImageUrl && <button onClick={() => setRefImageUrl('')} style={{ fontSize: 9, padding: '1px 6px', background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: 2, color: '#f87171', cursor: 'pointer' }}>제거</button>}
-              <button onClick={() => setShowRefImagePanel(false)} style={{ fontSize: 9, padding: '1px 6px', background: 'none', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}>닫기</button>
-            </div>
-          </div>
-        )}
-
-        {/* 마우스 씬 좌표 표시 (SceneToolbar에 표시되므로 overlay 제거) */}
-
-        {/* 드래그 델타 오버레이 */}
-        {isDragging && dragDelta && hoverTooltipPos && (
-          <div
-            style={{
-              position: 'absolute',
-              left: hoverTooltipPos.x + 8,
-              top: hoverTooltipPos.y - 30,
-              background: 'rgba(10,10,20,0.9)',
-              color: '#facc15',
-              fontSize: 9,
-              padding: '3px 7px',
-              borderRadius: 3,
-              pointerEvents: 'none',
-              border: '1px solid rgba(250,200,50,0.4)',
-              fontVariantNumeric: 'tabular-nums',
-              zIndex: 20,
-              lineHeight: 1.5,
-            }}
-          >
-            <div>Δx: {dragDelta.dx > 0 ? '+' : ''}{dragDelta.dx}</div>
-            <div>Δy: {dragDelta.dy > 0 ? '+' : ''}{dragDelta.dy}</div>
-          </div>
-        )}
-
-        {/* 노드 호버 툴팁 (300ms 딜레이) */}
-        {tooltipVisibleUuid && hoverTooltipPos && !isDragging && !isResizing && (() => {
-          const hn = nodeMap.get(tooltipVisibleUuid)
-          if (!hn) return null
-          const icon = getComponentIcon(hn.components)
-          const firstComp = hn.components[0]?.type ?? null
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                left: hoverTooltipPos.x,
-                top: hoverTooltipPos.y,
-                background: 'rgba(10,10,20,0.92)',
-                color: '#e5e5e5',
-                fontSize: 9,
-                padding: '5px 8px',
-                borderRadius: 4,
-                pointerEvents: 'none',
-                whiteSpace: 'nowrap',
-                border: '1px solid rgba(255,255,255,0.15)',
-                zIndex: 10,
-                lineHeight: 1.6,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-              }}
-            >
-              <div style={{ fontWeight: 700, color: '#fff', marginBottom: 2 }}>
-                {icon && <span style={{ color: 'var(--accent)', marginRight: 4 }}>{icon}</span>}
-                {hn.name}
-              </div>
-              {firstComp && (
-                <div style={{ color: 'var(--accent)', marginBottom: 2, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {firstComp}
-                </div>
-              )}
-              <div style={{ color: 'rgba(200,200,220,0.7)' }}>
-                {Math.round(hn.width)} × {Math.round(hn.height)}
-              </div>
-              {hn.locked && <div style={{ color: '#f87171' }}>🔒 잠금됨</div>}
-              {hn.visible === false && <div style={{ color: '#9ca3af' }}>숨김</div>}
-              {hn.memo && <div style={{ color: '#fbbf24', marginTop: 2, maxWidth: 180, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>📝 {hn.memo}</div>}
-            </div>
-          )
-        })()}
-
-        {/* 레이어 패널 (좌측 상단, 접이식) */}
-        {showLayerPanel && topLevelNodes.length > 0 && (
-          <div style={{
-            position: 'absolute', top: 4, left: 4, zIndex: 20,
-            width: 150, maxHeight: 200, overflowY: 'auto',
-            background: 'rgba(0,0,0,0.7)', borderRadius: 4,
-            padding: '6px 8px', fontSize: 10,
-            border: '1px solid rgba(255,255,255,0.12)',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Layers ({allLayers.length})</span>
-              <button
-                onClick={() => {
-                  const next = !showAllToggle
-                  setShowAllToggle(next)
-                  if (next) {
-                    setHiddenLayers(new Set())
-                  } else {
-                    setHiddenLayers(new Set(topLevelNodes.map(n => n.uuid)))
-                  }
-                }}
-                title={showAllToggle ? '모두 숨김' : '모두 표시'}
-                style={{
-                  fontSize: 12, padding: '1px 3px',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  opacity: showAllToggle ? 1 : 0.4,
-                  textDecoration: showAllToggle ? 'none' : 'line-through',
-                  lineHeight: 1,
-                }}
-              >
-                {showAllToggle ? '👁' : '🙈'}
-              </button>
-            </div>
-            {/* R1395+R1450: 레이어 목록 (가시성/잠금/색상 라벨 + 드래그 재배치) */}
-            {topLevelNodes.map((layer, layerIdx) => {
-              const isHidden = hiddenLayers.has(layer.uuid)
-              const isLocked = lockedLayers.has(layer.uuid)
-              const childCount = collectDescendants(layer.uuid).length - 1
-              const lc = layerColors[layer.uuid]
-              return (
-                <div
-                  key={layer.uuid}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    borderTop: layerDropIdx === layerIdx && layerDragIdx !== null && layerDragIdx !== layerIdx ? '2px solid #60a5fa' : 'none',
-                    opacity: layerDragIdx === layerIdx ? 0.4 : 1,
-                  }}
-                  onDragOver={e => { e.preventDefault(); setLayerDropIdx(layerIdx) }}
-                  onDragLeave={() => { if (layerDropIdx === layerIdx) setLayerDropIdx(null) }}
-                  onDrop={e => {
-                    e.preventDefault()
-                    if (layerDragIdx !== null && layerDragIdx !== layerIdx && rootUuid) {
-                      // R1450: 레이어 순서 변경 — rootUuid의 childUuids 재배치
-                      const root = nodeMap.get(rootUuid)
-                      if (root) {
-                        const uuids = [...root.childUuids]
-                        const [moved] = uuids.splice(layerDragIdx, 1)
-                        uuids.splice(layerIdx, 0, moved)
-                        updateNode(rootUuid, { childUuids: uuids })
-                      }
-                    }
-                    setLayerDragIdx(null)
-                    setLayerDropIdx(null)
-                  }}
-                >
-                  {/* R1450: 드래그 핸들 */}
-                  <span
-                    draggable
-                    onDragStart={() => setLayerDragIdx(layerIdx)}
-                    onDragEnd={() => { setLayerDragIdx(null); setLayerDropIdx(null) }}
-                    style={{ cursor: 'grab', color: 'rgba(255,255,255,0.3)', fontSize: 10, flexShrink: 0, userSelect: 'none' }}
-                    title="R1450: 드래그하여 레이어 순서 변경"
-                  >{'⋮⋮'}</span>
-                  <button
-                    onClick={() => setHiddenLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
-                    title={isHidden ? '표시' : '숨김'}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, opacity: isHidden ? 0.4 : 1, lineHeight: 1 }}
-                  >
-                    {isHidden ? '🙈' : '👁'}
-                  </button>
-                  <button
-                    onClick={() => setLockedLayers(prev => { const s = new Set(prev); if (s.has(layer.uuid)) s.delete(layer.uuid); else s.add(layer.uuid); return s })}
-                    title={isLocked ? '잠금 해제' : '잠금'}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, opacity: isLocked ? 1 : 0.4, lineHeight: 1 }}
-                  >
-                    {isLocked ? '🔒' : '🔓'}
-                  </button>
-                  {/* R1395: 색상 라벨 버튼 — 클릭 시 팔레트 순환 */}
-                  <button
-                    onClick={() => {
-                      setLayerColors(prev => {
-                        const next = { ...prev }
-                        const curIdx = lc ? LAYER_COLOR_PALETTE.indexOf(lc) : -1
-                        if (curIdx >= LAYER_COLOR_PALETTE.length - 1 || curIdx < 0 && lc) {
-                          delete next[layer.uuid]
-                        } else {
-                          next[layer.uuid] = LAYER_COLOR_PALETTE[(curIdx + 1) % LAYER_COLOR_PALETTE.length]
-                        }
-                        return next
-                      })
-                    }}
-                    title={lc ? `색상: ${lc} (클릭하여 변경)` : '색상 라벨 추가'}
-                    style={{
-                      width: 8, height: 8, borderRadius: '50%', padding: 0, flexShrink: 0,
-                      background: lc ?? 'rgba(255,255,255,0.15)',
-                      border: lc ? `1px solid ${lc}` : '1px solid rgba(255,255,255,0.2)',
-                      cursor: 'pointer',
-                    }}
-                  />
-                  <span
-                    style={{ flex: 1, color: isHidden ? 'rgba(255,255,255,0.3)' : (lc ?? '#e0e0e0'), fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    title={layer.name}
-                  >
-                    {layer.name}
-                  </span>
-                  {childCount > 0 && (
-                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 9 }}>{childCount}</span>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* R1446: 편집 이력 패널 (우측 상단) */}
-        {showEditHistory && editHistory.length > 0 && (
-          <div style={{
-            position: 'absolute', top: 4, right: 4, zIndex: 20,
-            width: 200, maxHeight: 240, overflowY: 'auto',
-            background: 'rgba(0,0,0,0.75)', borderRadius: 4,
-            padding: '6px 8px', fontSize: 10,
-            border: '1px solid rgba(255,255,255,0.12)',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-              <span style={{ fontWeight: 700, color: '#fff', fontSize: 10 }}>Edit History ({editHistory.length})</span>
-              <button
-                onClick={() => setShowEditHistory(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, lineHeight: 1, padding: 0 }}
-              >x</button>
-            </div>
-            {editHistory.map((entry, i) => (
-              <div
-                key={`${entry.timestamp}-${i}`}
-                onClick={() => {
-                  setSelectedUuid(entry.nodeUuid)
-                  setSelectedUuids(new Set([entry.nodeUuid]))
-                }}
-                style={{
-                  display: 'flex', flexDirection: 'column', gap: 1, padding: '3px 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer',
-                }}
-              >
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
-                    {new Date(entry.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                  </span>
-                  <span style={{ color: entry.action === 'move' ? '#60a5fa' : entry.action === 'resize' ? '#34d399' : '#fbbf24', fontSize: 9, fontWeight: 600, flexShrink: 0 }}>
-                    {entry.action}
-                  </span>
-                </div>
-                <span style={{ color: '#e0e0e0', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {entry.nodeName}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 미니맵 오버레이 */}
-        {showMinimap && nodeMap.size > 0 && (() => {
-          const MM_W = 90, MM_H = 60
-          // 씬 전체 노드 bounding box 계산 (디자인 좌표 기준)
-          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-          nodeMap.forEach(n => {
-            const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
-            minX = Math.min(minX, sx - n.width / 2)
-            minY = Math.min(minY, sy - n.height / 2)
-            maxX = Math.max(maxX, sx + n.width / 2)
-            maxY = Math.max(maxY, sy + n.height / 2)
-          })
-          // 기본 씬 영역 포함
-          minX = Math.min(minX, 0); minY = Math.min(minY, 0)
-          maxX = Math.max(maxX, DESIGN_W); maxY = Math.max(maxY, DESIGN_H)
-          const scW = maxX - minX || DESIGN_W
-          const scH = maxY - minY || DESIGN_H
-          const sx = MM_W / scW, sy = MM_H / scH
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 28,
-                right: 6,
-                width: MM_W,
-                height: MM_H,
-                background: 'rgba(0,0,0,0.6)',
-                border: '1px solid var(--border)',
-                borderRadius: 4,
-                overflow: 'hidden',
-                cursor: 'crosshair',
-                userSelect: 'none',
-              }}
-              title="미니맵 — 클릭: 뷰포트 이동 / 더블클릭: 숨기기"
-              onDoubleClick={e => { e.stopPropagation(); setShowMinimap(false) }}
-              onClick={e => {
-                // 미니맵 좌표 → 씬 좌표 → 뷰포트 오프셋 계산
-                const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
-                const mmX = e.clientX - rect.left
-                const mmY = e.clientY - rect.top
-                // 씬 좌표 (SVG 공간)
-                const sceneX = mmX / sx + minX
-                const sceneY = mmY / sy + minY
-                if (containerRef.current) {
-                  const cw = containerRef.current.clientWidth
-                  const ch = containerRef.current.clientHeight
-                  setView(prev => ({
-                    ...prev,
-                    offsetX: cw / 2 - sceneX * prev.zoom,
-                    offsetY: ch / 2 - sceneY * prev.zoom,
-                  }))
-                }
-              }}
-            >
-              <svg width={MM_W} height={MM_H} style={{ display: 'block' }}>
-                {/* 디자인 캔버스 경계 */}
-                <rect
-                  x={(0 - minX) * sx} y={(0 - minY) * sy}
-                  width={DESIGN_W * sx} height={DESIGN_H * sy}
-                  fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth={1}
-                />
-                {/* 노드 표시 */}
-                {[...nodeMap.values()].map(n => {
-                  const { sx: nsx, sy: nsy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
-                  const mx = (nsx - n.width / 2 - minX) * sx
-                  const my = (nsy - n.height / 2 - minY) * sy
-                  const mw = Math.max(1, n.width * sx)
-                  const mh = Math.max(1, n.height * sy)
-                  const isSelected = selectedUuids.has(n.uuid)
-                  const color = n.color ? `rgba(${n.color.r ?? 255},${n.color.g ?? 255},${n.color.b ?? 255},0.7)` : 'rgba(100,180,255,0.5)'
-                  return (
-                    <rect key={n.uuid} x={mx} y={my} width={mw} height={mh}
-                      fill={isSelected ? '#60a5fa' : color}
-                      stroke={isSelected ? '#60a5fa' : 'none'}
-                      strokeWidth={isSelected ? 0.5 : 0}
-                      opacity={n.active ? 1 : 0.3}
-                    />
-                  )
-                })}
-                {/* 현재 뷰포트 표시 */}
-                {containerRef.current && (() => {
-                  const cw = containerRef.current!.clientWidth
-                  const ch = containerRef.current!.clientHeight
-                  const vx = (-view.offsetX / view.zoom - minX) * sx
-                  const vy = (-view.offsetY / view.zoom - minY) * sy
-                  const vw = (cw / view.zoom) * sx
-                  const vh = (ch / view.zoom) * sy
-                  return (
-                    <rect x={vx} y={vy} width={vw} height={vh}
-                      fill="none" stroke="rgba(250,200,50,0.7)" strokeWidth={1}
-                    />
-                  )
-                })()}
-              </svg>
-            </div>
-          )
-        })()}
-
-        {/* 미니맵 숨겨진 경우 복원 버튼 */}
-        {!showMinimap && (
-          <button
-            onClick={() => setShowMinimap(true)}
-            title="미니맵 표시"
-            style={{
-              position: 'absolute', bottom: 28, right: 6,
-              fontSize: 9, padding: '1px 4px',
-              background: 'rgba(15,15,20,0.8)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: 3, color: 'var(--text-muted)', cursor: 'pointer',
-            }}
-          >
-            ⊞
-          </button>
-        )}
-
-        {/* 변경 히스토리 버튼 + 팝업 */}
-        {changeHistory.length > 0 && (
-          <div style={{ position: 'absolute', bottom: 52, right: 6 }}>
-            <button
-              onClick={() => setShowChangeHistory(v => !v)}
-              title="최근 노드 이동 히스토리"
-              style={{
-                fontSize: 9, padding: '1px 4px',
-                background: showChangeHistory ? 'var(--accent-dim)' : 'rgba(15,15,20,0.8)',
-                border: `1px solid ${showChangeHistory ? 'var(--accent)' : 'rgba(255,255,255,0.15)'}`,
-                borderRadius: 3, color: showChangeHistory ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer',
-              }}
-            >
-              ↕ {changeHistory.length}
-            </button>
-            {showChangeHistory && (
-              <div
-                style={{
-                  position: 'absolute', bottom: 22, right: 0,
-                  width: 180, maxHeight: 200, overflowY: 'auto',
-                  background: 'rgba(10,10,15,0.95)', border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-                  fontSize: 9, color: 'var(--text-muted)',
-                }}
-              >
-                <div style={{ padding: '3px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-primary)', fontWeight: 600 }}>
-                  최근 이동 히스토리
-                </div>
-                {changeHistory.map((entry, i) => (
-                  <div
-                    key={i}
-                    onClick={() => { setSelectedUuid(entry.uuid); setSelectedUuids(new Set([entry.uuid])); setShowChangeHistory(false) }}
-                    style={{ padding: '3px 8px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{entry.name}</span>
-                    <span style={{ flexShrink: 0, marginLeft: 6, fontVariantNumeric: 'tabular-nums' }}>{entry.x}, {entry.y}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 회전 각도 오버레이 */}
-        {isRotating && selectedNode && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#fb923c',
-              background: 'rgba(0,0,0,0.65)',
-              padding: '3px 10px',
-              borderRadius: 4,
-              pointerEvents: 'none',
-              fontFamily: 'monospace',
-              fontVariantNumeric: 'tabular-nums',
-              letterSpacing: 1,
-            }}
-          >
-            {selectedNode.rotation.toFixed(1)}°
-          </div>
-        )}
-
-        {/* 퀵 액션 팝업 — 단일 노드 선택 시 우상단에 표시 */}
-        {showQuickActions && !quickActionDismissed && selectedUuids.size === 1 && selectedNode && !isDragging && !isResizing && (() => {
-          const n = selectedNode
-          const { sx, sy } = cocosToSvg(n.x, n.y, DESIGN_W, DESIGN_H)
-          // SVG 좌표 → 화면(container) 좌표
-          const screenX = sx * view.zoom + view.offsetX
-          const screenY = sy * view.zoom + view.offsetY
-          const PW = 100
-          const PH = 32
-          const containerW = containerRef.current?.clientWidth ?? 600
-          const containerH = containerRef.current?.clientHeight ?? 400
-          // 노드 우상단 근처에 배치, 뷰포트 클램핑
-          let px = screenX + 8
-          let py = screenY - PH - 8
-          px = Math.max(4, Math.min(px, containerW - PW - 4))
-          py = Math.max(4, Math.min(py, containerH - PH - 4))
-
-          const isPinned = pinnedUuids.has(n.uuid)
-          const isLocked = lockedUuids.has(n.uuid)
-          const topUuid = nodeToTopLevel.get(n.uuid)
-          const isHidden = !!(topUuid && hiddenLayers.has(topUuid))
-
-          const btnStyle: React.CSSProperties = {
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 16,
-            lineHeight: 1,
-            padding: '0 3px',
-            color: 'rgba(255,255,255,0.8)',
-            userSelect: 'none',
-          }
-          return (
-            <>
-              {/* 외부 클릭 시 닫힘 — pointer-events 없는 전체 오버레이 대신 mousedown 감지 */}
-              <div
-                style={{ position: 'absolute', inset: 0, zIndex: 29, background: 'transparent' }}
-                onMouseDown={() => setQuickActionDismissed(true)}
-              />
-              <div
-                onMouseDown={e => e.stopPropagation()}
-                style={{
-                  position: 'absolute',
-                  left: px,
-                  top: py,
-                  width: PW,
-                  height: PH,
-                  zIndex: 30,
-                  background: 'rgba(15,15,25,0.92)',
-                  border: '1px solid rgba(96,165,250,0.45)',
-                  borderRadius: 5,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-around',
-                  padding: '0 4px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                  pointerEvents: 'all',
-                }}
-              >
-                {/* 핀 토글 */}
-                <button
-                  style={{ ...btnStyle, color: isPinned ? '#fbbf24' : 'rgba(255,255,255,0.6)' }}
-                  title={isPinned ? '핀 해제' : '핀 고정'}
-                  onClick={e => { e.stopPropagation(); togglePin(n.uuid) }}
-                >📌</button>
-                {/* 잠금 토글 */}
-                <button
-                  style={{ ...btnStyle, color: isLocked ? '#fbbf24' : 'rgba(255,255,255,0.6)' }}
-                  title={isLocked ? '잠금 해제' : '잠금'}
-                  onClick={e => {
-                    e.stopPropagation()
-                    setLockedUuids(prev => {
-                      const next = new Set(prev)
-                      if (isLocked) next.delete(n.uuid); else next.add(n.uuid)
-                      localStorage.setItem('scene-locked', JSON.stringify([...next]))
-                      return next
-                    })
-                    updateNode(n.uuid, { locked: !isLocked })
-                  }}
-                >🔒</button>
-                {/* 숨김 토글 */}
-                <button
-                  style={{ ...btnStyle, opacity: isHidden ? 0.4 : 1 }}
-                  title={isHidden ? '표시' : '숨기기'}
-                  onClick={e => {
-                    e.stopPropagation()
-                    if (!topUuid) return
-                    setHiddenLayers(prev => {
-                      const next = new Set(prev)
-                      if (isHidden) next.delete(topUuid); else next.add(topUuid)
-                      return next
-                    })
-                  }}
-                >👁</button>
-                {/* 삭제 */}
-                <button
-                  style={{ ...btnStyle, color: 'rgba(239,68,68,0.85)' }}
-                  title="삭제"
-                  onClick={e => { e.stopPropagation(); setQuickActionDismissed(true); handleDeleteNode() }}
-                >✂</button>
-                {/* UUID 복사 */}
-                <button
-                  style={{ ...btnStyle, color: 'rgba(167,243,208,0.85)' }}
-                  title="UUID 복사"
-                  onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(n.uuid) }}
-                >📋</button>
-              </div>
-            </>
-          )
-        })()}
-
-        {/* 드래그/리사이즈 좌표 오버레이 */}
-        {(isDragging || isResizing) && selectedNode && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 6,
-              left: 8,
-              fontSize: 9,
-              color: '#60a5fa',
-              background: 'rgba(0,0,0,0.65)',
-              padding: '2px 6px',
-              borderRadius: 3,
-              pointerEvents: 'none',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {isDragging
-              ? `X: ${Math.round(selectedNode.x)}  Y: ${Math.round(selectedNode.y)}`
-              : `W: ${Math.round(selectedNode.width)}  H: ${Math.round(selectedNode.height)}`}
-          </div>
-        )}
       </div>
 
-      {/* 단축키 도움말 오버레이 */}
-      {showShortcuts && (
-        <div
-          onClick={() => setShowShortcuts(false)}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(0,0,0,0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 50,
-          }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-              padding: '12px 16px',
-              fontSize: 10,
-              color: 'var(--text-primary)',
-              minWidth: 200,
-            }}
-          >
-            <div style={{ fontWeight: 700, marginBottom: 8, fontSize: 11 }}>단축키 도움말</div>
-            {[
-              ['V', '선택 도구'],
-              ['W', '이동 도구'],
-              ['F', '화면 맞추기'],
-              ['G', '선택 노드 포커스'],
-              ['Ctrl+Z', '실행 취소'],
-              ['Ctrl+Y', '다시 실행'],
-              ['Ctrl+A', '전체 선택'],
-              ['Ctrl+Shift+A', '선택 반전 (비선택 ↔ 선택)'],
-              ['Ctrl+C', '복사'],
-              ['Ctrl+V', '붙여넣기'],
-              ['Ctrl+D', '복제 (클립보드 유지)'],
-              ['Escape', '선택 해제 (드래그/리사이즈 중: 취소 복원)'],
-              ['Shift+리사이즈', '비례 리사이즈 (코너 핸들)'],
-              ['↑↓←→', '선택 노드 1px 이동'],
-              ['Shift+↑↓←→', '선택 노드 10px 이동'],
-              ['Alt+↑/↓', '부모/첫 자식 노드 선택'],
-              ['Ctrl+←/→', '회전 1° (Shift: 10°)'],
-              ['M', '미니맵 토글'],
-              ['R', '눈금자 토글'],
-              ['N', '새 노드 생성'],
-              ['Tab/Shift+Tab', '다음/이전 형제 노드 선택'],
-              ['Ctrl+G', '선택 노드 그룹화'],
-              ['Ctrl+Shift+G', '그룹 해제 (자식 노드 상위로)'],
-              ['Ctrl+]', '앞으로 (z-order +1)'],
-              ['Ctrl+[', '뒤로 (z-order -1)'],
-              ['Del/Backspace', '선택 노드 삭제'],
-              ['H', '선택 노드 숨기기/보이기 토글'],
-              ['Alt+H', '좌우 반전 (scaleX 부호 반전)'],
-              ['Alt+V', '상하 반전 (scaleY 부호 반전)'],
-              ['Alt+L', '선택 노드 잠금/해제'],
-              ['Alt+1~9', '색상 레이블 지정 (Alt+0: 초기화)'],
-              ['Alt+[ / Alt+]', '선택 노드 투명도 -10 / +10'],
-              ['I', '씬 통계 오버레이 (노드수/컴포넌트 분포)'],
-              ['Shift+I', '선택 노드 상세 정보 오버레이'],
-              ['P', '부모 노드 선택'],
-              ['?', '단축키 도움말 토글'],
-            ].map(([key, desc]) => (
-              <div key={key} style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
-                <span style={{ fontFamily: 'monospace', color: 'var(--accent)', minWidth: 60, flexShrink: 0 }}>{key}</span>
-                <span style={{ color: 'var(--text-muted)' }}>{desc}</span>
-              </div>
-            ))}
-            <div style={{ marginTop: 8, fontSize: 9, color: 'var(--text-muted)', textAlign: 'center' }}>클릭하거나 ? 키로 닫기</div>
-          </div>
-        </div>
-      )}
+      {/* 단축키 도움말 (추출) */}
+      <SceneViewShortcutsHelp show={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
       {/* Inspector */}
       <SceneInspector
@@ -5509,373 +2372,8 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         onSelectNode={(uuid) => { setSelectedUuid(uuid); setSelectedUuids(new Set([uuid])) }}
       />
 
-      {/* SVG 우클릭 컨텍스트 메뉴 */}
-      {svgContextMenu && (() => {
-        const ctxUuid = svgContextMenu.uuid
-        const ctxNode = ctxUuid ? nodeMap.get(ctxUuid) : null
-        const close = () => setSvgContextMenu(null)
-        const menuStyle: React.CSSProperties = {
-          display: 'block', width: '100%', textAlign: 'left',
-          padding: '5px 12px', background: 'none', border: 'none',
-          color: 'var(--text-primary)', cursor: 'pointer', fontSize: 11,
-          whiteSpace: 'nowrap',
-        }
-        return (
-          <>
-            <div style={{ position: 'fixed', inset: 0, zIndex: 999 }} onClick={close} onContextMenu={e => { e.preventDefault(); close() }} />
-            <div style={{
-              position: 'fixed', left: svgContextMenu.x, top: svgContextMenu.y,
-              zIndex: 1000, background: 'var(--bg-secondary)',
-              border: '1px solid var(--border)', borderRadius: 4,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.4)', minWidth: 150, fontSize: 11,
-            }}>
-              {ctxNode && (
-                <div style={{ padding: '3px 8px', fontSize: 9, color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
-                  {ctxNode.name}
-                </div>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => { setSelectedUuid(ctxUuid!); setSelectedUuids(new Set([ctxUuid!])); close() }}>선택</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  setSelectedUuid(ctxUuid!)
-                  setSelectedUuids(new Set([ctxUuid!]))
-                  const n = nodeMap.get(ctxUuid!)
-                  if (n) {
-                    setClipboard([{ uuid: n.uuid, name: n.name, x: n.x ?? 0, y: n.y ?? 0 }])
-                    setCopiedNode(n)
-                  }
-                  close()
-                }}>복사</button>
-              )}
-              <button style={menuStyle} onClick={() => { handlePaste(); close() }}>붙여넣기</button>
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => { handleDuplicate(); close() }}>복제</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  updateNode(ctxUuid!, { visible: ctxNode.visible === false ? true : false })
-                  close()
-                }}>{ctxNode.visible === false ? '👁 보이기' : '👁 숨기기'}</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  updateNode(ctxUuid!, { locked: !ctxNode.locked })
-                  close()
-                }}>{ctxNode.locked ? '🔓 잠금 해제' : '🔒 잠금'}</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  setBookmarkedUuids(prev => {
-                    const next = new Set(prev)
-                    if (next.has(ctxUuid!)) next.delete(ctxUuid!)
-                    else next.add(ctxUuid!)
-                    return next
-                  })
-                  close()
-                }}>{bookmarkedUuids.has(ctxUuid!) ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  navigator.clipboard?.writeText(ctxUuid!)
-                  close()
-                }}>📋 UUID 복사</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  const pathParts: string[] = []
-                  let cur: SceneNode | undefined = ctxNode
-                  while (cur) { pathParts.unshift(cur.name); cur = cur.parentUuid ? nodeMap.get(cur.parentUuid) : undefined }
-                  navigator.clipboard?.writeText(pathParts.join('/'))
-                  close()
-                }}>📋 경로 복사</button>
-              )}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  const existing = nodeTags[ctxUuid!] ?? []
-                  setNodeTagDraft(existing.join(', '))
-                  setNodeTagInput(ctxUuid!)
-                  close()
-                }}>🏷 태그 편집</button>
-              )}
-              {/* R1464: 애니메이션 프리뷰 */}
-              {ctxNode && (() => {
-                const hasAnim = ctxNode.components.some(c =>
-                  c.type === 'cc.Tween' || c.type === 'cc.TweenSystem' ||
-                  c.type === 'cc.Animation' || c.type === 'cc.AnimationComponent' ||
-                  c.type === 'cc.SkeletalAnimation'
-                )
-                if (!hasAnim) return null
-                const isPlaying = animPlayingUuid === ctxUuid
-                return isPlaying ? (
-                  <button style={menuStyle} onClick={() => { handleAnimPreviewStop(); close() }}>{'■'} 애니 정지</button>
-                ) : (
-                  <button style={menuStyle} onClick={() => {
-                    const comp = ctxNode.components.find(c =>
-                      c.type === 'cc.Animation' || c.type === 'cc.AnimationComponent' ||
-                      c.type === 'cc.Tween' || c.type === 'cc.TweenSystem'
-                    )
-                    const dur = (comp?.props as Record<string, unknown> | undefined)?.duration as number | undefined
-                    handleAnimPreviewStart(ctxUuid!, dur ? dur * 1000 : 1000)
-                    close()
-                  }}>{'▶'} 애니 프리뷰</button>
-                )
-              })()}
-              {/* R1468: AI 분석 요청 */}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => { handleAiAnalyze(ctxUuid!); close() }}>{'\uD83E\uDD16'} AI 분석</button>
-              )}
-              {/* R1452: 템플릿으로 저장 */}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  const name = prompt('템플릿 이름:')
-                  if (!name?.trim()) { close(); return }
-                  const n = nodeMap.get(ctxUuid!)
-                  if (!n) { close(); return }
-                  const tmplNode = {
-                    uuid: '', name: n.name, active: n.active,
-                    position: { x: n.x, y: n.y, z: 0 }, rotation: n.rotation,
-                    scale: { x: n.scaleX, y: n.scaleY, z: 1 }, size: { x: n.width, y: n.height },
-                    anchor: { x: n.anchorX, y: n.anchorY }, opacity: n.opacity, color: n.color,
-                    components: n.components, children: [],
-                  }
-                  setNodeTemplates(prev => {
-                    const next = [{ name: name.trim(), node: tmplNode }, ...prev].slice(0, 10)
-                    localStorage.setItem(NT_KEY, JSON.stringify(next))
-                    return next
-                  })
-                  close()
-                }}>{'\uD83D\uDCCC'} 템플릿으로 저장</button>
-              )}
-              {/* R1407: 색상 태그 */}
-              {ctxNode && (
-                <button style={menuStyle} onClick={() => {
-                  setShowColorTagPicker({ uuid: ctxUuid!, x: svgContextMenu!.x + 160, y: svgContextMenu!.y })
-                  close()
-                }}>🎨 색상 태그</button>
-              )}
-              <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }} />
-              {ctxNode && (
-                <button style={{ ...menuStyle, color: 'var(--error)' }} onClick={() => {
-                  close()
-                  handleDeleteNode()
-                }}>삭제</button>
-              )}
-            </div>
-          </>
-        )
-      })()}
-
-      {/* 노드 태그 입력 모달 */}
-      {nodeTagInput && (() => {
-        const addNodeTag = () => {
-          const tags = nodeTagDraft.split(',').map(t => t.trim()).filter(Boolean)
-          setNodeTags(prev => {
-            const next = { ...prev, [nodeTagInput]: tags }
-            if (tags.length === 0) delete next[nodeTagInput]
-            localStorage.setItem('node-tags', JSON.stringify(next))
-            return next
-          })
-          setNodeTagInput(null)
-          setNodeTagDraft('')
-        }
-        const nodeName = nodeMap.get(nodeTagInput)?.name ?? nodeTagInput
-        return (
-          <>
-            <div style={{ position: 'fixed', inset: 0, zIndex: 1999, background: 'rgba(0,0,0,0.4)' }}
-              onClick={() => { setNodeTagInput(null); setNodeTagDraft('') }} />
-            <div style={{
-              position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-              zIndex: 2000, background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 6, padding: '16px 20px', minWidth: 280, boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
-                태그 편집 — {nodeName}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 8 }}>
-                쉼표로 구분하여 여러 태그 입력 (예: ui, button, important)
-              </div>
-              <input
-                autoFocus
-                value={nodeTagDraft}
-                onChange={e => setNodeTagDraft(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') addNodeTag()
-                  if (e.key === 'Escape') { setNodeTagInput(null); setNodeTagDraft('') }
-                }}
-                placeholder="태그 입력..."
-                style={{
-                  width: '100%', boxSizing: 'border-box',
-                  background: 'var(--bg-primary)', border: '1px solid var(--border)',
-                  borderRadius: 4, padding: '5px 8px', fontSize: 11,
-                  color: 'var(--text-primary)', outline: 'none',
-                }}
-              />
-              <div style={{ display: 'flex', gap: 6, marginTop: 10, justifyContent: 'flex-end' }}>
-                <button onClick={() => { setNodeTagInput(null); setNodeTagDraft('') }}
-                  style={{ fontSize: 11, padding: '4px 10px', background: 'none', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--text-muted)', cursor: 'pointer' }}>
-                  취소
-                </button>
-                <button onClick={addNodeTag}
-                  style={{ fontSize: 11, padding: '4px 10px', background: '#7c3aed', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}>
-                  저장
-                </button>
-              </div>
-            </div>
-          </>
-        )
-      })()}
-
-      {/* R1407: 색상 태그 피커 */}
-      {showColorTagPicker && (() => {
-        const closeTag = () => setShowColorTagPicker(null)
-        const currentColor = nodeColorTags[showColorTagPicker.uuid]
-        return (
-          <>
-            <div style={{ position: 'fixed', inset: 0, zIndex: 1999 }} onClick={closeTag} />
-            <div style={{
-              position: 'fixed', left: showColorTagPicker.x, top: showColorTagPicker.y,
-              zIndex: 2000, background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 6, padding: '8px 10px', boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-            }}>
-              <div style={{ fontSize: 10, color: 'var(--text-primary)', fontWeight: 600, marginBottom: 6 }}>색상 태그</div>
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                {COLOR_TAG_PALETTE.map(c => (
-                  <span
-                    key={c}
-                    onClick={() => {
-                      setNodeColorTags(prev => ({ ...prev, [showColorTagPicker.uuid]: c }))
-                      setNodeColors(prev => { const next = { ...prev, [showColorTagPicker.uuid]: c }; localStorage.setItem('node-colors', JSON.stringify(next)); return next })
-                      closeTag()
-                    }}
-                    style={{
-                      width: 20, height: 20, borderRadius: '50%', background: c, cursor: 'pointer',
-                      border: currentColor === c ? '2px solid #fff' : '2px solid transparent',
-                      boxShadow: currentColor === c ? '0 0 4px rgba(255,255,255,0.4)' : 'none',
-                    }}
-                  />
-                ))}
-                {/* 태그 제거 */}
-                <span
-                  onClick={() => {
-                    setNodeColorTags(prev => { const next = { ...prev }; delete next[showColorTagPicker.uuid]; return next })
-                    setNodeColors(prev => { const next = { ...prev }; delete next[showColorTagPicker.uuid]; localStorage.setItem('node-colors', JSON.stringify(next)); return next })
-                    closeTag()
-                  }}
-                  style={{
-                    width: 20, height: 20, borderRadius: '50%', cursor: 'pointer',
-                    border: '1px dashed var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 10, color: 'var(--text-muted)',
-                  }}
-                  title="색상 제거"
-                >x</span>
-              </div>
-            </div>
-          </>
-        )
-      })()}
-
-      {/* R1440: 씬 JSON 임포트 모달 */}
-      {showImportModal && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 10000,
-          background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }} onClick={() => setShowImportModal(false)}>
-          <div
-            style={{
-              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-              borderRadius: 8, padding: 16, width: 400, maxHeight: '70vh',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
-              {'\uD83D\uDCE5'} 씬 JSON 임포트
-            </div>
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 6 }}>
-              CCSceneNode JSON을 붙여넣으세요. UUID 충돌 시 자동 재생성됩니다.
-            </div>
-            <textarea
-              value={importJson}
-              onChange={e => { setImportJson(e.target.value); setImportError(null) }}
-              placeholder='{"uuid":"...","name":"Node","active":true,...}'
-              style={{
-                width: '100%', height: 160, fontSize: 10, fontFamily: 'monospace',
-                background: 'var(--bg-input)', color: 'var(--text-primary)',
-                border: importError ? '1px solid var(--error, #f85149)' : '1px solid var(--border)',
-                borderRadius: 4, padding: 8, resize: 'vertical', boxSizing: 'border-box',
-              }}
-            />
-            {importError && (
-              <div style={{ fontSize: 9, color: 'var(--error, #f85149)', marginTop: 4 }}>{importError}</div>
-            )}
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10 }}>
-              <button
-                onClick={() => setShowImportModal(false)}
-                style={{
-                  fontSize: 10, padding: '4px 12px', borderRadius: 4, cursor: 'pointer',
-                  background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)',
-                }}
-              >취소</button>
-              <button
-                onClick={() => {
-                  try {
-                    const parsed = JSON.parse(importJson)
-                    // validate minimal CCSceneNode shape
-                    if (!parsed || typeof parsed !== 'object') throw new Error('JSON 객체가 아닙니다')
-                    const node = parsed as Record<string, unknown>
-                    if (typeof node.name !== 'string' && typeof node.uuid !== 'string') {
-                      throw new Error('유효한 CCSceneNode가 아닙니다 (name/uuid 필수)')
-                    }
-                    // UUID 충돌 검사 → 자동 재생성
-                    const existingUuids = new Set<string>()
-                    nodeMap.forEach((_, uuid) => existingUuids.add(uuid))
-                    function regenerateUuids(obj: Record<string, unknown>): void {
-                      if (typeof obj.uuid === 'string' && existingUuids.has(obj.uuid)) {
-                        obj.uuid = `import-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-                      }
-                      if (Array.isArray(obj.children)) {
-                        for (const child of obj.children) {
-                          if (child && typeof child === 'object') regenerateUuids(child as Record<string, unknown>)
-                        }
-                      }
-                    }
-                    regenerateUuids(node)
-                    // 노드를 현재 씬에 삽입 — 선택 상태로 설정
-                    const uuid = (node.uuid as string) ?? `import-${Date.now()}`
-                    const name = (node.name as string) ?? 'Imported'
-                    const pos = (node.position as { x?: number; y?: number }) ?? {}
-                    const size = (node.size as { x?: number; y?: number; width?: number; height?: number }) ?? {}
-                    const w = size.width ?? size.x ?? 100
-                    const h = size.height ?? size.y ?? 100
-                    updateNode(uuid, {
-                      name,
-                      x: pos.x ?? 0,
-                      y: pos.y ?? 0,
-                      width: typeof w === 'number' ? w : 100,
-                      height: typeof h === 'number' ? h : 100,
-                      active: (node.active as boolean) ?? true,
-                    })
-                    setSelectedUuid(uuid)
-                    setSelectedUuids(new Set([uuid]))
-                    setShowImportModal(false)
-                    setImportJson('')
-                  } catch (err: unknown) {
-                    setImportError((err as Error).message ?? 'JSON 파싱 실패')
-                  }
-                }}
-                disabled={!importJson.trim()}
-                style={{
-                  fontSize: 10, padding: '4px 12px', borderRadius: 4, cursor: 'pointer',
-                  background: 'var(--accent)', border: 'none', color: '#fff',
-                  opacity: importJson.trim() ? 1 : 0.5,
-                }}
-              >임포트</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 컨텍스트 메뉴 + 태그 모달 + 색상 피커 + 임포트 모달 (추출) */}
+      <SceneViewContextMenu />
       {/* R1455: 뷰 북마크 저장 토스트 */}
       {viewBookmarkToast && (
         <div style={{
@@ -5888,6 +2386,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
         </div>
       )}
     </div>
+    </SceneViewProvider>
   )
 }
 

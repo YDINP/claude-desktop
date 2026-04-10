@@ -469,7 +469,7 @@ export function NodeInspectorHeader({ ctx, node, sceneFile, onUpdate, saveScene,
           <button
             onClick={() => applyAndSave({
               position: { ...draft.position, x: 0, y: 0 },
-              rotation: typeof draft.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0 },
               scale: { x: 1, y: 1, z: draft.scale.z ?? 1 },
             })}
             title="Transform 리셋 (position 0,0 / rotation 0 / scale 1,1)"

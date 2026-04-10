@@ -265,7 +265,9 @@ contextBridge.exposeInMainWorld('api', {
   ccDetectProject: (rootPath: string): Promise<CCProjectInfo> => ipcRenderer.invoke('cc:detectProject', rootPath),
   ccGetPort: (): Promise<number> => ipcRenderer.invoke('cc:getPort'),
   ccSetPort: (port: number): Promise<boolean> => ipcRenderer.invoke('cc:setPort', port),
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccInstallExtension: (projectPath: string, version: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:installExtension', projectPath, version),
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccOpenEditor: (projectPath: string, version: string, creatorVersion?: string): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('cc:openEditor', projectPath, version, creatorVersion),
   ccGetAssets: (port: number): Promise<AssetTree> => ipcRenderer.invoke('cc:get-assets', port),
 
@@ -318,7 +320,8 @@ contextBridge.exposeInMainWorld('api', {
   },
   ccFileBuildUUIDMap: (assetsDir: string): Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>> =>
     ipcRenderer.invoke('cc:file:buildUUIDMap', assetsDir),
-  // R1478: 대형 씬 청크 스트리밍 파싱
+  // R1478: 대형 씬 청크 스트리밍 파싱 (@unused Renderer 미사용 — 향후 사용 가능)
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccFileReadSceneChunked: (
     scenePath: string,
     projectInfo: import('../shared/ipc-schema').CCFileProjectInfo,
@@ -326,22 +329,25 @@ contextBridge.exposeInMainWorld('api', {
     chunkOffset?: number
   ): Promise<{ scene: import('../shared/ipc-schema').CCSceneFile; state: { done: boolean; parsedTopChildren: number; totalTopChildren: number; rawLength: number } } | { error: string }> =>
     ipcRenderer.invoke('cc:file:readSceneChunked', scenePath, projectInfo, chunkSize, chunkOffset),
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccFileIsLargeScene: (scenePath: string): Promise<boolean> =>
     ipcRenderer.invoke('cc:file:isLargeScene', scenePath),
   ccFileResolveTexture: (uuid: string, assetsDir: string): Promise<string | null> =>
     ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
-  ccFileResolveSprite: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number } | null> =>
+  ccFileResolveSprite: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number; frame?: { x: number; y: number; w: number; h: number; rotated: boolean } | null } | null> =>
     ipcRenderer.invoke('cc:file:resolveSprite', uuid, assetsDir),
-  ccFileResolveFont: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; familyName: string } | null> =>
+  ccFileResolveFont: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; familyName: string; fallback?: boolean } | null> =>
     ipcRenderer.invoke('cc:file:resolveFont', uuid, assetsDir),
   ccFileExtractUUIDs: (raw: unknown[]): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:extractUUIDs', raw),
   // R1438: 씬 로컬 HTTP 공유
   ccFileServeScene: (sceneJson: string): Promise<{ success: boolean; url?: string; error?: string }> =>
     ipcRenderer.invoke('cc:file:serveScene', sceneJson),
-  // R1410: UUID → 에셋 상세 정보
+  // R1410: UUID → 에셋 상세 정보 (@unused Renderer 미사용 — 향후 사용 가능)
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccGetAssetInfo: (uuid: string, assetsDir: string): Promise<{ path: string; type: string; name: string } | null> =>
     ipcRenderer.invoke('cc:file:getAssetInfo', uuid, assetsDir),
+  /** @unused Renderer 미사용 — 향후 사용 가능 */
   ccGetAllTextureUUIDs: (assetsDir: string): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:getAllTextureUUIDs', assetsDir),
 
@@ -413,7 +419,7 @@ declare global {
       setProjectSystemPrompt: (projectPath: string, prompt: string) => Promise<boolean>
       sessionSave: (session: unknown) => Promise<boolean>
       sessionList: () => Promise<unknown[]>
-      sessionLoad: (id: string) => Promise<unknown>
+      sessionLoad: (id: string) => Promise<{ id: string; title: string; cwd: string; model: string; messages: unknown[]; createdAt: number; updatedAt: number } | null>
       sessionDelete: (id: string) => Promise<boolean>
       sessionRename: (id: string, title: string) => Promise<boolean>
       sessionPin: (id: string, pinned: boolean) => Promise<boolean>
@@ -482,12 +488,14 @@ declare global {
       templateList: () => Promise<Array<{ id: string; name: string; prompt: string }>>
       templateSave: (t: { id: string; name: string; prompt: string }) => Promise<boolean>
       templateDelete: (id: string) => Promise<boolean>
-      commandScan: (projectPath: string) => Promise<Array<{ cmd: string; label: string; description: string; filePath: string; source: 'commands' | 'workflows' | 'global-commands' }>>
+      commandScan: (projectPath: string) => Promise<Array<{ cmd: string; label: string; description: string; filePath: string; source: 'commands' | 'workflows' | 'global-commands'; hasArguments: boolean }>>
       commandLoadWorkflow: (filePath: string) => Promise<{ content: string; error?: string }>
       onCloseTab: (cb: () => void) => () => void
       onFontSizeShortcut: (cb: (delta: number, reset?: boolean) => void) => () => void
-      settingsGet: () => Promise<{ theme: string; fontSize: number; maxTokensPerRequest: number; temperature: number; showTimestamps: boolean; selectedModel: string; accentColor: string; compactMode: boolean; soundEnabled: boolean; customCSS: string }>
+      settingsGet: () => Promise<{ theme: string; fontSize: number; maxTokensPerRequest: number; temperature: number; showTimestamps: boolean; selectedModel: string; accentColor: string; compactMode: boolean; soundEnabled: boolean; customCSS: string; anthropicApiKey: string }>
       settingsSet: (patch: Record<string, unknown>) => Promise<boolean>
+      featuresGet: () => Promise<Record<string, boolean>>
+      featuresSet: (key: string, enabled: boolean) => Promise<void>
       getMemoryUsage: () => Promise<{ rss: number; heapUsed: number; heapTotal: number }>
       onMemoryUpdate: (cb: (data: { rss: number; heapUsed: number }) => void) => () => void
       getNativeTheme: () => Promise<{ isDark: boolean }>
@@ -498,9 +506,7 @@ declare global {
       getSystemPromptProfiles: () => Promise<Array<{ id: string; name: string; content: string }>>
       saveSystemPromptProfile: (profile: { id: string; name: string; content: string }) => Promise<void>
       deleteSystemPromptProfile: (id: string) => Promise<void>
-      getTasks: () => Promise<Array<{ id: string; text: string; done: boolean; createdAt: number; priority?: 'low' | 'medium' | 'high' }>>
-      saveTasks: (tasks: Array<{ id: string; text: string; done: boolean; createdAt: number; priority?: string }>) => Promise<void>
-      getNotificationSettings: () => Promise<{ responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }>
+getNotificationSettings: () => Promise<{ responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }>
       setNotificationSettings: (s: { responseComplete: boolean; backgroundOnly: boolean; longSession: boolean; contextWarning: boolean }) => Promise<void>
       pluginsList: () => Promise<Array<{ filename: string; name: string; description: string; version: string; author: string; path: string }>>
       pluginsOpenFolder: () => Promise<void>
@@ -518,22 +524,24 @@ declare global {
       ccConnect: (port?: number) => Promise<boolean>
       ccDisconnect: (port?: number) => Promise<boolean>
       ccStatus: () => Promise<import('../shared/ipc-schema').CCStatus>
-      ccGetTree: (port: number) => Promise<unknown>
+      ccGetTree: (port: number) => Promise<import('../shared/ipc-schema').CCNode>
       ccGetCanvasSize: (port: number) => Promise<import('../shared/ipc-schema').CanvasSize | null>
-      ccGetNode: (port: number, uuid: string) => Promise<unknown>
-      ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => Promise<unknown>
+      ccGetNode: (port: number, uuid: string) => Promise<import('../shared/ipc-schema').CCNode>
+      ccSetProperty: (port: number, uuid: string, key: string, value: unknown) => Promise<{ ok: boolean }>
       ccSetZOrder: (port: number, uuid: string, direction: string) => Promise<void>
       ccCreateNode?: (port: number, name: string, parentUuid?: string) => Promise<string>
       ccDeleteNode?: (port: number, uuid: string) => Promise<void>
       ccSetComponentProp?: (port: number, uuid: string, compType: string, key: string, value: unknown) => Promise<unknown>
-      ccMoveNode: (port: number, uuid: string, x: number, y: number) => Promise<unknown>
+      ccMoveNode: (port: number, uuid: string, x: number, y: number) => Promise<{ ok: boolean }>
       ccReloadScene?: (port: number) => Promise<{ ok: boolean }>
       onCCEvent: (cb: (event: import('../shared/ipc-schema').CCEvent) => void) => () => void
       onCCStatusChange: (cb: (status: { connected: boolean; port?: number }) => void) => () => void
       ccDetectProject: (rootPath: string) => Promise<{ detected: boolean; version?: string; port?: number; name?: string }>
       ccGetPort: () => Promise<number>
       ccSetPort: (port: number) => Promise<boolean>
+      /** @unused Renderer 미사용 — 향후 사용 가능 */
       ccInstallExtension?: (projectPath: string, version: string) => Promise<{ success: boolean; message: string }>
+      /** @unused Renderer 미사용 — 향후 사용 가능 */
       ccOpenEditor?: (projectPath: string, version: string, creatorVersion?: string) => Promise<{ success: boolean; message: string }>
       ccGetAssets?: (port: number) => Promise<import('../shared/ipc-schema').AssetTree>
       // CC File-based Engine (Phase A)
@@ -568,12 +576,14 @@ declare global {
       onCCFileChanged: (cb: (event: { type: string; path: string; timestamp: number }) => void) => () => void
       ccFileBuildUUIDMap: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
       ccFileResolveTexture: (uuid: string, assetsDir: string) => Promise<string | null>
-      ccFileResolveSprite: (uuid: string, assetsDir: string) => Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number } | null>
+      ccFileResolveSprite: (uuid: string, assetsDir: string) => Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number; frame?: { x: number; y: number; w: number; h: number; rotated: boolean } | null } | null>
       ccFileResolveFont: (uuid: string, assetsDir: string) => Promise<{ dataUrl: string; familyName: string } | null>
       ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
       // R1438
       ccFileServeScene: (sceneJson: string) => Promise<{ success: boolean; url?: string; error?: string }>
+      /** @unused Renderer 미사용 — 향후 사용 가능 */
       ccGetAssetInfo?: (uuid: string, assetsDir: string) => Promise<{ path: string; type: string; name: string } | null>
+      /** @unused Renderer 미사용 — 향후 사용 가능 */
       ccGetAllTextureUUIDs?: (assetsDir: string) => Promise<string[]>
       // CC Editor Window
       openCCEditorWindow?: () => Promise<void>

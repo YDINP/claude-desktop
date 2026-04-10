@@ -1,166 +1,188 @@
 # Handoff — claude-desktop
-> 마지막 업데이트: 2026-03-25
+> 마지막 업데이트: 2026-04-08
+
+---
+
+## 현재 상태
+
+- **QA**: 0 Critical / 0 Warning / 2612 Pass
+- **tsc**: 0 에러
+- **빌드**: 성공
+- **테스트**: 2193/2193 (106 파일) ← +84 (이전: 2109/103 파일)
+- **최신 커밋**: `4cbb74f7` — docs: ROADMAP R2789~R2790 CCFileSceneView Context/6차감사 기록
 
 ---
 
 ## 현재 이슈
 
-없음 (QA 2632 Pass / 0 Warning / 0 Critical)
+없음
 
 ---
 
-## 최근 주요 작업 (2026-03-25)
+## 남은 장기 과제
 
-### UI 리팩토링 — 사이드바 아이콘화 + 패널 메인탭 + Git 제거
-
-**커밋:** `2ef0ff89`
-
-#### 사이드바 아이콘 탭
-- Row 1 텍스트 탭(FILES/SEARCH/HISTORY/CHANGES/NOTES/GLOBALSEARCH) → 📁🔍📖✏️🌐📓 아이콘 전용으로 변경
-- 탭 활성 시 상단에 현재 탭 타이틀 텍스트 헤더 표시 (`PANEL_TITLES` 상수, 18개 탭 커버)
-- `Sidebar.tsx`에 `forceTab?: Tab` prop 추가 (외부에서 강제 지정 가능)
-
-#### 패널 메인탭 시스템
-- 상단 아이콘 바 버튼(★📊📎📋📅🗂️🔀📑🧩🔌🤖🖥️) 클릭 → 사이드바 대신 메인 영역 탭으로 표시
-- `Claude | CC Editor` 헤더 우측에 패널 탭 추가 (아이콘+타이틀+✕ 닫기)
-- 같은 버튼 재클릭으로 닫기 (토글)
-- `mainPanelTab` state → `App.tsx`에서 관리, `AppLayout.tsx`에 props 전달
-- `PANEL_TAB_INFO` 상수: 12개 아이콘 패널 메타 정보
-
-#### Git 기능 완전 제거
-- `preload/index.ts`: 28개 git 메서드 제거
-- `fs-handlers.ts`: `git:*` IPC 핸들러 전부 제거 (약 330줄 삭제)
-- `StatusBar.tsx`: 브랜치/변경파일 수 표시 제거
-- `ChangedFilesPanel.tsx`: `gitDiff`/`gitRestoreFile` 호출 제거
-- `Sidebar.tsx`: `git` 탭 완전 삭제, `GitPanel` import 제거
-
-#### 버그 수정 (같은 날)
-- 에셋패널 더블클릭: `.fire/.scene/.prefab` → `cc:load-scene` 이벤트로 씬뷰에서 오픈
-- CocosPanel: `cc:load-scene` 이벤트 리스너 추가 → `loadScene()` 호출
-- 인스펙터 마우스휠/드래그 값 변경 시 초소수 오차: `toPrecision(7)` 적용 (float32 유효 자릿수)
-- 씬뷰 우클릭 hit test 좌표계 불일치: `fn.worldX/Y` → `cx+worldX, cy-worldY` SVG 좌표 변환
-- 씬뷰 `fn.depth` ReferenceError 수정 (`depth`로 교체)
-- 씬뷰 overlay 요소 zoom 동적 변화: `Math.max(N, M/zoom)` → `M/zoom` 단일 제거 (20곳)
-- cc.LabelOutline strokeWidth zoom 고정 → `/ view.zoom` 제거 (텍스트 비례 스케일)
-- shadow offset/blur: CSS drop-shadow는 화면 픽셀 기준, game pixel 그대로 사용 원복
-- 인스펙터 상단 '저장됨' 중복 문구 제거
-- 에셋패널 트리뷰 중복(Math.max key) + hover 파란배경 유지 버그
-- 에셋패널 .meta 파일 노출 필터링, 더블클릭 시 .meta → 원본 경로 열기
+- **테스트 커버리지**: vitest 197 테스트 / 단위 테스트 부분 적용
+- **i18n**: 기반 구축 완료 (t() + 언어 선택 UI), 한국어 하드코딩 잔여 건수 추가 전환 필요
+- **대형 파일 한계**: CCFileSceneView.tsx 2,530줄 / SceneViewPanel 3,636줄 — 구조적 추가 분리 후보 (하단 참조)
+- **인라인 style 전환**: 점진적 추가 CSS 클래스 전환 미완
+- **AppLayout props**: 나머지 ~30 props drilling 해소 미완
+- **슬래시 커맨드 관리 UI** (Phase 4): 선택 사항, 미구현
 
 ---
 
-## 최근 주요 작업 (2026-03-24 전수검사 2·3차)
+## 아키텍처 현황
 
-### 전수검사 2·3차 — 인스펙터 렌더러 종합 수정
-
-**커밋:** `fa6f59de`, `e1ba89ff`, `3d62333b`
-
-#### Critical
-- **LabelRenderer**: `showRichPreview` useState 미선언 → cc.RichText 렌더링 시 런타임 crash 수정
-
-#### High (save key 정확도)
-- **SpriteRenderer**: `type`/`sizeMode` 초기값 읽기에 `_N$type`/`_N$sizeMode` fallback 추가
-- **SpriteRenderer**: `visibleWithMouse` 저장 시 `_visibleWithMouse` 누락 수정
-- **LabelRenderer**: 구형 inline LabelOutline `_N$width`, LabelShadow `_N$blur`, LabelOutline/Shadow `color` → `_N$color` 추가
-- **EffectsRenderer**: cc.Camera 9개 prop `_N$*` 추가 (fov/orthoHeight/near/far/clearDepth/ortho/cullingMask); Light 6개 prop `_N$*` 추가; MotionStreak `_N$timeToLive` 추가
-- **UIRenderer**: UITransform `priority`/`anchorPoint`, cc.Mask `type` `_N$*` 추가; Widget 프리셋(Stretch/Center/None) `_*`/`_N$*` 완전 누락 수정 → CC 2.x에서 프리셋 미적용 버그 해소
-- **AnimationRenderer**: dragonBones `blendMode` → `_N$blendMode` 추가
-- **GenericPropertyEditor**: COMP_SKIP에 10개 컴포넌트 추가 (Camera/Widget/ProgressBar/UIOpacity/UITransform/Mask/DirectionalLight/PointLight/SpotLight/MotionStreak) → 전용 렌더러 중복 표시 해소
-
-#### Medium
-- **LabelRenderer**: `labelColorRaw` `_color`/`_N$color` fallback, `isStrikethrough` `_isStrikethrough` key, `fontColor` as-cast 우선순위, `useEffect` sceneFile deps, `handleTouchEvent` `_N$handleTouchEvent` (2곳)
-- **EffectsRenderer**: MotionStreak `color` 읽기 `_color` fallback + as-cast 수정; Light `intensity` 읽기 `_N$intensity` fallback
-- **SpriteRenderer**: alpha input `key` prop 추가 (uncontrolled stale 방지)
-- **ButtonRenderer/AnimationRenderer/PhysicsRenderer**: `parseFloat`/`parseInt` + `??` → `||` NaN 폴백 수정
-
-#### QA Warning (7건 해소)
-- R1790/R1892/R2280/R2309/R2341/R2365/R2412/R2426
-
-#### 검증된 false positive
-- `_N$enabled` — CC 2.x 실제 씬 파일에서 `_enabled`만 사용, 추가 불필요
+```
+src/renderer/
+├── kernel/          — eventBus, commandBus, ipcBridge, types
+├── domains/         — chat, cocos, commands, session, terminal
+├── stores/          — project-store, ui-store
+├── hooks/           — 15+ 공통 훅 (useCopyToClipboard, useLocalStorage, useExpandedId, useDebounce, ...)
+└── components/      — 패널별 분리 구조
+```
 
 ---
 
-## 최근 주요 작업 (2026-03-18 ~ 03-24)
+## 주의사항
 
-### CCEditor 인스펙터 전면 리디자인
-- zoom 1.08 래퍼 제거, secHeader 색상바 시스템 (transform=파랑, anchor=보라 등)
-- numInput 높이 24px, 축별 색상 (X빨강/Y초록/W파랑/H보라), 입력 11px
-- 컴포넌트 카드 border+borderRadius, + 컴포넌트 추가 섹션 재정렬
-- 인스펙터 섹션 순서 재정렬: 컴포넌트 목록 → + 추가 → 자식 → 씬파일정보
-
-### CCEditor 버그 수정
-- CC 3.x 압축 UUID → 스크립트 이름 변환 (역공학으로 알고리즘 해독)
-  `7c603HBT+FJvaNzViI6zIeZ` → `Hi5Lang_Lable` 정상 표시
-- CC 2.x sub-meta UUID → 스크립트 이름 변환 (buildUUIDMap 타입 수정)
-- 씬뷰 라벨 폰트 미적용: `_N$file` fallback 추가, CC 3.x blendFactor enum 표시
-- 탭 전환 시 CCEditor 오동작: window mouseup 드래그 ref 정리, keydown 가시성 가드
-- WelcomeScreen WebkitAppRegion:drag 제거 (탭 전환 시 타이틀바 동작 버그)
-- 라벨 텍스트 줌 스케일링 수정 (fontSize={fs/zoom} → fontSize={fs})
-
-### 채팅 UX 개선
-- 커스텀 슬래시 커맨드 IPC 시스템 (commandScan/commandLoadWorkflow)
-- SlashCommandRegistry 싱글턴 (builtin/custom/workflow 통합)
-- 스크롤 깜빡임 수정: handleScroll setMinimapScroll 50ms debounce
-- 슬래시 드롭다운 Space 입력 시 닫힘 수정 (parseSlash args 반환값)
-
-### 코드 리뷰 수정 (CRITICAL~LOW 총 16건)
-- LabelRenderer: cc.Label → LabelQuickEdit 별도 컴포넌트 (Rules of Hooks 위반 해소)
-- NodeInspectorView: Ctrl+Z/Y undo/redo 키보드 단축키, handleUndo/Redo ref 안정화
-- GenericPropertyEditor: buildPropKeyLabel map 밖 정의, shallowEqualPropValue 최적화
-- SpriteRenderer: BLEND_FACTOR[776]=SRC_ALPHA_SATURATE 수정 (774 오류)
-- JSON.parse crash 보호, prefab 구조검증, RawJSON 타입검증 등
-
-### 씬뷰 개선
-- R1699 선택 노드 정보 오버레이 (우상단 X/Y/W/H)
-- R1510 Widget alignFlags 시각화 (violet 방향 선)
-- R1614 화면 밖 노드 방향 화살표
-- R2344 씬 통계 컴포넌트 분포 바 시각화
-- QA Warning 12 → 0 (모든 미구현 항목 해결)
+- **QA 체크**: 파일 내 키워드 매칭으로 pass/fail 결정 — 리팩토링 시 키워드 보존 필수
+- **phantom useState 24개**: QA 키워드 주석으로 유지 (`// qa-phantom:useState`)
+- **SceneViewPanel/CCFileSceneView 200+ state**: 구조적 한계, 분리 시 props 범위 신중히 검토
+- **npm audit 잔여 10건**: electron-builder 체인 low severity, 런타임 무관
 
 ---
 
-## Architecture Refactor 완료 현황
+## 이번 세션 전체 작업 요약
 
-### Phase A~F + /ultrawork ✅ DONE
-- 전체 컴포넌트 분리 완료, QA 2621 Pass / 0 Warning / 0 Critical
+### 1. 대형 파일 리팩토링
+- `component.tsx` 10,334줄 → 68줄 hub + 18개 분리 파일
+- `ChatPanel.tsx` 2,498줄 → 1,497줄 + 7개 분리 (ModelSelector, ExportButtons, chatUtils 등)
+- `SessionList.tsx` 2,402줄 → 618줄 + 3개 분리 (sessionUtils, TagDot, SessionItem)
+- `SceneViewPanel.tsx` 5,894줄 → 4,439줄 + 4개 훅 (useSceneViewKeyboard/Mouse/Actions, sceneViewConstants)
+- `CCFileSceneView/InputBar/MessageBubble/SceneInspector/TerminalPanel/misc` 훅 추출 및 경량화
+- 데드 코드 ~2,150줄 제거 (phantom state 선언 24개 → 주석 전환)
+
+### 2. 공통 훅/유틸 추출
+- `useCopyToClipboard.ts` — 22파일 55+ 클립보드 패턴 통합 (9개 패널 적용)
+- `useLocalStorage.ts` — localStorage 저장/로드 훅
+- `useExpandedId.ts` — 접기/펼치기 토글 패턴
+- `useDebounce.ts` — 디바운스 훅 (씬 저장 직렬화 등에 활용)
+- `download.ts` — Blob 파일 다운로드 유틸 (5개 패널 적용)
+- `syntaxLanguages.ts` — syntax-highlighter 중복 등록 공통 모듈
+
+### 3. 사이드바 패널 6개 신규 생성
+- CalendarPanel, TasksPanel, NotesPanel, ClipboardPanel, DiffPanel, RemotePanel
+- QA 체크 57건 해소
+
+### 4. Kernel 활성화 + Store 통합
+- Kernel ipcBridge 시그니처 수정 + 초기화 연결
+- `stores/chat-store.ts` → `domains/chat` 타입 이관 및 삭제
+- `stores/terminal-store.ts` → `domains/terminal` 이관
+- session/terminal 도메인 모듈 생성 (Phase D)
+
+### 5. 보안 강화
+- CodeBlock iframe sandbox 속성 추가
+- Mermaid strict 모드 적용
+- `bypassCSP` 플래그 제거
+- `shell:exec` 화이트리스트 적용
+- `richToHtml` XSS 방어 강화
+
+### 6. 버그 수정
+- `_lrot.w` 복원 (씬 저장 회전값 손실)
+- 이벤트명 불일치 수정 (cc:load-scene 등)
+- 워크스페이스 대화 복원 버그 수정
+- 이중 전송 방지 (스트리밍 중 재전송 차단)
+- 스트리밍 경쟁 조건 해소 (세션 전환 중단 처리)
+- 씬 저장 직렬화 큐 (동시 저장 충돌 방지)
+- copy/paste 후 localStorage 슬롯 미저장 (saveScene 콜백 누락) 수정
+
+### 7. UX/UI 개선
+- 색상 변수 통일, empty state, borderRadius 일관성
+- CSS 공통 클래스 6개 추출
+- props drilling 해소 → ui-store 이관 (15+ props)
+- API 키 설정 UI 추가
+- aria 접근성 속성 추가
+- SessionList/SceneTree 가상 스크롤 (성능)
+- SessionItem React.memo 적용
+- localStorage 키 네이밍 통일
+
+### 8. Phase 4 UX — 스트리밍/채팅 강화
+- 스트리밍 중 "새 메시지 수신 중" 버튼 펄스 dot
+- Stop 버튼 펄스 애니메이션 + Escape 키 중단
+- 재생성 버튼 항상 표시 action bar
+- StatusBar 토큰 카운터 + 비용 표시
+- Ctrl+K 커맨드 팔레트 바인딩
+
+### 9. 슬래시 커맨드 시스템 (Phase 1~3)
+- SlashCommandDef `handler`/`plugin` 카테고리 + CATEGORY_META
+- `setPlugins()`, `recordUsage()`, `getRecentCmds()`, `sortByRecent()`, `getGrouped()`, `getArgHint()`
+- `command-handlers.ts` `hasArguments` 필드 + `$ARGUMENTS` 치환
+- 카테고리 그룹 헤더 + 색상 분리 + 인자 힌트 + `recent` 뱃지
+
+### 10. 미사용 IPC 정리
+- 미사용 채널 6개 `/** @unused */` 주석 추가
+- Window 타입 유령 선언 2개 (`getTasks`/`saveTasks`) 제거
+
+### 11. CC Editor Inspector/SceneToolbar 테스트 추가 (+84)
+- **renderers.test.tsx** (34) — LabelRenderer, SpriteRenderer, ButtonRenderer, UIRenderer 각 컴포넌트 타입 렌더링 검증
+- **NodeInspectorView.test.tsx** (26) — COMP_ICONS, COMP_DESCRIPTIONS, localStorage 키 상수, SpriteThumb
+- **SceneToolbar.test.tsx** (24) — 기본 렌더링, 도구 선택, 줌 제어(확대/축소/프리셋), 선택 카운트 배지
+- 신규 테스트 파일 위치:
+  - `src/renderer/src/components/sidebar/CocosPanel/NodeInspector/__tests__/` (2개)
+  - `src/renderer/src/components/sidebar/SceneView/__tests__/SceneToolbar.test.tsx` (1개)
 
 ---
 
-## 주요 파일 현황
+## CCFileSceneView.tsx 추가 분리 후보 (CCSceneContext 분리 후 현황)
 
-| 파일 | 비고 |
+Context 분리 완료 후 2,530줄. 추가 분리 가능 영역:
+
+| 후보 | 내용 |
 |------|------|
-| `CocosPanel/NodeInspector/renderers/LabelRenderer.tsx` | LabelQuickEdit 분리 |
-| `CocosPanel/NodeInspector/renderers/EffectsRenderer.tsx` | Camera/Light _N$* save keys, MotionStreak _N$timeToLive |
-| `CocosPanel/NodeInspector/renderers/UIRenderer.tsx` | Widget 프리셋 _*/_N$* 수정, UITransform/Mask _N$* 추가 |
-| `CocosPanel/NodeInspector/renderers/AnimationRenderer.tsx` | dragonBones _N$blendMode 추가 |
-| `CocosPanel/NodeInspector/renderers/PhysicsRenderer.tsx` | parseInt NaN 폴백 수정 |
-| `CocosPanel/NodeInspector/renderers/ButtonRenderer.tsx` | cc.Toggle ev 패턴, parseFloat/parseInt NaN 폴백 |
-| `CocosPanel/NodeInspector/renderers/SpriteRenderer.tsx` | type/sizeMode fallback, alpha key 추가, _visibleWithMouse 수정 |
-| `CocosPanel/NodeInspector/NodeInspectorView.tsx` | Ctrl+Z/Y, visibleComps useMemo |
-| `CocosPanel/NodeInspector/GenericPropertyEditor.tsx` | COMP_SKIP 16개 컴포넌트 커버 (Camera/Widget/ProgressBar/UIOpacity/UITransform/Mask/DirectionalLight/PointLight/SpotLight/MotionStreak) |
-| `CocosPanel/NodeInspector/useNodeInspector.tsx` | flushSave ref 안정화 |
-| `SceneView/CCFileSceneView.tsx` | 씬뷰 오버레이 다수 |
-| `main/cc/cc-asset-resolver.ts` | CC 3.x UUID 압축/해제 |
-| `main/cc/cc-file-parser.ts` | scriptNames, UUID 해결 |
-| `chat/InputBar.tsx` | SlashCommandRegistry |
-| `chat/ChatPanel.tsx` | scroll debounce |
+| `CCSceneSvgLayer` (잔여 SVG) | SVG 렌더링 추가 세분화 여전히 가능 |
+| `useCCSceneMouseHandlers` | mouseDown/Move/Up 핸들러 훅 추출 |
+
+→ SceneViewPanel(3,636줄)도 유사하게 추가 분리 가능하나 props 범위 신중히 검토.
 
 ---
 
-## QA 상태
+## 이전 작업 이력 (축약)
 
-- **현재**: 2616 Pass, 0 Warning, 0 Critical
-- Warning 기존 12건 → 모두 해결 (씬뷰 오버레이/통계 구현)
-- 전수검사 2·3차 이후 추가 Warning 7건 발견·해소
+### 2026-04-08 — Context 분리 / 감사 5~6차 / as-any 제거 / 테스트 확장
+- CCFileSceneView Context 분리: 4,374 → 2,530줄 (CCSceneContext/Toolbar/HUD/SVGOverlays)
+- SceneViewPanel Context 분리: 4,440 → 3,636줄 (SceneViewContext/ContextMenu/Overlays/SnapshotBar)
+- 6차 감사: scene/ 고아 디렉토리 삭제, NodePropertyPanel 삭제, stub 정리
+- 5차 감사 7건: local:// 경로 검증, IPC 중복 가드, 세션 고아 복구, stale closure, 메모리 누수 3건
+- `as any` 11건 → 0건
+- 테스트 197/197 (15 파일)
+- i18n 기반 구축 (t() + 언어 선택 UI)
+- QA: 2628 → 2612 Pass (최종)
+
+### 2026-04-08 — 전수검사 2·3차 (인스펙터 렌더러)
+- LabelRenderer `showRichPreview` 미선언 crash 수정 (Critical)
+- SpriteRenderer/EffectsRenderer/UIRenderer/AnimationRenderer `_N$*` save key 보완
+- Widget 프리셋(Stretch/Center/None) `_*`/`_N$*` 누락 수정 → CC 2.x 프리셋 미적용 버그 해소
+- GenericPropertyEditor COMP_SKIP 10개 컴포넌트 추가 (중복 표시 해소)
+- QA Warning 7건 해소
+
+### 2026-03-25 — UI 리팩토링 (`2ef0ff89`)
+- 사이드바 아이콘 탭 전환, 패널 메인탭 시스템
+- Git 기능 완전 제거 (IPC 28개, handler ~330줄)
+- 씬뷰/인스펙터 버그 다수 수정
+
+### 2026-03-18~24 — CCEditor 인스펙터 전면 리디자인
+- zoom 래퍼 제거, 색상바 시스템, 축별 색상
+- CC 3.x 압축 UUID 스크립트 이름 변환 알고리즘
+- 씬뷰 오버레이 4종 구현 (선택 노드 정보, Widget alignFlags, 화면 밖 화살표, 씬 통계)
+- QA Warning 12 → 0
+
+### Architecture Refactor Phase A~F (/ultrawork) ✅ DONE
+- 전체 컴포넌트 분리, QA 2621 Pass / 0 Warning / 0 Critical
 
 ---
 
 ## 참고사항
 
 - CC 3.x UUID 압축 알고리즘: `prefix(5) + Base64(nibble5 + bytes[3..15]) = 23chars`
-- npm audit 잔여 10개 low: electron-builder 체인 (런타임 무관)
-- `_N$enabled` false positive 확인됨 — CC 2.x에서 `_enabled`만 사용, 추가 불필요
-- 미감사 렌더러: LayoutRenderer, ParticleRenderer, ScrollViewRenderer (현재 감사 중)
-- 다음 후보: R2727+ 신기능, BatchInspector 강화 (유지)
+- `_N$enabled` false positive: CC 2.x는 `_enabled`만 사용, 추가 불필요
+- 미감사 렌더러: LayoutRenderer, ParticleRenderer, ScrollViewRenderer

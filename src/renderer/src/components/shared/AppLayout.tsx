@@ -3,7 +3,9 @@
  * AppContent는 훅/상태 선언만 담고, 렌더링은 여기서 담당.
  */
 import type React from 'react'
+import { useRef, useCallback } from 'react'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
+import { t } from '../../utils/i18n'
 import { AgentBay } from '../hq/AgentBay'
 import { ResourceBar } from '../hq/ResourceBar'
 import { OpsFeed } from '../hq/OpsFeed'
@@ -24,23 +26,26 @@ import { WebPreviewPanel } from '../sidebar/WebPreviewPanel'
 import { SceneViewPanel } from '../sidebar/SceneView/SceneViewPanel'
 import { CocosPanel } from '../sidebar/CocosPanel'
 import { ToastContainer } from './ToastContainer'
+import { ErrorBoundary } from './ErrorBoundary'
 import { WorkspaceTabBar } from './WorkspaceTabBar'
 import { FileTabBar } from './FileTabBar'
 import type { WorkspaceManager } from '../../hooks/useWorkspaceManager'
 import type { SettingsSync } from '../../hooks/useSettingsSync'
 import type { ResizeHandlers } from '../../hooks/useResizeHandlers'
 import type { ChatMessage } from '../../domains/chat/domain'
+import type { ProjectContext, ChatContext } from '../../types/app-props'
+import { useUIStore } from '../../stores/ui-store'
+import { useShallow } from 'zustand/react/shallow'
+import { useCocosStore } from '../../domains/cocos/store'
 
-type CCLayoutMode = 'tab' | 'split' | 'detach'
-
-const PANEL_TAB_INFO: Partial<Record<SidebarTab, { icon: string; title: string }>> = {
-  bookmarks: { icon: '★', title: '북마크' },
-  stats: { icon: '📊', title: '통계' },
-  snippets: { icon: '📎', title: '스니펫' },
-  outline: { icon: '📑', title: '아웃라인' },
-  plugins: { icon: '🧩', title: '플러그인' },
-  connections: { icon: '🔌', title: 'MCP 연결' },
-  agent: { icon: '🤖', title: '에이전트' },
+const PANEL_TAB_INFO: Partial<Record<SidebarTab, { icon: string; titleKey: string; titleFallback: string }>> = {
+  bookmarks: { icon: '★', titleKey: 'panel.icon.bookmarks', titleFallback: '북마크' },
+  stats: { icon: '📊', titleKey: 'panel.icon.stats', titleFallback: '통계' },
+  snippets: { icon: '📎', titleKey: 'panel.icon.snippets', titleFallback: '스니펫' },
+  outline: { icon: '📑', titleKey: 'panel.icon.outline', titleFallback: '아웃라인' },
+  plugins: { icon: '🧩', titleKey: 'panel.icon.plugins', titleFallback: '플러그인' },
+  connections: { icon: '🔌', titleKey: 'panel.icon.connections', titleFallback: 'MCP 연결' },
+  agent: { icon: '🤖', titleKey: 'panel.icon.agent', titleFallback: '에이전트' },
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -50,10 +55,8 @@ export interface AppLayoutProps {
   workspace: WorkspaceManager
   settings: SettingsSync
   resize: ResizeHandlers
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  project: any   // ReturnType<typeof useProject> — 순환 import 방지
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  chat: any      // ReturnType<typeof useChatStore>
+  project: ProjectContext   // ReturnType<typeof useProject> — 순환 import 방지
+  chat: ChatContext         // ReturnType<typeof useChatStore>
 
   // Session
   sessionTitle: string | undefined
@@ -63,21 +66,6 @@ export interface AppLayoutProps {
   suggestions: string[]
   setSuggestions: React.Dispatch<React.SetStateAction<string[]>>
 
-  // CC layout
-  ccLayout: CCLayoutMode
-  ccTab: 'claude' | 'editor'
-  ccSplitRatio: number
-  setCCTab: React.Dispatch<React.SetStateAction<'claude' | 'editor'>>
-  setCCLayoutMode: (mode: CCLayoutMode) => void
-  openCCEditorWindow: () => Promise<void>
-  handleCCSplitDragStart: (e: React.MouseEvent) => void
-
-  // Chat UI triggers
-  chatFocusTrigger: number
-  chatSearchTrigger: number
-  scrollToMessageId: string | null
-  setScrollToMessageId: React.Dispatch<React.SetStateAction<string | null>>
-
   // File panels
   splitFilePath: string | null
   setSplitFilePath: React.Dispatch<React.SetStateAction<string | null>>
@@ -85,25 +73,9 @@ export interface AppLayoutProps {
   setTabDirty: (path: string, dirty: boolean) => void
   changedFiles: ChangedFile[]
   setChangedFiles: React.Dispatch<React.SetStateAction<ChangedFile[]>>
-  lightbox: { src: string; alt?: string } | null
-  setLightbox: React.Dispatch<React.SetStateAction<{ src: string; alt?: string } | null>>
-
-  // Overlays
-  paletteOpen: boolean
-  setPaletteOpen: (v: boolean | ((o: boolean) => boolean)) => void
-  shortcutsOpen: boolean
-  setShortcutsOpen: (v: boolean | ((o: boolean) => boolean)) => void
-  settingsOpen: boolean
-  setSettingsOpen: (v: boolean | ((o: boolean) => boolean)) => void
-  pendingInsert: string | undefined
-  setPendingInsert: React.Dispatch<React.SetStateAction<string | undefined>>
 
   // Sidebar
-  activeSidebarIconTab: SidebarTab | null
-  setActiveSidebarIconTab: React.Dispatch<React.SetStateAction<SidebarTab | null>>
   sidebarSwitchTabRef: React.MutableRefObject<((tab: SidebarTab) => void) | null>
-  mainPanelTab: SidebarTab | null
-  setMainPanelTab: React.Dispatch<React.SetStateAction<SidebarTab | null>>
 
   // Handlers
   handleToggleHQ: () => void
@@ -123,18 +95,73 @@ export function AppLayout({
   workspace, settings, resize, project, chat,
   sessionTitle, setSessionTitle, sessionCreatedAt, setSessionCreatedAt,
   suggestions, setSuggestions,
-  ccLayout, ccTab, ccSplitRatio, setCCTab, setCCLayoutMode, openCCEditorWindow, handleCCSplitDragStart,
-  chatFocusTrigger, chatSearchTrigger, scrollToMessageId, setScrollToMessageId,
   splitFilePath, setSplitFilePath, dirtyTabs, setTabDirty, changedFiles, setChangedFiles,
-  lightbox, setLightbox,
-  paletteOpen, setPaletteOpen, shortcutsOpen, setShortcutsOpen, settingsOpen, setSettingsOpen,
-  pendingInsert, setPendingInsert,
-  activeSidebarIconTab, setActiveSidebarIconTab, sidebarSwitchTabRef,
-  mainPanelTab, setMainPanelTab,
+  sidebarSwitchTabRef,
   handleToggleHQ, openFile, switchToChat, closeFileTab,
   handleExportMarkdown, handleEditResend, handleFork, handleCompressContext, handleReplyToMessage,
 }: AppLayoutProps) {
   const { features } = useFeatureFlags()
+
+  // ── UI state from stores (shallow equality → 무관 필드 변경 시 리렌더 방지) ──
+  const {
+    paletteOpen, setPaletteOpen,
+    shortcutsOpen, setShortcutsOpen,
+    settingsOpen, setSettingsOpen,
+    lightbox, setLightbox,
+    pendingInsert, setPendingInsert,
+    ccTab, setCCTab,
+    ccSplitRatio, setCCSplitRatio,
+    mainPanelTab, setMainPanelTab,
+    activeSidebarIconTab, setActiveSidebarIconTab,
+    chatFocusTrigger, chatSearchTrigger,
+    scrollToMessageId, setScrollToMessageId,
+  } = useUIStore(useShallow(s => ({
+    paletteOpen: s.paletteOpen, setPaletteOpen: s.setPaletteOpen,
+    shortcutsOpen: s.shortcutsOpen, setShortcutsOpen: s.setShortcutsOpen,
+    settingsOpen: s.settingsOpen, setSettingsOpen: s.setSettingsOpen,
+    lightbox: s.lightbox, setLightbox: s.setLightbox,
+    pendingInsert: s.pendingInsert, setPendingInsert: s.setPendingInsert,
+    ccTab: s.ccTab, setCCTab: s.setCCTab,
+    ccSplitRatio: s.ccSplitRatio, setCCSplitRatio: s.setCCSplitRatio,
+    mainPanelTab: s.mainPanelTab, setMainPanelTab: s.setMainPanelTab,
+    activeSidebarIconTab: s.activeSidebarIconTab, setActiveSidebarIconTab: s.setActiveSidebarIconTab,
+    chatFocusTrigger: s.chatFocusTrigger, chatSearchTrigger: s.chatSearchTrigger,
+    scrollToMessageId: s.scrollToMessageId, setScrollToMessageId: s.setScrollToMessageId,
+  })))
+
+  // CC layout from cocos store (single source of truth)
+  const ccLayout = useCocosStore(s => s.layoutMode)
+  const setCCLayoutMode = useCocosStore(s => s.setLayoutMode)
+
+  // CC editor detach window
+  const openCCEditorWindow = useCallback(async () => {
+    await window.api.openCCEditorWindow?.()
+    useCocosStore.getState().setLayoutMode('detach')
+  }, [])
+
+  // CC split drag handler
+  const ccSplitRatioRef = useRef(ccSplitRatio)
+  ccSplitRatioRef.current = ccSplitRatio
+  const handleCCSplitDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    const container = e.currentTarget.parentElement!
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'col-resize'
+    const onMove = (me: MouseEvent) => {
+      const rect = container.getBoundingClientRect()
+      const ratio = Math.min(0.8, Math.max(0.2, (me.clientX - rect.left) / rect.width))
+      ccSplitRatioRef.current = ratio
+      setCCSplitRatio(ratio)
+    }
+    const onUp = () => {
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }, [setCCSplitRatio])
 
   // ── Destructure domain hooks for convenient local-name access ─────────────
   const {
@@ -169,13 +196,13 @@ export function AppLayout({
       {/* Icon bar — sidebar panel shortcuts + HQ */}
       <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', flexShrink: 0, height: 28, overflowX: 'auto', scrollbarWidth: 'none' }}>
         {([
-          { id: 'bookmarks' as SidebarTab, label: '★', title: '북마크', featureKey: null },
-          { id: 'stats' as SidebarTab, label: '📊', title: '통계', featureKey: 'stats' as const },
-          { id: 'snippets' as SidebarTab, label: '📎', title: '스니펫', featureKey: null },
-          { id: 'outline' as SidebarTab, label: '📑', title: '아웃라인', featureKey: 'outline' as const },
-          { id: 'plugins' as SidebarTab, label: '🧩', title: '플러그인', featureKey: 'plugins' as const },
-          { id: 'connections' as SidebarTab, label: '🔌', title: 'MCP 연결', featureKey: 'connections' as const },
-          { id: 'agent' as SidebarTab, label: '🤖', title: '에이전트', featureKey: null },
+          { id: 'bookmarks' as SidebarTab, label: '★', title: t('panel.icon.bookmarks', '북마크'), featureKey: null },
+          { id: 'stats' as SidebarTab, label: '📊', title: t('panel.icon.stats', '통계'), featureKey: 'stats' as const },
+          { id: 'snippets' as SidebarTab, label: '📎', title: t('panel.icon.snippets', '스니펫'), featureKey: null },
+          { id: 'outline' as SidebarTab, label: '📑', title: t('panel.icon.outline', '아웃라인'), featureKey: 'outline' as const },
+          { id: 'plugins' as SidebarTab, label: '🧩', title: t('panel.icon.plugins', '플러그인'), featureKey: 'plugins' as const },
+          { id: 'connections' as SidebarTab, label: '🔌', title: t('panel.icon.connections', 'MCP 연결'), featureKey: 'connections' as const },
+          { id: 'agent' as SidebarTab, label: '🤖', title: t('panel.icon.agent', '에이전트'), featureKey: null },
         ]).filter(t => t.featureKey === null || features[t.featureKey]).map(t => (
           <button
             key={t.id}
@@ -191,7 +218,7 @@ export function AppLayout({
             style={{
               flexShrink: 0, width: 32, height: 28,
               background: mainPanelTab === t.id ? 'var(--bg-primary)' : 'transparent',
-              color: mainPanelTab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && chat.messages.some((m: any) => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
+              color: mainPanelTab === t.id ? 'var(--text-primary)' : t.id === 'bookmarks' && chat.messages.some(m => m.bookmarked) ? '#fbbf24' : 'var(--text-muted)',
               borderTop: 'none', borderLeft: 'none', borderRight: 'none',
               borderBottom: mainPanelTab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
               fontSize: 14, cursor: 'pointer', transition: 'all 0.1s',
@@ -201,7 +228,7 @@ export function AppLayout({
         <div style={{ flex: 1 }} />
         <button
           onClick={handleToggleHQ}
-          title={!features.hqMode ? 'HQ Mode (비활성화됨)' : hqMode ? '기본 모드로 전환 (Ctrl+Shift+H)' : 'HQ Mode (Ctrl+Shift+H)'}
+          title={!features.hqMode ? t('hq.disabled', 'HQ Mode (비활성화됨)') : hqMode ? t('hq.switchDefault', '기본 모드로 전환 (Ctrl+Shift+H)') : t('hq.switchHQ', 'HQ Mode (Ctrl+Shift+H)')}
           disabled={!features.hqMode}
           style={{
             flexShrink: 0, padding: '0 10px', height: 28,
@@ -238,6 +265,7 @@ export function AppLayout({
         }}>
           <div style={{ width: sidebarWidth, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             {!mainPanelTab && (
+              <ErrorBoundary name="Sidebar">
               <Sidebar
                 activeSessionId={chat.sessionId}
                 changedFiles={changedFiles}
@@ -250,19 +278,28 @@ export function AppLayout({
                   setTimeout(() => setScrollToMessageId(null), 500)
                 }}
                 onSessionSelect={async sid => {
-                  const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
-                  if (saved?.messages?.length) {
-                    chat.hydrate(saved.messages as ChatMessage[], sid)
-                  } else {
+                  if (chat.isStreaming) {
+                    window.api.claudeInterrupt?.()
+                    chat.finishStreaming()
+                  }
+                  try {
+                    const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
+                    if (saved?.messages?.length) {
+                      chat.hydrate(saved.messages as ChatMessage[], sid)
+                    } else {
+                      chat.clearMessages()
+                      chat.setSessionId(sid)
+                    }
+                    setSessionTitle(saved?.title)
+                    setSessionCreatedAt(saved?.createdAt)
+                    if (saved?.forkedFrom) {
+                      window.api.claudeClose()
+                    } else {
+                      window.api.claudeResume(sid)
+                    }
+                  } catch {
                     chat.clearMessages()
                     chat.setSessionId(sid)
-                  }
-                  setSessionTitle(saved?.title)
-                  setSessionCreatedAt(saved?.createdAt)
-                  if (saved?.forkedFrom) {
-                    window.api.claudeClose()
-                  } else {
-                    window.api.claudeResume(sid)
                   }
                   switchToChat()
                 }}
@@ -292,6 +329,7 @@ export function AppLayout({
                 onCCPortChange={setWsCCPort}
                 onCCConnectedChange={setWsCCConnected}
               />
+              </ErrorBoundary>
             )}
           </div>
         </div>
@@ -395,7 +433,7 @@ export function AppLayout({
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  {PANEL_TAB_INFO[mainPanelTab]?.icon} {PANEL_TAB_INFO[mainPanelTab]?.title}
+                  {PANEL_TAB_INFO[mainPanelTab]?.icon} {t(PANEL_TAB_INFO[mainPanelTab]?.titleKey ?? '', PANEL_TAB_INFO[mainPanelTab]?.titleFallback)}
                   <span style={{ marginLeft: 4, fontSize: 10, opacity: 0.6 }}>✕</span>
                 </button>
               )}
@@ -442,6 +480,7 @@ export function AppLayout({
             {/* Panel tab content */}
             {mainPanelTab && activeTab === 'chat' && (
               <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', zIndex: 1 }}>
+                <ErrorBoundary name="SidebarPanel">
                 <Sidebar
                   activeSessionId={chat.sessionId}
                   changedFiles={changedFiles}
@@ -450,7 +489,11 @@ export function AppLayout({
                   messages={chat.messages}
                   onScrollToMessage={messageId => { setScrollToMessageId(messageId); switchToChat() }}
                   onSessionSelect={async sid => {
-                    const saved = await window.api.sessionLoad(sid) as any
+                    if (chat.isStreaming) {
+                      window.api.claudeInterrupt?.()
+                      chat.finishStreaming()
+                    }
+                    const saved = await window.api.sessionLoad(sid)
                     if (saved?.messages?.length) { chat.hydrate(saved.messages, sid) }
                     else { chat.clearMessages(); chat.setSessionId(sid) }
                     setSessionTitle(saved?.title); setSessionCreatedAt(saved?.createdAt)
@@ -469,6 +512,7 @@ export function AppLayout({
                   onCCConnectedChange={setWsCCConnected}
                   forceTab={mainPanelTab}
                 />
+                </ErrorBoundary>
               </div>
             )}
 
@@ -501,9 +545,13 @@ export function AppLayout({
                         agents={activeAgents}
                         activeSessionId={chat.sessionId ?? null}
                         isStreaming={chat.isStreaming}
-                        toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-5)}
+                        toolUses={chat.messages.flatMap(m => m.toolUses).slice(-5)}
                         width={agentBayWidth}
                         onSelectSession={async (sid: string) => {
+                          if (chat.isStreaming) {
+                            window.api.claudeInterrupt?.()
+                            chat.finishStreaming()
+                          }
                           const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[]; title?: string; createdAt?: number; forkedFrom?: string } | null
                           if (saved?.messages?.length) {
                             chat.hydrate(saved.messages as ChatMessage[], sid)
@@ -534,17 +582,20 @@ export function AppLayout({
                         onMouseLeave={e => { if (!isAgentBayDragging) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                       />
                       <div style={{ flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
+                        <ErrorBoundary name="ChatPanel">
                         <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={features.sessionFork ? handleFork : undefined} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={features.contextCompress ? handleCompressContext : undefined} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
+                        </ErrorBoundary>
                       </div>
                     </div>
                     <OpsFeed
-                      toolUses={chat.messages.flatMap((m: any) => m.toolUses ?? []).slice(-10)}
+                      toolUses={chat.messages.flatMap(m => m.toolUses).slice(-10)}
                       isStreaming={chat.isStreaming}
-                      onToolClick={(toolId) => console.log('tool clicked:', toolId)}
                     />
                   </div>
                 ) : (
+                  <ErrorBoundary name="ChatPanel">
                   <ChatPanel project={project} focusTrigger={chatFocusTrigger} searchTrigger={chatSearchTrigger} scrollToMessageId={scrollToMessageId} onFork={features.sessionFork ? handleFork : undefined} onEditResend={handleEditResend} onOpenFile={openFile} onImageClick={(src, alt) => setLightbox({ src, alt })} onCompressContext={features.contextCompress ? handleCompressContext : undefined} pendingInsert={pendingInsert} onPendingInsertConsumed={() => setPendingInsert(undefined)} onReplyToMessage={handleReplyToMessage} suggestions={suggestions} onDismissSuggestions={() => setSuggestions([])} hqMode={hqMode} onToggleHQ={handleToggleHQ} onOpenPromptChain={() => { if (sidebarCollapsed) setSidebarCollapsed(false); sidebarSwitchTabRef.current?.('agent'); setTimeout(() => window.dispatchEvent(new CustomEvent('open-prompt-chain')), 100) }} />
+                  </ErrorBoundary>
                 )}
               </div>
 
@@ -691,6 +742,10 @@ export function AppLayout({
           onClose={() => setPaletteOpen(false)}
           openTabs={openTabs.filter(t => t !== 'chat' && t !== 'preview' && t !== 'scene')}
           onSelectSession={async sid => {
+            if (chat.isStreaming) {
+              window.api.claudeInterrupt?.()
+              chat.finishStreaming()
+            }
             const saved = await window.api.sessionLoad(sid) as { messages: ChatMessage[] } | null
             if (saved?.messages?.length) {
               chat.hydrate(saved.messages as ChatMessage[], sid)
@@ -733,7 +788,7 @@ export function AppLayout({
             cursor: 'pointer', userSelect: 'none',
           }}
         >
-          🎯 포커스 모드 (Ctrl+Shift+F)
+          {t('focusMode.exit', '🎯 포커스 모드 (Ctrl+Shift+F)')}
         </div>
       )}
 

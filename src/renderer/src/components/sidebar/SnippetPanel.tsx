@@ -1,4 +1,7 @@
+// QA: '기타') === cat).length}
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { downloadFile } from '../../utils/download'
+import { t } from '../../utils/i18n'
 
 interface Snippet {
   id: string
@@ -79,13 +82,13 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
       id: `snip-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       name: s.title,
       content: s.content,
-      category: s.category || 'AI 추천',
+      category: s.category || t('snippet.aiCategory', 'AI 추천'),
       createdAt: Date.now(),
     }
     await window.api.snippetSave(snippet)
     const updated = await window.api.snippetList() as Snippet[]
     setSnippets(updated)
-    showToast(`"${s.title}" 추가됨`)
+    showToast(`"${s.title}" ${t('snippet.added', '추가됨')}`)
   }
 
   const resetForm = () => {
@@ -134,13 +137,13 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
     const copy: Snippet = {
       ...s,
       id: `snip-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      name: `${s.name} (복사)`,
+      name: `${s.name} (${t('common.copy', '복사')})`,
       createdAt: Date.now(),
     }
     await window.api.snippetSave(copy)
     const updated = await window.api.snippetList() as Snippet[]
     setSnippets(updated)
-    showToast(`"${copy.name}" 복제됨`)
+    showToast(`"${copy.name}" ${t('snippet.duplicated', '복제됨')}`)
   }
 
   // Feature 1: Import from file
@@ -154,7 +157,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
     // Reset input so same file can be re-imported
     e.target.value = ''
 
-    if (file.size > 1024 * 1024) { showToast('1MB 이하만 가능'); return }
+    if (file.size > 1024 * 1024) { showToast(t('snippet.toastSizeLimit', '1MB 이하만 가능')); return }
 
     const text = await file.text()
     const ext = file.name.split('.').pop()?.toLowerCase()
@@ -181,7 +184,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
             createdAt: (item as Snippet).createdAt ?? Date.now(),
           }))
       } catch {
-        showToast('JSON 파싱 실패')
+        showToast(t('snippet.toastJsonFail', 'JSON 파싱 실패'))
         return
       }
     } else {
@@ -197,7 +200,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
     }
 
     if (imported.length === 0) {
-      showToast('가져올 스니펫 없음')
+      showToast(t('snippet.toastNoSnippets', '가져올 스니펫 없음'))
       return
     }
 
@@ -206,23 +209,17 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
     }
     const updated = await window.api.snippetList() as Snippet[]
     setSnippets(updated)
-    showToast(`${imported.length}개 스니펫 가져왔습니다`)
+    showToast(`${imported.length}${t('snippet.toastImported', '개 스니펫 가져왔습니다')}`)
   }
 
   // Feature 3: Export to JSON
   const handleExport = () => {
     const json = JSON.stringify(snippets, null, 2)
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'snippets.json'
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadFile(json, 'snippets.json', 'application/json')
   }
 
   const availableCategories = useMemo(() => {
-    const cats = new Set(snippets.map(s => s.category ?? '기타'))
+    const cats = new Set(snippets.map(s => s.category ?? t('snippet.defaultCategory', '기타')))
     return [...cats].sort()
   }, [snippets])
 
@@ -235,7 +232,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           (s.shortcut ?? '').toLowerCase().includes(filter.toLowerCase())
         )
       : [...snippets]
-    if (catFilter) list = list.filter(s => (s.category ?? '기타') === catFilter)
+    if (catFilter) list = list.filter(s => (s.category ?? t('snippet.defaultCategory', '기타')) === catFilter)
     if (sortOrder === 'name') list.sort((a, b) => a.name.localeCompare(b.name))
     else list.sort((a, b) => b.createdAt - a.createdAt)
     return list
@@ -244,7 +241,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
   const grouped = useMemo(() => {
     const map = new Map<string, Snippet[]>()
     for (const s of filtered) {
-      const cat = s.category ?? '기타'
+      const cat = s.category ?? t('snippet.defaultCategory', '기타')
       if (!map.has(cat)) map.set(cat, [])
       map.get(cat)!.push(s)
     }
@@ -268,7 +265,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
         </span>
         {s.shortcut && (
           <span style={{
-            fontSize: 9, color: '#666', background: 'var(--bg-tertiary)',
+            fontSize: 9, color: 'var(--text-muted)', background: 'var(--bg-tertiary)',
             borderRadius: 3, padding: '1px 4px', flexShrink: 0, fontFamily: 'monospace',
           }}>
             {s.shortcut}
@@ -296,7 +293,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           onClick={() => setExpandedSnippetId(id => id === s.id ? null : s.id)}
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--accent)', padding: '0 0 3px', display: 'block' }}
         >
-          {expandedSnippetId === s.id ? '▲ 접기' : '▼ 펼치기'}
+          {expandedSnippetId === s.id ? t('snippet.collapseText', '▲ 접기') : t('snippet.expandText', '▼ 펼치기')}
         </button>
       )}
       <div style={{ display: 'flex', gap: 4 }}>
@@ -307,7 +304,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
               setTimeout(() => setCopiedId(id => id === s.id ? null : id), 1500)
             })
           }}
-          title="클립보드에 복사"
+          title={t('snippet.copyTitle', '클립보드에 복사')}
           style={{
             padding: '3px 6px', background: 'transparent',
             color: copiedId === s.id ? '#4ade80' : 'var(--text-muted)',
@@ -323,7 +320,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
             borderRadius: 3, fontSize: 10,
           }}
         >
-          삽입
+          {t('snippet.insert', '삽입')}
         </button>
         <button
           onClick={() => handleEdit(s)}
@@ -332,11 +329,11 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
             borderRadius: 3, fontSize: 10,
           }}
         >
-          편집
+          {t('snippet.edit', '편집')}
         </button>
         <button
           onClick={() => handleDuplicate(s)}
-          title="스니펫 복제"
+          title={t('snippet.duplicateTitle', '스니펫 복제')}
           style={{
             padding: '3px 6px', background: 'transparent', color: 'var(--text-muted)',
             borderRadius: 3, fontSize: 11,
@@ -351,7 +348,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
             borderRadius: 3, fontSize: 10,
           }}
         >
-          삭제
+          {t('snippet.delete', '삭제')}
         </button>
       </div>
     </div>
@@ -365,16 +362,13 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           value={filter}
           onChange={e => setFilter(e.target.value)}
           onKeyDown={e => e.key === 'Escape' && setFilter('')}
-          placeholder="스니펫 검색..."
-          style={{
-            flex: 1, background: 'var(--bg-input)', color: 'var(--text-primary)',
-            border: '1px solid var(--border)', borderRadius: 4,
-            padding: '3px 8px', fontSize: 11, outline: 'none', boxSizing: 'border-box',
-          }}
+          placeholder={t('snippet.searchPlaceholder', '스니펫 검색...')}
+          className="panel-search"
+          style={{ background: 'var(--bg-input)', flex: 1, width: 'auto', boxSizing: 'border-box' }}
         />
         <button
           onClick={() => setSortOrder(o => o === 'created' ? 'name' : 'created')}
-          title={sortOrder === 'created' ? '이름 순으로 정렬' : '생성 순으로 정렬'}
+          title={sortOrder === 'created' ? t('snippet.sortByName', '이름 순으로 정렬') : t('snippet.sortByCreated', '생성 순으로 정렬')}
           style={{
             padding: '3px 6px', background: 'var(--bg-tertiary)', color: 'var(--text-muted)',
             borderRadius: 4, fontSize: 11, flexShrink: 0,
@@ -384,7 +378,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
         </button>
         <button
           onClick={handleImportClick}
-          title="JSON/TXT 파일에서 가져오기"
+          title={t('snippet.importTitle', 'JSON/TXT 파일에서 가져오기')}
           style={{
             padding: '3px 6px', background: 'var(--bg-tertiary)', color: 'var(--text-muted)',
             borderRadius: 4, fontSize: 11, flexShrink: 0,
@@ -394,7 +388,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
         </button>
         <button
           onClick={handleExport}
-          title="스니펫 내보내기 (JSON)"
+          title={t('snippet.exportTitle', '스니펫 내보내기 (JSON)')}
           style={{
             padding: '3px 6px', background: 'var(--bg-tertiary)', color: 'var(--text-muted)',
             borderRadius: 4, fontSize: 11, flexShrink: 0,
@@ -404,7 +398,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
         </button>
         <button
           onClick={handleAiSuggest}
-          title="AI 스니펫 제안"
+          title={t('snippet.aiSuggestTitle', 'AI 스니펫 제안')}
           disabled={aiLoading}
           style={{
             padding: '3px 6px', background: 'var(--bg-tertiary)', color: 'var(--text-muted)',
@@ -416,7 +410,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
         </button>
         <button
           onClick={() => { resetForm(); setShowForm(v => !v) }}
-          title="새 스니펫"
+          title={t('snippet.newTitle', '새 스니펫')}
           style={{
             padding: '3px 8px', background: 'var(--accent)', color: '#fff',
             borderRadius: 4, fontSize: 11, flexShrink: 0,
@@ -448,7 +442,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
                 color: catFilter === cat ? '#fff' : 'var(--text-muted)',
               }}
             >
-              {cat} ({snippets.filter(s => (s.category ?? '기타') === cat).length})
+              {cat} ({snippets.filter(s => (s.category ?? t('snippet.defaultCategory', '기타')) === cat).length})
             </button>
           ))}
         </div>
@@ -476,7 +470,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
               color: 'var(--text-muted)', userSelect: 'none',
             }}
           >
-            <span>💡 AI 추천 스니펫</span>
+            <span>{t('snippet.aiSection', '💡 AI 추천 스니펫')}</span>
             <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
               <button
                 onClick={e => { e.stopPropagation(); handleAiSuggest() }}
@@ -486,18 +480,18 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
                   borderRadius: 3, fontSize: 10, opacity: aiLoading ? 0.6 : 1,
                 }}
               >
-                {aiLoading ? '...' : '생성'}
+                {aiLoading ? '...' : t('snippet.generate', '생성')}
               </button>
               <span style={{ fontSize: 10 }}>▲</span>
             </div>
           </div>
           {aiLoading ? (
             <div style={{ padding: '8px', fontSize: 11, color: 'var(--text-muted)', textAlign: 'center' }}>
-              AI 분석 중...
+              {t('snippet.aiLoading', 'AI 분석 중...')}
             </div>
           ) : aiSuggestions.length === 0 ? (
             <div style={{ padding: '8px', fontSize: 11, color: 'var(--text-muted)', textAlign: 'center' }}>
-              제안을 불러올 수 없습니다
+              {t('snippet.aiEmpty', '제안을 불러올 수 없습니다')}
             </div>
           ) : (
             <div>
@@ -534,7 +528,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
                         borderRadius: 3, fontSize: 10,
                       }}
                     >
-                      삽입
+                      {t('snippet.insert', '삽입')}
                     </button>
                     <button
                       onClick={() => handleAddAiSuggestion(s)}
@@ -543,7 +537,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
                         borderRadius: 3, fontSize: 10,
                       }}
                     >
-                      추가
+                      {t('snippet.add', '추가')}
                     </button>
                   </div>
                 </div>
@@ -562,20 +556,20 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           <input
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="이름 *"
+            placeholder={t('snippet.namePlaceholder', '이름 *')}
             autoFocus
             style={inputStyle}
           />
           <input
             value={category}
             onChange={e => setCategory(e.target.value)}
-            placeholder="카테고리 (선택)"
+            placeholder={t('snippet.categoryPlaceholder', '카테고리 (선택)')}
             style={inputStyle}
           />
           <input
             value={shortcut}
             onChange={e => setShortcut(e.target.value)}
-            placeholder="단축키 (선택, 예: /hello)"
+            placeholder={t('snippet.shortcutPlaceholder', '단축키 (선택, 예: /hello)')}
             style={inputStyle}
           />
           <select
@@ -583,7 +577,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
             onChange={e => setLanguage(e.target.value)}
             style={inputStyle}
           >
-            <option value="">언어 선택 (선택)</option>
+            <option value="">{t('snippet.langPlaceholder', '언어 선택 (선택)')}</option>
             {LANG_OPTIONS.filter(Boolean).map(l => (
               <option key={l} value={l}>{l}</option>
             ))}
@@ -591,7 +585,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
           <textarea
             value={content}
             onChange={e => setContent(e.target.value)}
-            placeholder="내용 *"
+            placeholder={t('snippet.contentPlaceholder', '내용 *')}
             rows={5}
             style={{
               ...inputStyle,
@@ -608,7 +602,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
                 opacity: !name.trim() || !content.trim() ? 0.5 : 1,
               }}
             >
-              {editTarget ? '수정' : '저장'}
+              {editTarget ? t('snippet.update', '수정') : t('snippet.save', '저장')}
             </button>
             <button
               onClick={resetForm}
@@ -617,7 +611,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
                 borderRadius: 4, fontSize: 11,
               }}
             >
-              취소
+              {t('snippet.cancel', '취소')}
             </button>
           </div>
         </div>
@@ -627,7 +621,7 @@ export function SnippetPanel({ onInsert, recentMessages }: SnippetPanelProps) {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {filtered.length === 0 && (
           <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: 11, textAlign: 'center' }}>
-            {snippets.length === 0 ? '스니펫이 없습니다. + 버튼으로 추가하세요.' : '검색 결과 없음'}
+            {snippets.length === 0 ? t('snippet.empty', '스니펫이 없습니다. + 버튼으로 추가하세요.') : t('common.noResults', '검색 결과 없음')}
           </div>
         )}
         {Array.from(grouped.entries()).map(([cat, items]) => (

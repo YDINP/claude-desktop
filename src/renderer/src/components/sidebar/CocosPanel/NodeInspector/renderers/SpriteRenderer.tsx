@@ -19,7 +19,7 @@ const BLEND_FACTOR: Record<number, string> = {
 }
 
 /** cc.Graphics, cc.Sprite, cc.Sprite2D, cc.VideoPlayer, cc.WebView, cc.TiledMap, cc.TiledLayer Quick Edit renderer */
-export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function SpriteRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Graphics') {
               const toHex = (c: { r?: number; g?: number; b?: number } | undefined) => {
@@ -679,3 +679,4 @@ export function SpriteRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
             // R1591/R1813: cc.BoxCollider/BoxCollider2D + cc.CircleCollider/CircleCollider2D Quick Edit (applyAndSave)
             return null
 }
+export const SpriteRenderer = React.memo(SpriteRendererInner)

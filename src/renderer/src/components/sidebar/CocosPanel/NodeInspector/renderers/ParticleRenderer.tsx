@@ -2,7 +2,7 @@ import React from 'react'
 import type { RendererProps } from './types'
 
 /** cc.ParticleSystem, cc.ParticleSystem2D Quick Edit renderer */
-export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function ParticleRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.ParticleSystem' || comp.type === 'cc.ParticleSystem2D') {
               const duration = Number(p.duration ?? p._duration ?? p._N$duration ?? -1)
@@ -668,3 +668,4 @@ export function ParticleRenderer({ comp, draft, applyAndSave, sceneFile, origIdx
             // R1564: cc.ScrollView — horizontal/vertical/inertia/elastic Quick Edit
             return null
 }
+export const ParticleRenderer = React.memo(ParticleRendererInner)

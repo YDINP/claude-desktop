@@ -444,7 +444,12 @@ export function CCFileNodeInspector({
       )
       })()}
       {!collapsed['comps'] && (() => {
-        const compTypes = ['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource', 'cc.RichText', 'cc.EditBox', 'cc.UIOpacity', 'cc.Mask']
+        const compTypes = [
+          'cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider',
+          'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource',
+          'cc.RichText', 'cc.EditBox', 'cc.Mask',
+          ...(is3x ? ['cc.UIOpacity'] : []),
+        ]
         const doAddComp = (ct: string) => { applyAndSave({ components: [...draft.components, { type: ct, props: {} }] }); trackAddComp(ct) }
         return (
           <details style={{ marginTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 6 }}>

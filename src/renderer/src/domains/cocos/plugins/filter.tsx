@@ -4,6 +4,7 @@
  */
 import React, { useMemo } from 'react'
 import type { BatchPluginProps } from './types'
+import { t } from '../../../utils/i18n'
 
 // 필터링할 주요 컴포넌트 타입 목록
 const FILTER_TYPES = [
@@ -54,7 +55,7 @@ export function FilterPlugin({ nodes, onMultiSelectChange }: BatchPluginProps) {
   return (
     <div style={{ borderTop: '1px solid var(--border)', paddingTop: 4, marginTop: 2, marginBottom: 4 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 9, color: '#818cf8', flexShrink: 0 }}>필터 (R2730)</span>
+        <span style={{ fontSize: 9, color: '#818cf8', flexShrink: 0 }}>{t('batch.filter.j_filter_r2730', '필터 (R2730)')}</span>
         {FILTER_TYPES.map(ft => {
           const count = typeCounts.get(ft.label) ?? 0
           if (count === 0) return null

@@ -4,6 +4,7 @@
  * 크로스-도메인 사이드이펙트(비용, 에이전트, 사운드)는 콜백으로 위임.
  */
 import { useChatStore } from './store'
+import { t } from '../../utils/i18n'
 
 export interface ChatAdapterCallbacks {
   /** Write/Edit 툴 실행 시 (파일 변경 추적) */
@@ -103,7 +104,7 @@ export function initChatAdapter(callbacks?: ChatAdapterCallbacks): () => void {
         const errMsg = String(ev.message ?? '')
         const isApiKeyError = /401|api_key|authentication|invalid_api_key|x-api-key/i.test(errMsg)
         if (isApiKeyError) {
-          store().appendText(`\n⚠️ API 키가 유효하지 않습니다. ANTHROPIC_API_KEY 환경변수를 확인해주세요.\n\n원인: ${errMsg}`)
+          store().appendText(`\n${t('adapter.apiKeyInvalid', '⚠️ API 키가 유효하지 않습니다. ANTHROPIC_API_KEY 환경변수를 확인해주세요.\n\n원인: ')}${errMsg}`)
         } else {
           store().appendText(`\n[Error: ${errMsg}]`)
         }

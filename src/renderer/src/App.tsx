@@ -2,10 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import './styles/hq.css'
 import { ProjectProvider, useProject } from './stores/project-store'
+import { useUIStore } from './stores/ui-store'
 import { useChatStore } from './domains/chat/store'
+import { useShallow } from 'zustand/react/shallow'
 import type { ChatMessage } from './domains/chat/domain'
 import { initChatAdapter } from './domains/chat/adapter'
 import { registerChatCommands } from './domains/chat/commands'
+import { initIpcBridge, destroyIpcBridge } from './kernel/ipcBridge'
+import { initTerminalAdapter } from './domains/terminal/adapter'
+import { initCocosAdapter } from './domains/cocos/adapter'
 import type { SidebarTab } from './components/sidebar/Sidebar'
 import type { ChangedFile } from './components/sidebar/ChangedFilesPanel'
 import { playCompletionSound } from './utils/sound'
@@ -24,10 +29,6 @@ import { WelcomeScreen } from './components/shared/WelcomeScreen'
 import { AppLayout } from './components/shared/AppLayout'
 import { CocosPanel } from './components/sidebar/CocosPanel'
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
-type CCLayoutMode = 'tab' | 'split' | 'detach'
-
 // ── CC Editor Detached Window ─────────────────────────────────────────────
 
 function CCEditorWindow() {
@@ -42,7 +43,23 @@ function CCEditorWindow() {
 
 function AppContent() {
   const project = useProject()
-  const chat = useChatStore()
+  const chat = useChatStore(useShallow(s => ({
+    messages: s.messages,
+    isStreaming: s.isStreaming,
+    sessionId: s.sessionId,
+    sessionInputTokens: s.sessionInputTokens,
+    sessionOutputTokens: s.sessionOutputTokens,
+    pendingPermission: s.pendingPermission,
+    setPendingPermission: s.setPendingPermission,
+    setSessionId: s.setSessionId,
+    hydrate: s.hydrate,
+    clearMessages: s.clearMessages,
+    editMessage: s.editMessage,
+    truncateAfter: s.truncateAfter,
+    ensureAssistantMessage: s.ensureAssistantMessage,
+    finishStreaming: s.finishStreaming,
+    compressMessages: s.compressMessages,
+  })))
 
   // ── Domain hooks ──
   const workspace = useWorkspaceManager({
@@ -80,22 +97,10 @@ function AppContent() {
   // handleToggleHQ wrapper (needs setActiveTab from workspace)
   const handleToggleHQ = useCallback(() => _toggleHQ(() => setActiveTab('chat')), [_toggleHQ, setActiveTab])
 
-  // ── CC Layout mode (stays in AppContent) ──
-  const [ccLayout, setCCLayout] = useState<CCLayoutMode>(() =>
-    (localStorage.getItem('cc-layout-mode') as CCLayoutMode) ?? 'tab'
-  )
-  const [ccTab, setCCTab] = useState<'claude' | 'editor'>('claude')
-  const [mainPanelTab, setMainPanelTab] = useState<SidebarTab | null>(null)
-  const [ccSplitRatio, setCCSplitRatio] = useState(0.5)
-  const ccSplitRatioRef = useRef(0.5)
-
-  // ── Chat UI triggers ──
-  const [chatFocusTrigger, setChatFocusTrigger] = useState(0)
-  const [chatSearchTrigger, setChatSearchTrigger] = useState(0)
-  const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null)
+  // ── UI store (Phase 2 — chat triggers etc.) ──
+  const bumpChatFocusTrigger = useUIStore(s => s.bumpChatFocusTrigger)
+  const bumpChatSearchTrigger = useUIStore(s => s.bumpChatSearchTrigger)
   const [splitFilePath, setSplitFilePath] = useState<string | null>(null)
-  const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
-
   // ── File dirty tracking ──
   const [dirtyTabs, setDirtyTabs] = useState<Set<string>>(new Set())
   const setTabDirty = useCallback((path: string, dirty: boolean) => {
@@ -109,7 +114,7 @@ function AppContent() {
 
   // ── Changed files tracking ──
   const [changedFiles, setChangedFiles] = useState<ChangedFile[]>([])
-  const trackChangedFile = (toolName: string, toolInput: unknown) => {
+  const trackChangedFile = useCallback((toolName: string, toolInput: unknown) => {
     const input = toolInput as { file_path?: string }
     if (!input?.file_path) return
     const op: ChangedFile['op'] = toolName === 'Write' ? 'write' : 'edit'
@@ -124,21 +129,17 @@ function AppContent() {
       }
       return [...prev, entry]
     })
-  }
+  }, [])
 
-  // ── UI overlays ──
-  const [paletteOpen, setPaletteOpen] = useState(false)
-  const [shortcutsOpen, setShortcutsOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [pendingInsert, setPendingInsert] = useState<string | undefined>(undefined)
+  // ── UI overlays (from ui-store) ──
+  const setPendingInsert = useUIStore(s => s.setPendingInsert)
   const handleReplyToMessage = useCallback((text: string) => {
     const quoted = text.split('\n').map(line => `> ${line}`).join('\n')
     setPendingInsert(quoted + '\n\n')
-  }, [])
+  }, [setPendingInsert])
 
   // ── Sidebar ──
   const sidebarSwitchTabRef = useRef<((tab: SidebarTab) => void) | null>(null)
-  const [activeSidebarIconTab, setActiveSidebarIconTab] = useState<SidebarTab | null>(null)
 
   // ── Project ref (stable reference for event handlers) ──
   const projectRef = useRef(project)
@@ -158,7 +159,7 @@ function AppContent() {
   const switchToChat = (clearChanges = false) => {
     activeTabRef.current = 'chat'
     setActiveTab('chat')
-    setChatFocusTrigger(n => n + 1)
+    bumpChatFocusTrigger()
     if (clearChanges) setChangedFiles([])
   }
 
@@ -181,38 +182,7 @@ function AppContent() {
     if (cur !== 'chat' && cur !== 'scene' && cur !== 'preview') closeFileTab(cur)
   }, [])
 
-  // ── CC layout helpers ──
-  const handleCCSplitDragStart = (e: React.MouseEvent) => {
-    e.preventDefault()
-    const container = e.currentTarget.parentElement!
-    document.body.style.userSelect = 'none'
-    document.body.style.cursor = 'col-resize'
-    const onMove = (me: MouseEvent) => {
-      const rect = container.getBoundingClientRect()
-      const ratio = Math.min(0.8, Math.max(0.2, (me.clientX - rect.left) / rect.width))
-      ccSplitRatioRef.current = ratio
-      setCCSplitRatio(ratio)
-    }
-    const onUp = () => {
-      document.body.style.userSelect = ''
-      document.body.style.cursor = ''
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
-    }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-  }
-
-  const openCCEditorWindow = async () => {
-    await window.api.openCCEditorWindow?.()
-    setCCLayout('detach')
-    localStorage.setItem('cc-layout-mode', 'detach')
-  }
-
-  const setCCLayoutMode = (mode: CCLayoutMode) => {
-    setCCLayout(mode)
-    localStorage.setItem('cc-layout-mode', mode)
-  }
+  // (CC layout helpers moved to AppLayout — reads directly from cocosStore + ui-store)
 
   // ── Export current session as markdown ──
   const handleExportMarkdown = async () => {
@@ -224,18 +194,13 @@ function AppContent() {
 
   // ── Keyboard shortcuts ──
   useKeyboardShortcuts({
-    setPaletteOpen,
-    paletteOpen,
-    shortcutsOpen,
-    setShortcutsOpen,
-    setSettingsOpen,
     setSidebarCollapsed,
     setTerminalOpen,
     setFocusMode,
     handleToggleHQ,
     chatClearMessages: chat.clearMessages,
     switchToChat,
-    setChatSearchTrigger,
+    bumpChatSearchTrigger,
     openTabs,
     activeTabRef,
     setActiveTab,
@@ -260,6 +225,18 @@ function AppContent() {
     }
     window.addEventListener('cc:open-file', handler)
     return () => window.removeEventListener('cc:open-file', handler)
+  }, [])
+
+  // ── Kernel IPC bridge + domain adapters ──
+  useEffect(() => {
+    initIpcBridge()
+    const cleanupTerminal = initTerminalAdapter()
+    const cleanupCocos = initCocosAdapter()
+    return () => {
+      cleanupTerminal()
+      cleanupCocos()
+      destroyIpcBridge()
+    }
   }, [])
 
   // ── Chat adapter ──
@@ -405,37 +382,12 @@ function AppContent() {
       setSessionCreatedAt={setSessionCreatedAt}
       suggestions={suggestions}
       setSuggestions={setSuggestions}
-      ccLayout={ccLayout}
-      ccTab={ccTab}
-      ccSplitRatio={ccSplitRatio}
-      setCCTab={setCCTab}
-      setCCLayoutMode={setCCLayoutMode}
-      openCCEditorWindow={openCCEditorWindow}
-      handleCCSplitDragStart={handleCCSplitDragStart}
-      chatFocusTrigger={chatFocusTrigger}
-      chatSearchTrigger={chatSearchTrigger}
-      scrollToMessageId={scrollToMessageId}
-      setScrollToMessageId={setScrollToMessageId}
       splitFilePath={splitFilePath}
       setSplitFilePath={setSplitFilePath}
       dirtyTabs={dirtyTabs}
       setTabDirty={setTabDirty}
       changedFiles={changedFiles}
       setChangedFiles={setChangedFiles}
-      lightbox={lightbox}
-      setLightbox={setLightbox}
-      paletteOpen={paletteOpen}
-      setPaletteOpen={setPaletteOpen}
-      shortcutsOpen={shortcutsOpen}
-      setShortcutsOpen={setShortcutsOpen}
-      settingsOpen={settingsOpen}
-      setSettingsOpen={setSettingsOpen}
-      pendingInsert={pendingInsert}
-      setPendingInsert={setPendingInsert}
-      activeSidebarIconTab={activeSidebarIconTab}
-      setActiveSidebarIconTab={setActiveSidebarIconTab}
-      mainPanelTab={mainPanelTab}
-      setMainPanelTab={setMainPanelTab}
       sidebarSwitchTabRef={sidebarSwitchTabRef}
       handleToggleHQ={handleToggleHQ}
       openFile={openFile}

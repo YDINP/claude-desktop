@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { t } from '../../../utils/i18n'
 
 export type SceneBgValue = 'dark' | 'light' | 'checker' | string
 
@@ -405,7 +406,7 @@ export function SceneToolbar({
         <button
           style={activeTool === 'select' ? btnActive : btnBase}
           onClick={() => onToolChange('select')}
-          title="선택 도구 (V)"
+          title={t('scene.toolSelect', '선택 도구 (V)')}
         >
           ↖ 선택
         </button>
@@ -429,7 +430,7 @@ export function SceneToolbar({
       <button
         style={activeTool === 'move' ? btnActive : btnBase}
         onClick={() => onToolChange('move')}
-        title="이동 도구 (W)"
+        title={t('scene.toolMove', '이동 도구 (W)')}
       >
         ✥ 이동
       </button>
@@ -437,7 +438,7 @@ export function SceneToolbar({
       <div style={divider} />
 
       {/* 줌 */}
-      <button style={btnBase} onClick={zoomOut} title="축소">−</button>
+      <button style={btnBase} onClick={zoomOut} title={t('scene.zoomOut', '축소')}>−</button>
       {zoomEditing ? (
         <input
           autoFocus
@@ -452,12 +453,12 @@ export function SceneToolbar({
           style={{ ...btnBase, minWidth: 40, textAlign: 'center' }}
           onClick={() => onZoomChange(1)}
           onDoubleClick={() => { setZoomDraft(String(Math.round(zoom * 100))); setZoomEditing(true) }}
-          title="클릭: 100% 리셋 / 더블클릭: 직접 입력"
+          title={t('scene.zoomReset', '클릭: 100% 리셋 / 더블클릭: 직접 입력')}
         >
           {Math.round(zoom * 100)}%
         </button>
       )}
-      <button style={btnBase} onClick={zoomIn} title="확대">+</button>
+      <button style={btnBase} onClick={zoomIn} title={t('scene.zoomIn', '확대')}>+</button>
 
       {/* 줌 프리셋 드롭다운 */}
       {onZoomTo && (
@@ -466,7 +467,7 @@ export function SceneToolbar({
             ref={zoomPresetBtnRef}
             style={zoomPresetOpen ? btnActive : btnBase}
             onClick={() => setZoomPresetOpen(v => !v)}
-            title="줌 프리셋 선택"
+            title={t('scene.zoomPreset', '줌 프리셋 선택')}
           >
             ▾
           </button>
@@ -517,7 +518,7 @@ export function SceneToolbar({
       <button
         style={btnBase}
         onClick={onFit}
-        title="화면에 맞추기 (F)"
+        title={t('scene.fit', '화면에 맞추기 (F)')}
       >
         ⊡ Fit
       </button>
@@ -527,7 +528,7 @@ export function SceneToolbar({
         <button
           style={compareMode ? btnActive : btnBase}
           onClick={onCompareToggle}
-          title="다중 씬 비교 뷰 — 좌우 분할"
+          title={t('scene.compareMode', '다중 씬 비교 뷰 — 좌우 분할')}
         >
           ⊞ Compare
         </button>
@@ -540,7 +541,7 @@ export function SceneToolbar({
         <button
           style={showLayerPanel ? btnActive : btnBase}
           onClick={onToggleLayerPanel}
-          title="레이어 패널 표시/숨기기"
+          title={t('scene.layerPanel', '레이어 패널 표시/숨기기')}
         >
           📋 Layers
         </button>
@@ -551,7 +552,7 @@ export function SceneToolbar({
         <button
           style={showRuler ? btnActive : btnBase}
           onClick={onToggleRuler}
-          title="눈금자 표시/숨기기 (R)"
+          title={t('scene.ruler', '눈금자 표시/숨기기 (R)')}
         >
           ⊢ Ruler
         </button>
@@ -562,7 +563,7 @@ export function SceneToolbar({
         style={gridVisible ? btnActive : btnBase}
         onClick={onGridToggle}
         onContextMenu={e => { e.preventDefault(); onGridSettings?.() }}
-        title="그리드 표시 (우클릭: 설정)"
+        title={t('scene.grid', '그리드 표시 (우클릭: 설정)')}
       >
         ⊞ Grid
       </button>
@@ -570,7 +571,7 @@ export function SceneToolbar({
         <button
           style={btnBase}
           onClick={onGridSettings}
-          title="그리드 크기/색상/불투명도 설정"
+          title={t('scene.gridSettings', '그리드 크기/색상/불투명도 설정')}
         >
           ⚙
         </button>
@@ -583,7 +584,7 @@ export function SceneToolbar({
             ref={layoutPresetBtnRef}
             style={layoutPresetOpen ? btnActive : btnBase}
             onClick={() => setLayoutPresetOpen(v => !v)}
-            title="레이아웃 프리셋 선택"
+            title={t('scene.layoutPreset', '레이아웃 프리셋 선택')}
           >
             ⊞ Layout
           </button>
@@ -606,7 +607,7 @@ export function SceneToolbar({
                 overflow: 'hidden',
               }}
             >
-              {[{ name: '기본', cols: 1 }, { name: '2열', cols: 2 }, { name: '3열', cols: 3 }].map(p => (
+              {[{ name: t('scene.layoutBasic', '기본'), cols: 1 }, { name: t('scene.layout2col', '2열'), cols: 2 }, { name: t('scene.layout3col', '3열'), cols: 3 }].map(p => (
                 <button
                   key={p.cols}
                   onClick={() => { onLayoutPreset(p.cols); setLayoutPresetOpen(false) }}
@@ -632,7 +633,7 @@ export function SceneToolbar({
       <button
         style={snapEnabled ? btnActive : btnBase}
         onClick={onSnapToggle}
-        title="스냅 활성화"
+        title={t('scene.snap', '스냅 활성화')}
       >
         ⊕ Snap
       </button>
@@ -642,7 +643,7 @@ export function SceneToolbar({
         <select
           value={snapGrid ?? 4}
           onChange={e => onSnapGridChange(Number(e.target.value))}
-          title="스냅 그리드 크기 (px)"
+          title={t('scene.snapGrid', '스냅 그리드 크기 (px)')}
           style={{ fontSize: 9, padding: '1px 2px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
         >
           {[1, 2, 4, 5, 8, 10, 16, 20, 50].map(v => (
@@ -656,10 +657,10 @@ export function SceneToolbar({
         <select
           value={componentFilter ?? 'all'}
           onChange={e => onComponentFilterChange(e.target.value)}
-          title="컴포넌트 타입 필터"
+          title={t('scene.compFilter', '컴포넌트 타입 필터')}
           style={{ fontSize: 9, padding: '1px 2px', background: componentFilter !== 'all' ? 'var(--accent-dim)' : 'var(--bg-secondary)', border: `1px solid ${componentFilter !== 'all' ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 2, color: componentFilter !== 'all' ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer' }}
         >
-          <option value="all">전체</option>
+          <option value="all">{t('scene.compAll', '전체')}</option>
           {componentTypes.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       )}
@@ -669,10 +670,10 @@ export function SceneToolbar({
         <select
           value={tagFilter ?? 'all'}
           onChange={e => onTagFilterChange(e.target.value)}
-          title="태그 필터 — 선택한 태그가 없는 노드 dimmed 처리"
+          title={t('scene.tagFilter', '태그 필터 — 선택한 태그가 없는 노드 dimmed 처리')}
           style={{ fontSize: 9, padding: '1px 2px', background: tagFilter !== 'all' ? 'var(--accent-dim)' : 'var(--bg-secondary)', border: `1px solid ${tagFilter !== 'all' ? 'var(--accent)' : 'var(--border)'}`, borderRadius: 2, color: tagFilter !== 'all' ? 'var(--accent)' : 'var(--text-muted)', cursor: 'pointer' }}
         >
-          <option value="all">#태그</option>
+          <option value="all">{t('scene.tagAll', '#태그')}</option>
           {allTags.map(t => <option key={t} value={t}>#{t}</option>)}
         </select>
       )}
@@ -682,7 +683,7 @@ export function SceneToolbar({
         <button
           style={focusMode ? btnActive : btnBase}
           onClick={onFocusModeToggle}
-          title="포커스 모드 — 선택 노드만 강조 (Alt+Z)"
+          title={t('scene.focusMode', '포커스 모드 — 선택 노드만 강조 (Alt+Z)')}
         >◎ Focus</button>
       )}
 
@@ -691,7 +692,7 @@ export function SceneToolbar({
         <button
           style={measureMode ? btnActive : btnBase}
           onClick={onMeasureModeToggle}
-          title="측정 도구 — 드래그로 거리 측정 (Alt+M)"
+          title={t('scene.measureMode', '측정 도구 — 드래그로 거리 측정 (Alt+M)')}
         >📏 Ruler</button>
       )}
 
@@ -700,7 +701,7 @@ export function SceneToolbar({
         <button
           style={showHeatmap ? btnActive : btnBase}
           onClick={onHeatmapToggle}
-          title="노드 분포 히트맵 오버레이"
+          title={t('scene.heatmap', '노드 분포 히트맵 오버레이')}
         >🌡</button>
       )}
 
@@ -709,14 +710,14 @@ export function SceneToolbar({
         <button
           style={showClickHeatmap ? btnActive : btnBase}
           onClick={onClickHeatmapToggle}
-          title="노드 선택 빈도 히트맵 (클릭 횟수 시각화)"
+          title={t('scene.clickHeatmap', '노드 선택 빈도 히트맵 (클릭 횟수 시각화)')}
         >{'🌡\uFE0F'} 히트맵</button>
       )}
       {showClickHeatmap && onClickHeatmapReset && (
         <button
           style={btnBase}
           onClick={onClickHeatmapReset}
-          title="히트맵 카운트 초기화"
+          title={t('scene.clickHeatmapReset', '히트맵 카운트 초기화')}
         >↺</button>
       )}
 
@@ -725,7 +726,7 @@ export function SceneToolbar({
         <button
           style={showQuickActions ? btnActive : btnBase}
           onClick={onQuickActionsToggle}
-          title="퀵 액션 패널 표시/숨기기 — 선택 노드 근처에 빠른 조작 버튼 표시"
+          title={t('scene.quickActions', '퀵 액션 패널 표시/숨기기 — 선택 노드 근처에 빠른 조작 버튼 표시')}
         >⚡</button>
       )}
 
@@ -734,7 +735,7 @@ export function SceneToolbar({
         <button
           style={btnBase}
           onClick={onAddAnnotation}
-          title="씬에 스티커 메모 추가"
+          title={t('scene.addAnnotation', '씬에 스티커 메모 추가')}
         >📝</button>
       )}
 
@@ -743,7 +744,7 @@ export function SceneToolbar({
         <button
           style={hasRefImage ? btnActive : btnBase}
           onClick={onRefImageToggle}
-          title="참조 이미지 오버레이"
+          title={t('scene.refImage', '참조 이미지 오버레이')}
         >📷</button>
       )}
 
@@ -752,14 +753,14 @@ export function SceneToolbar({
         <button
           style={btnBase}
           onClick={onTakeSnapshot}
-          title="현재 상태 스냅샷"
+          title={t('scene.snapshot', '현재 상태 스냅샷')}
         >📷 Snap</button>
       )}
       {hasSnapshot && onToggleDiff && (
         <button
           style={showDiff ? { ...btnBase, color: 'var(--accent)', borderColor: 'var(--accent)' } : btnBase}
           onClick={onToggleDiff}
-          title="스냅샷 비교 — 이동된 노드의 이전 위치 표시"
+          title={t('scene.diffView', '스냅샷 비교 — 이동된 노드의 이전 위치 표시')}
         >👁 Diff</button>
       )}
 
@@ -768,7 +769,7 @@ export function SceneToolbar({
         <button
           style={showBookmarkList ? btnActive : btnBase}
           onClick={onBookmarkListToggle}
-          title="즐겨찾기 목록 (Ctrl+B 현재 노드 토글)"
+          title={t('scene.bookmarkList', '즐겨찾기 목록 (Ctrl+B 현재 노드 토글)')}
         >★{bookmarkCount ? ` ${bookmarkCount}` : ''}</button>
       )}
 
@@ -780,7 +781,7 @@ export function SceneToolbar({
             const [w, h] = e.target.value.split('x').map(Number)
             onCanvasSizeChange(w, h)
           }}
-          title="캔버스 크기 프리셋"
+          title={t('scene.canvasSize', '캔버스 크기 프리셋')}
           style={{ fontSize: 9, padding: '1px 2px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
         >
           {[
@@ -801,7 +802,7 @@ export function SceneToolbar({
         <button
           style={showNodeSearch ? btnActive : btnBase}
           onClick={onNodeSearchToggle}
-          title="노드 이름 검색 (토글)"
+          title={t('scene.nodeSearch', '노드 이름 검색 (토글)')}
         >
           🔍
         </button>
@@ -810,7 +811,7 @@ export function SceneToolbar({
         <button
           style={showSearch ? btnActive : btnBase}
           onClick={onToggleSearch}
-          title="노드 검색 (토글)"
+          title={t('scene.nodeSearchToggle', '노드 검색 (토글)')}
         >
           🔍
         </button>
@@ -826,7 +827,7 @@ export function SceneToolbar({
               else if (e.key === 'Tab') { e.preventDefault(); onNodeSearchNav?.(e.shiftKey ? -1 : 1) }
               else e.stopPropagation()
             }}
-            placeholder="노드 검색..."
+            placeholder={t('scene.nodeSearchPlaceholder', '노드 검색...')}
             style={{
               width: 120,
               fontSize: 10,
@@ -850,7 +851,7 @@ export function SceneToolbar({
             </span>
           )}
           {nodeSearch && nodeSearchCount === 0 && (
-            <span style={{ fontSize: 9, color: 'var(--text-danger, #f87171)', whiteSpace: 'nowrap' }}>없음</span>
+            <span style={{ fontSize: 9, color: 'var(--text-danger, #f87171)', whiteSpace: 'nowrap' }}>{t('scene.nodeSearchNone', '없음')}</span>
           )}
           {nodeSearch && nodeSearchCount > 1 && onNodeSearchNav && (
             <>
@@ -888,26 +889,26 @@ export function SceneToolbar({
       <button
         onClick={onUndo}
         disabled={!canUndo}
-        title="실행 취소 (Ctrl+Z)"
+        title={t('scene.undo', '실행 취소 (Ctrl+Z)')}
         style={{ ...btnBase, opacity: canUndo ? 1 : 0.3 }}
       >↩</button>
       <button
         onClick={onRedo}
         disabled={!canRedo}
-        title="다시 실행 (Ctrl+Y)"
+        title={t('scene.redo', '다시 실행 (Ctrl+Y)')}
         style={{ ...btnBase, opacity: canRedo ? 1 : 0.3 }}
       >↪</button>
 
       <button
         onClick={onCopy}
         disabled={!canCopy}
-        title="복사 (Ctrl+C)"
+        title={t('scene.copy', '복사 (Ctrl+C)')}
         style={{ ...btnBase, opacity: canCopy ? 1 : 0.3 }}
       >C</button>
       <button
         onClick={onPaste}
         disabled={!canPaste}
-        title="붙여넣기 (Ctrl+V)"
+        title={t('scene.paste', '붙여넣기 (Ctrl+V)')}
         style={{ ...btnBase, opacity: canPaste ? 1 : 0.3 }}
       >V</button>
 
@@ -917,25 +918,25 @@ export function SceneToolbar({
       <button
         onClick={onZOrderFront}
         disabled={!canZOrder}
-        title="맨 앞으로 (Z-order)"
+        title={t('scene.zOrderFront', '맨 앞으로 (Z-order)')}
         style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
       >⬆⬆</button>
       <button
         onClick={onZOrderUp}
         disabled={!canZOrder}
-        title="앞으로"
+        title={t('scene.zOrderUp', '앞으로')}
         style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
       >⬆</button>
       <button
         onClick={onZOrderDown}
         disabled={!canZOrder}
-        title="뒤로"
+        title={t('scene.zOrderDown', '뒤로')}
         style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
       >⬇</button>
       <button
         onClick={onZOrderBack}
         disabled={!canZOrder}
-        title="맨 뒤로"
+        title={t('scene.zOrderBack', '맨 뒤로')}
         style={{ ...btnBase, opacity: canZOrder ? 1 : 0.3 }}
       >⬇⬇</button>
 
@@ -946,12 +947,12 @@ export function SceneToolbar({
         <>
           {(
             [
-              { align: 'left',   label: '⇤', title: '왼쪽 정렬' },
-              { align: 'center', label: '↔', title: '수평 중앙 정렬' },
-              { align: 'right',  label: '⇥', title: '오른쪽 정렬' },
-              { align: 'top',    label: '⇡', title: '위쪽 정렬' },
-              { align: 'middle', label: '↕', title: '수직 중앙 정렬' },
-              { align: 'bottom', label: '⇣', title: '아래쪽 정렬' },
+              { align: 'left',   label: '⇤', title: t('scene.alignLeft', '왼쪽 정렬') },
+              { align: 'center', label: '↔', title: t('scene.alignCenterH', '수평 중앙 정렬') },
+              { align: 'right',  label: '⇥', title: t('scene.alignRight', '오른쪽 정렬') },
+              { align: 'top',    label: '⇡', title: t('scene.alignTop', '위쪽 정렬') },
+              { align: 'middle', label: '↕', title: t('scene.alignCenterV', '수직 중앙 정렬') },
+              { align: 'bottom', label: '⇣', title: t('scene.alignBottom', '아래쪽 정렬') },
             ] as const
           ).map(({ align, label, title }) => (
             <button
@@ -973,20 +974,20 @@ export function SceneToolbar({
       {canAlign && (
         <>
           <div style={divider} />
-          <button onClick={onAlignLeft}  title="왼쪽 정렬" style={btnBase}>←L</button>
-          <button onClick={onAlignCenterH} title="수평 중앙 정렬" style={btnBase}>↔</button>
-          <button onClick={onAlignRight} title="오른쪽 정렬" style={btnBase}>R→</button>
+          <button onClick={onAlignLeft}  title={t('scene.alignLeft', '왼쪽 정렬')} style={btnBase}>←L</button>
+          <button onClick={onAlignCenterH} title={t('scene.alignCenterH', '수평 중앙 정렬')} style={btnBase}>↔</button>
+          <button onClick={onAlignRight} title={t('scene.alignRight', '오른쪽 정렬')} style={btnBase}>R→</button>
           <div style={divider} />
-          <button onClick={onAlignTop}   title="위쪽 정렬" style={btnBase}>↑T</button>
-          <button onClick={onAlignCenterV} title="수직 중앙 정렬" style={btnBase}>↕</button>
-          <button onClick={onAlignBottom} title="아래쪽 정렬" style={btnBase}>B↓</button>
+          <button onClick={onAlignTop}   title={t('scene.alignTop', '위쪽 정렬')} style={btnBase}>↑T</button>
+          <button onClick={onAlignCenterV} title={t('scene.alignCenterV', '수직 중앙 정렬')} style={btnBase}>↕</button>
+          <button onClick={onAlignBottom} title={t('scene.alignBottom', '아래쪽 정렬')} style={btnBase}>B↓</button>
           <div style={divider} />
-          <button onClick={onDistributeH} title="수평 균등 배치 (3개 이상)" style={btnBase}>⊢⊣</button>
-          <button onClick={onDistributeV} title="수직 균등 배치 (3개 이상)" style={btnBase}>⊤⊥</button>
-          {onMatchWidth && <button onClick={onMatchWidth} title="같은 너비로 맞추기" style={btnBase}>↔W</button>}
-          {onMatchHeight && <button onClick={onMatchHeight} title="같은 높이로 맞추기" style={btnBase}>↕H</button>}
-          {onMatchBoth && <button onClick={onMatchBoth} title="같은 크기로 맞추기" style={btnBase}>⊞</button>}
-          {onGridLayout && <button onClick={onGridLayout} title="그리드 자동 배치 (N×M)" style={btnBase}>⊟</button>}
+          <button onClick={onDistributeH} title={t('scene.distributeH', '수평 균등 배치 (3개 이상)')} style={btnBase}>⊢⊣</button>
+          <button onClick={onDistributeV} title={t('scene.distributeV', '수직 균등 배치 (3개 이상)')} style={btnBase}>⊤⊥</button>
+          {onMatchWidth && <button onClick={onMatchWidth} title={t('scene.matchWidth', '같은 너비로 맞추기')} style={btnBase}>↔W</button>}
+          {onMatchHeight && <button onClick={onMatchHeight} title={t('scene.matchHeight', '같은 높이로 맞추기')} style={btnBase}>↕H</button>}
+          {onMatchBoth && <button onClick={onMatchBoth} title={t('scene.matchBoth', '같은 크기로 맞추기')} style={btnBase}>⊞</button>}
+          {onGridLayout && <button onClick={onGridLayout} title={t('scene.gridLayout', '그리드 자동 배치 (N×M)')} style={btnBase}>⊟</button>}
           {/* R1458: 자동정렬 드롭다운 */}
           {(onDistributeHEqual || onCircularLayout) && (
             <div style={{ position: 'relative' }}>
@@ -994,7 +995,7 @@ export function SceneToolbar({
                 ref={autoLayoutBtnRef}
                 style={autoLayoutOpen ? btnActive : btnBase}
                 onClick={() => setAutoLayoutOpen(v => !v)}
-                title="자동정렬 메뉴"
+                title={t('scene.autoLayout', '자동정렬 메뉴')}
               >
                 {'⊞'} 자동정렬
               </button>
@@ -1012,25 +1013,25 @@ export function SceneToolbar({
                     <button
                       onClick={() => { onDistributeHEqual(); setAutoLayoutOpen(false) }}
                       style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 10, padding: '5px 10px', cursor: 'pointer', textAlign: 'left' }}
-                    >수평 균등 배분</button>
+                    >{t('scene.distributeHEqual', '수평 균등 배분')}</button>
                   )}
                   {onDistributeVEqual && (
                     <button
                       onClick={() => { onDistributeVEqual(); setAutoLayoutOpen(false) }}
                       style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 10, padding: '5px 10px', cursor: 'pointer', textAlign: 'left' }}
-                    >수직 균등 배분</button>
+                    >{t('scene.distributeVEqual', '수직 균등 배분')}</button>
                   )}
                   {onGridLayout && (
                     <button
                       onClick={() => { onGridLayout(); setAutoLayoutOpen(false) }}
                       style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 10, padding: '5px 10px', cursor: 'pointer', textAlign: 'left' }}
-                    >격자 배치</button>
+                    >{t('scene.gridLayoutMenu', '격자 배치')}</button>
                   )}
                   {onCircularLayout && (
                     <button
                       onClick={() => { onCircularLayout(); setAutoLayoutOpen(false) }}
                       style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 10, padding: '5px 10px', cursor: 'pointer', textAlign: 'left' }}
-                    >원형 배치</button>
+                    >{t('scene.circularLayout', '원형 배치')}</button>
                   )}
                 </div>
               )}
@@ -1042,27 +1043,27 @@ export function SceneToolbar({
       {/* 노드 추가 / 삭제 */}
       <button
         onClick={onCreateNode}
-        title="새 노드 추가"
+        title={t('scene.addNode', '새 노드 추가')}
         style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 14, padding: '2px 6px' }}
       >+</button>
       <button
         onClick={onDeleteNode}
         disabled={!selectedUuid}
-        title="선택 노드 삭제"
+        title={t('scene.deleteNode', '선택 노드 삭제')}
         style={{ opacity: selectedUuid ? 1 : 0.3, background: 'none', border: 'none', color: 'var(--error)', cursor: selectedUuid ? 'pointer' : 'default', fontSize: 14, padding: '2px 6px' }}
       >×</button>
       {onLockToggle && (
         <button
           style={isSelectedLocked ? btnActive : btnBase}
           onClick={onLockToggle}
-          title="노드 잠금/해제 (Alt+L) — 잠긴 노드는 드래그/리사이즈 불가"
+          title={t('scene.lockNode', '노드 잠금/해제 (Alt+L) — 잠긴 노드는 드래그/리사이즈 불가')}
         >🔒</button>
       )}
       {onTogglePin && selectedUuid && (
         <button
           style={{ ...btnBase, color: isPinned ? '#fbbf24' : 'rgba(255,255,255,0.5)' }}
           onClick={onTogglePin}
-          title={isPinned ? '핀 해제' : '핀 고정 — 핀된 노드는 드래그/선택 불가'}
+          title={isPinned ? t('scene.unpinNode', '핀 해제') : t('scene.pinNode', '핀 고정 — 핀된 노드는 드래그/선택 불가')}
         >📌</button>
       )}
 
@@ -1072,7 +1073,7 @@ export function SceneToolbar({
       <button
         style={showLabels !== false ? btnActive : btnBase}
         onClick={onLabelsToggle}
-        title="노드 이름 라벨 표시"
+        title={t('scene.showLabels', '노드 이름 라벨 표시')}
       >
         Aa
       </button>
@@ -1083,7 +1084,7 @@ export function SceneToolbar({
           ref={bgBtnRef}
           style={bgPaletteOpen || (sceneBg !== 'dark') ? btnActive : btnBase}
           onClick={() => setBgPaletteOpen(v => !v)}
-          title="씬 배경색 변경"
+          title={t('scene.bgColor', '씬 배경색 변경')}
         >
           🎨
         </button>
@@ -1108,9 +1109,9 @@ export function SceneToolbar({
             }}
           >
             {([
-              { label: '다크 (기본)', value: 'dark', swatch: '#1e1e1e' },
-              { label: '라이트', value: 'light', swatch: '#e0e0e0' },
-              { label: '체커보드 (투명)', value: 'checker', swatch: null },
+              { label: t('scene.bgDark', '다크 (기본)'), value: 'dark', swatch: '#1e1e1e' },
+              { label: t('scene.bgLight', '라이트'), value: 'light', swatch: '#e0e0e0' },
+              { label: t('scene.bgChecker', '체커보드 (투명)'), value: 'checker', swatch: null },
             ] as const).map(item => (
               <button
                 key={item.value}
@@ -1137,7 +1138,7 @@ export function SceneToolbar({
               </button>
             ))}
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: 4 }}>
-              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>커스텀 컬러</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>{t('scene.bgCustomColor', '커스텀 컬러')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <input
                   type="color"
@@ -1154,7 +1155,7 @@ export function SceneToolbar({
                     fontSize: 9,
                   }}
                 >
-                  적용
+                  {t('scene.bgApply', '적용')}
                 </button>
               </div>
             </div>
@@ -1166,7 +1167,7 @@ export function SceneToolbar({
       <button
         style={showMinimap ? btnActive : btnBase}
         onClick={onMinimapToggle}
-        title="미니맵 표시/숨기기"
+        title={t('scene.minimap', '미니맵 표시/숨기기')}
       >
         ⊡
       </button>
@@ -1175,7 +1176,7 @@ export function SceneToolbar({
       <button
         style={showHierarchy ? btnActive : btnBase}
         onClick={onHierarchyToggle}
-        title="노드 계층 트리 표시"
+        title={t('scene.hierarchy', '노드 계층 트리 표시')}
       >
         ≡
       </button>
@@ -1184,7 +1185,7 @@ export function SceneToolbar({
       <button
         style={showConnections ? btnActive : btnBase}
         onClick={onConnectionsToggle}
-        title="부모-자식 연결선 표시"
+        title={t('scene.connections', '부모-자식 연결선 표시')}
       >
         ⤻
       </button>
@@ -1193,7 +1194,7 @@ export function SceneToolbar({
       <button
         style={showStats ? btnActive : btnBase}
         onClick={onStatsToggle}
-        title="씬 통계 표시"
+        title={t('scene.stats', '씬 통계 표시')}
       >
         #
       </button>
@@ -1203,7 +1204,7 @@ export function SceneToolbar({
         <button
           style={showStatsOverlay ? btnActive : btnBase}
           onClick={onStatsOverlayToggle}
-          title="씬 통계 오버레이 (I키)"
+          title={t('scene.statsOverlay', '씬 통계 오버레이 (I키)')}
         >
           ℹ
         </button>
@@ -1214,16 +1215,16 @@ export function SceneToolbar({
         <button
           style={screenshotDone ? { ...btnActive, color: '#4ade80', borderColor: '#4ade80' } : btnBase}
           onClick={onScreenshot}
-          title="씬뷰 스크린샷 — PNG 다운로드 + 클립보드 복사"
+          title={t('scene.screenshot', '씬뷰 스크린샷 — PNG 다운로드 + 클립보드 복사')}
         >{screenshotDone ? '✓' : '📷'}</button>
       )}
 
       {/* SVG/PNG 내보내기 */}
       {onExportSvg && (
-        <button style={btnBase} onClick={onExportSvg} title="씬 SVG 내보내기">⬇ SVG</button>
+        <button style={btnBase} onClick={onExportSvg} title={t('scene.exportSvg', '씬 SVG 내보내기')}>⬇ SVG</button>
       )}
       {onExportPng && (
-        <button style={btnBase} onClick={onExportPng} title="씬 PNG 내보내기">⬇ PNG</button>
+        <button style={btnBase} onClick={onExportPng} title={t('scene.exportPng', '씬 PNG 내보내기')}>⬇ PNG</button>
       )}
 
       {/* 씬 슬롯 저장 / 로드 */}
@@ -1231,17 +1232,17 @@ export function SceneToolbar({
         <select
           value={activeSlot ?? 0}
           onChange={e => onSlotChange(Number(e.target.value))}
-          title="씬 저장 슬롯 선택"
+          title={t('scene.sceneSlot', '씬 저장 슬롯 선택')}
           style={{ fontSize: 9, padding: '1px 2px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', cursor: 'pointer' }}
         >
-          {[0, 1, 2].map(i => <option key={i} value={i}>슬롯 {i + 1}</option>)}
+          {[0, 1, 2].map(i => <option key={i} value={i}>{t('scene.slotLabel', `슬롯 ${i + 1}`).replace('{n}', String(i + 1))}</option>)}
         </select>
       )}
       {onSaveScene && (
-        <button style={btnBase} onClick={onSaveScene} title="씬 레이아웃 저장 (localStorage)">💾</button>
+        <button style={btnBase} onClick={onSaveScene} title={t('scene.saveScene', '씬 레이아웃 저장 (localStorage)')}>💾</button>
       )}
       {onLoadScene && (
-        <button style={btnBase} onClick={onLoadScene} title="씬 레이아웃 로드 (localStorage)">📂</button>
+        <button style={btnBase} onClick={onLoadScene} title={t('scene.loadScene', '씬 레이아웃 로드 (localStorage)')}>📂</button>
       )}
 
       {/* R1364: 목업 이미지 오버레이 클리어 */}
@@ -1249,7 +1250,7 @@ export function SceneToolbar({
         <button
           style={hasOverlayImage ? { ...btnBase, color: 'var(--accent)', borderColor: 'var(--accent)' } : btnBase}
           onClick={onClearOverlayImage}
-          title="목업 이미지 오버레이 (드래그&드롭으로 이미지 추가, 클릭 시 제거)"
+          title={t('scene.overlayImage', '목업 이미지 오버레이 (드래그&드롭으로 이미지 추가, 클릭 시 제거)')}
         >🖼</button>
       )}
 
@@ -1258,7 +1259,7 @@ export function SceneToolbar({
         <button
           style={showEditHistory ? { ...btnBase, color: 'var(--accent)', borderColor: 'var(--accent)' } : btnBase}
           onClick={onToggleEditHistory}
-          title={`편집 이력 (${editHistoryCount ?? 0}건)`}
+          title={t('scene.editHistory', `편집 이력 (${editHistoryCount ?? 0}건)`).replace('{n}', String(editHistoryCount ?? 0))}
         >{'⏱'}{editHistoryCount ? <span style={{ fontSize: 8, marginLeft: 1 }}>{editHistoryCount}</span> : null}</button>
       )}
 
@@ -1266,7 +1267,7 @@ export function SceneToolbar({
       <button
         style={btnBase}
         onClick={onRefresh}
-        title="씬 새로고침"
+        title={t('scene.refresh', '씬 새로고침')}
       >
         ↺
       </button>

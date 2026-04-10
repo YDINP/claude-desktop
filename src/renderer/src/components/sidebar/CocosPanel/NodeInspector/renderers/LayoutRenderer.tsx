@@ -1,8 +1,9 @@
 import React from 'react'
 import type { RendererProps } from './types'
+import { t } from '../../../../../utils/i18n'
 
 /** cc.Layout Quick Edit renderer */
-export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function LayoutRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Layout') {
               const layoutType = Number(p.type ?? p.layoutType ?? p._type ?? p._layoutType ?? p._N$type ?? p._N$layoutType ?? 0)
@@ -89,7 +90,7 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
                     ))}
                     {/* R1748: 패딩 균등 버튼 */}
                     <span
-                      title="모든 패딩 동일하게 (최솟값)"
+                      title={t('layout.equalPadding')}
                       onClick={() => {
                         const v = Math.min(pLeft, pRight, pTop, pBottom)
                         const updated = draft.components.map(c => c === comp ? { ...c, props: { ...c.props, paddingLeft: v, _paddingLeft: v, _N$paddingLeft: v, paddingRight: v, _paddingRight: v, _N$paddingRight: v, paddingTop: v, _paddingTop: v, _N$paddingTop: v, paddingBottom: v, _paddingBottom: v, _N$paddingBottom: v } } : c)
@@ -241,3 +242,4 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
             // R1590/R1813: cc.Graphics Quick Edit (applyAndSave)
             return null
 }
+export const LayoutRenderer = React.memo(LayoutRendererInner)

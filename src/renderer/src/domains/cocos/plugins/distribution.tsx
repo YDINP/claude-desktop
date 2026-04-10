@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
+import { t } from '../../../utils/i18n'
 
 export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
   const uuids = nodes.map(n => n.uuid)
@@ -89,25 +90,24 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyRotDist = async () => {
           await patchOrdered((n, idx, total) => {
-            const t = total > 1 ? idx / (total - 1) : 0
-            const deg = Math.round(rotDistFrom + (rotDistTo - rotDistFrom) * t)
-            const newRot = typeof n.rotation === 'number' ? deg : { ...(n.rotation as object), z: deg }
-            return { ...n, rotation: newRot }
+            const frac = total > 1 ? idx / (total - 1) : 0
+            const deg = Math.round(rotDistFrom + (rotDistTo - rotDistFrom) * frac)
+            return { ...n, rotation: { ...n.rotation, z: deg } }
           }, `회전 분배 ${rotDistFrom}°→${rotDistTo}° (${uuids.length}개)`)
         }
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전분배 (R2604)</span>
-            <input type="number" value={rotDistFrom} onChange={e => setRotDistFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 각도(°)" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_rotdistrib_r2604', '회전분배 (R2604)')}</span>
+            <input type="number" value={rotDistFrom} onChange={e => setRotDistFrom(parseInt(e.target.value) || 0)} style={niS} title={t('batch.distribution.t_start', '시작 각도(°)')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={rotDistTo} onChange={e => setRotDistTo(parseInt(e.target.value) || 0)} style={niS} title="끝 각도(°)" />
+            <input type="number" value={rotDistTo} onChange={e => setRotDistTo(parseInt(e.target.value) || 0)} style={niS} title={t('batch.distribution.t_end', '끝 각도(°)')} />
             <span onClick={applyRotDist}
               title={`선택된 ${uuids.length}개 노드 rotation ${rotDistFrom}°→${rotDistTo}° 균등 분배 (R2604)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >분배</span>
+            >{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -116,8 +116,8 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyScaleGrad = async () => {
           await patchOrdered((n, idx, total) => {
-            const t = total > 1 ? idx / (total - 1) : 0
-            const sv = Math.round((scaleGradFrom + (scaleGradTo - scaleGradFrom) * t) * 1000) / 1000
+            const frac = total > 1 ? idx / (total - 1) : 0
+            const sv = Math.round((scaleGradFrom + (scaleGradTo - scaleGradFrom) * frac) * 1000) / 1000
             const sc = n.scale as { x: number; y: number; z?: number }
             return { ...n, scale: { ...sc, x: sv, y: sv } }
           }, `scale 분배 ${scaleGradFrom}→${scaleGradTo} (${uuids.length}개)`)
@@ -125,16 +125,16 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale분배 (R2605)</span>
-            <input type="number" value={scaleGradFrom} step={0.1} onChange={e => setScaleGradFrom(parseFloat(e.target.value) || 1)} style={niS} title="시작 scale" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_scaledistrib_r2605', 'scale분배 (R2605)')}</span>
+            <input type="number" value={scaleGradFrom} step={0.1} onChange={e => setScaleGradFrom(parseFloat(e.target.value) || 1)} style={niS} title={t('batch.distribution.t_start_scale', '시작 scale')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={scaleGradTo} step={0.1} onChange={e => setScaleGradTo(parseFloat(e.target.value) || 1)} style={niS} title="끝 scale" />
+            <input type="number" value={scaleGradTo} step={0.1} onChange={e => setScaleGradTo(parseFloat(e.target.value) || 1)} style={niS} title={t('batch.distribution.t_end_scale', '끝 scale')} />
             <span onClick={applyScaleGrad}
               title={`선택된 ${uuids.length}개 노드 scale ${scaleGradFrom}→${scaleGradTo} 균등 분배 (R2605)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >분배</span>
+            >{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -142,24 +142,24 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {/* R2613: size W 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applySzGrad = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const newW = Math.round(szGradFromW + (szGradToW - szGradFromW) * t)
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const newW = Math.round(szGradFromW + (szGradToW - szGradFromW) * frac)
           const sz = n.size as { x: number; y: number }
           return { ...n, size: { ...sz, x: newW } }
         }, `size.W 분배 ${szGradFromW}→${szGradToW} (${uuids.length}개)`)
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sizeW분배 (R2613)</span>
-            <input type="number" value={szGradFromW} min={1} onChange={e => setSzGradFromW(parseInt(e.target.value) || 1)} style={niS} title="시작 width" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_sizewdistrib_r2613', 'sizeW분배 (R2613)')}</span>
+            <input type="number" value={szGradFromW} min={1} onChange={e => setSzGradFromW(parseInt(e.target.value) || 1)} style={niS} title={t('batch.distribution.t_start_width', '시작 width')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={szGradToW} min={1} onChange={e => setSzGradToW(parseInt(e.target.value) || 1)} style={niS} title="끝 width" />
+            <input type="number" value={szGradToW} min={1} onChange={e => setSzGradToW(parseInt(e.target.value) || 1)} style={niS} title={t('batch.distribution.t_end_width', '끝 width')} />
             <span onClick={applySzGrad}
               title={`선택된 ${uuids.length}개 노드 size.W ${szGradFromW}→${szGradToW} 균등 분배 (R2613)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#38bdf8', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#38bdf8')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >분배</span>
+            >{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -167,24 +167,24 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {/* R2614: size H 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applySzGradH = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const newH = Math.round(szGradFromH + (szGradToH - szGradFromH) * t)
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const newH = Math.round(szGradFromH + (szGradToH - szGradFromH) * frac)
           const sz = n.size as { x: number; y: number }
           return { ...n, size: { ...sz, y: newH } }
         }, `size.H 분배 ${szGradFromH}→${szGradToH} (${uuids.length}개)`)
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sizeH분배 (R2614)</span>
-            <input type="number" value={szGradFromH} min={1} onChange={e => setSzGradFromH(parseInt(e.target.value) || 1)} style={niS} title="시작 height" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_sizehdistrib_r2614', 'sizeH분배 (R2614)')}</span>
+            <input type="number" value={szGradFromH} min={1} onChange={e => setSzGradFromH(parseInt(e.target.value) || 1)} style={niS} title={t('batch.distribution.t_start_height', '시작 height')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={szGradToH} min={1} onChange={e => setSzGradToH(parseInt(e.target.value) || 1)} style={niS} title="끝 height" />
+            <input type="number" value={szGradToH} min={1} onChange={e => setSzGradToH(parseInt(e.target.value) || 1)} style={niS} title={t('batch.distribution.t_end_height', '끝 height')} />
             <span onClick={applySzGradH}
               title={`선택된 ${uuids.length}개 노드 size.H ${szGradFromH}→${szGradToH} 균등 분배 (R2614)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >분배</span>
+            >{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -192,21 +192,21 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {/* R2616: position Z 균등 분배 (CC3.x) */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyPosZGrad = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const newZ = Math.round(posZFrom + (posZTo - posZFrom) * t)
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const newZ = Math.round(posZFrom + (posZTo - posZFrom) * frac)
           const p = n.position as { x: number; y: number; z?: number }
           return { ...n, position: { ...p, z: newZ } }
         }, `pos.Z 분배 ${posZFrom}→${posZTo} (${uuids.length}개)`)
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posZ분배 (R2616)</span>
-            <input type="number" value={posZFrom} onChange={e => setPosZFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 Z" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_poszdistrib_r2616', 'posZ분배 (R2616)')}</span>
+            <input type="number" value={posZFrom} onChange={e => setPosZFrom(parseInt(e.target.value) || 0)} style={niS} title={t('batch.distribution.t_start_z', '시작 Z')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={posZTo} onChange={e => setPosZTo(parseInt(e.target.value) || 0)} style={niS} title="끝 Z" />
+            <input type="number" value={posZTo} onChange={e => setPosZTo(parseInt(e.target.value) || 0)} style={niS} title={t('batch.distribution.t_end_z', '끝 Z')} />
             <span onClick={applyPosZGrad}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
-            >분배</span>
+            >{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -214,21 +214,21 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {/* R2618: position X 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyPosXGrad = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const newX = Math.round(posXFrom + (posXTo - posXFrom) * t)
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const newX = Math.round(posXFrom + (posXTo - posXFrom) * frac)
           const p = n.position as { x: number; y: number; z?: number }
           return { ...n, position: { ...p, x: newX } }
         }, `pos.X 분배 ${posXFrom}→${posXTo} (${uuids.length}개)`)
         const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posX분배 (R2618)</span>
-            <input type="number" value={posXFrom} onChange={e => setPosXFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 X" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_posxdistrib_r2618', 'posX분배 (R2618)')}</span>
+            <input type="number" value={posXFrom} onChange={e => setPosXFrom(parseInt(e.target.value) || 0)} style={niS} title={t('batch.distribution.t_start_x', '시작 X')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={posXTo} onChange={e => setPosXTo(parseInt(e.target.value) || 0)} style={niS} title="끝 X" />
+            <input type="number" value={posXTo} onChange={e => setPosXTo(parseInt(e.target.value) || 0)} style={niS} title={t('batch.distribution.t_end_x', '끝 X')} />
             <span onClick={applyPosXGrad}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
-            >분배</span>
+            >{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -236,21 +236,21 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {/* R2619: position Y 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyPosYGrad = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const newY = Math.round(posYFrom + (posYTo - posYFrom) * t)
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const newY = Math.round(posYFrom + (posYTo - posYFrom) * frac)
           const p = n.position as { x: number; y: number; z?: number }
           return { ...n, position: { ...p, y: newY } }
         }, `pos.Y 분배 ${posYFrom}→${posYTo} (${uuids.length}개)`)
         const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>posY분배 (R2619)</span>
-            <input type="number" value={posYFrom} onChange={e => setPosYFrom(parseInt(e.target.value) || 0)} style={niS} title="시작 Y" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_posydistrib_r2619', 'posY분배 (R2619)')}</span>
+            <input type="number" value={posYFrom} onChange={e => setPosYFrom(parseInt(e.target.value) || 0)} style={niS} title={t('batch.distribution.t_start_y', '시작 Y')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={posYTo} onChange={e => setPosYTo(parseInt(e.target.value) || 0)} style={niS} title="끝 Y" />
+            <input type="number" value={posYTo} onChange={e => setPosYTo(parseInt(e.target.value) || 0)} style={niS} title={t('batch.distribution.t_end_y', '끝 Y')} />
             <span onClick={applyPosYGrad}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
-            >분배</span>
+            >{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -259,15 +259,15 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyAnchorXGrad = async () => {
           await patchOrdered((n, idx, total) => {
-            const t = total > 1 ? idx / (total - 1) : 0
-            const ax = parseFloat((anchorXFrom + (anchorXTo - anchorXFrom) * t).toFixed(3))
+            const frac = total > 1 ? idx / (total - 1) : 0
+            const ax = parseFloat((anchorXFrom + (anchorXTo - anchorXFrom) * frac).toFixed(3))
             return { ...n, anchor: { x: ax, y: n.anchor?.y ?? 0.5 } }
           }, `anchor.X ${anchorXFrom}→${anchorXTo} (${uuids.length}개)`)
         }
         const applyAnchorYGrad = async () => {
           await patchOrdered((n, idx, total) => {
-            const t = total > 1 ? idx / (total - 1) : 0
-            const ay = parseFloat((anchorYFrom + (anchorYTo - anchorYFrom) * t).toFixed(3))
+            const frac = total > 1 ? idx / (total - 1) : 0
+            const ay = parseFloat((anchorYFrom + (anchorYTo - anchorYFrom) * frac).toFixed(3))
             return { ...n, anchor: { x: n.anchor?.x ?? 0.5, y: ay } }
           }, `anchor.Y ${anchorYFrom}→${anchorYTo} (${uuids.length}개)`)
         }
@@ -276,18 +276,18 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         return (
           <>
             <div style={{ display: 'flex', gap: 3, marginBottom: 4, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>ancX분배 (R2628)</span>
+              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>{t('batch.distribution.j_ancxdistrib_r2628', 'ancX분배 (R2628)')}</span>
               <input type="number" value={anchorXFrom} min={0} max={1} step={0.1} onChange={e => setAnchorXFrom(parseFloat(e.target.value) || 0)} style={niS} />
               <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
               <input type="number" value={anchorXTo} min={0} max={1} step={0.1} onChange={e => setAnchorXTo(parseFloat(e.target.value) || 0)} style={niS} />
-              <span onClick={applyAnchorXGrad} style={btnS}>분배</span>
+              <span onClick={applyAnchorXGrad} style={btnS}>{t('batch.distribution.j_distrib', '분배')}</span>
             </div>
             <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>ancY분배 (R2628)</span>
+              <span style={{ fontSize: 9, color: '#fb923c', flexShrink: 0 }}>{t('batch.distribution.j_ancydistrib_r2628', 'ancY분배 (R2628)')}</span>
               <input type="number" value={anchorYFrom} min={0} max={1} step={0.1} onChange={e => setAnchorYFrom(parseFloat(e.target.value) || 0)} style={niS} />
               <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
               <input type="number" value={anchorYTo} min={0} max={1} step={0.1} onChange={e => setAnchorYTo(parseFloat(e.target.value) || 0)} style={niS} />
-              <span onClick={applyAnchorYGrad} style={btnS}>분배</span>
+              <span onClick={applyAnchorYGrad} style={btnS}>{t('batch.distribution.j_distrib', '분배')}</span>
             </div>
           </>
         )
@@ -306,8 +306,8 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
           await patchOrdered((n, idx, total) => {
             const hasLabelComp = n.components.some(c => c.type === 'cc.Label')
             if (!hasLabelComp) return n
-            const t = total > 1 ? idx / (total - 1) : 0
-            const fs = Math.round(fontSizeFrom + (fontSizeTo - fontSizeFrom) * t)
+            const frac = total > 1 ? idx / (total - 1) : 0
+            const fs = Math.round(fontSizeFrom + (fontSizeTo - fontSizeFrom) * frac)
             const comps = n.components.map(c => c.type === 'cc.Label' ? { ...c, props: { ...c.props, fontSize: fs, _fontSize: fs, _N$fontSize: fs } } : c)
             return { ...n, components: comps }
           }, `font 분배 ${fontSizeFrom}→${fontSizeTo} (${uuids.length}개)`)
@@ -315,13 +315,13 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#67e8f9', flexShrink: 0 }}>font분배 (R2633)</span>
-            <input type="number" value={fontSizeFrom} min={1} onChange={e => setFontSizeFrom(parseInt(e.target.value) || 1)} style={niS} title="시작 fontSize" />
+            <span style={{ fontSize: 9, color: '#67e8f9', flexShrink: 0 }}>{t('batch.distribution.j_fontdistrib_r2633', 'font분배 (R2633)')}</span>
+            <input type="number" value={fontSizeFrom} min={1} onChange={e => setFontSizeFrom(parseInt(e.target.value) || 1)} style={niS} title={t('batch.distribution.t_start_fontsize', '시작 fontSize')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={fontSizeTo} min={1} onChange={e => setFontSizeTo(parseInt(e.target.value) || 1)} style={niS} title="끝 fontSize" />
+            <input type="number" value={fontSizeTo} min={1} onChange={e => setFontSizeTo(parseInt(e.target.value) || 1)} style={niS} title={t('batch.distribution.t_end_fontsize', '끝 fontSize')} />
             <span onClick={applyFontSizeGrad}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#67e8f9', userSelect: 'none' }}
-            >분배</span>
+            >{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -347,13 +347,13 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>정렬 (R1665)</span>
-            <span onClick={() => applyAlignDist('x', 'min')} style={mkBtnS('#34d399')} title="왼쪽 정렬">⊢L</span>
-            <span onClick={() => applyAlignDist('x', 'center')} style={mkBtnS('#34d399')} title="X center 정렬">↔C</span>
-            <span onClick={() => applyAlignDist('x', 'max')} style={mkBtnS('#34d399')} title="X max 정렬">⊣R</span>
-            <span onClick={() => applyAlignDist('y', 'max')} style={mkBtnS('#34d399')} title="Y max 정렬">△T</span>
-            <span onClick={() => applyAlignDist('y', 'center')} style={mkBtnS('#34d399')} title="Y center 정렬">↕M</span>
-            <span onClick={() => applyAlignDist('y', 'min')} style={mkBtnS('#34d399')} title="Y min 정렬">▽B</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_align_r1665', '정렬 (R1665)')}</span>
+            <span onClick={() => applyAlignDist('x', 'min')} style={mkBtnS('#34d399')} title={t('batch.distribution.t_align', '왼쪽 정렬')}>⊢L</span>
+            <span onClick={() => applyAlignDist('x', 'center')} style={mkBtnS('#34d399')} title={t('batch.distribution.t_x_center_align', 'X center 정렬')}>↔C</span>
+            <span onClick={() => applyAlignDist('x', 'max')} style={mkBtnS('#34d399')} title={t('batch.distribution.t_x_max_align', 'X max 정렬')}>⊣R</span>
+            <span onClick={() => applyAlignDist('y', 'max')} style={mkBtnS('#34d399')} title={t('batch.distribution.t_y_max_align', 'Y max 정렬')}>△T</span>
+            <span onClick={() => applyAlignDist('y', 'center')} style={mkBtnS('#34d399')} title={t('batch.distribution.t_y_center_align', 'Y center 정렬')}>↕M</span>
+            <span onClick={() => applyAlignDist('y', 'min')} style={mkBtnS('#34d399')} title={t('batch.distribution.t_y_min_align', 'Y min 정렬')}>▽B</span>
           </div>
         )
       })()}
@@ -401,9 +401,9 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>분배 (R1722)</span>
-            <span onClick={() => applyDistribute('h')} style={mkBtnS('#58a6ff')} title="가로 균등 분배">⇔H</span>
-            <span onClick={() => applyDistribute('v')} style={mkBtnS('#58a6ff')} title="세로 균등 분배">⇕V</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_distrib_r1722', '분배 (R1722)')}</span>
+            <span onClick={() => applyDistribute('h')} style={mkBtnS('#58a6ff')} title={t('batch.distribution.t_equal_distrib', '가로 균등 분배')}>⇔H</span>
+            <span onClick={() => applyDistribute('v')} style={mkBtnS('#58a6ff')} title={t('batch.distribution.t_equal_distrib2', '세로 균등 분배')}>⇕V</span>
           </div>
         )
       })()}
@@ -434,7 +434,7 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기맞춤 (R1735)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_sizefit_r1735', '크기맞춤 (R1735)')}</span>
             <span onClick={() => applyMatchSize('w')} style={mkBtnS('#38bdf8')} title={`W≡ ${refW}`}>W≡</span>
             <span onClick={() => applyMatchSize('h')} style={mkBtnS('#38bdf8')} title={`H≡ ${refH}`}>H≡</span>
             <span onClick={() => applyMatchSize('wh')} style={mkBtnS('#38bdf8')} title={`WH≡ ${refW}×${refH}`}>WH≡</span>
@@ -485,8 +485,8 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
             <span onClick={() => patchAlign('y', maxY)} style={mkBtnS('#a78bfa')} title="⊤T">⊤T</span>
             <span onClick={() => patchAlign('y', minY)} style={mkBtnS('#a78bfa')} title="⊥B">⊥B</span>
             {posList.length >= 3 && <>
-              <span onClick={() => patchDist('x')} style={mkBtnS('#58a6ff')} title="X축 균등 배치 (R1768)">↔=</span>
-              <span onClick={() => patchDist('y')} style={mkBtnS('#58a6ff')} title="Y축 균등 배치 (R1768)">↕=</span>
+              <span onClick={() => patchDist('x')} style={mkBtnS('#58a6ff')} title={t('batch.distribution.t_x_equal_arrange_r1768', 'X축 균등 배치 (R1768)')}>↔=</span>
+              <span onClick={() => patchDist('y')} style={mkBtnS('#58a6ff')} title={t('batch.distribution.t_y_equal_arrange_r1768', 'Y축 균등 배치 (R1768)')}>↕=</span>
             </>}
           </div>
         )
@@ -513,9 +513,9 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>원형 (R2479)</span>
-            <input type="number" min={10} max={2000} value={circleRadiusDist} onChange={e => setCircleRadiusDist(parseInt(e.target.value) || 100)} style={mkNiS(46)} title="원형 배치 반지름 (R2479)" />
-            <span onClick={applyCircle} style={mkBtnS('#fbbf24')} title="원형 배치">○배치</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_circle_r2479', '원형 (R2479)')}</span>
+            <input type="number" min={10} max={2000} value={circleRadiusDist} onChange={e => setCircleRadiusDist(parseInt(e.target.value) || 100)} style={mkNiS(46)} title={t('batch.distribution.t_circle_arrange_r2479', '원형 배치 반지름 (R2479)')} />
+            <span onClick={applyCircle} style={mkBtnS('#fbbf24')} title={t('batch.distribution.t_circle_arrange', '원형 배치')}>{t('batch.distribution.j_arrange', '○배치')}</span>
           </div>
         )
       })()}
@@ -538,11 +538,11 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>격자 (R2481)</span>
-            <input type="number" min={1} value={gridColsDist} onChange={e => setGridColsDist(parseInt(e.target.value) || 3)} style={mkNiS(30)} title="열 수" />
-            <input type="number" value={gridGapXDist} onChange={e => setGridGapXDist(parseInt(e.target.value) || 120)} style={mkNiS(36)} title="X 간격" />
-            <input type="number" value={gridGapYDist} onChange={e => setGridGapYDist(parseInt(e.target.value) || 120)} style={mkNiS(36)} title="Y 간격" />
-            <span onClick={applyGrid} style={mkBtnS('#fbbf24')} title="격자 배치 (R2481)">⊞배치</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_grid_r2481', '격자 (R2481)')}</span>
+            <input type="number" min={1} value={gridColsDist} onChange={e => setGridColsDist(parseInt(e.target.value) || 3)} style={mkNiS(30)} title={t('batch.distribution.t_label', '열 수')} />
+            <input type="number" value={gridGapXDist} onChange={e => setGridGapXDist(parseInt(e.target.value) || 120)} style={mkNiS(36)} title={t('batch.distribution.t_x_gap', 'X 간격')} />
+            <input type="number" value={gridGapYDist} onChange={e => setGridGapYDist(parseInt(e.target.value) || 120)} style={mkNiS(36)} title={t('batch.distribution.t_y_gap', 'Y 간격')} />
+            <span onClick={applyGrid} style={mkBtnS('#fbbf24')} title={t('batch.distribution.t_grid_arrange_r2481', '격자 배치 (R2481)')}>{t('batch.distribution.j_arrange2', '⊞배치')}</span>
           </div>
         )
       })()}
@@ -558,9 +558,9 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>정렬 도구 (R2482) / 균등 배분 (R2483) / 크기 균등화 (R2485)</span>
-            <span onClick={() => applyEqSize('w')} style={mkBtnS('#38bdf8')} title="크기균등 W (R2485)">=W</span>
-            <span onClick={() => applyEqSize('h')} style={mkBtnS('#38bdf8')} title="크기균등 H (R2485)">=H</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_align_tool_r2482_equal_distrib2_r2483_size_eq', '정렬 도구 (R2482) / 균등 배분 (R2483) / 크기 균등화 (R2485)')}</span>
+            <span onClick={() => applyEqSize('w')} style={mkBtnS('#38bdf8')} title={t('batch.distribution.t_sizeequal_w_r2485', '크기균등 W (R2485)')}>=W</span>
+            <span onClick={() => applyEqSize('h')} style={mkBtnS('#38bdf8')} title={t('batch.distribution.t_sizeequal_h_r2485', '크기균등 H (R2485)')}>=H</span>
           </div>
         )
       })()}
@@ -587,13 +587,13 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
             return { ...n, children: ch }
           }
           await saveScene(patch(sceneFile.root))
-          setBatchMsg('✓ 2-노드 위치 교환 (R2547)')
+          setBatchMsg(t('batch.distribution.s_2_node_pos_swap_r2547', '✓ 2-노드 위치 교환 (R2547)'))
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>교환 (R2547)</span>
-            <span onClick={applySwapPos} style={mkBtnS('#fbbf24')} title="2-노드 위치 교환 (R2547)">⇄ 위치</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_swap_r2547', '교환 (R2547)')}</span>
+            <span onClick={applySwapPos} style={mkBtnS('#fbbf24')} title={t('batch.distribution.t_2_node_pos_swap_r2547', '2-노드 위치 교환 (R2547)')}>{t('batch.distribution.j_pos', '⇄ 위치')}</span>
           </div>
         )
       })()}
@@ -602,7 +602,7 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
         <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>dZ (R2565)</span>
         <input type="number" placeholder="dZ" value={batchDz} onChange={e => setBatchDz(e.target.value)}
-          title="Z축 오프셋 (CC3.x) — R2565"
+          title={t('batch.distribution.t_z_offset_cc3_x_r2565', 'Z축 오프셋 (CC3.x) — R2565')}
           style={mkNiS(46)} />
         {batchDz && <span onClick={async () => {
           const dz = parseFloat(batchDz)
@@ -611,14 +611,14 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
             const p = n.position as { x: number; y: number; z?: number }
             return { ...n, position: { ...p, z: (p.z ?? 0) + dz } }
           }, `Z축 오프셋 +${dz} (${uuids.length}개)`)
-        }} style={mkBtnS('#fb923c')} title="Z축 오프셋 적용">적용</span>}
+        }} style={mkBtnS('#fb923c')} title={t('batch.distribution.t_z_offset_apply', 'Z축 오프셋 적용')}>{t('batch.distribution.j_apply', '적용')}</span>}
       </div>
 
       {/* R2569: opacity 그라데이션 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op분배 (R2569)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_opdistrib_r2569', 'op분배 (R2569)')}</span>
             {([{ label: '255→0', from: 255, to: 0 }, { label: '0→255', from: 0, to: 255 }] as const).map(({ label, from, to }) => (
               <span key={label} onClick={async () => {
                 if (!sceneFile.root) return
@@ -660,8 +660,8 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>흩뿌리기 (R2496)</span>
-            <span onClick={applyScatter2496} style={mkBtnS('#a78bfa')} title={`흩뿌리기 ±${scatterAmt} (R2496)`}>흩뿌리기</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_scatter_r2496', '흩뿌리기 (R2496)')}</span>
+            <span onClick={applyScatter2496} style={mkBtnS('#a78bfa')} title={`흩뿌리기 ±${scatterAmt} (R2496)`}>{t('batch.distribution.j_scatter', '흩뿌리기')}</span>
           </div>
         )
       })()}
@@ -670,7 +670,7 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {sceneFile.root && uuids.length >= 1 && (() => {
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>산포 (R2572)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_spread_r2572', '산포 (R2572)')}</span>
             {([50, 100, 200] as const).map(r => (
               <span key={r} onClick={async () => {
                 if (!sceneFile.root) return
@@ -694,7 +694,7 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {sceneFile.root && uuids.length >= 1 && (() => {
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>원점 (R2573)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_origin_r2573', '원점 (R2573)')}</span>
             <span onClick={async () => {
               if (!sceneFile.root) return
               const collected: CCSceneNode[] = []
@@ -712,7 +712,7 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
               await saveScene(applyNorm(sceneFile.root))
               setBatchMsg(`✓ 그룹 원점화 (R2573)`)
               setTimeout(() => setBatchMsg(null), 2000)
-            }} style={mkBtnS('#34d399')} title="그룹 중심을 (0,0)으로 이동 (R2573)">⊕0</span>
+            }} style={mkBtnS('#34d399')} title={t('batch.distribution.t_0_0_move_r2573', '그룹 중심을 (0,0)으로 이동 (R2573)')}>⊕0</span>
           </div>
         )
       })()}
@@ -734,8 +734,8 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>정수화 (R2577)</span>
-            <span onClick={applyBatchRound} style={mkBtnS('#fbbf24')} title="선택 노드 위치/크기 정수화 (R2577)">⌊⌉All</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_round_r2577', '정수화 (R2577)')}</span>
+            <span onClick={applyBatchRound} style={mkBtnS('#fbbf24')} title={t('batch.distribution.t_select_node_pos_size_round_r2577', '선택 노드 위치/크기 정수화 (R2577)')}>⌊⌉All</span>
           </div>
         )
       })()}
@@ -752,10 +752,10 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기 통일 (R2595)</span>
-            <span onClick={() => applyMatchSize(true, false)} style={mkBtnS('#38bdf8')} title="W 크기 통일">=W</span>
-            <span onClick={() => applyMatchSize(false, true)} style={mkBtnS('#38bdf8')} title="H 크기 통일">=H</span>
-            <span onClick={() => applyMatchSize(true, true)} style={mkBtnS('#38bdf8')} title="W×H 크기 통일">=WH</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_size_unify_r2595', '크기 통일 (R2595)')}</span>
+            <span onClick={() => applyMatchSize(true, false)} style={mkBtnS('#38bdf8')} title={t('batch.distribution.t_w_size_unify', 'W 크기 통일')}>=W</span>
+            <span onClick={() => applyMatchSize(false, true)} style={mkBtnS('#38bdf8')} title={t('batch.distribution.t_h_size_unify', 'H 크기 통일')}>=H</span>
+            <span onClick={() => applyMatchSize(true, true)} style={mkBtnS('#38bdf8')} title={t('batch.distribution.t_w_h_size_unify', 'W×H 크기 통일')}>=WH</span>
           </div>
         )
       })()}
@@ -771,11 +771,11 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sz배수 (R2599)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_szmult_r2599', 'sz배수 (R2599)')}</span>
             <span onClick={() => applySizeMul(0.5)} style={mkBtnS('#38bdf8')}>×0.5</span>
             <span onClick={() => applySizeMul(2)} style={mkBtnS('#38bdf8')}>×2</span>
             <input type="number" value={sizeMulInput} step={0.1} onChange={e => setSizeMulInput(e.target.value)} style={mkNiS(36)} />
-            <span onClick={() => applySizeMul(mul)} style={mkBtnS('#38bdf8')} title={`size 배수 적용 ×${mul} (R2599)`}>적용</span>
+            <span onClick={() => applySizeMul(mul)} style={mkBtnS('#38bdf8')} title={`size 배수 적용 ×${mul} (R2599)`}>{t('batch.distribution.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -796,10 +796,10 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기통일 (R2634)</span>
-            <span onClick={() => applyMatchSz('w')} style={mkBtnS('#38bdf8')} title="첫 노드 W 통일">W</span>
-            <span onClick={() => applyMatchSz('h')} style={mkBtnS('#38bdf8')} title="첫 노드 H 통일">H</span>
-            <span onClick={() => applyMatchSz('both')} style={mkBtnS('#38bdf8')} title="첫 노드 크기 통일 W+H (R2634)">W+H</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_sizeunify_r2634', '크기통일 (R2634)')}</span>
+            <span onClick={() => applyMatchSz('w')} style={mkBtnS('#38bdf8')} title={t('batch.distribution.t_node_w_unify', '첫 노드 W 통일')}>W</span>
+            <span onClick={() => applyMatchSz('h')} style={mkBtnS('#38bdf8')} title={t('batch.distribution.t_node_h_unify', '첫 노드 H 통일')}>H</span>
+            <span onClick={() => applyMatchSz('both')} style={mkBtnS('#38bdf8')} title={t('batch.distribution.t_node_size_unify_w_h_r2634', '첫 노드 크기 통일 W+H (R2634)')}>W+H</span>
           </div>
         )
       })()}
@@ -807,17 +807,17 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {/* R2638: 회전 균등 분배 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyRotGrad = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const rot = Math.round(rotGradFrom + (rotGradTo - rotGradFrom) * t)
-          return { ...n, rotation: typeof n.rotation === 'number' ? rot : { ...(n.rotation as object), z: rot } }
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const rot = Math.round(rotGradFrom + (rotGradTo - rotGradFrom) * frac)
+          return { ...n, rotation: { ...n.rotation, z: rot } }
         }, `회전 균등 분배 ${rotGradFrom}°→${rotGradTo}° (${uuids.length}개)`)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#ec4899', flexShrink: 0 }}>rot분배 (R2638)</span>
+            <span style={{ fontSize: 9, color: '#ec4899', flexShrink: 0 }}>{t('batch.distribution.j_rotdistrib_r2638', 'rot분배 (R2638)')}</span>
             <input type="number" value={rotGradFrom} step={1} onChange={e => setRotGradFrom(parseFloat(e.target.value) || 0)} style={mkNiS(40)} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
             <input type="number" value={rotGradTo} step={1} onChange={e => setRotGradTo(parseFloat(e.target.value) || 0)} style={mkNiS(40)} />
-            <span onClick={applyRotGrad} style={mkBtnS('#ec4899')} title={`회전 균등 분배 (R2638)`}>분배</span>
+            <span onClick={applyRotGrad} style={mkBtnS('#ec4899')} title={t('batch.distribution.t_rot_equal_distrib_r2638', '회전 균등 분배 (R2638)')}>{t('batch.distribution.j_distrib', '분배')}</span>
           </div>
         )
       })()}
@@ -840,10 +840,10 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>산포 (R2681)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_spread_r2681', '산포 (R2681)')}</span>
             <input type="number" value={spreadFactor} min={0.1} max={5} step={0.1} onChange={e => setSpreadFactor(parseFloat(e.target.value) || 1)} style={mkNiS(44)} />
-            <span onClick={() => applySpread(spreadFactor)} style={mkBtnS('#fb923c')} title="산포">산포</span>
-            <span onClick={() => applySpread(1 / spreadFactor)} style={mkBtnS('#fb923c')} title="수축">수축</span>
+            <span onClick={() => applySpread(spreadFactor)} style={mkBtnS('#fb923c')} title={t('batch.distribution.t_spread', '산포')}>{t('batch.distribution.t_spread', '산포')}</span>
+            <span onClick={() => applySpread(1 / spreadFactor)} style={mkBtnS('#fb923c')} title={t('batch.distribution.t_shrink', '수축')}>{t('batch.distribution.t_shrink', '수축')}</span>
           </div>
         )
       })()}
@@ -860,7 +860,7 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>캔버스정렬 (R2683)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_canvasalign_r2683', '캔버스정렬 (R2683)')}</span>
             <span onClick={() => applyAlignToCanvas(-hw, null)} style={mkBtnS('#60a5fa')}>◁L</span>
             <span onClick={() => applyAlignToCanvas(0, null)} style={mkBtnS('#60a5fa')}>↔C</span>
             <span onClick={() => applyAlignToCanvas(hw, null)} style={mkBtnS('#60a5fa')}>▷R</span>
@@ -890,10 +890,10 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>간격 (R2684)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_gap_r2684', '간격 (R2684)')}</span>
             <input type="number" value={evenSpacing} min={0} step={5} onChange={e => setEvenSpacing(parseFloat(e.target.value) || 0)} style={mkNiS(44)} />
-            <span onClick={() => applyEvenSpacing('x')} style={mkBtnS('#60a5fa')} title="X축 절대 간격 설정">X간격</span>
-            <span onClick={() => applyEvenSpacing('y')} style={mkBtnS('#60a5fa')} title="Y축 절대 간격 설정">Y간격</span>
+            <span onClick={() => applyEvenSpacing('x')} style={mkBtnS('#60a5fa')} title={t('batch.distribution.t_x_gap_set', 'X축 절대 간격 설정')}>{t('batch.distribution.j_xgap', 'X간격')}</span>
+            <span onClick={() => applyEvenSpacing('y')} style={mkBtnS('#60a5fa')} title={t('batch.distribution.t_y_gap_set', 'Y축 절대 간격 설정')}>{t('batch.distribution.j_ygap', 'Y간격')}</span>
           </div>
         )
       })()}
@@ -901,19 +901,19 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {/* R2695: 위치 선형 배치 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyPosGradient = (axis: 'x' | 'y') => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const val = posGradFrom + (posGradTo - posGradFrom) * t
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const val = posGradFrom + (posGradTo - posGradFrom) * frac
           const p = n.position as { x: number; y: number; z?: number }
           return { ...n, position: axis === 'x' ? { ...p, x: val } : { ...p, y: val } }
         }, `위치 선형 배치 ${axis.toUpperCase()} ${posGradFrom}→${posGradTo} (${uuids.length}개)`)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>위치분포 (R2695)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_posdist_r2695', '위치분포 (R2695)')}</span>
             <input type="number" value={posGradFrom} onChange={e => setPosGradFrom(parseFloat(e.target.value) || 0)} style={mkNiS(52)} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
             <input type="number" value={posGradTo} onChange={e => setPosGradTo(parseFloat(e.target.value) || 0)} style={mkNiS(52)} />
-            <span onClick={() => applyPosGradient('x')} style={mkBtnS('#34d399')} title="X축 위치 선형 배치 (R2695)">X배치</span>
-            <span onClick={() => applyPosGradient('y')} style={mkBtnS('#34d399')} title="Y축 위치 선형 배치 (R2695)">Y배치</span>
+            <span onClick={() => applyPosGradient('x')} style={mkBtnS('#34d399')} title={t('batch.distribution.t_x_pos_arrange_r2695', 'X축 위치 선형 배치 (R2695)')}>{t('batch.distribution.j_xarrange', 'X배치')}</span>
+            <span onClick={() => applyPosGradient('y')} style={mkBtnS('#34d399')} title={t('batch.distribution.t_y_pos_arrange_r2695', 'Y축 위치 선형 배치 (R2695)')}>{t('batch.distribution.j_yarrange', 'Y배치')}</span>
           </div>
         )
       })()}
@@ -921,17 +921,17 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
       {/* R2697: opacity 그라데이션 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyOpGradient = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const op = Math.round(opGradFromDist + (opGradToDist - opGradFromDist) * t)
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const op = Math.round(opGradFromDist + (opGradToDist - opGradFromDist) * frac)
           return { ...n, opacity: Math.max(0, Math.min(255, op)) }
         }, `opacity 그라데이션 ${opGradFromDist}→${opGradToDist} (${uuids.length}개)`)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op분포 (R2697)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_opdist_r2697', 'op분포 (R2697)')}</span>
             <input type="number" value={opGradFromDist} min={0} max={255} onChange={e => setOpGradFromDist(parseInt(e.target.value) || 0)} style={mkNiS(44)} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
             <input type="number" value={opGradToDist} min={0} max={255} onChange={e => setOpGradToDist(parseInt(e.target.value) || 0)} style={mkNiS(44)} />
-            <span onClick={applyOpGradient} style={mkBtnS('#a78bfa')} title="opacity 그라데이션 (R2697)">적용</span>
+            <span onClick={applyOpGradient} style={mkBtnS('#a78bfa')} title={t('batch.distribution.t_opacity_gradation_r2697', 'opacity 그라데이션 (R2697)')}>{t('batch.distribution.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -946,12 +946,12 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기고정 (R2710)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_sizefixed_r2710', '크기고정 (R2710)')}</span>
             <label style={{ fontSize: 8, color: '#94a3b8' }}><input type="checkbox" checked={fixedSizeApplyW} onChange={e => setFixedSizeApplyW(e.target.checked)} />W</label>
             <input type="number" value={fixedSizeW} min={1} onChange={e => setFixedSizeW(parseInt(e.target.value) || 100)} style={mkNiS(40)} />
             <label style={{ fontSize: 8, color: '#94a3b8' }}><input type="checkbox" checked={fixedSizeApplyH} onChange={e => setFixedSizeApplyH(e.target.checked)} />H</label>
             <input type="number" value={fixedSizeH} min={1} onChange={e => setFixedSizeH(parseInt(e.target.value) || 100)} style={mkNiS(40)} />
-            <span onClick={applyBatchFixedSize} style={mkBtnS('#22d3ee')} title="크기 고정값 일괄 설정 applyBatchFixedSize (R2710)">적용</span>
+            <span onClick={applyBatchFixedSize} style={mkBtnS('#22d3ee')} title={t('batch.distribution.t_size_fixed_batch_set_applybatchfixedsize_r2710', '크기 고정값 일괄 설정 applyBatchFixedSize (R2710)')}>{t('batch.distribution.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -967,9 +967,9 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>px스냅 (R2719)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_pxsnap_r2719', 'px스냅 (R2719)')}</span>
             <input type="number" value={nearestGridSnap} min={1} onChange={e => setNearestGridSnap(parseInt(e.target.value) || 16)} style={mkNiS(38)} />
-            <span onClick={applyGridSnapNearest} style={mkBtnS('#34d399')} title={`격자 스냅 ${nearestGridSnap}px (R2719)`}>스냅</span>
+            <span onClick={applyGridSnapNearest} style={mkBtnS('#34d399')} title={`격자 스냅 ${nearestGridSnap}px (R2719)`}>{t('batch.distribution.j_snap', '스냅')}</span>
           </div>
         )
       })()}
@@ -992,8 +992,8 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>원점이동 (R2679)</span>
-            <span onClick={applyMoveToCenter} style={mkBtnS('#a78bfa')} title="선택 노드 그룹 중심을 (0,0)으로 원점이동 (R2679)">→(0,0)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.distribution.j_originmove_r2679', '원점이동 (R2679)')}</span>
+            <span onClick={applyMoveToCenter} style={mkBtnS('#a78bfa')} title={t('batch.distribution.t_select_node_0_0_originmove_r2679', '선택 노드 그룹 중심을 (0,0)으로 원점이동 (R2679)')}>→(0,0)</span>
           </div>
         )
       })()}
