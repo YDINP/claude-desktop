@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { BATCH_PLUGINS, getApplicablePlugins } from '../registry'
-import type { CCSceneNode } from '../../../../../../shared/ipc-schema'
+import type { CCSceneNode, CCSceneComponent } from '../../../../../../shared/ipc-schema'
 
 // ── 헬퍼 ─────────────────────────────────────────────────────────────────────
 
-function makeNode(uuid: string, name = 'Node'): CCSceneNode {
+function makeNode(uuid: string, name = 'Node', components: CCSceneComponent[] = []): CCSceneNode {
   return {
     uuid,
     name,
@@ -16,10 +16,12 @@ function makeNode(uuid: string, name = 'Node'): CCSceneNode {
     anchor: { x: 0.5, y: 0.5 },
     opacity: 255,
     color: { r: 255, g: 255, b: 255, a: 255 },
-    components: [],
+    components,
     children: [],
   }
 }
+
+const stubComponent: CCSceneComponent = { type: 'cc.Sprite', props: {} }
 
 const node1 = makeNode('uuid-1')
 const node2 = makeNode('uuid-2')
@@ -184,9 +186,12 @@ describe('getApplicablePlugins', () => {
   })
 
   it('대량 노드에서도 정확히 동작한다', () => {
-    const manyNodes = Array.from({ length: 100 }, (_, i) => makeNode(`uuid-${i}`))
+    // 컴포넌트를 포함하여 component-group applies 조건도 충족
+    const manyNodes = Array.from({ length: 100 }, (_, i) =>
+      makeNode(`uuid-${i}`, 'Node', [stubComponent]),
+    )
     const result = getApplicablePlugins(manyNodes)
-    // minNodes <= 100이면 applies 없는 한 모두 포함
+    // minNodes <= 100이고 applies 조건 모두 충족 → 전체 포함
     expect(result.length).toBe(BATCH_PLUGINS.length)
   })
 })

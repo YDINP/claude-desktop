@@ -1107,7 +1107,7 @@ export function findCanvasNode(root: CCSceneNode): CCSceneNode | null {
 /**
  * R1447: 씬에서 디자인 해상도 획득
  * - 2x: cc.Canvas._designResolution 또는 _designResolution 직접 필드
- * - 3x: Camera 컴포넌트의 orthoHeight 기반 추정 (width = orthoHeight * aspect)
+ * - 3x: settings/v2/packages/project.json general.designResolution → Camera orthoHeight 추정 순
  * - fallback: { width: 960, height: 640 }
  */
 export function getDesignResolution(sceneFile: CCSceneFile): { width: number; height: number } {
@@ -1127,14 +1127,30 @@ export function getDesignResolution(sceneFile: CCSceneFile): { width: number; he
     }
   }
 
-  if (version === '3x' && raw) {
-    // 3x: Camera 컴포넌트의 orthoHeight 기반 추정
-    for (const entry of raw) {
-      if (entry.__type__ === 'cc.Camera') {
-        const orthoH = entry._orthoHeight as number | undefined
-        if (orthoH && orthoH > 0) {
-          // 기본 16:9 비율 가정
-          return { width: Math.round(orthoH * 2 * (16 / 9)), height: orthoH * 2 }
+  if (version === '3x') {
+    // 3x-1: settings/v2/packages/project.json general.designResolution
+    const projectPath = sceneFile.projectInfo?.projectPath
+    if (projectPath) {
+      try {
+        const settingsPath = `${projectPath}/settings/v2/packages/project.json`
+        const raw3x = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')) as Record<string, unknown>
+        const general = raw3x.general as Record<string, unknown> | undefined
+        const dr = general?.designResolution as { width?: number; height?: number } | undefined
+        if (dr?.width && dr?.height) return { width: dr.width, height: dr.height }
+      } catch {
+        // settings.json 없으면 Camera 기반 추정으로 폴백
+      }
+    }
+
+    // 3x-2: Camera 컴포넌트의 orthoHeight 기반 추정
+    if (raw) {
+      for (const entry of raw) {
+        if (entry.__type__ === 'cc.Camera') {
+          const orthoH = entry._orthoHeight as number | undefined
+          if (orthoH && orthoH > 0) {
+            // 기본 16:9 비율 가정
+            return { width: Math.round(orthoH * 2 * (16 / 9)), height: orthoH * 2 }
+          }
         }
       }
     }

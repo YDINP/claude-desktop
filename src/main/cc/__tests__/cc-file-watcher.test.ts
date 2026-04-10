@@ -368,5 +368,112 @@ describe('CCFileWatcher', () => {
       expect(mockWatcherClose).toHaveBeenCalledOnce()
       expect(watcher.watchedCount).toBe(0)
     })
+
+    it('clears fileContentCache on close()', async () => {
+      watcher.cacheFileContent('/project/scene.fire', 'some content')
+      await watcher.watch('/project')
+      await watcher.close()
+      // After close, watchedCount is 0 and internal state is reset.
+      // Re-watch and verify fullReload (cache cleared → no old content)
+      vi.clearAllMocks()
+      mockWatcherOn.mockReturnValue(mockWatcher)
+      const { readFileSync } = await import('fs')
+      vi.mocked(readFileSync).mockReturnValue('new content' as unknown as Buffer)
+
+      const cb = vi.fn()
+      watcher.onPartialUpdate(cb)
+      await watcher.watch('/project/scene.fire')
+
+      vi.useFakeTimers()
+      const changeHandler = mockWatcherOn.mock.calls.find(([evt]) => evt === 'change')?.[1]
+      changeHandler?.('/project/scene.fire')
+      vi.advanceTimersByTime(350)
+      vi.useRealTimers()
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      // No cache from before close → fullReload
+      expect(cb).toHaveBeenCalledWith(expect.objectContaining({ fullReload: true }))
+    })
+
+    it('clears callbacks on close()', async () => {
+      const cb = vi.fn()
+      watcher.onChange(cb)
+      await watcher.watch('/project')
+      await watcher.close()
+
+      // Re-watch after close
+      vi.clearAllMocks()
+      mockWatcherOn.mockReturnValue(mockWatcher)
+      await watcher.watch('/project/x.fire')
+
+      const addHandler = mockWatcherOn.mock.calls.find(([evt]) => evt === 'add')?.[1]
+      addHandler?.('/project/x.fire')
+      // Callback was cleared by close()
+      expect(cb).not.toHaveBeenCalled()
+    })
+  })
+
+  // ── unwatch — individual path removal ─────────────────────────────────────────
+
+  describe('unwatch() — cache cleanup', () => {
+    it('removes fileContentCache for the unwatched path', async () => {
+      watcher.cacheFileContent('/a.fire', 'content-a')
+      watcher.cacheFileContent('/b.fire', 'content-b')
+      await watcher.watch(['/a.fire', '/b.fire'])
+
+      watcher.unwatch('/a.fire')
+      expect(watcher.watchedCount).toBe(1)
+
+      // After unwatch, /a.fire cache is removed → next change triggers fullReload
+      const { readFileSync } = await import('fs')
+      vi.mocked(readFileSync).mockReturnValue('updated' as unknown as Buffer)
+
+      const cb = vi.fn()
+      watcher.onPartialUpdate(cb)
+
+      vi.useFakeTimers()
+      const changeHandler = mockWatcherOn.mock.calls.find(([evt]) => evt === 'change')?.[1]
+      changeHandler?.('/a.fire')
+      vi.advanceTimersByTime(350)
+      vi.useRealTimers()
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      expect(cb).toHaveBeenCalledWith(expect.objectContaining({ fullReload: true, path: '/a.fire' }))
+    })
+
+    it('does not affect cache of other paths when unwatching one', async () => {
+      await watcher.watch(['/a.fire', '/b.fire'])
+      watcher.cacheFileContent('/b.fire', 'content-b')
+      watcher.unwatch('/a.fire')
+
+      // /b.fire still watched
+      expect(watcher.watchedCount).toBe(1)
+      expect(mockWatcherUnwatch).toHaveBeenCalledWith(['/a.fire'])
+    })
+  })
+
+  // ── duplicate watch prevention ────────────────────────────────────────────────
+
+  describe('duplicate watch prevention', () => {
+    it('does not add already-watched path via watch() call', async () => {
+      await watcher.watch('/project/scene.fire')
+      const initialCount = watcher.watchedCount
+
+      await watcher.watch('/project/scene.fire')
+      expect(watcher.watchedCount).toBe(initialCount)
+      // mockWatcherAdd should NOT be called for the duplicate
+      expect(mockWatcherAdd).not.toHaveBeenCalled()
+    })
+
+    it('only adds new paths from a mixed array (some already watched)', async () => {
+      await watcher.watch('/a.fire')
+      vi.clearAllMocks()
+      mockWatcherOn.mockReturnValue(mockWatcher)
+
+      await watcher.watch(['/a.fire', '/b.fire'])
+      // /a.fire already watched — only /b.fire should be added
+      expect(mockWatcherAdd).toHaveBeenCalledWith(['/b.fire'])
+      expect(watcher.watchedCount).toBe(2)
+    })
   })
 })
