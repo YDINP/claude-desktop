@@ -2,7 +2,7 @@ import React from 'react'
 import type { RendererProps } from './types'
 
 /** cc.AudioSource, cc.Camera, cc.DirectionalLight, cc.PointLight, cc.SpotLight, cc.MotionStreak, cc.ParticleSystem, cc.ParticleSystem2D, cc.BlockInputEvents Quick Edit renderer */
-export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function EffectsRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.AudioSource') {
               const volume = Number(p.volume ?? 1)
@@ -535,3 +535,4 @@ export function EffectsRenderer({ comp, draft, applyAndSave, sceneFile, origIdx,
             }
             return null
 }
+export const EffectsRenderer = React.memo(EffectsRendererInner)

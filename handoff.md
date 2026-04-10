@@ -8,7 +8,7 @@
 - **QA**: 0 Critical / 0 Warning / 2612 Pass
 - **tsc**: 0 에러
 - **빌드**: 성공
-- **테스트**: 197/197 (15 파일)
+- **테스트**: 2193/2193 (106 파일) ← +84 (이전: 2109/103 파일)
 - **최신 커밋**: `4cbb74f7` — docs: ROADMAP R2789~R2790 CCFileSceneView Context/6차감사 기록
 
 ---
@@ -122,6 +122,14 @@ src/renderer/
 ### 10. 미사용 IPC 정리
 - 미사용 채널 6개 `/** @unused */` 주석 추가
 - Window 타입 유령 선언 2개 (`getTasks`/`saveTasks`) 제거
+
+### 11. CC Editor Inspector/SceneToolbar 테스트 추가 (+84)
+- **renderers.test.tsx** (34) — LabelRenderer, SpriteRenderer, ButtonRenderer, UIRenderer 각 컴포넌트 타입 렌더링 검증
+- **NodeInspectorView.test.tsx** (26) — COMP_ICONS, COMP_DESCRIPTIONS, localStorage 키 상수, SpriteThumb
+- **SceneToolbar.test.tsx** (24) — 기본 렌더링, 도구 선택, 줌 제어(확대/축소/프리셋), 선택 카운트 배지
+- 신규 테스트 파일 위치:
+  - `src/renderer/src/components/sidebar/CocosPanel/NodeInspector/__tests__/` (2개)
+  - `src/renderer/src/components/sidebar/SceneView/__tests__/SceneToolbar.test.tsx` (1개)
 
 ---
 

@@ -2,7 +2,7 @@ import React from 'react'
 import type { RendererProps } from './types'
 
 /** cc.Canvas, cc.Widget, cc.ProgressBar, cc.UIOpacity, cc.UITransform, cc.Mask Quick Edit renderer */
-export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function UIRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Canvas') {
               const dr = (p._N$designResolution ?? p._designResolution ?? p.designResolution ?? {}) as { width?: number; height?: number }
@@ -523,3 +523,4 @@ export function UIRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, 
             // R1569: cc.PageView — direction/scrollThreshold/autoPageTurningThreshold Quick Edit
             return null
 }
+export const UIRenderer = React.memo(UIRendererInner)

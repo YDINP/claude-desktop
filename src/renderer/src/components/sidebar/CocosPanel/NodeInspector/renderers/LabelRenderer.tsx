@@ -641,7 +641,7 @@ function LabelQuickEdit({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3
 }
 
 /** cc.LabelOutline, cc.LabelShadow, cc.RichText, cc.Label Quick Edit renderer */
-export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function LabelRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const [showRichPreview, setShowRichPreview] = React.useState(false)
             const p = comp.props
             if (comp.type === 'cc.LabelOutline' || comp.type === 'cc.LabelShadow') {
@@ -1060,3 +1060,4 @@ export function LabelRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, c
             // R1538: cc.EditBox — 텍스트/플레이스홀더/maxLength 편집
             return null
 }
+export const LabelRenderer = React.memo(LabelRendererInner)

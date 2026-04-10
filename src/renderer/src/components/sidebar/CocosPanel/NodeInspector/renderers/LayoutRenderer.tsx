@@ -2,7 +2,7 @@ import React from 'react'
 import type { RendererProps } from './types'
 
 /** cc.Layout Quick Edit renderer */
-export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function LayoutRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.Layout') {
               const layoutType = Number(p.type ?? p.layoutType ?? p._type ?? p._layoutType ?? p._N$type ?? p._N$layoutType ?? 0)
@@ -241,3 +241,4 @@ export function LayoutRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
             // R1590/R1813: cc.Graphics Quick Edit (applyAndSave)
             return null
 }
+export const LayoutRenderer = React.memo(LayoutRendererInner)

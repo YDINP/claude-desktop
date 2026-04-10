@@ -2,7 +2,7 @@ import React from 'react'
 import type { RendererProps } from './types'
 
 /** cc.Toggle, cc.ToggleContainer, cc.EditBox, cc.Button, cc.Slider Quick Edit renderer */
-export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
+function ButtonRendererInner({ comp, draft, applyAndSave, sceneFile, origIdx, ci, is3x }: RendererProps): React.ReactElement | null {
             const p = comp.props
             if (comp.type === 'cc.ToggleContainer') {
               return (
@@ -647,3 +647,4 @@ export function ButtonRenderer({ comp, draft, applyAndSave, sceneFile, origIdx, 
             // R1562: cc.VideoPlayer — remoteURL/loop/muted/playbackRate Quick Edit
             return null
 }
+export const ButtonRenderer = React.memo(ButtonRendererInner)
