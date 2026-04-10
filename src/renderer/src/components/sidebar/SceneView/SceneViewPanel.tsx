@@ -47,6 +47,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [canvasSize, setCanvasSize] = useState({ w: 960, h: 640 })
   const DESIGN_W = canvasSize.w
   const DESIGN_H = canvasSize.h
+  // R1404: PNG 내보내기 설정 (배경색, 해상도) — useSceneViewActions에서 참조하므로 먼저 선언
+  const [pngExportBg, setPngExportBg] = useState<'dark' | 'light' | 'transparent'>('dark')
+  const [pngExportScale, setPngExportScale] = useState<1 | 2 | 4>(1)
   const [gridVisible, setGridVisible] = useState(true)
   // R1422: 그리드 커스터마이즈 (크기/색상/불투명도) — localStorage grid-settings
   const [gridSettings, setGridSettings] = useState<{ size: number; theme: 'light' | 'dark'; opacity: number }>(() => {
@@ -762,9 +765,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // handleNodeMouseDown → useSceneViewMouse에서 제공
 
   // hitTestAtPoint → useSceneViewMouse에서 제공
-  // R1404: PNG 내보내기 설정 (배경색, 해상도)
-  const [pngExportBg, setPngExportBg] = useState<'dark' | 'light' | 'transparent'>('dark')
-  const [pngExportScale, setPngExportScale] = useState<1 | 2 | 4>(1)
+  // R1404: PNG 내보내기 설정 — 선언이 useSceneViewActions 이후로 이동됨 (위에서 선언됨)
   const [showPngExportPanel, setShowPngExportPanel] = useState(false)
   // PNG_BG_COLORS imported from sceneViewConstants
 
