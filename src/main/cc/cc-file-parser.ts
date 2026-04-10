@@ -4,6 +4,7 @@ import type {
   CCVec2, CCVec3, CCColor, CCFileProjectInfo,
 } from '../../shared/ipc-schema'
 import { buildUUIDMap } from './cc-asset-resolver'
+import type { UUIDMap } from './cc-asset-resolver'
 // CCSceneNode is used by extractSceneMeta (R1459)
 
 type RawEntry = Record<string, unknown>
@@ -15,7 +16,7 @@ type RawEntry = Record<string, unknown>
  * - flat JSON 배열 → CCSceneNode 트리로 변환
  * - 파일 확장자(.fire/.scene/.prefab) 또는 내부 필드(_trs/_lpos)로 버전 자동 감지
  */
-export async function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo): Promise<CCSceneFile> {
+export async function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo, prebuiltUuidMap?: UUIDMap): Promise<CCSceneFile> {
   let raw: RawEntry[]
   try {
     raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
@@ -41,7 +42,8 @@ export async function parseCCScene(scenePath: string, projectInfo: CCFileProject
   // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames 맵 (인스펙터 표시용)
   const scriptNames: Record<string, string> = {}
   if (projectInfo.assetsDir) {
-    const uuidMap = await buildUUIDMap(projectInfo.assetsDir)
+    // 외부에서 캐시된 맵이 주입된 경우 재스캔 생략 (cc-file-handlers의 getCachedUUIDMap 활용)
+    const uuidMap = prebuiltUuidMap ?? await buildUUIDMap(projectInfo.assetsDir)
     const scriptUuidToName = new Map<string, string>()
     for (const [uuid, meta] of uuidMap) {
       if (meta.type === 'script') {
@@ -381,16 +383,10 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
       strokeColor: sc ? { r: (sc as { r?: number }).r ?? 0, g: (sc as { g?: number }).g ?? 0, b: (sc as { b?: number }).b ?? 0, a: (sc as { a?: number }).a ?? 255 } : undefined,
     }
   },
-  // R1589: cc.Sprite / cc.Sprite2D — 스프라이트 컴포넌트
+  // R1589: cc.Sprite / cc.Sprite2D — 스프라이트 컴포넌트 (alias)
   'cc.Sprite': e => ({
     type: (e._N$type ?? e._type ?? e.type ?? 0) as number,  // 0=SIMPLE,1=SLICED,2=TILED,3=FILLED
     sizeMode: (e._N$sizeMode ?? e._sizeMode ?? e.sizeMode ?? 1) as number,  // 0=CUSTOM,1=TRIMMED,2=RAW
-    trim: !!(e._N$trim ?? e._trim ?? e.trim ?? true),
-    grayscale: !!(e._N$grayscale ?? e._grayscale ?? e.grayscale ?? false),
-  }),
-  'cc.Sprite2D': e => ({
-    type: (e._N$type ?? e._type ?? e.type ?? 0) as number,
-    sizeMode: (e._N$sizeMode ?? e._sizeMode ?? e.sizeMode ?? 1) as number,
     trim: !!(e._N$trim ?? e._trim ?? e.trim ?? true),
     grayscale: !!(e._N$grayscale ?? e._grayscale ?? e.grayscale ?? false),
   }),
@@ -530,7 +526,7 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     visible: !!(e._N$visible ?? e._visible ?? e.visible ?? true),
     opacity: (e._N$opacity ?? e._opacity ?? e.opacity ?? 1) as number,
   }),
-  // R1551: cc.RigidBody — 2D 물리 강체
+  // R1551: cc.RigidBody / cc.RigidBody2D — 2D 물리 강체 (alias)
   'cc.RigidBody': e => ({
     type: (e._N$type ?? e._type ?? e.type ?? 0) as number,  // 0=DYNAMIC, 1=STATIC, 2=KINEMATIC
     mass: (e._N$mass ?? e._mass ?? e.mass ?? 1) as number,
@@ -541,48 +537,22 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     allowSleep: !!(e._N$allowSleep ?? e._allowSleep ?? e.allowSleep ?? true),
     bullet: !!(e._N$bullet ?? e._bullet ?? e.bullet ?? false),
   }),
-  'cc.RigidBody2D': e => ({
-    type: (e._N$type ?? e._type ?? e.type ?? 0) as number,
-    mass: (e._N$mass ?? e._mass ?? e.mass ?? 1) as number,
-    linearDamping: (e._N$linearDamping ?? e._linearDamping ?? e.linearDamping ?? 0) as number,
-    angularDamping: (e._N$angularDamping ?? e._angularDamping ?? e.angularDamping ?? 0) as number,
-    gravityScale: (e._N$gravityScale ?? e._gravityScale ?? e.gravityScale ?? 1) as number,
-    fixedRotation: !!(e._N$fixedRotation ?? e._fixedRotation ?? e.fixedRotation ?? false),
-  }),
-  // R1551: cc.BoxCollider — 박스 콜라이더
+  // R1551: cc.BoxCollider / cc.BoxCollider2D — 박스 콜라이더 (alias)
   'cc.BoxCollider': e => ({
     offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
     size: (e._N$size ?? e._size ?? e.size) as { width?: number; height?: number } | undefined,
     tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
     sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
   }),
-  'cc.BoxCollider2D': e => ({
-    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
-    size: (e._N$size ?? e._size ?? e.size) as { width?: number; height?: number } | undefined,
-    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
-    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
-  }),
-  // R1551: cc.CircleCollider — 원형 콜라이더
+  // R1551: cc.CircleCollider / cc.CircleCollider2D — 원형 콜라이더 (alias)
   'cc.CircleCollider': e => ({
     offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
     radius: (e._N$radius ?? e._radius ?? e.radius ?? 0) as number,
     tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
     sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
   }),
-  'cc.CircleCollider2D': e => ({
-    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
-    radius: (e._N$radius ?? e._radius ?? e.radius ?? 0) as number,
-    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
-    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
-  }),
-  // R1574: cc.PolygonCollider — 폴리곤 콜라이더
+  // R1574: cc.PolygonCollider / cc.PolygonCollider2D — 폴리곤 콜라이더 (alias)
   'cc.PolygonCollider': e => ({
-    offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
-    points: (e._N$points ?? e._points ?? e.points ?? []) as Array<{ x?: number; y?: number }>,
-    tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
-    sensor: !!(e._N$sensor ?? e._sensor ?? e.sensor ?? false),
-  }),
-  'cc.PolygonCollider2D': e => ({
     offset: (e._N$offset ?? e._offset ?? e.offset) as { x?: number; y?: number } | undefined,
     points: (e._N$points ?? e._points ?? e.points ?? []) as Array<{ x?: number; y?: number }>,
     tag: (e._N$tag ?? e._tag ?? e.tag ?? 0) as number,
@@ -616,6 +586,13 @@ const COMPONENT_PROP_EXTRACTORS: Record<string, (e: RawEntry) => Record<string, 
     debugBones: !!(e._N$debugBones ?? e._debugBones ?? e.debugBones ?? false),
   }),
 }
+
+// 동일 구조의 2x/3x alias 쌍 등록 (맵 복사 없이 참조 공유)
+COMPONENT_PROP_EXTRACTORS['cc.Sprite2D'] = COMPONENT_PROP_EXTRACTORS['cc.Sprite']!
+COMPONENT_PROP_EXTRACTORS['cc.RigidBody2D'] = COMPONENT_PROP_EXTRACTORS['cc.RigidBody']!
+COMPONENT_PROP_EXTRACTORS['cc.BoxCollider2D'] = COMPONENT_PROP_EXTRACTORS['cc.BoxCollider']!
+COMPONENT_PROP_EXTRACTORS['cc.CircleCollider2D'] = COMPONENT_PROP_EXTRACTORS['cc.CircleCollider']!
+COMPONENT_PROP_EXTRACTORS['cc.PolygonCollider2D'] = COMPONENT_PROP_EXTRACTORS['cc.PolygonCollider']!
 
 // R1524: cc.Animation 클립 이름 해결 (embedded __id__ or external __uuid__)
 function resolveAnimationClipNames(e: RawEntry, raw: RawEntry[]): { name: string }[] {
@@ -1414,7 +1391,8 @@ export async function parseCCSceneChunked(
   scenePath: string,
   projectInfo: CCFileProjectInfo,
   chunkSize = 50,
-  chunkOffset = 0
+  chunkOffset = 0,
+  prebuiltUuidMap?: UUIDMap
 ): Promise<{ scene: CCSceneFile; state: CCSceneStreamState }> {
   let raw: RawEntry[]
   try {
@@ -1439,7 +1417,7 @@ export async function parseCCSceneChunked(
   // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames (인스펙터 표시용)
   const scriptNamesChunked: Record<string, string> = {}
   if (projectInfo.assetsDir) {
-    const uuidMap = await buildUUIDMap(projectInfo.assetsDir)
+    const uuidMap = prebuiltUuidMap ?? await buildUUIDMap(projectInfo.assetsDir)
     const scriptUuidToName = new Map<string, string>()
     for (const [uuid, meta] of uuidMap) {
       if (meta.type === 'script') {

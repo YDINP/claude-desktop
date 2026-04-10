@@ -354,10 +354,16 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
     return result
   }, [flatNodes, uuids])
 
-  // R2665: 깊이 히트맵용 최대 깊이
-  const maxDepthVal = useMemo(() => Math.max(...flatNodes.map(fn => fn.depth), 1), [flatNodes])
-  // R2675: 크기 히트맵용 최대 노드 면적
-  const maxNodeArea = useMemo(() => Math.max(...flatNodes.map(fn => (fn.node.size?.x ?? 0) * (fn.node.size?.y ?? 0)), 1), [flatNodes])
+  // R2665/R2675: 깊이 히트맵 최대 깊이 + 크기 히트맵 최대 면적 — 단일 패스로 계산
+  const { maxDepthVal, maxNodeArea } = useMemo(() => {
+    let depth = 1, area = 1
+    for (const fn of flatNodes) {
+      if (fn.depth > depth) depth = fn.depth
+      const a = (fn.node.size?.x ?? 0) * (fn.node.size?.y ?? 0)
+      if (a > area) area = a
+    }
+    return { maxDepthVal: depth, maxNodeArea: area }
+  }, [flatNodes])
 
   // R2324: 선택 노드 자동 팬 — 트리에서 선택 시 뷰포트 밖이면 중심 이동
   const flatNodesRef = useRef(flatNodes)

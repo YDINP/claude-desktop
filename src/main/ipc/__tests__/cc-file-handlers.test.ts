@@ -751,7 +751,7 @@ describe('cc:file:readSceneChunked', () => {
 
     const h = getHandler('cc:file:readSceneChunked')
     const result = await h({}, '/proj/main.fire', { version: '2x' }, 50, 0)
-    expect(mockParseCCSceneChunked).toHaveBeenCalledWith('/proj/main.fire', { version: '2x' }, 50, 0)
+    expect(mockParseCCSceneChunked).toHaveBeenCalledWith('/proj/main.fire', { version: '2x' }, 50, 0, undefined)
     expect(result.chunkTotal).toBe(5)
   })
 

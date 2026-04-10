@@ -117,7 +117,14 @@ export function useCCFileProject() {
       setLoading(true)
       setError(null)
       try {
-        const result = await window.api.ccFileReadScene?.(scenePath, projectInfo)
+        // 30초 타임아웃 — 대형 씬 파싱 시 무한 대기 방지
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('씬 파일 로드 타임아웃 (30초)')), 30000)
+        )
+        const result = await Promise.race([
+          window.api.ccFileReadScene?.(scenePath, projectInfo),
+          timeoutPromise,
+        ])
         if (!result) {
           setError('씬 파일 로드 실패')
         } else if ('error' in result) {

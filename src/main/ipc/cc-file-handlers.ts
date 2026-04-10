@@ -87,7 +87,9 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     projectInfo: CCFileProjectInfo
   ) => {
     try {
-      const result = await parseCCScene(scenePath, projectInfo)
+      // assetsDir가 있으면 캐시된 UUID 맵을 미리 확보해서 parseCCScene 내부 재스캔 방지
+      const uuidMap = projectInfo.assetsDir ? await getCachedUUIDMap(projectInfo.assetsDir) : undefined
+      const result = await parseCCScene(scenePath, projectInfo, uuidMap)
       // R1437: 로드 시 mtime 기록
       recordSceneMtime(scenePath)
       return result
@@ -167,7 +169,8 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     chunkOffset = 0
   ) => {
     try {
-      return await parseCCSceneChunked(scenePath, projectInfo, chunkSize, chunkOffset)
+      const uuidMap = projectInfo.assetsDir ? await getCachedUUIDMap(projectInfo.assetsDir) : undefined
+      return await parseCCSceneChunked(scenePath, projectInfo, chunkSize, chunkOffset, uuidMap)
     } catch (e) {
       return { error: String(e) }
     }
