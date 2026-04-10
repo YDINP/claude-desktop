@@ -1021,3 +1021,5 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2821 | Atlas 스프라이트 프레임 추출 (plist/meta→SVG viewBox 크롭) + color plugin 30테스트 (총 1,620) | ✅ |
 | R2822 | Widget 레이아웃 계산 (alignFlags→position/size) + BMFont 폴백 + plugin 102테스트 (총 1,729) | ✅ |
 | R2823 | Overflow:SHRINK 텍스트 축소 + parseCCSceneChunked 경량화 + UUID 캐시 클리어 + preset/history/component 65테스트 (총 1,788) | ✅ |
+| R2824 | 테스트 **2,045개** 돌파 — CC파서/핸들러/오버레이/키보드/노드오퍼 257 추가 (100파일) | ✅ |
+| R2825 | SceneView 뷰포트 컬링 (화면밖 노드 스킵) + 씬 저장 직렬화 큐 (per-path Promise 체인) | ✅ |
