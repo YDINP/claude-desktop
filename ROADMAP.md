@@ -1029,3 +1029,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2829 | CC 엔진 경량화 (extractor 통합/캐시 주입/단일패스/IPC 타임아웃) + Layout/Keyboard/Hierarchy/SceneTab 119테스트 (총 2,378) | ✅ |
 | R2830 | CC-COMPAT.md 호환 매트릭스 + COMP_SKIP 41개 + memo 3컴포넌트 + Generic/QuickEdit/Transform/Header 128테스트 (총 2,506) | ✅ |
 | R2831 | useCCFileProject(30) + BuildTab/AssetBrowser/BackupManager/ProjectHeader 67테스트 (총 2,603) | ✅ |
+| R2832 | BatchInspector 21플러그인 i18n 530키(총~1,280) + 엣지케이스 37테스트 + JSDoc (총 2,640) | ✅ |
