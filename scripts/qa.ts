@@ -16,6 +16,7 @@ import { join } from 'path'
 import { runBuildChecks } from './qa-checks/check-build'
 import { runIpcChecks } from './qa-checks/check-ipc'
 import { runRoundChecks } from './qa-checks/check-rounds'
+import { runRuntimeChecks } from './qa-checks/check-runtime'
 import type { LogFn } from './qa-checks/check-rounds'
 
 const ROOT = join(__dirname, '..')
@@ -45,7 +46,10 @@ runBuildChecks(ROOT, log)
 // ── 2. IPC & Runtime Safety Checks ───────────────────────
 runIpcChecks(ROOT, log)
 
-// ── 3. Round Feature Checks (declarative table) ─────────
+// ── 3. Runtime Safety Checks (TDZ, hooks, tests) ────────
+runRuntimeChecks(ROOT, log)
+
+// ── 4. Round Feature Checks (declarative table) ─────────
 runRoundChecks(ROOT, log)
 
 // ── Report ───────────────────────────────────────────────
