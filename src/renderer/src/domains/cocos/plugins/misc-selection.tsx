@@ -1,5 +1,6 @@
 import React from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
+import { t } from '../../../utils/i18n'
 
 interface MiscSelectionProps {
   uuids: string[]
@@ -29,8 +30,8 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>선택 반전 (R2500)</span>
-            <span onClick={applyInvertSelect} style={mkBtnS('#818cf8')} title="선택 반전 onMultiSelectChange R2500">⊘ 반전</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_select_invert_r2500', '선택 반전 (R2500)')}</span>
+            <span onClick={applyInvertSelect} style={mkBtnS('#818cf8')} title={t('batch.misc_sel.t_select_invert_onmultiselectchange_r2500', '선택 반전 onMultiSelectChange R2500')}>{t('batch.misc_sel.j_invert', '⊘ 반전')}</span>
           </div>
         )
       })()}
@@ -53,8 +54,8 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>하위 노드 포함 (R2507)</span>
-            <span onClick={applyExpandDesc} style={mkBtnS('#34d399')} title="collectDesc 하위 노드 포함 선택 확장">⬇+자식</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_node_incl_r2507', '하위 노드 포함 (R2507)')}</span>
+            <span onClick={applyExpandDesc} style={mkBtnS('#34d399')} title={t('batch.misc_sel.t_collectdesc_node_incl_select', 'collectDesc 하위 노드 포함 선택 확장')}>{t('batch.misc_sel.j_child', '⬇+자식')}</span>
           </div>
         )
       })()}
@@ -73,14 +74,14 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
           }
           walk(sceneFile.root)
           onMultiSelectChange?.(filtered)
-          setBatchMsg(`✓ ${active ? '활성' : '비활성'} 필터: ${filtered.length}개 (R2509)`)
+          setBatchMsg(`✓ ${active ? t('batch.misc_sel.s_on', '활성') : t('batch.misc_sel.s_off', '비활성')} 필터: ${filtered.length}개 (R2509)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>필터 (R2509)</span>
-            <span onClick={() => applyFilter(true)} style={mkBtnS('#34d399')} title="활성 노드만 선택">활성 노드만 선택</span>
-            <span onClick={() => applyFilter(false)} style={mkBtnS('#f472b6')} title="비활성 노드만 선택">비활성 노드만 선택</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_filter_r2509', '필터 (R2509)')}</span>
+            <span onClick={() => applyFilter(true)} style={mkBtnS('#34d399')} title={t('batch.misc_sel.t_on_node_select', '활성 노드만 선택')}>{t('batch.misc_sel.t_on_node_select', '활성 노드만 선택')}</span>
+            <span onClick={() => applyFilter(false)} style={mkBtnS('#f472b6')} title={t('batch.misc_sel.t_off_node_select', '비활성 노드만 선택')}>{t('batch.misc_sel.t_off_node_select', '비활성 노드만 선택')}</span>
           </div>
         )
       })()}
@@ -101,8 +102,8 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>같은이름 (R2510)</span>
-            <span onClick={applySameNameSelect} style={mkBtnS('#fbbf24')} title="같은 이름 노드 일괄 선택 sameNameUuids R2510">≡이름</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_name_r2510', '같은이름 (R2510)')}</span>
+            <span onClick={applySameNameSelect} style={mkBtnS('#fbbf24')} title={t('batch.misc_sel.t_name_node_batch_select_samenameuuids_r2510', '같은 이름 노드 일괄 선택 sameNameUuids R2510')}>{t('batch.misc_sel.j_name', '≡이름')}</span>
           </div>
         )
       })()}
@@ -122,7 +123,7 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>JSON (R2512)</span>
-            <span onClick={applyJsonCopy} style={mkBtnS('#34d399')} title="JSON 복사 R2512">⎘ JSON</span>
+            <span onClick={applyJsonCopy} style={mkBtnS('#34d399')} title={t('batch.misc_sel.t_json_copy_r2512', 'JSON 복사 R2512')}>⎘ JSON</span>
           </div>
         )
       })()}
@@ -144,8 +145,8 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>부모선택 (R2515)</span>
-            <span onClick={applyParentSelect} style={mkBtnS('#818cf8')} title="parentOfMap ⬆ 부모 노드 선택 R2515">⬆ 부모</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_parentselect_r2515', '부모선택 (R2515)')}</span>
+            <span onClick={applyParentSelect} style={mkBtnS('#818cf8')} title={t('batch.misc_sel.t_parentofmap_parent_node_select_r2515', 'parentOfMap ⬆ 부모 노드 선택 R2515')}>{t('batch.misc_sel.j_parent', '⬆ 부모')}</span>
           </div>
         )
       })()}
@@ -166,8 +167,8 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>자식선택 (R2522)</span>
-            <span onClick={applyChildSelect} style={mkBtnS('#34d399')} title="collectChildren ⬇ 자식 직접 자식 선택 R2522">⬇ 자식</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_childselect_r2522', '자식선택 (R2522)')}</span>
+            <span onClick={applyChildSelect} style={mkBtnS('#34d399')} title={t('batch.misc_sel.t_collectchildren_child_child_select_r2522', 'collectChildren ⬇ 자식 직접 자식 선택 R2522')}>{t('batch.misc_sel.j_child2', '⬇ 자식')}</span>
           </div>
         )
       })()}
@@ -183,7 +184,7 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         if (commonTypes.length === 0) return null
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>컴프필터 (R2545)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_filter_r2545', '컴프필터 (R2545)')}</span>
             {commonTypes.map(([type, cnt]) => (
               <span key={type} onClick={() => {
                 if (!sceneFile.root) return
@@ -225,8 +226,8 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>같은Layer (R2556)</span>
-            <span onClick={applyLayerSelect} style={mkBtnS('#fbbf24')} title="targetLayer sameLayerUuids findSameLayer 같은 Layer 노드 선택 R2556">≡Layer</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_layer_r2556', '같은Layer (R2556)')}</span>
+            <span onClick={applyLayerSelect} style={mkBtnS('#fbbf24')} title={t('batch.misc_sel.t_targetlayer_samelayeruuids_findsamelayer', 'targetLayer sameLayerUuids findSameLayer 같은 Layer 노드 선택 R2556')}>≡Layer</span>
           </div>
         )
       })()}
@@ -240,14 +241,14 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
           collectOrdered(sceneFile.root)
           const filtered = ordered.filter((_, i) => even ? i % 2 === 0 : i % 2 !== 0)
           onMultiSelectChange?.(filtered)
-          setBatchMsg(`✓ ${even ? '짝수' : '홀수'} 필터: ${filtered.length}개 (R2635)`)
+          setBatchMsg(`✓ ${even ? t('batch.misc_sel.s_even', '짝수') : t('batch.misc_sel.s_odd', '홀수')} 필터: ${filtered.length}개 (R2635)`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>홀짝 (R2635)</span>
-            <span onClick={() => applyOddEven(true)} style={mkBtnS('#818cf8')} title="짝수 인덱스 필터 i % 2 === 0 R2635">짝수</span>
-            <span onClick={() => applyOddEven(false)} style={mkBtnS('#a78bfa')} title="홀수 인덱스 필터 R2635">홀수</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_r2635', '홀짝 (R2635)')}</span>
+            <span onClick={() => applyOddEven(true)} style={mkBtnS('#818cf8')} title={t('batch.misc_sel.t_even_filter_i_2_0_r2635', '짝수 인덱스 필터 i % 2 === 0 R2635')}>{t('batch.misc_sel.s_even', '짝수')}</span>
+            <span onClick={() => applyOddEven(false)} style={mkBtnS('#a78bfa')} title={t('batch.misc_sel.t_odd_filter_r2635', '홀수 인덱스 필터 R2635')}>{t('batch.misc_sel.s_odd', '홀수')}</span>
           </div>
         )
       })()}
@@ -273,7 +274,7 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         const lS: React.CSSProperties = { fontSize: 8, color: 'var(--text-muted)' }
         return (
           <div style={{ marginBottom: 5, padding: '3px 6px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 4 }}>
-            <div style={{ fontSize: 9, color: '#818cf8', fontWeight: 600, marginBottom: 2 }}>📊 통계 (R2644) — {statsNodes.length}개</div>
+            <div style={{ fontSize: 9, color: '#818cf8', fontWeight: 600, marginBottom: 2 }}>{t('batch.misc_sel.j_stats_r2644', '📊 통계 (R2644) —')} {statsNodes.length}{t('batch.misc_sel.j_count', '개')}</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <span style={lS}>X:</span><span style={sS}>{selStats.x.min}~{selStats.x.max} avg={selStats.x.avg}</span>
               <span style={lS}>Y:</span><span style={sS}>{selStats.y.min}~{selStats.y.max} avg={selStats.y.avg}</span>
@@ -302,9 +303,9 @@ export function MiscSelectionTools({ uuids, uuidSet, sceneFile, setBatchMsg, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>일괄 잠금 (R2725)</span>
-            <span onClick={applyLock} style={mkBtnS('#f472b6')} title="lockedUuids onSetLockedUuids 일괄 잠금 R2725">🔒 잠금</span>
-            <span onClick={applyUnlock} style={mkBtnS('#34d399')} title="일괄 잠금 해제 R2725">🔓 해제</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.misc_sel.j_batch_lock_r2725', '일괄 잠금 (R2725)')}</span>
+            <span onClick={applyLock} style={mkBtnS('#f472b6')} title={t('batch.misc_sel.t_lockeduuids_onsetlockeduuids_batch_lock_r2725', 'lockedUuids onSetLockedUuids 일괄 잠금 R2725')}>{t('batch.misc_sel.j_lock', '🔒 잠금')}</span>
+            <span onClick={applyUnlock} style={mkBtnS('#34d399')} title={t('batch.misc_sel.t_batch_lock_unlock_r2725', '일괄 잠금 해제 R2725')}>{t('batch.misc_sel.j_unlock', '🔓 해제')}</span>
           </div>
         )
       })()}

@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function UiSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   return (
@@ -146,7 +147,7 @@ export function UiSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, pa
                 )
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: v === 'checked' ? '#4ade80' : 'var(--text-muted)', userSelect: 'none' }}
-            >{v === 'checked' ? '✓ 체크' : '○ 해제'}</span>
+            >{v === 'checked' ? t('batch.c_ui.s_check', '✓ 체크') : t('batch.c_ui.s_unlock', '○ 해제')}</span>
           ))}
         </div>
       )}

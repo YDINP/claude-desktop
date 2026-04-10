@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function SpriteSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   const [batchSolidColor, setBatchSolidColor] = useState<string>('#ffffff')
@@ -623,10 +624,10 @@ export function SpriteSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes
             <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>SprSolid</span>
             <input type="color" value={batchSolidColor} onChange={e => setBatchSolidColor(e.target.value)}
               style={{ width: 32, height: 22, padding: 0, border: '1px solid var(--border)', borderRadius: 3, cursor: 'pointer' }} />
-            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>단색</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{t('batch.c_sprite.j_solid', '단색')}</span>
             <span onClick={applyBatchSolidColor}
               style={{ fontSize: 9, padding: '1px 6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--text)', cursor: 'pointer', userSelect: 'none' }}>
-              적용
+              {t('batch.c_sprite.j_apply2', '적용')}
             </span>
           </div>
         )

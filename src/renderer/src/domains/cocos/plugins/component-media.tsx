@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function MediaSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   return (
@@ -275,7 +276,7 @@ export function MediaSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes,
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#67e8f9', width: 48, flexShrink: 0 }}>VPAsp</span>
-            {([['비율✓', true], ['비율✗', false]] as const).map(([l, v]) => (
+            {([[t('batch.c_media.s_ratio_on', '비율✓'), true], [t('batch.c_media.s_ratio_off', '비율✗'), false]] as [string, boolean][]).map(([l, v]) => (
               <span key={String(v)} onClick={() => applyVideoKeepAspect(v)} title={`keepAspectRatio=${v}`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2,
                   border: '1px solid var(--border)', color: v ? '#4ade80' : '#f85149', userSelect: 'none' }}>{l}</span>

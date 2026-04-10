@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import type { ComponentSectionProps } from './component-shared'
 import { mkBtnS, mkNiS } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function LabelSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   const [customFontSize, setCustomFontSize] = useState<number>(24)
@@ -53,7 +54,7 @@ export function LabelSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes,
           <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label wrap</span>
           {(['✓ wrap', '✕ wrap'] as const).map(label => (
             <span key={label}
-              title={`enableWrapText 모두 ${label.startsWith('✓') ? '활성' : '비활성'}`}
+              title={`enableWrapText 모두 ${label.startsWith('✓') ? t('batch.c_label.s_on', '활성') : t('batch.c_label.s_off', '비활성')}`}
               onClick={async () => {
                 if (!sceneFile.root) return
                 const val = label.startsWith('✓')
@@ -71,11 +72,11 @@ export function LabelSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes,
       {/* R1802: 공통 cc.Label bold/italic 일괄 토글 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label 스타일</span>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>{t('batch.c_label.j_label_style', 'Label 스타일')}</span>
           {([
-            { label: 'B', key: 'isBold', title: 'Bold 일괄 설정' },
-            { label: 'I', key: 'isItalic', title: 'Italic 일괄 설정' },
-            { label: 'U', key: 'isUnderline', title: 'Underline 일괄 설정' },
+            { label: 'B', key: 'isBold', title: t('batch.c_label.s_bold_batch_set', 'Bold 일괄 설정') },
+            { label: 'I', key: 'isItalic', title: t('batch.c_label.s_italic_batch_set', 'Italic 일괄 설정') },
+            { label: 'U', key: 'isUnderline', title: t('batch.c_label.s_underline_batch_set', 'Underline 일괄 설정') },
           ] as const).map(({ label, key, title }) => (
             <React.Fragment key={key}>
               {(['on', 'off'] as const).map(v => (
@@ -203,7 +204,7 @@ export function LabelSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes,
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label lnH</span>
             {([0, 20, 24, 32, 40, 48] as const).map(v => (
-              <span key={v} title={v === 0 ? 'lineHeight=0 (자동)' : `lineHeight=${v}`}
+              <span key={v} title={v === 0 ? t('batch.c_label.s_lineheight_0_auto', 'lineHeight=0 (자동)') : `lineHeight=${v}`}
                 onClick={() => applyLabelLH(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
               >{v === 0 ? 'auto' : v}</span>
@@ -579,7 +580,7 @@ export function LabelSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes,
                 style={niSFont}
                 onKeyDown={e => e.key === 'Enter' && applyLabelFontSize(customFontSize)}
               />
-              <span onClick={() => applyLabelFontSize(customFontSize)} style={btnSApply}>적용</span>
+              <span onClick={() => applyLabelFontSize(customFontSize)} style={btnSApply}>{t('batch.c_label.j_apply', '적용')}</span>
             </div>
           </div>
         )
@@ -670,7 +671,7 @@ export function LabelSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes,
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>PlatFont</span>
             {(['', 'Arial', 'sans-serif', 'serif', 'monospace'] as const).map(f => (
-              <span key={f || 'default'} onClick={() => applyLabelPlatFont(f)} title={`platformFont="${f || '(기본)'}"`}
+              <span key={f || 'default'} onClick={() => applyLabelPlatFont(f)} title={`platformFont="${f || t('batch.c_label.s_label', '(기본)')}"`}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}>{f || 'def'}</span>
             ))}
           </div>
@@ -780,17 +781,17 @@ export function LabelSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes,
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>폰트색 (R2721)</span>
+            <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>{t('batch.c_label.j_font_r2721', '폰트색 (R2721)')}</span>
             <input type="color" value={labelFontColor}
               onChange={e => setLabelFontColor(e.target.value)}
               style={{ width: 28, height: 18, padding: 0, border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', background: 'none' }}
-              title="Label/RichText 폰트 색상 선택" />
+              title={t('batch.c_label.t_label_richtext_font_color_select', 'Label/RichText 폰트 색상 선택')} />
             <span onClick={applyLabelFontColor}
               title={`선택된 ${uuids.length}개 노드 Label fontColor → ${labelFontColor} (R2721)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#58a6ff', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#58a6ff')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >적용</span>
+            >{t('batch.c_label.j_apply', '적용')}</span>
           </div>
         )
       })()}

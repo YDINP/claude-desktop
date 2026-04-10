@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function PhysicsSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   return (
@@ -114,7 +115,7 @@ export function PhysicsSection({ uuids, uuidSet, sceneFile, saveScene, patchNode
               style={{ width: 36, fontSize: 8, background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text)', padding: '1px 3px' }}
               onKeyDown={e => { if (e.key === 'Enter') { const v = parseFloat((e.target as HTMLInputElement).value); if (!isNaN(v)) { applyRBDamp(v);(e.target as HTMLInputElement).value = '' } } }}
               onBlur={e => { if (e.target.value) { applyRBDamp(parseFloat(e.target.value)); e.target.value = '' } }}
-              title="linearDamping 직접 입력 후 Enter"
+              title={t('batch.c_physics.t_lineardamping_enter', 'linearDamping 직접 입력 후 Enter')}
             />
           </div>
         )

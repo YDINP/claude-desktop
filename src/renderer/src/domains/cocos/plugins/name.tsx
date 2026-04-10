@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
+import { t } from '../../../utils/i18n'
 
 export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }: BatchPluginProps) {
   const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
@@ -71,15 +72,15 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
           }))
           await patchNodes(n => ({ ...n, name: nameMap.get(n.uuid)! }), `이름 ${ns.length}개 번호 매기기 완료`)
         }
-        const applyStrip = () => patchNodes(n => ({ ...n, name: n.name.replace(/_\d+$/, '') }), '접미어 제거 완료')
+        const applyStrip = () => patchNodes(n => ({ ...n, name: n.name.replace(/_\d+$/, '') }), t('batch.name.s_remove', '접미어 제거 완료'))
         const bs: React.CSSProperties = { fontSize: 9, padding: '1px 5px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,146,60,0.3)', background: 'rgba(251,146,60,0.07)', color: '#fb923c', lineHeight: 1.6 }
         return (
           <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(251,146,60,0.04)', border: '1px solid rgba(251,146,60,0.15)', borderRadius: 4 }}>
-            <div style={{ fontSize: 9, color: '#fb923c', fontWeight: 600, marginBottom: 3 }}>① 이름 번호 (R2504)</div>
+            <div style={{ fontSize: 9, color: '#fb923c', fontWeight: 600, marginBottom: 3 }}>{t('batch.name.j_name_num_r2504', '① 이름 번호 (R2504)')}</div>
             <div style={{ display: 'flex', gap: 3 }}>
-              <span style={bs} onClick={() => applySerial('append')} title="현재 이름 뒤에 _01, _02... 추가">+번호</span>
-              <span style={bs} onClick={() => applySerial('replace')} title="기존 _숫자 접미어 제거 후 새 번호 부여">교체</span>
-              <span style={{ ...bs, color: '#888', borderColor: '#444' }} onClick={applyStrip} title="이름 끝의 _숫자 접미어 제거">-번호</span>
+              <span style={bs} onClick={() => applySerial('append')} title={t('batch.name.t_name_01_02_add', '현재 이름 뒤에 _01, _02... 추가')}>{t('batch.name.j_num', '+번호')}</span>
+              <span style={bs} onClick={() => applySerial('replace')} title={t('batch.name.t_remove_num', '기존 _숫자 접미어 제거 후 새 번호 부여')}>{t('batch.name.j_swap2', '교체')}</span>
+              <span style={{ ...bs, color: '#888', borderColor: '#444' }} onClick={applyStrip} title={t('batch.name.t_name_end_remove', '이름 끝의 _숫자 접미어 제거')}>{t('batch.name.j_num2', '-번호')}</span>
             </div>
           </div>
         )
@@ -113,10 +114,10 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
         }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>이름정렬 (R2648)</span>
-            <span onClick={() => applySortByName('asc')} title="이름 A→Z 순으로 Z-order 재정렬 (R2648)"
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.name.j_namealign_r2648', '이름정렬 (R2648)')}</span>
+            <span onClick={() => applySortByName('asc')} title={t('batch.name.t_name_a_z_z_order_align_r2648', '이름 A→Z 순으로 Z-order 재정렬 (R2648)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>A→Z</span>
-            <span onClick={() => applySortByName('desc')} title="이름 Z→A 순으로 Z-order 재정렬 (R2648)"
+            <span onClick={() => applySortByName('desc')} title={t('batch.name.t_name_z_a_z_order_align_r2648', '이름 Z→A 순으로 Z-order 재정렬 (R2648)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', userSelect: 'none', background: 'rgba(99,102,241,0.05)' }}>Z→A</span>
           </div>
         )
@@ -134,14 +135,14 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
         const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>이름패치 (R2642)</span>
-            <input value={namePrefix} onChange={e => setNamePrefix(e.target.value)} placeholder="prefix" style={inS} title="접두사 (빈칸 가능)" />
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.name.j_name_r2642', '이름패치 (R2642)')}</span>
+            <input value={namePrefix} onChange={e => setNamePrefix(e.target.value)} placeholder="prefix" style={inS} title={t('batch.name.t_prefix', '접두사 (빈칸 가능)')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>*</span>
-            <input value={nameSuffix} onChange={e => setNameSuffix(e.target.value)} placeholder="suffix" style={inS} title="접미사 (빈칸 가능)" />
+            <input value={nameSuffix} onChange={e => setNameSuffix(e.target.value)} placeholder="suffix" style={inS} title={t('batch.name.t_suffix', '접미사 (빈칸 가능)')} />
             <span onClick={applyNamePatch}
-              title={`선택 노드 이름에 prefix/suffix 추가 (R2642)`}
+              title={t('batch.name.t_select_node_name_prefix_suffix_add_r2642', '선택 노드 이름에 prefix/suffix 추가 (R2642)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
-            >적용</span>
+            >{t('batch.name.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -157,14 +158,14 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
         const inS: React.CSSProperties = { width: 52, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>치환 (R2671)</span>
-            <input value={nameFind} onChange={e => setNameFind(e.target.value)} placeholder="find" style={inS} title="찾을 문자열" />
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.name.j_repl_r2671', '치환 (R2671)')}</span>
+            <input value={nameFind} onChange={e => setNameFind(e.target.value)} placeholder="find" style={inS} title={t('batch.name.t_label', '찾을 문자열')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input value={nameReplace} onChange={e => setNameReplace(e.target.value)} placeholder="replace" style={inS} title="바꿀 문자열" />
+            <input value={nameReplace} onChange={e => setNameReplace(e.target.value)} placeholder="replace" style={inS} title={t('batch.name.t_label2', '바꿀 문자열')} />
             <span onClick={applyFindReplace}
               title={`이름에서 "${nameFind}"를 "${nameReplace}"로 치환 (R2671)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
-            >적용</span>
+            >{t('batch.name.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -181,7 +182,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>trim (R2669)</span>
-            <span onClick={applyNameTrim} title="이름 앞뒤 공백 제거 + 연속 공백 → 단일 공백 (R2669)" style={bs}>공백제거</span>
+            <span onClick={applyNameTrim} title={t('batch.name.t_name_space_remove_space_space_r2669', '이름 앞뒤 공백 제거 + 연속 공백 → 단일 공백 (R2669)')} style={bs}>{t('batch.name.j_spaceremove', '공백제거')}</span>
           </div>
         )
       })()}
@@ -199,10 +200,10 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>케이스 (R2667)</span>
-            <span onClick={() => applyNameCase('upper')} title="이름 모두 대문자 (R2667)" style={bs}>ABC</span>
-            <span onClick={() => applyNameCase('lower')} title="이름 모두 소문자 (R2667)" style={bs}>abc</span>
-            <span onClick={() => applyNameCase('title')} title="이름 단어 첫 글자 대문자 (R2667)" style={bs}>Abc</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.name.j_case_r2667', '케이스 (R2667)')}</span>
+            <span onClick={() => applyNameCase('upper')} title={t('batch.name.t_name_all_upper_r2667', '이름 모두 대문자 (R2667)')} style={bs}>ABC</span>
+            <span onClick={() => applyNameCase('lower')} title={t('batch.name.t_name_all_lower_r2667', '이름 모두 소문자 (R2667)')} style={bs}>abc</span>
+            <span onClick={() => applyNameCase('title')} title={t('batch.name.t_name_char_upper_r2667', '이름 단어 첫 글자 대문자 (R2667)')} style={bs}>Abc</span>
           </div>
         )
       })()}
@@ -211,14 +212,14 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
       {uuids.length >= 1 && (
         <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap', marginBottom: 5 }}>
           <input
-            placeholder="찾기"
+            placeholder={t('batch.name.p_label', '찾기')}
             value={nameReplaceFrom}
             onChange={e => setNameReplaceFrom(e.target.value)}
             style={{ flex: 1, minWidth: 60, fontSize: 11, padding: '2px 4px' }}
           />
           <span style={{ color: '#94a3b8', fontSize: 11 }}>→</span>
           <input
-            placeholder="바꾸기"
+            placeholder={t('batch.name.p_label2', '바꾸기')}
             value={nameReplaceTo}
             onChange={e => setNameReplaceTo(e.target.value)}
             style={{ flex: 1, minWidth: 60, fontSize: 11, padding: '2px 4px' }}
@@ -240,12 +241,12 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                 } catch {
                   return n
                 }
-              }, '이름 바꾸기')
+              }, t('batch.name.s_name', '이름 바꾸기'))
             }}
             disabled={!nameReplaceFrom}
             style={{ fontSize: 10, padding: '2px 6px' }}
           >
-            바꾸기
+            {t('batch.name.j_replace_btn', '바꾸기')}
           </button>
         </div>
       )}
@@ -263,13 +264,13 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
         const niS = mkNiS(30, '1px 2px')
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>이름번호 (R2650)</span>
-            <input value={nameSerialBase} onChange={e => setNameSerialBase(e.target.value)} placeholder="base" style={inS} title="기본 이름" />
-            <input type="number" value={nameSerialStart} min={0} step={1} onChange={e => setNameSerialStart(parseInt(e.target.value) || 1)} style={niS} title="시작 번호" />
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.name.j_namenum_r2650', '이름번호 (R2650)')}</span>
+            <input value={nameSerialBase} onChange={e => setNameSerialBase(e.target.value)} placeholder="base" style={inS} title={t('batch.name.t_name', '기본 이름')} />
+            <input type="number" value={nameSerialStart} min={0} step={1} onChange={e => setNameSerialStart(parseInt(e.target.value) || 1)} style={niS} title={t('batch.name.t_start_num', '시작 번호')} />
             <span onClick={applyNameSerial}
               title={`선택 노드 이름을 ${nameSerialBase}N 형식으로 치환 (R2650)`}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
-            >적용</span>
+            >{t('batch.name.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -278,7 +279,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
       {uuids.length >= 1 && sceneFile.root && (() => {
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>복사</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', width: 48, flexShrink: 0 }}>{t('batch.name.j_copy', '복사')}</span>
             <span
               onClick={async () => {
                 if (!sceneFile.root) return
@@ -289,54 +290,54 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                 setBatchMsg(`✓ 이름 ${names.length}개 복사 (R2580)`)
                 setTimeout(() => setBatchMsg(null), 2000)
               }}
-              title={`선택 노드 이름 목록 복사 (줄바꿈 구분) — R2580`}
+              title={t('batch.name.t_select_node_name_copy_r2580', '선택 노드 이름 목록 복사 (줄바꿈 구분) — R2580')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}
-            >📋 이름 복사</span>
+            >{t('batch.name.j_name_copy', '📋 이름 복사')}</span>
           </div>
         )
       })()}
 
       {/* R1778: 이름 정규식 교체 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
-        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>이름 Regex 교체</div>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>{t('batch.name.j_name_regex_swap2', '이름 Regex 교체')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>패턴</span>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>{t('batch.name.j_pattern', '패턴')}</span>
           <input value={batchRegexPat} onChange={e => setBatchRegexPat(e.target.value)} placeholder="/pattern/" style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: `1px solid ${batchRegexErr ? '#f87171' : 'var(--border)'}`, color: 'var(--text-primary)', borderRadius: 3 }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>교체</span>
-          <input value={batchRegexRepl} onChange={e => setBatchRegexRepl(e.target.value)} placeholder="교체 문자열" style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>{t('batch.name.j_swap2', '교체')}</span>
+          <input value={batchRegexRepl} onChange={e => setBatchRegexRepl(e.target.value)} placeholder={t('batch.name.p_swap2', '교체 문자열')} style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }} />
         </div>
         <button
-          title="선택 노드 이름에 정규식 교체 적용"
+          title={t('batch.name.t_select_node_name_swap2_apply', '선택 노드 이름에 정규식 교체 적용')}
           onClick={async () => {
             if (!sceneFile.root || !batchRegexPat) return
             let re: RegExp
-            if (batchRegexPat.length > 200) { setBatchRegexErr(true); setBatchMsg('✗ 정규식이 너무 깁니다'); setTimeout(() => setBatchMsg(null), 2000); return }
-            try { re = new RegExp(batchRegexPat, 'g'); setBatchRegexErr(false) } catch { setBatchRegexErr(true); setBatchMsg('✗ 잘못된 정규식'); setTimeout(() => setBatchMsg(null), 2000); return }
+            if (batchRegexPat.length > 200) { setBatchRegexErr(true); setBatchMsg(t('batch.name.s_label', '✗ 정규식이 너무 깁니다')); setTimeout(() => setBatchMsg(null), 2000); return }
+            try { re = new RegExp(batchRegexPat, 'g'); setBatchRegexErr(false) } catch { setBatchRegexErr(true); setBatchMsg(t('batch.name.s_label2', '✗ 잘못된 정규식')); setTimeout(() => setBatchMsg(null), 2000); return }
             function applyRegex(n: CCSceneNode): CCSceneNode {
               const children = n.children.map(applyRegex)
               if (!uuidSet.has(n.uuid)) return { ...n, children }
               return { ...n, name: n.name.replace(re, batchRegexRepl), children }
             }
             const result = await saveScene(applyRegex(sceneFile.root))
-            setBatchMsg(result.success ? `✓ Regex 교체 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+            setBatchMsg(result.success ? `✓ Regex 교체 (${uuids.length}개)` : `✗ ${result.error ?? t('batch.name.s_label3', '오류')}`)
             setTimeout(() => setBatchMsg(null), 2000)
           }}
           disabled={!batchRegexPat}
           style={{ fontSize: 9, padding: '2px 8px', background: batchRegexPat ? 'rgba(167,139,250,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchRegexPat ? '#a78bfa' : 'var(--text-muted)', cursor: batchRegexPat ? 'pointer' : 'default' }}
-        >Regex 적용 ({uuids.length}개)</button>
+        >{t('batch.name.j_regex_apply', 'Regex 적용')} ({uuids.length}{t('batch.name.j_count', '개')})</button>
       </div>
 
       {/* R1730: 이름 Prefix/Suffix 일괄 추가 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
-        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>이름 일괄 변경</div>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>{t('batch.name.j_name_batch_change', '이름 일괄 변경')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
           <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>Prefix</span>
           <input
             value={batchNamePrefix}
             onChange={e => setBatchNamePrefix(e.target.value)}
-            placeholder="앞에 추가할 텍스트"
+            placeholder={t('batch.name.p_add_text', '앞에 추가할 텍스트')}
             style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
           />
         </div>
@@ -345,7 +346,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
           <input
             value={batchNameSuffix}
             onChange={e => setBatchNameSuffix(e.target.value)}
-            placeholder="뒤에 추가할 텍스트"
+            placeholder={t('batch.name.p_add_text2', '뒤에 추가할 텍스트')}
             style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
           />
         </div>
@@ -359,17 +360,17 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                 return { ...n, name: `${batchNamePrefix}${n.name}${batchNameSuffix}`, children }
               }
               const result = await saveScene(applyName(sceneFile.root))
-              setBatchMsg(result.success ? `✓ 이름 변경 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+              setBatchMsg(result.success ? `✓ 이름 변경 (${uuids.length}개)` : `✗ ${result.error ?? t('batch.name.s_label3', '오류')}`)
               setBatchNamePrefix('')
               setBatchNameSuffix('')
               setTimeout(() => setBatchMsg(null), 2000)
             }}
             style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(88,166,255,0.12)', border: '1px solid rgba(88,166,255,0.3)', borderRadius: 3, color: '#58a6ff', cursor: 'pointer' }}
-          >이름 적용 ({uuids.length}개)</button>
+          >{t('batch.name.j_name_apply', '이름 적용')} ({uuids.length}{t('batch.name.j_count', '개')})</button>
           {/* R1777: 이름 Prefix/Suffix 제거 버튼 */}
           {(batchNamePrefix || batchNameSuffix) && (
             <button
-              title="이름에서 현재 입력한 prefix/suffix 제거"
+              title={t('batch.name.t_name_prefix_suffix_remove', '이름에서 현재 입력한 prefix/suffix 제거')}
               onClick={async () => {
                 if (!sceneFile.root || (!batchNamePrefix && !batchNameSuffix)) return
                 function removePfxSfx(n: CCSceneNode): CCSceneNode {
@@ -381,15 +382,15 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                   return { ...n, name, children }
                 }
                 const result = await saveScene(removePfxSfx(sceneFile.root))
-                setBatchMsg(result.success ? `✓ prefix/suffix 제거 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+                setBatchMsg(result.success ? `✓ prefix/suffix 제거 (${uuids.length}개)` : `✗ ${result.error ?? t('batch.name.s_label3', '오류')}`)
                 setTimeout(() => setBatchMsg(null), 2000)
               }}
               style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 3, color: '#f87171', cursor: 'pointer' }}
-            >이름 제거 ({uuids.length}개)</button>
+            >{t('batch.name.j_name_remove', '이름 제거')} ({uuids.length}{t('batch.name.j_count', '개')})</button>
           )}
           {/* R1754: 순서 번호 추가 */}
           <button
-            title="선택 노드에 트리 순서대로 _1, _2... 번호 추가"
+            title={t('batch.name.t_select_node_1_2_num_add', '선택 노드에 트리 순서대로 _1, _2... 번호 추가')}
             onClick={async () => {
               if (!sceneFile.root) return
               let counter = 1
@@ -399,22 +400,22 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                 return { ...n, name: `${n.name}_${counter++}`, children }
               }
               const result = await saveScene(applySeq(sceneFile.root))
-              setBatchMsg(result.success ? `✓ 번호 추가 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+              setBatchMsg(result.success ? `✓ 번호 추가 (${uuids.length}개)` : `✗ ${result.error ?? t('batch.name.s_label3', '오류')}`)
               setTimeout(() => setBatchMsg(null), 2000)
             }}
             style={{ fontSize: 9, padding: '2px 8px', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 3, color: '#fbbf24', cursor: 'pointer' }}
-          >번호 추가 _1,_2... ({uuids.length}개)</button>
+          >{t('batch.name.j_num_add_1_2', '번호 추가 _1,_2...')} ({uuids.length}{t('batch.name.j_count', '개')})</button>
         </div>
         {/* R1825: 이름 정규화 (base_001, base_002...) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
           <input
             value={batchNormBase}
             onChange={e => setBatchNormBase(e.target.value)}
-            placeholder="base 입력 → 정규화"
+            placeholder={t('batch.name.p_base_norm', 'base 입력 → 정규화')}
             style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
           />
           <button
-            title={`선택 노드를 {base}_001, _002... 형식으로 완전 재명명`}
+            title={t('batch.name.t_select_node_base_001_002', '선택 노드를 {base}_001, _002... 형식으로 완전 재명명')}
             disabled={!batchNormBase}
             onClick={async () => {
               if (!sceneFile.root || !batchNormBase) return
@@ -427,30 +428,30 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                 return { ...n, name: `${batchNormBase}_${idx}`, children }
               }
               const result = await saveScene(applyNorm(sceneFile.root))
-              setBatchMsg(result.success ? `✓ 이름 정규화 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+              setBatchMsg(result.success ? `✓ 이름 정규화 (${uuids.length}개)` : `✗ ${result.error ?? t('batch.name.s_label3', '오류')}`)
               setBatchNormBase('')
               setTimeout(() => setBatchMsg(null), 2000)
             }}
             style={{ fontSize: 9, padding: '2px 8px', background: batchNormBase ? 'rgba(52,211,153,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchNormBase ? '#34d399' : 'var(--text-muted)', cursor: batchNormBase ? 'pointer' : 'default', flexShrink: 0 }}
-          >정규화 ({uuids.length}개)</button>
+          >{t('batch.name.j_norm', '정규화')} ({uuids.length}{t('batch.name.j_count', '개')})</button>
         </div>
         {/* R1856: 이름 find/replace */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
           <input
             value={batchFindStr}
             onChange={e => setBatchFindStr(e.target.value)}
-            placeholder="찾기"
+            placeholder={t('batch.name.p_label', '찾기')}
             style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
           />
           <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>→</span>
           <input
             value={batchReplaceStr}
             onChange={e => setBatchReplaceStr(e.target.value)}
-            placeholder="바꾸기"
+            placeholder={t('batch.name.p_label2', '바꾸기')}
             style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
           />
           <button
-            title="선택 노드 이름에서 찾기→바꾸기 실행"
+            title={t('batch.name.t_select_node_name', '선택 노드 이름에서 찾기→바꾸기 실행')}
             disabled={!batchFindStr}
             onClick={async () => {
               if (!sceneFile.root || !batchFindStr) return
@@ -460,22 +461,22 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                 return { ...n, name: n.name.split(batchFindStr).join(batchReplaceStr), children }
               }
               const result = await saveScene(applyFR(sceneFile.root))
-              setBatchMsg(result.success ? `✓ 이름 치환 (${uuids.length}개)` : `✗ ${result.error ?? '오류'}`)
+              setBatchMsg(result.success ? `✓ 이름 치환 (${uuids.length}개)` : `✗ ${result.error ?? t('batch.name.s_label3', '오류')}`)
               setTimeout(() => setBatchMsg(null), 2000)
             }}
             style={{ fontSize: 9, padding: '2px 6px', background: batchFindStr ? 'rgba(88,166,255,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchFindStr ? '#58a6ff' : 'var(--text-muted)', cursor: batchFindStr ? 'pointer' : 'default', flexShrink: 0 }}
-          >치환</button>
+          >{t('batch.name.j_repl', '치환')}</button>
         </div>
         {/* R2708: 이름 정규식 필터 선택 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
           <input
             value={batchNameRegexFilter}
             onChange={e => setBatchNameRegexFilter(e.target.value)}
-            placeholder="정규식 (예: Btn.*)"
+            placeholder={t('batch.name.p_btn', '정규식 (예: Btn.*)')}
             style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
           />
           <button
-            title="정규식으로 노드명 매칭하여 선택"
+            title={t('batch.name.t_node_select', '정규식으로 노드명 매칭하여 선택')}
             disabled={!batchNameRegexFilter}
             onClick={() => {
               if (!sceneFile.root || !batchNameRegexFilter) return
@@ -489,7 +490,7 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                 }
                 walk(sceneFile.root)
                 if (matched.length === 0) {
-                  setBatchMsg('⚠ 매칭 없음')
+                  setBatchMsg(t('batch.name.s_none', '⚠ 매칭 없음'))
                   setTimeout(() => setBatchMsg(null), 1500)
                   return
                 }
@@ -497,12 +498,12 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
                 setBatchMsg(`✓ ${matched.length}개 선택`)
                 setTimeout(() => setBatchMsg(null), 1500)
               } catch {
-                setBatchMsg('⚠ 잘못된 정규식')
+                setBatchMsg(t('batch.name.s_label4', '⚠ 잘못된 정규식'))
                 setTimeout(() => setBatchMsg(null), 1500)
               }
             }}
             style={{ fontSize: 9, padding: '2px 6px', background: batchNameRegexFilter ? 'rgba(88,166,255,0.12)' : 'transparent', border: '1px solid var(--border)', borderRadius: 3, color: batchNameRegexFilter ? '#58a6ff' : 'var(--text-muted)', cursor: batchNameRegexFilter ? 'pointer' : 'default', flexShrink: 0 }}
-          >선택</button>
+          >{t('batch.name.j_select', '선택')}</button>
           {['Button', 'Label', 'Sprite', 'Node', 'Panel'].map(q => (
             <button
               key={q}
@@ -530,18 +531,18 @@ export function NamePlugin({ nodes, sceneFile, saveScene, onMultiSelectChange }:
         const inS: React.CSSProperties = { fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', minWidth: 80 }
         return (
           <div style={{ marginBottom: 4, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>Label텍스트 (R2737)</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('batch.name.j_labeltext_r2737', 'Label텍스트 (R2737)')}</span>
             <select value={labelMode} onChange={e => setLabelMode(e.target.value as 'set' | 'prefix' | 'suffix')}
               style={{ fontSize: 9, background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 3 }}>
-              <option value="set">지정</option>
-              <option value="prefix">접두사</option>
-              <option value="suffix">접미사</option>
+              <option value="set">{t('batch.name.j_assign', '지정')}</option>
+              <option value="prefix">{t('batch.name.j_prefix', '접두사')}</option>
+              <option value="suffix">{t('batch.name.j_suffix', '접미사')}</option>
             </select>
             <input value={labelText} onChange={e => setLabelText(e.target.value)}
-              style={inS} placeholder="텍스트..." />
+              style={inS} placeholder={t('batch.name.p_text', '텍스트...')} />
             <span onClick={applyLabelText}
-              title="선택된 Label 노드에 텍스트 적용"
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>적용</span>
+              title={t('batch.name.t_select_label_node_text_apply', '선택된 Label 노드에 텍스트 적용')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>{t('batch.name.j_apply', '적용')}</span>
           </div>
         )
       })()}

@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function ButtonSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   return (
@@ -249,18 +250,18 @@ export function ButtonSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes
           <span style={{ fontSize: 9, color: '#fb923c', width: 48, flexShrink: 0 }}>Button</span>
           {(['on', 'off'] as const).map(v => (
             <span key={v}
-              title={`interactable 모두 ${v === 'on' ? '활성화' : '비활성화'}`}
+              title={`interactable 모두 ${v === 'on' ? t('batch.c_button.s_act', '활성화') : t('batch.c_button.s_deact', '비활성화')}`}
               onClick={async () => {
                 if (!sceneFile.root) return
                 const interact = v === 'on'
                 await patchComponents(
                   c => c.type === 'cc.Button',
                   c => ({ ...c, props: { ...c.props, interactable: interact, _interactable: interact, _N$interactable: interact } }),
-                  `Button ${v === 'on' ? '활성' : '비활성'} (${uuids.length}개)`,
+                  `Button ${v === 'on' ? t('batch.c_button.s_on', '활성') : t('batch.c_button.s_off', '비활성')} (${uuids.length}개)`,
                 )
               }}
               style={{ fontSize: 9, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid var(--border)', color: v === 'on' ? '#4ade80' : '#f87171', userSelect: 'none' }}
-            >{v === 'on' ? '✓ 활성' : '✕ 비활성'}</span>
+            >{v === 'on' ? t('batch.c_button.s_on2', '✓ 활성') : t('batch.c_button.s_off2', '✕ 비활성')}</span>
           ))}
         </div>
       )}
@@ -406,7 +407,7 @@ export function ButtonSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes
               )
             }}
             style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
-            title="cc.LabelOutline 색상 일괄 설정"
+            title={t('batch.c_button.t_cc_labeloutline_color_batch_set', 'cc.LabelOutline 색상 일괄 설정')}
           />
         </div>
       )}
@@ -449,7 +450,7 @@ export function ButtonSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes
               )
             }}
             style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
-            title="cc.LabelShadow 색상 일괄 설정"
+            title={t('batch.c_button.t_cc_labelshadow_color_batch_set', 'cc.LabelShadow 색상 일괄 설정')}
           />
         </div>
       )}

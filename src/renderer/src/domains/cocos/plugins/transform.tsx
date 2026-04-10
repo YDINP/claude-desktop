@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import type { CCSceneNode, CCSceneFile } from '@shared/ipc-schema'
 import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
+import { t } from '../../../utils/i18n'
 
 export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onMultiSelectChange, lockedUuids, onSetLockedUuids }: BatchPluginProps) {
   const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
@@ -109,10 +110,10 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
 
       {/* R2513: Z-Order 이동 버튼 */}
       <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-        <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>Z순서 (R2513)</span>
+        <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_z_r2513', 'Z순서 (R2513)')}</span>
         {(['top', 'up', 'down', 'bottom'] as const).map(dir => {
-          const labels: Record<string, string> = { top: '⊤ 최상', up: '▲', down: '▼', bottom: '⊥ 최하' }
-          const titles: Record<string, string> = { top: '최상위로 이동', up: '한 칸 앞으로', down: '한 칸 뒤로', bottom: '최하위로 이동' }
+          const labels: Record<string, string> = { top: t('batch.transform.s_label', '⊤ 최상'), up: '▲', down: '▼', bottom: t('batch.transform.s_label2', '⊥ 최하') }
+          const titles: Record<string, string> = { top: t('batch.transform.s_move', '최상위로 이동'), up: t('batch.transform.s_label3', '한 칸 앞으로'), down: t('batch.transform.s_label4', '한 칸 뒤로'), bottom: t('batch.transform.s_move2', '최하위로 이동') }
           return (
             <span key={dir} onClick={() => moveZOrder(dir)} title={titles[dir]}
               style={{ fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }}
@@ -136,11 +137,11 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const fs: React.CSSProperties = { fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>반전 (R2520)</span>
-            <span style={fs} onClick={() => doFlip('x')} title="선택 노드 scaleX 부호 반전 (Flip Horizontal)"
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_invert_r2520', '반전 (R2520)')}</span>
+            <span style={fs} onClick={() => doFlip('x')} title={t('batch.transform.t_select_node_scalex_invert_flip_horizontal', '선택 노드 scaleX 부호 반전 (Flip Horizontal)')}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#38bdf8')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>⇆ X</span>
-            <span style={fs} onClick={() => doFlip('y')} title="선택 노드 scaleY 부호 반전 (Flip Vertical)"
+            <span style={fs} onClick={() => doFlip('y')} title={t('batch.transform.t_select_node_scaley_invert_flip_vertical', '선택 노드 scaleY 부호 반전 (Flip Vertical)')}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>⇅ Y</span>
           </div>
@@ -157,24 +158,24 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
             if (what === 'color') return { ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 } }
             return { ...n, scale: { x: 1, y: 1, z: 1 } }
           }, `patch`)
-          const label = what === 'pos' ? '위치' : what === 'rot' ? '회전' : what === 'color' ? 'tint색상' : '스케일'
+          const label = what === 'pos' ? t('batch.transform.s_pos', '위치') : what === 'rot' ? t('batch.transform.s_rot', '회전') : what === 'color' ? t('batch.transform.s_tintcolor', 'tint색상') : t('batch.transform.s_label5', '스케일')
           setBatchMsg(`${uuids.length}개 ${label} 초기화`)
           setTimeout(() => setBatchMsg(null), 2000)
         }
         const rs: React.CSSProperties = { fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#94a3b8', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>초기화 (R2519)</span>
-            <span style={rs} onClick={() => doReset('pos')} title="선택 노드 위치 → (0,0) 초기화"
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_init_r2519', '초기화 (R2519)')}</span>
+            <span style={rs} onClick={() => doReset('pos')} title={t('batch.transform.t_select_node_pos_0_0_init', '선택 노드 위치 → (0,0) 초기화')}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>P↺</span>
-            <span style={rs} onClick={() => doReset('rot')} title="선택 노드 회전 → 0° 초기화"
+            <span style={rs} onClick={() => doReset('rot')} title={t('batch.transform.t_select_node_rot_0_init', '선택 노드 회전 → 0° 초기화')}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>R↺</span>
-            <span style={rs} onClick={() => doReset('scale')} title="선택 노드 스케일 → (1,1,1) 초기화"
+            <span style={rs} onClick={() => doReset('scale')} title={t('batch.transform.t_select_node_1_1_1_init', '선택 노드 스케일 → (1,1,1) 초기화')}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fbbf24')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>S↺</span>
-            <span style={rs} onClick={() => doReset('color')} title="선택 노드 tint 색상 → 흰색(255,255,255) 초기화 (R2606)"
+            <span style={rs} onClick={() => doReset('color')} title={t('batch.transform.t_select_node_tint_color_white_255_255_255_init_r26', '선택 노드 tint 색상 → 흰색(255,255,255) 초기화 (R2606)')}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>C↺</span>
           </div>
@@ -193,17 +194,17 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>◫ 스냅 (R2514)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_snap_r2514', '◫ 스냅 (R2514)')}</span>
             <input type="number" value={snapGridSize} min={1} max={256}
               onChange={e => setSnapGridSize(Math.max(1, parseInt(e.target.value) || 8))}
-              style={mkNiS(38)} title="그리드 크기 (px)" />
+              style={mkNiS(38)} title={t('batch.transform.t_size_px', '그리드 크기 (px)')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
             <span onClick={applyGridSnap}
               title={`선택된 ${uuids.length}개 노드 위치를 ${snapGridSize}px 그리드에 스냅 (R2514)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#34d399')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >스냅</span>
+            >{t('batch.transform.j_snap', '스냅')}</span>
           </div>
         )
       })()}
@@ -218,7 +219,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sz스냅 (R2609)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_szsnap_r2609', 'sz스냅 (R2609)')}</span>
             {([8, 16, 32] as const).map(step => (
               <span key={step} onClick={() => applySzSnap(step)}
                 title={`size.x/y를 ${step}px 배수로 스냅 (R2609)`}
@@ -239,7 +240,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>pos스냅 (R2623)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_possnap_r2623', 'pos스냅 (R2623)')}</span>
             {([1, 8, 16, 32] as const).map(step => (
               <span key={step} onClick={() => applyPosSnap(step)}
                 title={`position.x/y를 ${step}px 배수로 반올림 스냅 (R2623)`}
@@ -262,7 +263,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>pos리셋 (R2654)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_posreset_r2654', 'pos리셋 (R2654)')}</span>
             <span onClick={() => applyPosReset('x')} title="position.x → 0 (R2654)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa', userSelect: 'none' }}>X=0</span>
             <span onClick={() => applyPosReset('y')} title="position.y → 0 (R2654)"
@@ -293,7 +294,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
             <span onClick={() => nudge(0, -nudgeStep)} style={btnS} title={`↓  Y-${nudgeStep}`}>↓</span>
             <input type="number" value={nudgeStep} min={1} max={100} step={1}
               onChange={e => setNudgeStep(Math.max(1, parseInt(e.target.value) || 1))}
-              style={niS} title="nudge 단위 (px)" />
+              style={niS} title={t('batch.transform.t_nudge_px', 'nudge 단위 (px)')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>px</span>
           </div>
         )
@@ -311,17 +312,17 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const ckS: React.CSSProperties = { cursor: 'pointer', fontSize: 9, color: '#94a3b8', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>절대pos (R2674)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_pos_r2674', '절대pos (R2674)')}</span>
             <label style={ckS}><input type="checkbox" checked={absPosAxisX} onChange={e => setAbsPosAxisX(e.target.checked)} style={{ marginRight: 2 }} />X</label>
-            <input type="number" value={absPosX} onChange={e => setAbsPosX(parseFloat(e.target.value) || 0)} style={niS} title="절대 X 좌표" disabled={!absPosAxisX} />
+            <input type="number" value={absPosX} onChange={e => setAbsPosX(parseFloat(e.target.value) || 0)} style={niS} title={t('batch.transform.t_x', '절대 X 좌표')} disabled={!absPosAxisX} />
             <label style={ckS}><input type="checkbox" checked={absPosAxisY} onChange={e => setAbsPosAxisY(e.target.checked)} style={{ marginRight: 2 }} />Y</label>
-            <input type="number" value={absPosY} onChange={e => setAbsPosY(parseFloat(e.target.value) || 0)} style={niS} title="절대 Y 좌표" disabled={!absPosAxisY} />
+            <input type="number" value={absPosY} onChange={e => setAbsPosY(parseFloat(e.target.value) || 0)} style={niS} title={t('batch.transform.t_y', '절대 Y 좌표')} disabled={!absPosAxisY} />
             <span onClick={applyAbsPos}
-              title={`선택 노드 position을 절대 좌표로 지정 (R2674)`}
+              title={t('batch.transform.t_select_node_position_assign_r2674', '선택 노드 position을 절대 좌표로 지정 (R2674)')}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >지정</span>
+            >{t('batch.transform.j_assign', '지정')}</span>
           </div>
         )
       })()}
@@ -338,17 +339,17 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const numInputS: React.CSSProperties = { width: 44, fontSize: 9, padding: '1px 3px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-secondary)', color: 'var(--text-primary)', textAlign: 'center' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>Δ이동 (R2516)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_move_r2516', 'Δ이동 (R2516)')}</span>
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>X</span>
-            <input type="number" value={posOffsetX} onChange={e => setPosOffsetX(parseFloat(e.target.value) || 0)} style={numInputS} title="X 오프셋 (px)" />
+            <input type="number" value={posOffsetX} onChange={e => setPosOffsetX(parseFloat(e.target.value) || 0)} style={numInputS} title={t('batch.transform.t_x_offset_px', 'X 오프셋 (px)')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>Y</span>
-            <input type="number" value={posOffsetY} onChange={e => setPosOffsetY(parseFloat(e.target.value) || 0)} style={numInputS} title="Y 오프셋 (px)" />
+            <input type="number" value={posOffsetY} onChange={e => setPosOffsetY(parseFloat(e.target.value) || 0)} style={numInputS} title={t('batch.transform.t_y_offset_px', 'Y 오프셋 (px)')} />
             <span onClick={applyOffset}
               title={`선택된 ${uuids.length}개 노드 위치에 Δ(${posOffsetX}, ${posOffsetY}) 더하기 (R2516)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >적용</span>
+            >{t('batch.transform.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -366,15 +367,15 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤 (R2663)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_random_r2663', '랜덤 (R2663)')}</span>
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>±</span>
-            <input type="number" value={randomRange} min={1} step={10} onChange={e => setRandomRange(Math.max(1, parseInt(e.target.value) || 1))} style={niS} title="랜덤 오프셋 범위 (px)" />
+            <input type="number" value={randomRange} min={1} step={10} onChange={e => setRandomRange(Math.max(1, parseInt(e.target.value) || 1))} style={niS} title={t('batch.transform.t_random_offset_px', '랜덤 오프셋 범위 (px)')} />
             <span onClick={applyRandomOffset}
               title={`선택된 ${uuids.length}개 노드 위치에 ±${randomRange}px 랜덤 오프셋 추가 (R2663)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >적용</span>
+            >{t('batch.transform.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -391,16 +392,16 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤회전 (R2664)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_randomrot_r2664', '랜덤회전 (R2664)')}</span>
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>±</span>
-            <input type="number" value={randomRotRange} min={1} max={180} step={5} onChange={e => setRandomRotRange(Math.max(1, parseInt(e.target.value) || 1))} style={niS} title="랜덤 회전 범위 (도)" />
+            <input type="number" value={randomRotRange} min={1} max={180} step={5} onChange={e => setRandomRotRange(Math.max(1, parseInt(e.target.value) || 1))} style={niS} title={t('batch.transform.t_random_rot', '랜덤 회전 범위 (도)')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>°</span>
             <span onClick={applyRandomRotation}
               title={`선택된 ${uuids.length}개 노드에 ±${randomRotRange}° 랜덤 회전 추가 (R2664)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#a78bfa', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >적용</span>
+            >{t('batch.transform.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -417,7 +418,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale리셋 (R2655)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_scalereset_r2655', 'scale리셋 (R2655)')}</span>
             <span onClick={() => applyScaleReset('x')} title="scale.x → 1 (R2655)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }}>Sx=1</span>
             <span onClick={() => applyScaleReset('y')} title="scale.y → 1 (R2655)"
@@ -437,7 +438,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot리셋 (R2662)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_rotreset_r2662', 'rot리셋 (R2662)')}</span>
             <span onClick={applyRotReset} title="rotation → 0 (R2662)"
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', userSelect: 'none' }}>R=0</span>
           </div>
@@ -454,15 +455,15 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const niS = mkNiS(44)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot지정 (R2685)</span>
-            <input type="number" value={absRotValue} min={-360} max={360} step={1} onChange={e => setAbsRotValue(parseFloat(e.target.value) || 0)} style={niS} title="절대 회전값 (도)" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_rotassign_r2685', 'rot지정 (R2685)')}</span>
+            <input type="number" value={absRotValue} min={-360} max={360} step={1} onChange={e => setAbsRotValue(parseFloat(e.target.value) || 0)} style={niS} title={t('batch.transform.t_rot', '절대 회전값 (도)')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>°</span>
             <span onClick={applyAbsRot}
               title={`선택 노드 rotation = ${absRotValue}° (R2685)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >지정</span>
+            >{t('batch.transform.j_assign', '지정')}</span>
           </div>
         )
       })()}
@@ -492,7 +493,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 5 }}>
             <div style={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>rot프리셋 (R2727)</span>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{t('batch.transform.j_rotpreset_r2727', 'rot프리셋 (R2727)')}</span>
               {presets.map(v => (
                 <span key={v} onClick={() => applyPreset(v)} title={`rotation = ${v}°`} style={bsPreset}>{v}°</span>
               ))}
@@ -501,7 +502,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
               <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>Δ</span>
               <input type="number" value={rotDeltaStep} min={1} max={360} step={1}
                 onChange={e => setRotDeltaStep(parseFloat(e.target.value) || 1)}
-                style={niS} title="회전 delta 값 (도)" />
+                style={niS} title={t('batch.transform.t_rot_delta', '회전 delta 값 (도)')} />
               <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>°</span>
               <span onClick={() => applyDelta(1)} title={`rotation +${rotDeltaStep}°`}
                 style={bsPreset}>Δ+{rotDeltaStep}°</span>
@@ -526,10 +527,10 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const bs: React.CSSProperties = { fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>정수스냅 (R2687)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_intsnap_r2687', '정수스냅 (R2687)')}</span>
             <span onClick={() => applyRoundPos('pos')} title="position XY → Math.round (R2687)" style={bs}>pos</span>
             <span onClick={() => applyRoundPos('size')} title="size WH → Math.round (R2687)" style={bs}>size</span>
-            <span onClick={() => applyRoundPos('both')} title="position+size 모두 정수화 (R2687)" style={bs}>all</span>
+            <span onClick={() => applyRoundPos('both')} title={t('batch.transform.t_position_size_all_round_r2687', 'position+size 모두 정수화 (R2687)')} style={bs}>all</span>
           </div>
         )
       })()}
@@ -545,17 +546,17 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const niS = mkNiS(40)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>scale지정 (R2690)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_scaleassign_r2690', 'scale지정 (R2690)')}</span>
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>X</span>
-            <input type="number" value={absScaleX} min={-10} max={10} step={0.1} onChange={e => setAbsScaleX(parseFloat(e.target.value) || 1)} style={niS} title="절대 scaleX" />
+            <input type="number" value={absScaleX} min={-10} max={10} step={0.1} onChange={e => setAbsScaleX(parseFloat(e.target.value) || 1)} style={niS} title={t('batch.transform.t_scalex', '절대 scaleX')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>Y</span>
-            <input type="number" value={absScaleY} min={-10} max={10} step={0.1} onChange={e => setAbsScaleY(parseFloat(e.target.value) || 1)} style={niS} title="절대 scaleY" />
+            <input type="number" value={absScaleY} min={-10} max={10} step={0.1} onChange={e => setAbsScaleY(parseFloat(e.target.value) || 1)} style={niS} title={t('batch.transform.t_scaley', '절대 scaleY')} />
             <span onClick={applyAbsScale}
               title={`scale = (${absScaleX}, ${absScaleY}) (R2690)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#fb923c', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#fb923c')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >지정</span>
+            >{t('batch.transform.j_assign', '지정')}</span>
           </div>
         )
       })()}
@@ -584,19 +585,19 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 5 }}>
             <div style={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>scale프리셋 (R2728)</span>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{t('batch.transform.j_scalepreset_r2728', 'scale프리셋 (R2728)')}</span>
               {([0.5, 1.0, 1.5, 2.0] as const).map(v => (
-                <span key={v} onClick={() => applyScalePreset(v)} title={`scale.x=${v}${scaleLinkedPreset ? ` scale.y=${v}` : ' (y유지)'}`} style={bsP}>{v}×</span>
+                <span key={v} onClick={() => applyScalePreset(v)} title={`scale.x=${v}${scaleLinkedPreset ? ` scale.y=${v}` : t('batch.transform.s_ykeep', ' (y유지)')}`} style={bsP}>{v}×</span>
               ))}
               <label style={{ fontSize: 8, color: '#94a3b8', cursor: 'pointer', userSelect: 'none' }}>
-                <input type="checkbox" checked={scaleLinkedPreset} onChange={e => setScaleLinkedPreset(e.target.checked)} style={{ marginRight: 2 }} />XY연동
+                <input type="checkbox" checked={scaleLinkedPreset} onChange={e => setScaleLinkedPreset(e.target.checked)} style={{ marginRight: 2 }} />{t('batch.transform.j_xy', 'XY연동')}
               </label>
             </div>
             <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>×배수</span>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{t('batch.transform.j_mult', '×배수')}</span>
               <input type="number" value={scaleMulFactor} min={0.01} step={0.1}
                 onChange={e => setScaleMulFactor(parseFloat(e.target.value) || 1.0)}
-                style={niS} title="scale 곱 배수" />
+                style={niS} title={t('batch.transform.t_scale_mult', 'scale 곱 배수')} />
               <span onClick={applyScaleMul}
                 title={`선택 노드 scale.x * scale.y * ${scaleMulFactor} (R2728)`}
                 style={bsP}>×{scaleMulFactor}</span>
@@ -631,8 +632,8 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
             ))}
             <input type="number" value={layerInput}
               onChange={e => setLayerInput(Number(e.target.value))}
-              style={mkNiS(90)} title="직접 입력 (bitmask)" />
-            <span onClick={() => applyLayer(layerInput)} style={bsL}>지정</span>
+              style={mkNiS(90)} title={t('batch.transform.t_bitmask', '직접 입력 (bitmask)')} />
+            <span onClick={() => applyLayer(layerInput)} style={bsL}>{t('batch.transform.j_assign', '지정')}</span>
           </div>
         )
       })()}
@@ -648,13 +649,13 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전 ° (R1706)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_rot_r1706', '회전 ° (R1706)')}</span>
             <input type="text" value={batchRot} onChange={e => setBatchRot(e.target.value)}
-              style={mkNiS(44)} placeholder="batchRot" title="일괄 회전값 (도)" />
+              style={mkNiS(44)} placeholder="batchRot" title={t('batch.transform.t_batch_rot', '일괄 회전값 (도)')} />
             <span onClick={applyBatchRot} style={mkBtnS('#a78bfa')}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#a78bfa')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >적용</span>
+            >{t('batch.transform.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -688,7 +689,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
             ))}
             <label style={{ fontSize: 8, color: '#94a3b8', cursor: 'pointer' }}>
               <input type="checkbox" checked={batchAnchorCompensate}
-                onChange={e => setBatchAnchorCompensate(e.target.checked)} style={{ marginRight: 2 }} />보정
+                onChange={e => setBatchAnchorCompensate(e.target.checked)} style={{ marginRight: 2 }} />{t('batch.transform.j_label', '보정')}
             </label>
           </div>
         )
@@ -704,8 +705,8 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전 정규화 (R1776)</span>
-            <span onClick={applyNormRot} style={mkBtnS('#a78bfa')} title="회전값 0~360° 정규화">정규화</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_rot_norm_r1776', '회전 정규화 (R1776)')}</span>
+            <span onClick={applyNormRot} style={mkBtnS('#a78bfa')} title={t('batch.transform.t_rot_0_360_norm', '회전값 0~360° 정규화')}>{t('batch.transform.j_norm', '정규화')}</span>
           </div>
         )
       })()}
@@ -721,7 +722,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>크기배율 (R1780)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_sizescale_r1780', '크기배율 (R1780)')}</span>
             {[0.5, 2, 1.5, 0.75].map(m => (
               <span key={m} onClick={() => applyMult1780(m)} style={mkBtnS('#22d3ee')} title={`크기배율 ×${m}`}>×{m}</span>
             ))}
@@ -744,8 +745,8 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>정수화 (R1781)</span>
-            <span onClick={applyInt} style={mkBtnS('#34d399')} title="위치/크기 정수화">⊹int</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_round_r1781', '정수화 (R1781)')}</span>
+            <span onClick={applyInt} style={mkBtnS('#34d399')} title={t('batch.transform.t_pos_size_round', '위치/크기 정수화')}>⊹int</span>
           </div>
         )
       })()}
@@ -763,10 +764,10 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>커스텀 배율 (R1809)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_custom_scale_r1809', '커스텀 배율 (R1809)')}</span>
             <input type="text" value={sizeMulInput} onChange={e => setSizeMulInput(e.target.value)}
-              style={mkNiS(40)} title="배율 입력" />
-            <span onClick={applyMult} style={mkBtnS('#22d3ee')} title="applyMult 크기배율 적용">적용</span>
+              style={mkNiS(40)} title={t('batch.transform.t_scale', '배율 입력')} />
+            <span onClick={applyMult} style={mkBtnS('#22d3ee')} title={t('batch.transform.t_applymult_sizescale_apply', 'applyMult 크기배율 적용')}>{t('batch.transform.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -783,10 +784,10 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>회전± (R2494)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_rot_r2494', '회전± (R2494)')}</span>
             <span onClick={() => applyRotDelta(-1)} style={mkBtnS('#a78bfa')} title="applyRotDelta -">-</span>
             <input type="number" value={rotDelta} min={1} max={360} step={5}
-              onChange={e => setRotDelta(parseFloat(e.target.value) || 15)} style={mkNiS(40)} title="회전 델타 (°)" />
+              onChange={e => setRotDelta(parseFloat(e.target.value) || 15)} style={mkNiS(40)} title={t('batch.transform.t_rot2', '회전 델타 (°)')} />
             <span onClick={() => applyRotDelta(1)} style={mkBtnS('#a78bfa')} title="applyRotDelta +">+</span>
           </div>
         )
@@ -806,8 +807,8 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>snapGrid (R2495)</span>
             <input type="number" value={snapGrid} min={1} max={256}
-              onChange={e => setSnapGrid2(Math.max(1, parseInt(e.target.value) || 16))} style={mkNiS(38)} title="스냅px 크기" />
-            <span onClick={applySnap} style={mkBtnS('#34d399')} title="applySnap 그리드 스냅">스냅</span>
+              onChange={e => setSnapGrid2(Math.max(1, parseInt(e.target.value) || 16))} style={mkNiS(38)} title={t('batch.transform.t_snappx_size', '스냅px 크기')} />
+            <span onClick={applySnap} style={mkBtnS('#34d399')} title={t('batch.transform.t_applysnap_snap', 'applySnap 그리드 스냅')}>{t('batch.transform.j_snap', '스냅')}</span>
           </div>
         )
       })()}
@@ -837,7 +838,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
             <input type="text" value={batchScaleY}
               onChange={e => setBatchScaleY(e.target.value)}
               style={mkNiS(36)} title="scaleY" />
-            <span onClick={applyBatchScale} style={mkBtnS('#fb923c')} title="스케일 적용">적용</span>
+            <span onClick={applyBatchScale} style={mkBtnS('#fb923c')} title={t('batch.transform.t_apply', '스케일 적용')}>{t('batch.transform.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -852,7 +853,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sc배율 (R2528)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_scscale_r2528', 'sc배율 (R2528)')}</span>
             {[0.5, 0.75, 1.5, 2].map(m => (
               <span key={m} onClick={() => applyScaleMult(m)} style={mkBtnS('#fb923c')} title={`applyScaleMult sc.x * m = ${m}`}>×{m}</span>
             ))}
@@ -887,7 +888,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>리셋 (R2541)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_reset_r2541', '리셋 (R2541)')}</span>
             <span onClick={() => applyReset('scale')} style={mkBtnS('#fb923c')} title="applyReset scale">↺1:1</span>
             <span onClick={() => applyReset('rot')} style={mkBtnS('#fb923c')} title="applyReset rotation">∠0°</span>
           </div>
@@ -905,7 +906,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>사이즈 정수화 (R2542)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_round_r2542', '사이즈 정수화 (R2542)')}</span>
             <span onClick={applySzInt} style={mkBtnS('#34d399')} title="applySzInt ⊹sz">⊹sz</span>
           </div>
         )
@@ -921,7 +922,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤rot (R2593)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_randomrot_r2593', '랜덤rot (R2593)')}</span>
             <span onClick={applyRandRot} style={mkBtnS('#a78bfa')} title="applyRandRot 🎲rot">🎲rot</span>
           </div>
         )
@@ -938,7 +939,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>랜덤sc (R2594)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_randomsc_r2594', '랜덤sc (R2594)')}</span>
             <span onClick={applyRandScale} style={mkBtnS('#fb923c')} title="applyRandScale 🎲sc">🎲sc</span>
           </div>
         )
@@ -956,11 +957,11 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>sc배수 (R2597)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_scmult_r2597', 'sc배수 (R2597)')}</span>
             <input type="text" value={scaleMulInput} onChange={e => setScaleMulInput(e.target.value)}
-              style={mkNiS(40)} title="scaleMulInput 배수" />
-            <span onClick={applyScaleMul} style={mkBtnS('#fb923c')} title="applyScaleMul scale 배수 적용">적용</span>
-            <span onClick={() => { setScaleMulInput('0.5') }} style={mkBtnS('#94a3b8')} title="×0.5 프리셋">×0.5</span>
+              style={mkNiS(40)} title={t('batch.transform.t_scalemulinput_mult', 'scaleMulInput 배수')} />
+            <span onClick={applyScaleMul} style={mkBtnS('#fb923c')} title={t('batch.transform.t_applyscalemul_scale_mult_apply', 'applyScaleMul scale 배수 적용')}>{t('batch.transform.j_apply', '적용')}</span>
+            <span onClick={() => { setScaleMulInput('0.5') }} style={mkBtnS('#94a3b8')} title={t('batch.transform.t_0_5_preset', '×0.5 프리셋')}>×0.5</span>
           </div>
         )
       })()}
@@ -975,7 +976,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot스냅 (R2608)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.transform.j_rotsnap_r2608', 'rot스냅 (R2608)')}</span>
             {[15, 30, 45, 90].map(step => (
               <span key={step} onClick={() => applyRotSnap(step)} style={mkBtnS('#a78bfa')} title={`applyRotSnap ${step}°`}>{step}°</span>
             ))}
@@ -997,8 +998,8 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>rot+= (R2612)</span>
             <input type="text" value={rotOffsetInput} onChange={e => setRotOffsetInput(e.target.value)}
-              style={mkNiS(40)} title="rotOffsetInput 오프셋" />
-            <span onClick={addRot} style={mkBtnS('#a78bfa')} title="addRot rotation 오프셋 적용">적용</span>
+              style={mkNiS(40)} title={t('batch.transform.t_rotoffsetinput_offset', 'rotOffsetInput 오프셋')} />
+            <span onClick={addRot} style={mkBtnS('#a78bfa')} title={t('batch.transform.t_addrot_rotation_offset_apply', 'addRot rotation 오프셋 적용')}>{t('batch.transform.j_apply', '적용')}</span>
           </div>
         )
       })()}

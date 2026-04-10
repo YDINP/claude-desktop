@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import type { BatchPluginProps } from './types'
+import { t } from '../../../utils/i18n'
 
 const HISTORY_KEY = 'cc-batch-edit-history'
 const MAX_HISTORY = 20
@@ -31,7 +32,7 @@ function saveHistory(entries: HistoryEntry[]): void {
 
 function relativeTime(ts: number): string {
   const diff = Math.floor((Date.now() - ts) / 1000)
-  if (diff < 60) return '방금 전'
+  if (diff < 60) return t('batch.history.s_label', '방금 전')
   if (diff < 3600) return `${Math.floor(diff / 60)}분 전`
   return `${Math.floor(diff / 3600)}시간 전`
 }
@@ -59,7 +60,7 @@ export function HistoryPlugin({ nodes, sceneFile, onSelectNode }: BatchPluginPro
       uuid: n.uuid,
       name: n.name ?? n.uuid,
       timestamp: now,
-      op: '자동',
+      op: t('batch.history.s_auto', '자동'),
     }))
     setHistory(prev => {
       const updated = [...newEntries, ...prev].slice(0, MAX_HISTORY)
@@ -76,7 +77,7 @@ export function HistoryPlugin({ nodes, sceneFile, onSelectNode }: BatchPluginPro
       uuid: n.uuid,
       name: n.name ?? n.uuid,
       timestamp: now,
-      op: '수동',
+      op: t('batch.history.s_label2', '수동'),
     }))
     setHistory(prev => {
       const updated = [...newEntries, ...prev].slice(0, MAX_HISTORY)
@@ -119,22 +120,22 @@ export function HistoryPlugin({ nodes, sceneFile, onSelectNode }: BatchPluginPro
             onChange={e => setAutoRecord(e.target.checked)}
             style={{ width: 10, height: 10 }}
           />
-          <span>자동 기록</span>
+          <span>{t('batch.history.j_auto_record', '자동 기록')}</span>
         </label>
         <button style={btnS} onClick={handleManualRecord} disabled={nodes.length === 0}>
-          지금 기록
+          {t('batch.history.j_record_now', '지금 기록')}
         </button>
         <button
           style={{ ...btnS, color: 'var(--text-muted)', marginLeft: 'auto' }}
           onClick={handleClear}
         >
-          전체 삭제
+          {t('batch.history.j_clear_all', '전체 삭제')}
         </button>
       </div>
 
       {/* 이력 목록 */}
       {displayed.length === 0 ? (
-        <div style={{ color: 'var(--text-muted)', padding: '4px 0' }}>이력 없음</div>
+        <div style={{ color: 'var(--text-muted)', padding: '4px 0' }}>{t('batch.history.j_history_none', '이력 없음')}</div>
       ) : (
         <div style={{ border: '1px solid var(--border)', borderRadius: 2 }}>
           {displayed.map((entry, i) => (

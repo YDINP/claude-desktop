@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function LayoutWidgetSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   return (
@@ -549,9 +550,9 @@ export function LayoutWidgetSection({ uuids, uuidSet, sceneFile, saveScene, patc
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#60a5fa', width: 48, flexShrink: 0 }}>WgtAbs</span>
-            <span onClick={() => applyWidgetIsAbs(true)} title="isAbs* 모두 true (절대px)"
+            <span onClick={() => applyWidgetIsAbs(true)} title={t('batch.c_layout_widget.t_isabs_all_true_px', 'isAbs* 모두 true (절대px)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#60a5fa', userSelect: 'none' }}>px✓</span>
-            <span onClick={() => applyWidgetIsAbs(false)} title="isAbs* 모두 false (%)"
+            <span onClick={() => applyWidgetIsAbs(false)} title={t('batch.c_layout_widget.t_isabs_all_false', 'isAbs* 모두 false (%)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--text-muted)', userSelect: 'none' }}>%✗</span>
           </div>
         )

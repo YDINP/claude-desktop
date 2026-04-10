@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
+import { t } from '../../../utils/i18n'
 
 export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
   const uuids = useMemo(() => nodes.map(n => n.uuid), [nodes])
@@ -69,20 +70,20 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
 
       {/* R1575: 색상 일괄 설정 — 모든 선택 노드 색상 일괄 변경 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>색상</span>
+        <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48 }}>{t('batch.color.j_color', '색상')}</span>
         <input type="color"
           value={batchColor || '#ffffff'}
           onChange={e => setBatchColor(e.target.value)}
           style={{ width: 28, height: 22, border: 'none', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
-          title="모든 선택 노드 색상 일괄 변경"
+          title={t('batch.color.t_select_node_color_batch_change', '모든 선택 노드 색상 일괄 변경')}
         />
-        <input type="text" placeholder="#rrggbb (비워두면 유지)"
+        <input type="text" placeholder={t('batch.color.p_rrggbb_keep', '#rrggbb (비워두면 유지)')}
           value={batchColor}
           onChange={e => setBatchColor(e.target.value)}
           style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
         />
         {batchColor && colorRgb && <span onClick={() => patchNodes(n => ({ ...n, color: colorRgb! }), `색상 적용 (${uuids.length}개)`)}
-          style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>적용</span>}
+          style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}>{t('batch.color.j_apply', '적용')}</span>}
         {batchColor && <span onClick={() => setBatchColor('')} style={{ fontSize: 9, padding: '1px 4px', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</span>}
       </div>
 
@@ -100,7 +101,7 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
 
       {/* R1751: 색상 퀵 프리셋 */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap' }}>
-        {([['#ffffff', '흰'], ['#000000', '검'], ['#ff0000', '빨'], ['#00ff00', '초'], ['#0000ff', '파'], ['#ffff00', '노']] as [string, string][]).map(([hex, label]) => (
+        {([['#ffffff', t('batch.color.s_wht', '흰')], ['#000000', t('batch.color.s_blk', '검')], ['#ff0000', t('batch.color.s_red', '빨')], ['#00ff00', t('batch.color.s_grn', '초')], ['#0000ff', t('batch.color.s_blue', '파')], ['#ffff00', t('batch.color.s_yel', '노')]] as [string, string][]).map(([hex, label]) => (
           <span key={hex}
             onClick={() => {
               setBatchColor(hex)
@@ -116,8 +117,8 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
       {/* R1756: 전체 필드 초기화 버튼 */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
         <span onClick={() => { setBatchOpacity(''); setBatchColor('') }}
-          title="모든 배치 입력 필드 초기화"
-          style={{ fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>↺ 초기화</span>
+          title={t('batch.color.t_arrange_init', '모든 배치 입력 필드 초기화')}
+          style={{ fontSize: 9, padding: '1px 5px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none' }}>{t('batch.color.j_init', '↺ 초기화')}</span>
       </div>
 
       {/* R2538: 랜덤 색상 할당 — 각 선택 노드에 서로 다른 색상 적용 */}
@@ -141,8 +142,8 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         }
         return (
           <div style={{ display: 'flex', gap: 4, marginBottom: 4, alignItems: 'center' }}>
-            <span onClick={applyRandColor} title={`각 선택 노드에 서로 다른 색상 할당 (R2538)`}
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(217,119,6,0.5)', color: '#fbbf24', userSelect: 'none', background: 'rgba(217,119,6,0.05)' }}>🎲 색상</span>
+            <span onClick={applyRandColor} title={t('batch.color.t_select_node_color_r2538', '각 선택 노드에 서로 다른 색상 할당 (R2538)')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(217,119,6,0.5)', color: '#fbbf24', userSelect: 'none', background: 'rgba(217,119,6,0.05)' }}>{t('batch.color.j_color2', '🎲 색상')}</span>
           </div>
         )
       })()}
@@ -155,9 +156,9 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2699)</span>
-            <span onClick={applyColorReset} title="color → (255,255,255,255) 흰색 리셋 (R2699)"
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>리셋</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_color_r2699', '색상 (R2699)')}</span>
+            <span onClick={applyColorReset} title={t('batch.color.t_color_255_255_255_255_white_reset_r2699', 'color → (255,255,255,255) 흰색 리셋 (R2699)')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>{t('batch.color.j_reset', '리셋')}</span>
           </div>
         )
       })()}
@@ -165,23 +166,23 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
       {/* R2525: 오파시티 그라디언트 */}
       {sceneFile.root && uuids.length >= 2 && (() => {
         const applyOpGrad = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0
-          const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * t)
+          const frac = total > 1 ? idx / (total - 1) : 0
+          const op = Math.round(opGradFrom + (opGradTo - opGradFrom) * frac)
           return { ...n, opacity: Math.max(0, Math.min(255, op)) }
         }, `오파시티 그라디언트 ${opGradFrom}→${opGradTo} (${uuids.length}개)`)
         const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>불투명도 (R2525)</span>
-            <input type="number" value={opGradFrom} min={0} max={255} onChange={e => setOpGradFrom(Math.max(0, Math.min(255, parseInt(e.target.value) || 0)))} style={niS} title="시작 opacity (0-255)" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_opacity_r2525', '불투명도 (R2525)')}</span>
+            <input type="number" value={opGradFrom} min={0} max={255} onChange={e => setOpGradFrom(Math.max(0, Math.min(255, parseInt(e.target.value) || 0)))} style={niS} title={t('batch.color.t_start_opacity_0_255', '시작 opacity (0-255)')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="number" value={opGradTo} min={0} max={255} onChange={e => setOpGradTo(Math.max(0, Math.min(255, parseInt(e.target.value) || 0)))} style={niS} title="끝 opacity (0-255)" />
+            <input type="number" value={opGradTo} min={0} max={255} onChange={e => setOpGradTo(Math.max(0, Math.min(255, parseInt(e.target.value) || 0)))} style={niS} title={t('batch.color.t_end_opacity_0_255', '끝 opacity (0-255)')} />
             <span onClick={applyOpGrad}
               title={`선택된 ${uuids.length}개 노드에 opacity ${opGradFrom}→${opGradTo} 선형 그라디언트 적용 (R2525)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#c084fc', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#c084fc')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >그라디언트</span>
+            >{t('batch.color.j_grad', '그라디언트')}</span>
           </div>
         )
       })()}
@@ -196,7 +197,7 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         const btnS = mkBtnS('#c084fc')
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op스냅 (R2621)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_opsnap_r2621', 'op스냅 (R2621)')}</span>
             {[64, 128, 192, 255].map(step => (
               <span key={step} onClick={() => applyOpSnap(step)}
                 title={`opacity를 ${step} 배수로 반올림 (R2621)`}
@@ -216,22 +217,22 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
           const from = parseHex(colorGradFrom)
           const to = parseHex(colorGradTo)
           return patchOrdered((n, idx, total) => {
-            const t = total > 1 ? idx / (total - 1) : 0
-            return { ...n, color: { r: Math.round(from.r + (to.r - from.r) * t), g: Math.round(from.g + (to.g - from.g) * t), b: Math.round(from.b + (to.b - from.b) * t), a: (n.color?.a ?? 255) } }
+            const frac = total > 1 ? idx / (total - 1) : 0
+            return { ...n, color: { r: Math.round(from.r + (to.r - from.r) * frac), g: Math.round(from.g + (to.g - from.g) * frac), b: Math.round(from.b + (to.b - from.b) * frac), a: (n.color?.a ?? 255) } }
           }, `색상 그라디언트 ${colorGradFrom}→${colorGradTo} (${uuids.length}개)`)
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2596)</span>
-            <input type="color" value={colorGradFrom} onChange={e => setColorGradFrom(e.target.value)} style={{ width: 26, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }} title="시작 색상" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_color_r2596', '색상 (R2596)')}</span>
+            <input type="color" value={colorGradFrom} onChange={e => setColorGradFrom(e.target.value)} style={{ width: 26, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }} title={t('batch.color.t_start_color', '시작 색상')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
-            <input type="color" value={colorGradTo} onChange={e => setColorGradTo(e.target.value)} style={{ width: 26, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }} title="끝 색상" />
+            <input type="color" value={colorGradTo} onChange={e => setColorGradTo(e.target.value)} style={{ width: 26, height: 18, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', flexShrink: 0 }} title={t('batch.color.t_end_color', '끝 색상')} />
             <span onClick={applyColorGrad}
               title={`선택된 ${uuids.length}개 노드에 tint 색상 ${colorGradFrom}→${colorGradTo} 선형 그라디언트 적용 (R2596)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#f472b6', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >색상그라디언트</span>
+            >{t('batch.color.j_colorgrad', '색상그라디언트')}</span>
           </div>
         )
       })()}
@@ -254,7 +255,7 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>팔레트 (R2631)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_palette_r2631', '팔레트 (R2631)')}</span>
             {colors.map(([key, c]) => (
               <div key={key}
                 onClick={() => applyColor(c.r, c.g, c.b, c.a)}
@@ -289,11 +290,11 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>무지개 (R2626)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_rainbow_r2626', '무지개 (R2626)')}</span>
             <span onClick={applyRainbow}
               title={`선택된 ${uuids.length}개 노드에 HSL 균등 색조 무지개 분배 적용 (R2626)`}
               style={{ fontSize: 9, padding: '1px 8px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, background: 'linear-gradient(to right, #f87171, #fb923c, #facc15, #4ade80, #60a5fa, #a78bfa, #f472b6)', color: '#fff', userSelect: 'none', fontWeight: 600 }}
-            >적용</span>
+            >{t('batch.color.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -305,9 +306,9 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op리셋 (R2657)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_opreset_r2657', 'op리셋 (R2657)')}</span>
             <span onClick={applyOpacityReset}
-              title="선택 노드 opacity를 255(불투명)으로 리셋 (R2657)"
+              title={t('batch.color.t_select_node_opacity_255_reset_r2657', '선택 노드 opacity를 255(불투명)으로 리셋 (R2657)')}
               style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(148,163,184,0.4)', color: '#94a3b8', userSelect: 'none' }}>op=255</span>
           </div>
         )
@@ -325,15 +326,15 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op배수 (R2678)</span>
-            <input type="number" value={opacityMult} min={0} max={200} step={10} onChange={e => setOpacityMult(parseInt(e.target.value) || 0)} style={niS} title="opacity 배수 (%)" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_opmult_r2678', 'op배수 (R2678)')}</span>
+            <input type="number" value={opacityMult} min={0} max={200} step={10} onChange={e => setOpacityMult(parseInt(e.target.value) || 0)} style={niS} title={t('batch.color.t_opacity_mult', 'opacity 배수 (%)')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>%</span>
             <span onClick={applyOpacityMult}
               title={`opacity × ${opacityMult}% (R2678)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#c084fc', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#c084fc')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >적용</span>
+            >{t('batch.color.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -346,7 +347,7 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         const niS = mkNiS(45)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>op고정 (R2702)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_opfixed_r2702', 'op고정 (R2702)')}</span>
             <input type="number" min={0} max={255} value={opacityFixed} onChange={e => setOpacityFixed(Number(e.target.value))} style={niS} />
             {[0, 64, 128, 192, 255].map(v => (
               <span key={v} onClick={() => setOpacityFixed(v)} title={`opacity = ${v}`}
@@ -354,7 +355,7 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
             ))}
             <span onClick={applyOpacityFixed}
               title={`선택 노드 opacity = ${opacityFixed} (R2702)`}
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(42,74,106,0.6)', color: '#2a4a6a', userSelect: 'none' }}>적용</span>
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(42,74,106,0.6)', color: '#2a4a6a', userSelect: 'none' }}>{t('batch.color.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -363,10 +364,10 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
       {uuids.length >= 1 && sceneFile.root && (() => {
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color리셋 (R2656)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_colorreset_r2656', 'color리셋 (R2656)')}</span>
             <span onClick={() => patchNodes(n => ({ ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 } }), `color 흰색 리셋 (${uuids.length}개)`)}
-              title="선택 노드 color를 흰색(255,255,255)으로 리셋 (R2656)"
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(255,255,255,0.3)', color: '#e2e8f0', userSelect: 'none', background: 'rgba(255,255,255,0.05)' }}>흰색</span>
+              title={t('batch.color.t_select_node_color_white_255_255_255_reset_r2656', '선택 노드 color를 흰색(255,255,255)으로 리셋 (R2656)')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(255,255,255,0.3)', color: '#e2e8f0', userSelect: 'none', background: 'rgba(255,255,255,0.05)' }}>{t('batch.color.j_white', '흰색')}</span>
           </div>
         )
       })()}
@@ -378,10 +379,10 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상 (R2693)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_color_r2693', '색상 (R2693)')}</span>
             <span onClick={applyRandomColor}
-              title="각 노드에 랜덤 RGB 색상 적용 (R2693)"
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(251,113,133,0.4)', color: '#fb7185', userSelect: 'none' }}>랜덤</span>
+              title={t('batch.color.t_node_random_rgb_color_apply_r2693', '각 노드에 랜덤 RGB 색상 적용 (R2693)')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(251,113,133,0.4)', color: '#fb7185', userSelect: 'none' }}>{t('batch.color.j_random', '랜덤')}</span>
           </div>
         )
       })()}
@@ -396,10 +397,10 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color반전 (R2677)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_colorinvert_r2677', 'color반전 (R2677)')}</span>
             <span onClick={applyColorInvert}
-              title="색상 반전 (255-r, 255-g, 255-b) (R2677)"
-              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none' }}>반전</span>
+              title={t('batch.color.t_color_invert_255_r_255_g_255_b_r2677', '색상 반전 (255-r, 255-g, 255-b) (R2677)')}
+              style={{ fontSize: 8, cursor: 'pointer', padding: '1px 6px', borderRadius: 2, border: '1px solid rgba(244,114,182,0.4)', color: '#f472b6', userSelect: 'none' }}>{t('batch.color.j_invert', '반전')}</span>
           </div>
         )
       })()}
@@ -411,25 +412,25 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
           const tr = parseInt(hex.slice(0, 2), 16)
           const tg = parseInt(hex.slice(2, 4), 16)
           const tb = parseInt(hex.slice(4, 6), 16)
-          const t = Math.max(0, Math.min(100, colorBlendAmount)) / 100
+          const frac = Math.max(0, Math.min(100, colorBlendAmount)) / 100
           await patchNodes(n => {
             const c = n.color ?? { r: 255, g: 255, b: 255, a: 255 }
-            return { ...n, color: { r: Math.round(c.r + (tr - c.r) * t), g: Math.round(c.g + (tg - c.g) * t), b: Math.round(c.b + (tb - c.b) * t), a: c.a } }
+            return { ...n, color: { r: Math.round(c.r + (tr - c.r) * frac), g: Math.round(c.g + (tg - c.g) * frac), b: Math.round(c.b + (tb - c.b) * frac), a: c.a } }
           }, `color 블렌드 ${colorBlendAmount}% → ${colorBlendTarget} (${uuids.length}개)`)
         }
         const niS = mkNiS(36)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>color블렌드 (R2676)</span>
-            <input type="color" value={colorBlendTarget} onChange={e => setColorBlendTarget(e.target.value)} style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', borderRadius: 2, background: 'none' }} title="목표 색상" />
-            <input type="number" value={colorBlendAmount} min={0} max={100} step={10} onChange={e => setColorBlendAmount(parseInt(e.target.value) || 0)} style={niS} title="블렌드 비율 (%)" />
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_colorblend_r2676', 'color블렌드 (R2676)')}</span>
+            <input type="color" value={colorBlendTarget} onChange={e => setColorBlendTarget(e.target.value)} style={{ width: 22, height: 18, border: 'none', padding: 0, cursor: 'pointer', borderRadius: 2, background: 'none' }} title={t('batch.color.t_target_color', '목표 색상')} />
+            <input type="number" value={colorBlendAmount} min={0} max={100} step={10} onChange={e => setColorBlendAmount(parseInt(e.target.value) || 0)} style={niS} title={t('batch.color.t_blend_ratio', '블렌드 비율 (%)')} />
             <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>%</span>
             <span onClick={applyColorBlend}
               title={`현재 색상을 ${colorBlendTarget}으로 ${colorBlendAmount}% 블렌드 (R2676)`}
               style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#f472b6', userSelect: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#f472b6')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-            >블렌드</span>
+            >{t('batch.color.j_blend', '블렌드')}</span>
           </div>
         )
       })()}
@@ -437,8 +438,8 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
       {/* R2739: opacity 그라데이션 */}
       {uuids.length >= 2 && (() => {
         const applyOpacGrad = () => patchOrdered((n, idx, total) => {
-          const t = total > 1 ? idx / (total - 1) : 0.5
-          const opacity = Math.round(opacGradFrom + (opacGradTo - opacGradFrom) * t)
+          const frac = total > 1 ? idx / (total - 1) : 0.5
+          const opacity = Math.round(opacGradFrom + (opacGradTo - opacGradFrom) * frac)
           const clamped = Math.max(0, Math.min(255, opacity))
           return { ...n, opacity: clamped }
         }, `opacity 그라데이션 ${opacGradFrom}→${opacGradTo} (${uuids.length}개) (R2739)`)
@@ -446,15 +447,15 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         const btnS = mkBtnS('#c084fc')
         return (
           <div style={{ marginBottom: 4, display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>opacity그라데이션 (R2739)</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{t('batch.color.j_opacitygradation_r2739', 'opacity그라데이션 (R2739)')}</span>
             <input type="number" value={opacGradFrom} min={0} max={255}
               onChange={e => setOpacGradFrom(Math.max(0, Math.min(255, Number(e.target.value))))}
-              style={niS} title="시작 opacity (0-255)" />
+              style={niS} title={t('batch.color.t_start_opacity_0_255', '시작 opacity (0-255)')} />
             <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>→</span>
             <input type="number" value={opacGradTo} min={0} max={255}
               onChange={e => setOpacGradTo(Math.max(0, Math.min(255, Number(e.target.value))))}
-              style={niS} title="끝 opacity (0-255)" />
-            <span onClick={applyOpacGrad} style={btnS} title="opacity 선형 보간 적용">적용</span>
+              style={niS} title={t('batch.color.t_end_opacity_0_255', '끝 opacity (0-255)')} />
+            <span onClick={applyOpacGrad} style={btnS} title={t('batch.color.t_opacity_apply', 'opacity 선형 보간 적용')}>{t('batch.color.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -469,7 +470,7 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
         }
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>색상오프셋 (R2704)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.color.j_coloroffset_r2704', '색상오프셋 (R2704)')}</span>
             <div style={{ display: 'flex', gap: 2, flex: 1, minWidth: 150 }}>
               {([['R', colorDeltaR, setColorDeltaR], ['G', colorDeltaG, setColorDeltaG], ['B', colorDeltaB, setColorDeltaB], ['A', colorDeltaA, setColorDeltaA]] as const).map(([label, val, setter]) => (
                 <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -480,10 +481,10 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
                 </span>
               ))}
             </div>
-            <span onClick={() => { setColorDeltaR(30); setColorDeltaG(30); setColorDeltaB(30) }} style={mkBtnS('#3a5a3a')} title="R/G/B +30">+밝게</span>
-            <span onClick={() => { setColorDeltaR(-30); setColorDeltaG(-30); setColorDeltaB(-30) }} style={mkBtnS('#3a3a5a')} title="R/G/B -30">-어둡게</span>
-            <span onClick={() => { setColorDeltaR(0); setColorDeltaG(0); setColorDeltaB(0); setColorDeltaA(0) }} style={mkBtnS('#555')} title="모든 델타 0으로 리셋">리셋</span>
-            <span onClick={applyColorDelta} style={mkBtnS('#2a4a6a')} title={`선택된 ${uuids.length}개 노드 색상 채널 오프셋 적용 (R2704)`}>적용</span>
+            <span onClick={() => { setColorDeltaR(30); setColorDeltaG(30); setColorDeltaB(30) }} style={mkBtnS('#3a5a3a')} title="R/G/B +30">{t('batch.color.j_label', '+밝게')}</span>
+            <span onClick={() => { setColorDeltaR(-30); setColorDeltaG(-30); setColorDeltaB(-30) }} style={mkBtnS('#3a3a5a')} title="R/G/B -30">{t('batch.color.j_label2', '-어둡게')}</span>
+            <span onClick={() => { setColorDeltaR(0); setColorDeltaG(0); setColorDeltaB(0); setColorDeltaA(0) }} style={mkBtnS('#555')} title={t('batch.color.t_0_reset', '모든 델타 0으로 리셋')}>{t('batch.color.j_reset', '리셋')}</span>
+            <span onClick={applyColorDelta} style={mkBtnS('#2a4a6a')} title={`선택된 ${uuids.length}개 노드 색상 채널 오프셋 적용 (R2704)`}>{t('batch.color.j_apply', '적용')}</span>
           </div>
         )
       })()}
@@ -491,12 +492,12 @@ export function ColorPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) {
       {/* R2743: 색상 밝기 조절 */}
       {uuids.length >= 1 && (() => (
         <div style={{ marginBottom: 4, display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>밝기조절 (R2743)</span>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>{t('batch.color.j_brightadjust_r2743', '밝기조절 (R2743)')}</span>
           <input type="number" value={brightDelta} min={1} max={255}
             onChange={e => setBrightDelta(Math.max(1, Number(e.target.value)))}
-            style={mkNiS(40)} title="밝기 조절 값 (1-255)" />
-          <span onClick={() => applyBrightness(brightDelta)} style={mkBtnS('#3a5a3a')} title="밝게">☀+</span>
-          <span onClick={() => applyBrightness(-brightDelta)} style={mkBtnS('#3a3a5a')} title="어둡게">☀-</span>
+            style={mkNiS(40)} title={t('batch.color.t_bright_adjust_1_255', '밝기 조절 값 (1-255)')} />
+          <span onClick={() => applyBrightness(brightDelta)} style={mkBtnS('#3a5a3a')} title={t('batch.color.t_label', '밝게')}>☀+</span>
+          <span onClick={() => applyBrightness(-brightDelta)} style={mkBtnS('#3a3a5a')} title={t('batch.color.t_label2', '어둡게')}>☀-</span>
         </div>
       ))()}
     </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import type { ComponentSectionProps } from './component-shared'
 import { mkBtnS, mkNiS } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg, onMultiSelectChange }: ComponentSectionProps) {
   const [batchScaleX, setBatchScaleX] = useState<string>('')
@@ -429,7 +430,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
       {/* R1760: 공통 cc.Sprite tint 일괄 설정 */}
       {commonCompTypes.includes('cc.Sprite') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-          <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>Sprite 색</span>
+          <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>{t('batch.c_cc3x_tail.j_sprite', 'Sprite 색')}</span>
           <input type="color" defaultValue="#ffffff"
             onChange={async e => {
               const hex = e.target.value
@@ -442,7 +443,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
               )
             }}
             style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
-            title="cc.Sprite tint 색상 일괄 설정"
+            title={t('batch.c_cc3x_tail.t_cc_sprite_tint_color_batch_set', 'cc.Sprite tint 색상 일괄 설정')}
           />
           <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>tint</span>
         </div>
@@ -453,7 +454,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
           <span style={{ fontSize: 9, color: '#4ade80', width: 48, flexShrink: 0 }}>Sprite gray</span>
           {(['✓ gray', '○ gray'] as const).map(label => (
             <span key={label}
-              title={`grayscale 모두 ${label.startsWith('✓') ? '활성' : '비활성'}`}
+              title={`grayscale 모두 ${label.startsWith('✓') ? t('batch.c_cc3x_tail.s_on', '활성') : t('batch.c_cc3x_tail.s_off', '비활성')}`}
               onClick={async () => {
                 if (!sceneFile.root) return
                 const val = label.startsWith('✓')
@@ -492,8 +493,8 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
       {/* R1762: 공통 cc.Label fontFamily 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label 폰트</span>
-          <input type="text" placeholder="fontFamily (빈칸=기본)"
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>{t('batch.c_cc3x_tail.j_label_font', 'Label 폰트')}</span>
+          <input type="text" placeholder={t('batch.c_cc3x_tail.p_fontfamily', 'fontFamily (빈칸=기본)')}
             style={{ flex: 1, fontSize: 10, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
             onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
             onBlur={async e => {
@@ -511,7 +512,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
       {/* R1758: 공통 cc.Label 텍스트 색상 일괄 설정 */}
       {commonCompTypes.includes('cc.Label') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Label 색</span>
+          <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>{t('batch.c_cc3x_tail.j_label', 'Label 색')}</span>
           <input type="color" defaultValue="#ffffff"
             onChange={async e => {
               const hex = e.target.value
@@ -524,7 +525,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
               )
             }}
             style={{ width: 28, height: 22, border: '1px solid var(--border)', borderRadius: 3, padding: 0, cursor: 'pointer', background: 'none' }}
-            title="cc.Label 텍스트 색상 일괄 설정"
+            title={t('batch.c_cc3x_tail.t_cc_label_text_color_batch_set', 'cc.Label 텍스트 색상 일괄 설정')}
           />
         </div>
       )}
@@ -544,7 +545,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
             }}
             style={{ flex: 1, fontSize: 9, background: 'var(--input-bg, #1a1a2e)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3, padding: '2px 3px' }}
           >
-            <option value="">(변경 안 함)</option>
+            <option value="">{t('batch.c_cc3x_tail.j_change', '(변경 안 함)')}</option>
             {([[1, 'DEFAULT'], [2, 'IGNORE_RAYCAST'], [16, 'UI_3D'], [524288, 'UI_2D'], [1073741824, 'ALL']] as [number, string][]).map(([v, n]) => (
               <option key={v} value={v}>{n} ({v})</option>
             ))}
@@ -564,7 +565,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
               border: batchActive === v ? `1px solid ${v === 'active' ? '#4ade80' : v === 'inactive' ? '#f85149' : '#666'}` : '1px solid transparent',
               color: v === 'active' ? '#4ade80' : v === 'inactive' ? '#f85149' : 'var(--text-muted)',
             }}
-          >{v === '' ? '(변경 안 함)' : v === 'active' ? '활성화' : '비활성화'}</button>
+          >{v === '' ? t('batch.c_cc3x_tail.j_change', '(변경 안 함)') : v === 'active' ? t('batch.c_cc3x_tail.s_act', '활성화') : t('batch.c_cc3x_tail.s_deact', '비활성화')}</button>
         ))}
         {/* R2602: active 반전 */}
         <button
@@ -576,7 +577,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
             }, `active 반전 (${uuids.length}개)`)
           }}
           style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', background: 'none' }}
-        >반전</button>
+        >{t('batch.c_cc3x_tail.j_invert', '반전')}</button>
         {/* R2622: active 교차 패턴 — 홀수 인덱스: 활성, 짝수: 비활성 */}
         {uuids.length >= 2 && (
           <button
@@ -588,13 +589,13 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
               }, `active 교차 (${uuids.length}개)`)
             }}
             style={{ fontSize: 9, padding: '1px 6px', cursor: 'pointer', borderRadius: 3, border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c', background: 'none' }}
-          >교차</button>
+          >{t('batch.c_cc3x_tail.j_alt', '교차')}</button>
         )}
       </div>
       {/* R2714: 조건부 active 토글 */}
       <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 4, flexWrap: 'wrap', paddingLeft: 52, marginBottom: 4 }}>
         <input
-          placeholder="이름 패턴 또는 /regex/"
+          placeholder={t('batch.c_cc3x_tail.p_name_pattern_regex', '이름 패턴 또는 /regex/')}
           value={condActivePattern}
           onChange={e => setCondActivePattern(e.target.value)}
           style={{ ...mkNiS(120), flex: 1 }}
@@ -610,7 +611,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
             try {
               const m = condActivePattern.match(/^\/(.+)\/([gi]*)$/)
               re = m ? new RegExp(m[1], m[2] || 'i') : new RegExp(condActivePattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
-            } catch { setBatchMsg('❌ 정규식 오류'); return }
+            } catch { setBatchMsg(t('batch.c_cc3x_tail.s_label', '❌ 정규식 오류')); return }
             const targetVal = condActiveValue === 'active'
             let count = 0
             function patch(n: CCSceneNode): CCSceneNode {
@@ -620,13 +621,13 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
               return { ...n, children: ch }
             }
             const newRoot = patch(sceneFile.root)
-            if (count === 0) { setBatchMsg('⚠ 매칭 없음'); setTimeout(() => setBatchMsg(null), 2000); return }
+            if (count === 0) { setBatchMsg(t('batch.c_cc3x_tail.s_none', '⚠ 매칭 없음')); setTimeout(() => setBatchMsg(null), 2000); return }
             await saveScene(newRoot)
             setBatchMsg(`✓ 조건부 ${condActiveValue} ${count}개`)
             setTimeout(() => setBatchMsg(null), 2000)
           }}
           disabled={!condActivePattern.trim()}
-        >적용</button>
+        >{t('batch.c_cc3x_tail.j_apply', '적용')}</button>
       </div>
       {/* R2548: 선택 노드 중 cc.Label/cc.RichText 있는 것들에 텍스트 일괄 적용 */}
       {sceneFile.root && uuids.length >= 1 && (() => {
@@ -639,10 +640,10 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
         if (!hasLabelNode) return null
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>레이블 (R2548)</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>{t('batch.c_cc3x_tail.j_label_r2548', '레이블 (R2548)')}</span>
             <input
-              placeholder="텍스트 일괄 적용 (Enter)"
-              title="선택 노드 중 cc.Label/cc.RichText에 텍스트 일괄 입력 — Enter로 저장 (R2548)"
+              placeholder={t('batch.c_cc3x_tail.p_text_batch_apply_enter', '텍스트 일괄 적용 (Enter)')}
+              title={t('batch.c_cc3x_tail.t_select_node_cc_label_cc_richtext_text_batch', '선택 노드 중 cc.Label/cc.RichText에 텍스트 일괄 입력 — Enter로 저장 (R2548)')}
               style={{ fontSize: 9, padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', width: 120 }}
               onKeyDown={async e => {
                 if (e.key !== 'Enter' || !sceneFile.root) return
@@ -688,15 +689,15 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
         const bs: React.CSSProperties = { fontSize: 9, padding: '1px 6px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#67e8f9', userSelect: 'none' }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>L순번 (R2627)</span>
-            <span onClick={() => applyLabelSerial('append')} title="Label 텍스트 뒤에 순번 추가 (R2627)" style={bs}>+번호</span>
-            <span onClick={() => applyLabelSerial('replace')} title="Label 텍스트를 순번으로 교체 (R2627)" style={{ ...bs, color: '#f9a8d4' }}>번호만</span>
+            <span style={{ fontSize: 9, color: 'var(--text-muted)', width: 48, flexShrink: 0 }}>{t('batch.c_cc3x_tail.j_lseq_r2627', 'L순번 (R2627)')}</span>
+            <span onClick={() => applyLabelSerial('append')} title={t('batch.c_cc3x_tail.t_label_text_seq_add_r2627', 'Label 텍스트 뒤에 순번 추가 (R2627)')} style={bs}>{t('batch.c_cc3x_tail.j_num', '+번호')}</span>
+            <span onClick={() => applyLabelSerial('replace')} title={t('batch.c_cc3x_tail.t_label_text_seq_swap2_r2627', 'Label 텍스트를 순번으로 교체 (R2627)')} style={{ ...bs, color: '#f9a8d4' }}>{t('batch.c_cc3x_tail.j_num2', '번호만')}</span>
           </div>
         )
       })()}
       {/* R2467: 컴포넌트 일괄 추가 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 6 }}>
-        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>컴포넌트 일괄 추가</div>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 4 }}>{t('batch.c_cc3x_tail.j_comp_batch_add', '컴포넌트 일괄 추가')}</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
           {(['cc.Label', 'cc.Sprite', 'cc.Button', 'cc.Toggle', 'cc.Slider', 'cc.ScrollView', 'cc.Layout', 'cc.Widget', 'cc.Animation', 'cc.AudioSource', 'cc.UIOpacity', 'cc.Mask'] as const).map(ct => (
             <span
@@ -723,17 +724,17 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
       </div>
       {/* R2491: 범용 컴포넌트 prop 일괄 편집 */}
       <div style={{ borderTop: '1px solid var(--border)', marginTop: 4, paddingTop: 6 }}>
-        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>⚙ 범용 prop 편집</div>
+        <div style={{ fontSize: 9, color: 'var(--text-muted)', marginBottom: 3 }}>{t('batch.c_cc3x_tail.j_generic_prop', '⚙ 범용 prop 편집')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
           <input placeholder="cc.Label" value={genericCompType} onChange={e => setGenericCompType(e.target.value)}
             style={{ width: 68, fontSize: 9, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
-            title="컴포넌트 타입 (R2491)" />
-          <input placeholder="prop명" value={genericPropName} onChange={e => setGenericPropName(e.target.value)}
+            title={t('batch.c_cc3x_tail.t_comp_r2491', '컴포넌트 타입 (R2491)')} />
+          <input placeholder={t('batch.c_cc3x_tail.p_prop', 'prop명')} value={genericPropName} onChange={e => setGenericPropName(e.target.value)}
             style={{ width: 60, fontSize: 9, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
-            title="prop 이름 (R2491)" />
-          <input placeholder="값" value={genericPropVal} onChange={e => setGenericPropVal(e.target.value)}
+            title={t('batch.c_cc3x_tail.t_prop_name_r2491', 'prop 이름 (R2491)')} />
+          <input placeholder={t('batch.c_cc3x_tail.p_label', '값')} value={genericPropVal} onChange={e => setGenericPropVal(e.target.value)}
             style={{ width: 52, fontSize: 9, padding: '1px 4px', background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: 3 }}
-            title="설정할 값 (숫자/true/false/문자열) (R2491)" />
+            title={t('batch.c_cc3x_tail.t_set_true_false_r2491', '설정할 값 (숫자/true/false/문자열) (R2491)')} />
           <button
             onClick={async () => {
               if (!sceneFile.root || !genericCompType.trim() || !genericPropName.trim()) return
@@ -757,7 +758,7 @@ export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
             }}
             style={{ fontSize: 9, padding: '2px 7px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(251,191,36,0.5)', background: 'rgba(251,191,36,0.1)', color: '#fbbf24' }}
             title={`${genericCompType}.${genericPropName} = ${genericPropVal} (R2491)`}
-          >적용</button>
+          >{t('batch.c_cc3x_tail.j_apply', '적용')}</button>
         </div>
       </div>
     </>

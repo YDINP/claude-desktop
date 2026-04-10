@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function ParticleSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   return (
@@ -299,7 +300,7 @@ export function ParticleSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#a78bfa', width: 48, flexShrink: 0 }}>Pdur</span>
             {([[-1,'∞'], [1,'1s'], [2,'2s'], [5,'5s'], [10,'10s']] as [number, string][]).map(([v, l]) => (
-              <span key={v} title={`duration = ${v < 0 ? '무한' : `${v}s`}`}
+              <span key={v} title={`duration = ${v < 0 ? t('batch.c_particle.s_label', '무한') : `${v}s`}`}
                 onClick={() => applyParticleDur(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#a78bfa', userSelect: 'none' }}
               >{l}</span>

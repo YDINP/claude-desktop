@@ -23,7 +23,15 @@ export function recordSceneMtime(scenePath: string): void {
   } catch { /* ignore */ }
 }
 
-/** 프로젝트 전환 시 mtime 맵 클리어 (projectPath 없으면 전체 클리어) */
+/**
+ * 로드된 씬의 mtime 기록 맵 클리어
+ *
+ * @param projectPath - 지정하면 해당 경로로 시작하는 씬만 제거, 없으면 전체 클리어
+ *
+ * @remarks
+ * 프로젝트 전환이나 테스트 초기화 시 호출.
+ * clearMtimeMap() 이후 saveCCScene은 mtime 충돌 감지를 건너뜀.
+ */
 export function clearMtimeMap(projectPath?: string): void {
   if (projectPath) {
     for (const key of loadedMtimeMap.keys()) {
@@ -42,9 +50,21 @@ export function forceOverwriteScene(sceneFile: CCSceneFile, modifiedRoot: CCScen
 }
 
 /**
- * 수정된 CCSceneNode 트리를 원본 flat 배열(_raw)에 패치 후 파일로 저장
- * - 저장 전 .bak 백업 생성
- * - temp → rename 패턴으로 원자적 저장
+ * 수정된 CCSceneNode 트리를 원본 flat 배열(_raw)에 패치하여 파일로 저장
+ *
+ * @param sceneFile - parseCCScene으로 로드한 씬 파일 (반드시 `_raw` 포함)
+ * @param modifiedRoot - 수정된 노드 트리의 루트 (CCSceneNode)
+ * @returns SaveResult — `{ success, backupPath?, error?, conflict?, currentMtime? }`
+ *
+ * @remarks
+ * 저장 프로세스:
+ * 1. `_raw` 없으면 즉시 `success: false` 반환
+ * 2. `_rawIndex == null` 인 신규 노드/컴포넌트를 raw 배열 끝에 추가 (normalizeTree)
+ * 3. `validateCCScene` 실행 — 중복 UUID·순환 참조 시 `success: false`
+ * 4. mtime 충돌 감지 — `loadedMtimeMap`에 기록된 mtime과 현재 mtime 비교
+ *    (차이 > 100ms면 `conflict: true` 반환)
+ * 5. `.bak` 백업 후 `.tmp` 임시 파일 쓰기 → `renameSync` 원자적 교체
+ * 6. 저장 후 `loadedMtimeMap` mtime 갱신
  */
 export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): SaveResult {
   if (!sceneFile._raw) {
@@ -440,6 +460,18 @@ export interface ValidationResult {
 }
 
 /** 순환 참조 + 중복 UUID + rawIndex null 감지 */
+/**
+ * CCSceneNode 트리의 유효성 검사
+ *
+ * @param root - 검사할 노드 트리의 루트
+ * @returns `{ valid, warnings, errors }` — valid는 errors가 0개일 때 true
+ *
+ * @remarks
+ * 검사 항목:
+ * - **errors**: 중복 UUID (`중복 UUID: uuid=... name="..."`)
+ * - **errors**: 순환 참조 (`순환 참조: uuid=... name="..."`) — 조상 체인에 같은 uuid 존재 시
+ * - **warnings**: `_rawIndex == null` 노드 — 저장 시 무시됨
+ */
 export function validateCCScene(root: CCSceneNode): ValidationResult {
   const warnings: string[] = []
   const errors: string[] = []

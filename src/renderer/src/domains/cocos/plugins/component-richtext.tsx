@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function RichTextSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   return (
@@ -39,7 +40,7 @@ export function RichTextSection({ uuids, uuidSet, sceneFile, saveScene, patchNod
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#58a6ff', width: 48, flexShrink: 0 }}>Rich maxW</span>
             {([0, 100, 200, 300, 400, 600] as const).map(v => (
-              <span key={v} title={v === 0 ? 'maxWidth=0 (무제한)' : `maxWidth=${v}`}
+              <span key={v} title={v === 0 ? t('batch.c_richtext.s_maxwidth_0', 'maxWidth=0 (무제한)') : `maxWidth=${v}`}
                 onClick={() => applyRichMaxW(v)}
                 style={{ fontSize: 8, cursor: 'pointer', padding: '1px 4px', borderRadius: 2, border: '1px solid var(--border)', color: '#58a6ff', userSelect: 'none' }}
               >{v === 0 ? '∞' : v}</span>

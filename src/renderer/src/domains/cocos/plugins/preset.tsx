@@ -6,6 +6,7 @@ import React, { useState, useMemo, useCallback } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import { useBatchPatch } from '@renderer/components/sidebar/hooks/useBatchPatch'
 import type { BatchPluginProps } from './types'
+import { t } from '../../../utils/i18n'
 
 const STORAGE_KEY = 'cc-batch-presets'
 
@@ -138,7 +139,7 @@ export function PresetPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) 
     <div style={{ borderTop: '1px solid var(--border)', paddingTop: 4, marginTop: 2 }}>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, cursor: 'pointer', userSelect: 'none' }} onClick={() => setOpen(o => !o)}>
-        <span style={s9({ color: '#a78bfa', flexShrink: 0 })}>{open ? '▾' : '▸'} 💾 프리셋 (R2727)</span>
+        <span style={s9({ color: '#a78bfa', flexShrink: 0 })}>{open ? '▾' : '▸'} {t('batch.preset.j_preset_r2727', '💾 프리셋 (R2727)')}</span>
         <span style={s9({ color: 'var(--text-muted)' })}>{presets.length > 0 ? `${presets.length}개 저장됨` : ''}</span>
       </div>
 
@@ -157,8 +158,8 @@ export function PresetPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) 
                     <span style={s9({ color: '#a78bfa', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 0 })} title={p.name}>{p.name}</span>
                     <span style={s9({ color: 'var(--text-muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 8 })} title={summary}>{summary}</span>
                     <span onClick={() => applyPreset(p)} title={`"${p.name}" 적용`}
-                      style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(167,139,250,0.4)', borderRadius: 2, color: '#a78bfa', userSelect: 'none', flexShrink: 0, background: 'rgba(167,139,250,0.05)' }}>적용</span>
-                    <span onClick={() => deletePreset(p.id)} title="프리셋 삭제"
+                      style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: '1px solid rgba(167,139,250,0.4)', borderRadius: 2, color: '#a78bfa', userSelect: 'none', flexShrink: 0, background: 'rgba(167,139,250,0.05)' }}>{t('batch.preset.j_apply', '적용')}</span>
+                    <span onClick={() => deletePreset(p.id)} title={t('batch.preset.t_preset', '프리셋 삭제')}
                       style={{ fontSize: 8, padding: '1px 4px', cursor: 'pointer', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 2, color: '#f87171', userSelect: 'none', flexShrink: 0 }}>✕</span>
                   </div>
                 )
@@ -173,13 +174,13 @@ export function PresetPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) 
                 <span onClick={captureFromNode}
                   title={`"${nodes[0]?.name}" 노드의 현재 속성으로 폼 채우기 (R2729)`}
                   style={{ fontSize: 8, padding: '1px 6px', cursor: 'pointer', border: '1px solid rgba(56,189,248,0.4)', borderRadius: 2, color: '#38bdf8', userSelect: 'none', background: 'rgba(56,189,248,0.05)' }}>
-                  📋 노드에서 캡처
+                  {t('batch.preset.j_capture_from_node', '📋 노드에서 캡처')}
                 </span>
               </div>
             )}
             <div style={{ marginBottom: 3 }}>
               <input value={presetName} onChange={e => setPresetName(e.target.value)}
-                placeholder="프리셋 이름"
+                placeholder={t('batch.preset.p_preset_name', '프리셋 이름')}
                 style={{ width: '100%', fontSize: 9, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg-primary)', color: 'var(--text-primary)', boxSizing: 'border-box' }} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 6px' }}>
@@ -226,7 +227,7 @@ export function PresetPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) 
             <div style={{ marginTop: 4, display: 'flex', justifyContent: 'flex-end' }}>
               <span onClick={savePreset}
                 style={{ fontSize: 9, padding: '2px 8px', cursor: 'pointer', border: '1px solid rgba(167,139,250,0.5)', borderRadius: 2, color: '#a78bfa', userSelect: 'none', background: 'rgba(167,139,250,0.08)' }}>
-                💾 저장
+                {t('batch.preset.j_save', '💾 저장')}
               </span>
             </div>
           </div>

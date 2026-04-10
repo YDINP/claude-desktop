@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function ComponentHeadSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg, onMultiSelectChange }: ComponentSectionProps) {
   const [batchAddComp, setBatchAddComp] = useState<string>('')
@@ -19,7 +20,7 @@ export function ComponentHeadSection({ uuids, uuidSet, sceneFile, saveScene, pat
         if (compTypes.length === 0) return null
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>⊞전체 (R2517)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.c_head.j_all2_r2517', '⊞전체 (R2517)')}</span>
             {compTypes.map(ct => {
               // 씬 내 해당 타입 노드 모두 찾기
               const all: string[] = []
@@ -49,21 +50,21 @@ export function ComponentHeadSection({ uuids, uuidSet, sceneFile, saveScene, pat
         if (types.length === 0) return null
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>컴프 ON/OFF (R2523)</span>
+            <span style={{ fontSize: 9, color: '#94a3b8', flexShrink: 0 }}>{t('batch.c_head.j_on_off_r2523', '컴프 ON/OFF (R2523)')}</span>
             {types.map(ct => {
               const nodesWithComp = selNodes.filter(n => n.components.some(c => c.type === ct))
               const allOn = nodesWithComp.every(n => n.components.find(c => c.type === ct)?.props.enabled !== false)
               const shortName = ct.includes('.') ? ct.split('.').pop()! : ct
               return (
                 <span key={ct}
-                  title={`선택된 노드의 ${ct} 컴포넌트를 일괄 ${allOn ? '비활성화' : '활성화'} (R2523)`}
+                  title={`선택된 노드의 ${ct} 컴포넌트를 일괄 ${allOn ? t('batch.c_head.s_deact', '비활성화') : t('batch.c_head.s_act', '활성화')} (R2523)`}
                   onClick={async () => {
                     if (!sceneFile.root) return
                     const newEnabled = !allOn
                     await patchComponents(
                       c => c.type === ct,
                       c => ({ ...c, props: { ...c.props, enabled: newEnabled, _enabled: newEnabled } }),
-                      `${ct} ${newEnabled ? '활성화' : '비활성화'} (${nodesWithComp.length}개)`,
+                      `${ct} ${newEnabled ? t('batch.c_head.s_act', '활성화') : t('batch.c_head.s_deact', '비활성화')} (${nodesWithComp.length}개)`,
                     )
                   }}
                   style={{ fontSize: 8, padding: '1px 5px', cursor: 'pointer', border: `1px solid ${allOn ? 'rgba(52,211,153,0.4)' : 'rgba(248,113,113,0.4)'}`, borderRadius: 2, color: allOn ? '#34d399' : '#f87171', userSelect: 'none' }}
@@ -89,7 +90,7 @@ export function ComponentHeadSection({ uuids, uuidSet, sceneFile, saveScene, pat
         const QUICK_COMPS = ['cc.Widget', 'cc.Layout', 'cc.Button', 'cc.Toggle', 'cc.Mask', 'cc.BlockInputEvents', 'cc.AudioSource']
         return (
           <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: 4 }}>
-            <div style={{ fontSize: 9, color: '#38bdf8', fontWeight: 600, marginBottom: 3 }}>⊕ 컴포넌트 일괄 추가 (R2505)</div>
+            <div style={{ fontSize: 9, color: '#38bdf8', fontWeight: 600, marginBottom: 3 }}>{t('batch.c_head.j_comp_batch_add_r2505', '⊕ 컴포넌트 일괄 추가 (R2505)')}</div>
             <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginBottom: 3 }}>
               {QUICK_COMPS.map(ct => (
                 <span key={ct} style={{ fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8', background: 'rgba(56,189,248,0.06)' }}
@@ -106,10 +107,10 @@ export function ComponentHeadSection({ uuids, uuidSet, sceneFile, saveScene, pat
             </div>
             <div style={{ display: 'flex', gap: 3 }}>
               <input value={batchAddComp} onChange={e => setBatchAddComp(e.target.value)}
-                placeholder="컴포넌트 타입 (예: cc.Widget)"
+                placeholder={t('batch.c_head.p_comp_cc_widget', '컴포넌트 타입 (예: cc.Widget)')}
                 onKeyDown={e => { if (e.key === 'Enter') doBatchAdd() }}
                 style={{ flex: 1, fontSize: 9, padding: '2px 4px', borderRadius: 3, background: 'var(--bg-input, #1a1a2e)', border: '1px solid #334', color: 'var(--text-primary)', outline: 'none', minWidth: 0 }} />
-              <span onClick={doBatchAdd} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', lineHeight: 1.6 }}>추가</span>
+              <span onClick={doBatchAdd} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(56,189,248,0.4)', color: '#38bdf8', lineHeight: 1.6 }}>{t('batch.c_head.j_add', '추가')}</span>
             </div>
           </div>
         )
@@ -126,7 +127,7 @@ export function ComponentHeadSection({ uuids, uuidSet, sceneFile, saveScene, pat
         }
         return (
           <div style={{ marginBottom: 6, padding: '3px 6px', background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.15)', borderRadius: 4 }}>
-            <div style={{ fontSize: 9, color: '#f87171', fontWeight: 600, marginBottom: 3 }}>⊖ 컴포넌트 일괄 제거 (R2506)</div>
+            <div style={{ fontSize: 9, color: '#f87171', fontWeight: 600, marginBottom: 3 }}>{t('batch.c_head.j_comp_batch_remove_r2506', '⊖ 컴포넌트 일괄 제거 (R2506)')}</div>
             <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginBottom: 3 }}>
               {commonCompTypes.map(ct => (
                 <span key={ct} style={{ fontSize: 8, padding: '1px 4px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(248,113,113,0.3)', color: '#f87171', background: 'rgba(248,113,113,0.06)' }}
@@ -137,10 +138,10 @@ export function ComponentHeadSection({ uuids, uuidSet, sceneFile, saveScene, pat
             </div>
             <div style={{ display: 'flex', gap: 3 }}>
               <input value={batchRemComp} onChange={e => setBatchRemComp(e.target.value)}
-                placeholder="제거할 컴포넌트 타입"
+                placeholder={t('batch.c_head.p_remove_comp', '제거할 컴포넌트 타입')}
                 onKeyDown={e => { if (e.key === 'Enter') doBatchRem(batchRemComp.trim()) }}
                 style={{ flex: 1, fontSize: 9, padding: '2px 4px', borderRadius: 3, background: 'var(--bg-input, #1a1a2e)', border: '1px solid #334', color: 'var(--text-primary)', outline: 'none', minWidth: 0 }} />
-              <span onClick={() => doBatchRem(batchRemComp.trim())} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(248,113,113,0.4)', color: '#f87171', lineHeight: 1.6 }}>제거</span>
+              <span onClick={() => doBatchRem(batchRemComp.trim())} style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, cursor: 'pointer', border: '1px solid rgba(248,113,113,0.4)', color: '#f87171', lineHeight: 1.6 }}>{t('batch.c_head.j_remove', '제거')}</span>
             </div>
           </div>
         )
@@ -148,7 +149,7 @@ export function ComponentHeadSection({ uuids, uuidSet, sceneFile, saveScene, pat
       {/* R1698: 공통 컴포넌트 표시 */}
       {commonCompTypes.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: 6 }}>
-          <span style={{ fontSize: 8, color: 'var(--text-muted)', alignSelf: 'center' }}>공통:</span>
+          <span style={{ fontSize: 8, color: 'var(--text-muted)', alignSelf: 'center' }}>{t('batch.c_head.j_common', '공통:')}</span>
           {commonCompTypes.map(t => (
             <span key={t} style={{ fontSize: 8, padding: '0 4px', borderRadius: 3, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', color: '#a78bfa' }}>
               {t.includes('.') ? t.split('.').pop() : t}

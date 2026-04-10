@@ -71,9 +71,16 @@ export function compressCCUuid(uuid: string): string | null {
 }
 
 /**
- * CC 에셋 리졸버 (Phase B)
- * .meta 파일 전수 스캔 → UUID → 에셋 경로 맵 빌드
- * CC 2.x / 3.x 모두 동일한 .meta JSON 포맷 사용
+ * 에셋 디렉터리를 재귀 스캔하여 UUID → AssetMeta 맵 빌드
+ *
+ * @param assetsDir - Cocos Creator 프로젝트의 `assets` 디렉터리 절대 경로
+ * @returns `UUIDMap` — `Map<uuid, AssetMeta>` (최대 10,000개 항목 제한)
+ *
+ * @remarks
+ * - `.meta` 파일 전수 스캔 → uuid + subMetas 등록 (CC 2.x / 3.x 공통 포맷)
+ * - CC 3.x 압축 UUID (`compressCCUuid`)도 동시에 맵에 등록
+ * - `.meta` 없는 `.prefab` 파일은 synthetic uuid(`nometaprefab-*`)로 폴백 등록
+ * - I/O 오류는 무시하고 빈 맵 반환 (try/catch 처리)
  */
 export async function buildUUIDMap(assetsDir: string): Promise<UUIDMap> {
   const map = new Map<string, AssetMeta>()
@@ -237,8 +244,15 @@ export function getAllTextureUUIDs(uuidMap: UUIDMap): string[] {
 }
 
 /**
- * UUID 맵 기반으로 텍스처 경로 resolve
- * local:// 프로토콜 URL 반환 (Electron protocol.handle 대응)
+ * UUID를 텍스처/스프라이트아틀라스 로컬 URL로 변환
+ *
+ * @param uuid - 에셋 UUID (CC 2.x Base62 또는 CC 3.x dashed hex / 압축 형태)
+ * @param uuidMap - `buildUUIDMap`으로 빌드된 UUID 맵
+ * @returns `local://?path=<encoded>` — Electron `local://` 프로토콜 URL, 없으면 `null`
+ *
+ * @remarks
+ * - `uuidMap`에 없거나 타입이 `texture`/`sprite-atlas`가 아니면 `null` 반환
+ * - Electron `protocol.handle('local', ...)` 핸들러와 연동 (index.ts 등록)
  */
 export function resolveTextureUrl(uuid: string, uuidMap: UUIDMap): string | null {
   const asset = uuidMap.get(uuid)

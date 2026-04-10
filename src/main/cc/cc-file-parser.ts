@@ -12,9 +12,21 @@ type RawEntry = Record<string, unknown>
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /**
- * CC 2.x .fire / CC 3.x .scene / .prefab 파일 파싱 → CCSceneFile
- * - flat JSON 배열 → CCSceneNode 트리로 변환
- * - 파일 확장자(.fire/.scene/.prefab) 또는 내부 필드(_trs/_lpos)로 버전 자동 감지
+ * CC 2.x .fire / CC 3.x .scene / .prefab 파일을 파싱하여 CCSceneFile 반환
+ *
+ * @param scenePath - 씬/프리팹 파일의 절대 경로 (.fire / .scene / .prefab)
+ * @param projectInfo - 프로젝트 버전 정보 (version: '2x'|'3x', assetsDir 등)
+ * @param prebuiltUuidMap - 외부에서 캐시된 UUID 맵 (없으면 assetsDir을 스캔해 자동 빌드)
+ * @returns CCSceneFile — root 트리, _raw 원본 배열, scriptNames 포함
+ * @throws `씬 파일 파싱 실패: ...` — 파일 읽기 실패 또는 JSON 파싱 오류
+ * @throws `씬 루트 노드를 찾을 수 없습니다: ...` — SceneAsset/Prefab 루트 ref 누락
+ * @throws `루트 노드 파싱 실패 (depth 초과): ...` — 루트 노드가 depth 100 초과로 null 반환
+ *
+ * @remarks
+ * - flat JSON 배열 → CCSceneNode 트리로 변환 (재귀적 _children 탐색)
+ * - 버전 감지: projectInfo.version 우선, 없으면 detectVersionFromRaw 자동 감지
+ * - Widget 레이아웃(resolveWidgetLayout), 이벤트 핸들러(extractEventHandlers) 자동 처리
+ * - depth > 100 노드는 null로 처리되어 children 배열에서 제거 (순환 참조 방지)
  */
 export async function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo, prebuiltUuidMap?: UUIDMap): Promise<CCSceneFile> {
   let raw: RawEntry[]
@@ -1082,10 +1094,18 @@ export function findCanvasNode(root: CCSceneNode): CCSceneNode | null {
 }
 
 /**
- * R1447: 씬에서 디자인 해상도 획득
- * - 2x: cc.Canvas._designResolution 또는 _designResolution 직접 필드
- * - 3x: settings/v2/packages/project.json general.designResolution → Camera orthoHeight 추정 순
- * - fallback: { width: 960, height: 640 }
+ * 씬 파일에서 프로젝트 디자인 해상도를 추출
+ *
+ * @param sceneFile - parseCCScene으로 파싱된 씬 파일 객체
+ * @returns `{ width, height }` — 디자인 해상도 (픽셀 단위)
+ *
+ * @remarks
+ * 해상도 탐색 우선순위:
+ * 1. **CC 2.x**: `_raw` 내 `cc.Canvas._designResolution` (또는 `_N$designResolution`)
+ * 2. **CC 3.x**: `projectInfo.projectPath/settings/v2/packages/project.json`의
+ *    `general.designResolution`
+ * 3. **CC 3.x 폴백**: `_raw` 내 `cc.Camera._orthoHeight` × 2 × (16/9) 비율 추정
+ * 4. **최종 폴백**: `{ width: 960, height: 640 }`
  */
 export function getDesignResolution(sceneFile: CCSceneFile): { width: number; height: number } {
   const raw = sceneFile._raw as RawEntry[] | undefined

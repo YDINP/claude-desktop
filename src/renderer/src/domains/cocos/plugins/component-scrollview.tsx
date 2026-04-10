@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ComponentSectionProps } from './component-shared'
+import { t } from '../../../utils/i18n'
 
 export function ScrollViewSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {
   return (
@@ -683,8 +684,8 @@ export function ScrollViewSection({ uuids, uuidSet, sceneFile, saveScene, patchN
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
             <span style={{ fontSize: 9, color: '#34d399', width: 48, flexShrink: 0 }}>PageView</span>
-            <span onClick={() => applyPVDir(0)} title="방향: Horizontal" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>H→</span>
-            <span onClick={() => applyPVDir(1)} title="방향: Vertical" style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>V↓</span>
+            <span onClick={() => applyPVDir(0)} title={t('batch.c_scrollview.t_dir_horizontal', '방향: Horizontal')} style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>H→</span>
+            <span onClick={() => applyPVDir(1)} title={t('batch.c_scrollview.t_dir_vertical', '방향: Vertical')} style={{ fontSize: 8, cursor: 'pointer', padding: '1px 5px', borderRadius: 2, border: '1px solid var(--border)', color: '#34d399', userSelect: 'none' }}>V↓</span>
           </div>
         )
       })()}
