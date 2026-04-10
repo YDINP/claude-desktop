@@ -1713,17 +1713,25 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                                ?? (labelComp?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
                                ?? (labelComp?.props?._file as { __uuid__?: string } | undefined)?.__uuid__
                   const cachedFont = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
-                  const fontFamilyName = (!isSystemFont && cachedFont?.familyName)
+                  const isBMFontFallback = !!(cachedFont?.fallback)
+                  const fontFamilyName = (isBMFontFallback ? '' : (!isSystemFont && cachedFont?.familyName))
                     || (isSystemFont && sysFontFamily)
                     || sysFontFamily
                     || 'sans-serif'
                   return (
-                    <text
-                      x={svgPos.x} y={svgPos.y + fs / 3}
-                      textAnchor="middle" dominantBaseline="middle"
-                      fontSize={fs} fill="rgba(255,220,80,0.9)" fontFamily={fontFamilyName}
-                      style={{ pointerEvents: 'none', userSelect: 'none' }}
-                    >{txt.length > 12 ? txt.slice(0, 11) + '…' : txt}</text>
+                    <g style={{ pointerEvents: 'none', userSelect: 'none' }}>
+                      <text
+                        x={svgPos.x} y={svgPos.y + fs / 3}
+                        textAnchor="middle" dominantBaseline="middle"
+                        fontSize={fs} fill="rgba(255,220,80,0.9)" fontFamily={fontFamilyName}
+                      >{txt.length > 12 ? txt.slice(0, 11) + '…' : txt}</text>
+                      {isBMFontFallback && (
+                        <text
+                          x={rectX + 2 / view.zoom} y={rectY + 8 / view.zoom}
+                          fontSize={7 / view.zoom} fill="rgba(255,160,60,0.7)"
+                        >BMFont</text>
+                      )}
+                    </g>
                   )
                 })()}
                 {/* R1666: pulse 미리보기 링 */}
@@ -2164,9 +2172,10 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                              ?? (lc?.props?.file as { __uuid__?: string } | undefined)?.__uuid__
                              ?? (lc?.props?._file as { __uuid__?: string } | undefined)?.__uuid__
                   const fontEntry = fontUuid ? fontCacheRef.current.get(fontUuid) : undefined
+                  const isBMFontFallback2 = !!(fontEntry?.fallback)
                   // fontUuid가 있으면 커스텀 폰트 모드 (isSystemFontUsed 기본값 false)
                   const isSystemFont = !!(lc?.props?.isSystemFontUsed ?? lc?.props?.['_N$isSystemFontUsed'] ?? !fontUuid)
-                  const fontFamilyName = (!isSystemFont && fontEntry?.familyName)
+                  const fontFamilyName = (isBMFontFallback2 ? '' : (!isSystemFont && fontEntry?.familyName))
                     || (lc?.props?.fontFamily as string | undefined)
                     || (lc?.props?._fontFamily as string | undefined)
                     || (lc?.props?.['_N$fontFamily'] as string | undefined)
@@ -2312,6 +2321,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                           />
                         )
                       })}
+                      {isBMFontFallback2 && (
+                        <text
+                          x={rectX + w - 2} y={rectY + 8}
+                          fontSize={7} fill="rgba(255,160,60,0.7)"
+                          textAnchor="end"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }}
+                        >BMFont</text>
+                      )}
                     </>
                   )
                 })()}

@@ -349,12 +349,18 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     })
   })
 
-  /** 폰트 파일 (TTF/OTF/WOFF) → base64 data URL */
+  /** 폰트 파일 (TTF/OTF/WOFF) → base64 data URL, .fnt(BMFont) → 시스템 폰트 폴백 */
   ipcMain.handle('cc:file:resolveFont', async (_e, uuid: string, assetsDir: string) => {
     const map = await getCachedUUIDMap(assetsDir)
     const asset = map.get(uuid)
     if (!asset) return null
     const ext = asset.path.split('.').pop()?.toLowerCase() ?? ''
+    // BMFont(.fnt) → 시스템 폰트 폴백 (비트맵 폰트는 브라우저에서 렌더링 불가)
+    if (ext === 'fnt') {
+      const familyName = (asset.path.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') ?? uuid.slice(0, 8))
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
+      return { dataUrl: '', familyName, fallback: true }
+    }
     const fontExts = ['ttf', 'otf', 'woff', 'woff2', 'eot']
     if (!fontExts.includes(ext)) return null
     try {

@@ -4,7 +4,7 @@ import type { FlatNode } from './ccSceneTypes'
 
 export interface SpriteFrame { x: number; y: number; w: number; h: number; rotated: boolean }
 export interface SpriteEntry { dataUrl: string; w: number; h: number; bL: number; bR: number; bT: number; bB: number; frame?: SpriteFrame | null }
-export interface FontEntry { dataUrl: string; familyName: string }
+export interface FontEntry { dataUrl: string; familyName: string; fallback?: boolean }
 
 /**
  * Sprite texture + Font loading effects for CCFileSceneView.
@@ -79,7 +79,7 @@ export function useCCSceneAssets(sceneFile: CCSceneFile, flatNodes: FlatNode[]) 
     let cancelled = false
     uniqueUuids.forEach(uuid => {
       fontCacheRef.current.set(uuid, { dataUrl: '', familyName: '' })
-      window.api.ccFileResolveFont?.(uuid, assetsDir).then((result: { dataUrl: string; familyName: string } | null) => {
+      window.api.ccFileResolveFont?.(uuid, assetsDir).then((result: { dataUrl: string; familyName: string; fallback?: boolean } | null) => {
         if (cancelled) return
         if (result) {
           fontCacheRef.current.set(uuid, result)

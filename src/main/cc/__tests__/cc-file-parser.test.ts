@@ -605,4 +605,182 @@ describe('cc-file-parser', () => {
       expect(label.props.spacingY).toBe(5)
     })
   })
+
+  describe('R3: Widget 레이아웃 기본 계산', () => {
+    /**
+     * Canvas(960x640) → Widget 자식 노드의 position/size가 alignFlags 기반으로 재계산되는지 검증
+     */
+    function makeWidgetRaw(widgetProps: Record<string, unknown>) {
+      return [
+        { __type__: 'cc.SceneAsset', scene: { __id__: 1 } },
+        // [1] cc.Scene
+        {
+          __type__: 'cc.Scene',
+          _name: 'Scene', _active: true, _id: 'scene-uuid',
+          _children: [{ __id__: 2 }], _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 0, height: 0 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        // [2] Canvas node (parent)
+        {
+          __type__: 'cc.Node',
+          _name: 'Canvas', _active: true, _id: 'canvas-uuid',
+          _children: [{ __id__: 4 }],
+          _components: [{ __id__: 3 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 960, height: 640 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        // [3] cc.Canvas component
+        { __type__: 'cc.Canvas', node: { __id__: 2 }, _designResolution: { width: 960, height: 640 } },
+        // [4] Widget child node (원래 position은 원점)
+        {
+          __type__: 'cc.Node',
+          _name: 'WidgetChild', _active: true, _id: 'widget-child-uuid',
+          _children: [], _components: [{ __id__: 5 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 200, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        // [5] cc.Widget component
+        { __type__: 'cc.Widget', node: { __id__: 4 }, ...widgetProps },
+      ]
+    }
+
+    it('LEFT+RIGHT: 부모 기준 좌우 여백으로 width와 x 재계산', async () => {
+      // alignFlags: LEFT(8) | RIGHT(32) = 40, left=10, right=20
+      const raw = makeWidgetRaw({
+        _N$alignFlags: 40, _N$left: 10, _N$right: 20, _N$top: 0, _N$bottom: 0,
+        _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+        _N$isAlignLeft: true, _N$isAlignRight: true,
+        _N$isAlignTop: false, _N$isAlignBottom: false,
+      })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0].children[0] // Canvas → WidgetChild
+
+      // width = 960 - 10 - 20 = 930
+      expect(child.size.x).toBe(930)
+      // x = left + width*anchor - parentW*0.5 = 10 + 930*0.5 - 480 = -5
+      expect(child.position.x).toBeCloseTo(-5, 1)
+    })
+
+    it('TOP+BOTTOM: 부모 기준 상하 여백으로 height와 y 재계산', async () => {
+      // alignFlags: TOP(1) | BOT(4) = 5, top=30, bottom=50
+      const raw = makeWidgetRaw({
+        _N$alignFlags: 5, _N$left: 0, _N$right: 0, _N$top: 30, _N$bottom: 50,
+        _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+        _N$isAlignLeft: false, _N$isAlignRight: false,
+        _N$isAlignTop: true, _N$isAlignBottom: true,
+      })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0].children[0]
+
+      // height = 640 - 30 - 50 = 560
+      expect(child.size.y).toBe(560)
+      // y = bottom + height*anchor - parentH*0.5 = 50 + 560*0.5 - 320 = 10
+      expect(child.position.y).toBeCloseTo(10, 1)
+    })
+
+    it('HMID: 수평 중앙 정렬', async () => {
+      // alignFlags: HMID(16) = 16
+      const raw = makeWidgetRaw({
+        _N$alignFlags: 16, _N$left: 0, _N$right: 0, _N$top: 0, _N$bottom: 0,
+        _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+        _N$isAlignLeft: false, _N$isAlignRight: false,
+        _N$isAlignTop: false, _N$isAlignBottom: false,
+      })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0].children[0]
+
+      // HMID → x = horizontalCenter = 0
+      expect(child.position.x).toBe(0)
+    })
+
+    it('VMID: 수직 중앙 정렬', async () => {
+      // alignFlags: VMID(2) = 2
+      const raw = makeWidgetRaw({
+        _N$alignFlags: 2, _N$left: 0, _N$right: 0, _N$top: 0, _N$bottom: 0,
+        _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+        _N$isAlignLeft: false, _N$isAlignRight: false,
+        _N$isAlignTop: false, _N$isAlignBottom: false,
+      })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0].children[0]
+
+      // VMID → y = verticalCenter = 0
+      expect(child.position.y).toBe(0)
+    })
+
+    it('LEFT only: 좌측 여백만 적용', async () => {
+      // alignFlags: LEFT(8) = 8, left=50
+      const raw = makeWidgetRaw({
+        _N$alignFlags: 8, _N$left: 50, _N$right: 0, _N$top: 0, _N$bottom: 0,
+        _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+        _N$isAlignLeft: true, _N$isAlignRight: false,
+        _N$isAlignTop: false, _N$isAlignBottom: false,
+      })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0].children[0]
+
+      // x = left + width*anchor - parentW*0.5 = 50 + 200*0.5 - 480 = -330
+      expect(child.position.x).toBeCloseTo(-330, 1)
+      // width 유지
+      expect(child.size.x).toBe(200)
+    })
+
+    it('Widget 없는 노드는 position/size가 변경되지 않는다', async () => {
+      const raw = make2xRaw()
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0]
+
+      // 원래 값 유지
+      expect(child.position.x).toBe(100)
+      expect(child.position.y).toBe(200)
+      expect(child.size.x).toBe(200)
+      expect(child.size.y).toBe(100)
+    })
+
+    it('부모 크기가 0이면 Widget 해결을 건너뛴다', async () => {
+      // Scene root의 size는 {0, 0} → Canvas 없이 직접 Widget 자식을 둔 경우
+      const raw = [
+        { __type__: 'cc.SceneAsset', scene: { __id__: 1 } },
+        {
+          __type__: 'cc.Scene', _name: 'S', _active: true, _id: 's-uuid',
+          _children: [{ __id__: 2 }], _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 0, height: 0 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        {
+          __type__: 'cc.Node', _name: 'W', _active: true, _id: 'w-uuid',
+          _children: [], _components: [{ __id__: 3 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [99,88,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 200, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        { __type__: 'cc.Widget', node: { __id__: 2 }, _N$alignFlags: 40, _N$left: 10, _N$right: 20 },
+      ]
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0]
+
+      // 부모 크기 0이므로 Widget 미적용 → 원래 position 유지
+      expect(child.position.x).toBe(99)
+      expect(child.position.y).toBe(88)
+    })
+  })
 })

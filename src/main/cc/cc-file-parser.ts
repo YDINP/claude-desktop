@@ -35,6 +35,9 @@ export async function parseCCScene(scenePath: string, projectInfo: CCFileProject
 
   if (!root) throw new Error(`루트 노드 파싱 실패 (depth 초과): ${scenePath}`)
 
+  // R3: Widget 레이아웃 기본 계산 — 부모 크기 기준으로 position/size 재계산
+  resolveWidgetLayout(root)
+
   // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames 맵 (인스펙터 표시용)
   const scriptNames: Record<string, string> = {}
   if (projectInfo.assetsDir) {
@@ -1414,6 +1417,9 @@ export async function parseCCSceneChunked(
       : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
   if (!root) throw new Error(`루트 노드 파싱 실패: ${scenePath}`)
 
+  // R3: Widget 레이아웃 기본 계산
+  resolveWidgetLayout(root)
+
   // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames (인스펙터 표시용)
   const scriptNamesChunked: Record<string, string> = {}
   if (projectInfo.assetsDir) {
@@ -1471,4 +1477,104 @@ export function isLargeScene(scenePath: string): boolean {
   } catch {
     return false
   }
+}
+
+// ── R3: Widget 레이아웃 기본 계산 ────────────────────────────────────────────
+
+/**
+ * Widget alignFlags 비트마스크:
+ * TOP=1, VMID=2, BOT=4, LEFT=8, HMID=16, RIGHT=32
+ */
+const WIDGET_TOP = 1
+const WIDGET_VMID = 2
+const WIDGET_BOT = 4
+const WIDGET_LEFT = 8
+const WIDGET_HMID = 16
+const WIDGET_RIGHT = 32
+
+/**
+ * R3: 노드 트리를 순회하며 Widget 컴포넌트 기반으로 position/size 재계산.
+ * CC 런타임이 부모 크기 기준으로 Widget 제약을 적용하는 것을 시뮬레이션.
+ * 부모 → 자식 순서로 top-down 처리해야 부모 크기가 확정된 후 자식을 계산할 수 있다.
+ */
+export function resolveWidgetLayout(root: CCSceneNode): void {
+  // 루트의 자식부터 처리 (루트 자체는 Widget 대상이 아님)
+  for (const child of root.children) {
+    resolveWidgetForSubtree(child, root.size.x, root.size.y)
+  }
+}
+
+function resolveWidgetForSubtree(node: CCSceneNode, parentW: number, parentH: number): void {
+  const widgetComp = node.components.find(c => c.type === 'cc.Widget')
+  if (widgetComp && parentW > 0 && parentH > 0) {
+    const props = widgetComp.props
+    const flags = (props.alignFlags as number | undefined) ?? 0
+    if (flags > 0) {
+      applyWidgetFlags(node, flags, props, parentW, parentH)
+    }
+  }
+
+  // 자식도 재귀 처리 (현재 노드의 확정된 size를 부모 크기로 전달)
+  for (const child of node.children) {
+    resolveWidgetForSubtree(child, node.size.x, node.size.y)
+  }
+}
+
+function applyWidgetFlags(
+  node: CCSceneNode,
+  flags: number,
+  props: Record<string, unknown>,
+  parentW: number,
+  parentH: number
+): void {
+  const left = (props.left as number | undefined) ?? 0
+  const right = (props.right as number | undefined) ?? 0
+  const top = (props.top as number | undefined) ?? 0
+  const bottom = (props.bottom as number | undefined) ?? 0
+  const hCenter = (props.horizontalCenter as number | undefined) ?? 0
+  const vCenter = (props.verticalCenter as number | undefined) ?? 0
+
+  const ax = node.anchor.x
+  const ay = node.anchor.y
+  let w = node.size.x
+  let h = node.size.y
+  let x = node.position.x
+  let y = node.position.y
+
+  // ── Horizontal axis ──
+  const hasLeft = !!(flags & WIDGET_LEFT)
+  const hasRight = !!(flags & WIDGET_RIGHT)
+  const hasHMid = !!(flags & WIDGET_HMID)
+
+  if (hasLeft && hasRight) {
+    // 양쪽 고정: 부모 폭에서 left/right 제외 → 새 width, x는 left + anchor 기반
+    w = parentW - left - right
+    x = left + w * ax - parentW * 0.5
+  } else if (hasLeft) {
+    x = left + w * ax - parentW * 0.5
+  } else if (hasRight) {
+    x = parentW * 0.5 - right - w * (1 - ax)
+  } else if (hasHMid) {
+    x = hCenter
+  }
+
+  // ── Vertical axis ──
+  const hasTop = !!(flags & WIDGET_TOP)
+  const hasBot = !!(flags & WIDGET_BOT)
+  const hasVMid = !!(flags & WIDGET_VMID)
+
+  if (hasTop && hasBot) {
+    h = parentH - top - bottom
+    y = bottom + h * ay - parentH * 0.5
+  } else if (hasBot) {
+    y = bottom + h * ay - parentH * 0.5
+  } else if (hasTop) {
+    y = parentH * 0.5 - top - h * (1 - ay)
+  } else if (hasVMid) {
+    y = vCenter
+  }
+
+  // 결과 반영 (position.z는 유지)
+  node.position = { x, y, z: node.position.z }
+  node.size = { x: Math.max(0, w), y: Math.max(0, h) }
 }

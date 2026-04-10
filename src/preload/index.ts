@@ -336,7 +336,7 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
   ccFileResolveSprite: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number; frame?: { x: number; y: number; w: number; h: number; rotated: boolean } | null } | null> =>
     ipcRenderer.invoke('cc:file:resolveSprite', uuid, assetsDir),
-  ccFileResolveFont: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; familyName: string } | null> =>
+  ccFileResolveFont: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; familyName: string; fallback?: boolean } | null> =>
     ipcRenderer.invoke('cc:file:resolveFont', uuid, assetsDir),
   ccFileExtractUUIDs: (raw: unknown[]): Promise<string[]> =>
     ipcRenderer.invoke('cc:file:extractUUIDs', raw),
