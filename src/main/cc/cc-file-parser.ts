@@ -142,7 +142,7 @@ function parseNode2x(raw: RawEntry[], idx: number, depth = 0): CCSceneNode | nul
     name: (e._name as string | undefined) ?? '',
     active: (e._active as boolean | undefined) ?? true,
     position: trs.position,
-    rotation: trs.rotationZ,   // 2x stores Z-axis rotation (euler)
+    rotation: { x: 0, y: 0, z: trs.rotationZ },
     scale: trs.scale,
     size,
     anchor,
@@ -252,6 +252,7 @@ const LABEL_EXTRACTOR_3X = (e: RawEntry): Record<string, unknown> => ({
   fontFamily: e._fontFamily ?? e.fontFamily ?? '',
   isSystemFontUsed: e._isSystemFontUsed ?? e.isSystemFontUsed ?? true,
   spacingX: e._spacingX ?? e.spacingX ?? 0,
+  spacingY: e._spacingY ?? e.spacingY ?? 0,
   overflow: e._overflow ?? e.overflow ?? 0,
 })
 
@@ -1325,11 +1326,7 @@ export function diffScenes(
     // anchor
     if (bNode.anchor.x !== aNode.anchor.x || bNode.anchor.y !== aNode.anchor.y) changedFields.push('anchor')
     // rotation
-    if (typeof bNode.rotation !== typeof aNode.rotation ||
-        (typeof bNode.rotation === 'number'
-          ? bNode.rotation !== aNode.rotation
-          : Math.abs((bNode.rotation as {z?:number}).z ?? 0) - Math.abs((aNode.rotation as {z?:number}).z ?? 0) > 0.001)
-    ) changedFields.push('rotation')
+    if (Math.abs(bNode.rotation.z - aNode.rotation.z) > 0.001) changedFields.push('rotation')
     // color
     if (bNode.color.r !== aNode.color.r || bNode.color.g !== aNode.color.g || bNode.color.b !== aNode.color.b || bNode.color.a !== aNode.color.a) changedFields.push('color')
     // components count

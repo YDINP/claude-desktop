@@ -186,8 +186,8 @@ export interface CCSceneNode {
   name: string
   active: boolean
   position: CCVec3
-  /** 2.x: z-euler number | 3.x: {x,y,z} euler */
-  rotation: CCVec3 | number
+  /** euler degrees {x,y,z}. 2.x는 x=0, y=0, z=euler로 정규화됨 */
+  rotation: CCVec3
   scale: CCVec3
   /** UITransform / _contentSize 기반 */
   size: CCVec2

@@ -215,7 +215,9 @@ describe('cc-file-parser', () => {
       expect(child.position).toEqual({ x: 10, y: 20, z: 30 })
       expect(child.scale).toEqual({ x: 2, y: 3, z: 4 })
       // rotation should be ~90 degrees (qz=sin(45deg), qw=cos(45deg))
-      expect(child.rotation).toBeCloseTo(90, 0)
+      expect(child.rotation.z).toBeCloseTo(90, 0)
+      expect(child.rotation.x).toBe(0)
+      expect(child.rotation.y).toBe(0)
     })
 
     it('should decode base64-encoded _trs (Float64Array)', async () => {
@@ -256,7 +258,7 @@ describe('cc-file-parser', () => {
 
       expect(child.position).toEqual({ x: 55, y: 66, z: 0 })
       expect(child.scale).toEqual({ x: 3, y: 3, z: 1 })
-      expect(child.rotation).toBeCloseTo(0)
+      expect(child.rotation.z).toBeCloseTo(0)
     })
   })
 

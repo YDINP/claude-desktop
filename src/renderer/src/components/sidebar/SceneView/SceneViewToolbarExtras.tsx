@@ -148,7 +148,7 @@ export function SceneViewToolbarExtras({
                       anchorY: ((n.anchor as { y?: number })?.y) ?? 0.5,
                       scaleX: ((n.scale as { x?: number })?.x) ?? 1,
                       scaleY: ((n.scale as { y?: number })?.y) ?? 1,
-                      rotation: (n.rotation as number) ?? 0,
+                      rotation: n.rotation.z ?? 0,
                       opacity: (n.opacity as number) ?? 255,
                       color: (n.color as { r: number; g: number; b: number; a: number }) ?? { r: 255, g: 255, b: 255, a: 255 },
                       parentUuid: rootUuid, childUuids: [],

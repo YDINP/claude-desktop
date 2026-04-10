@@ -300,14 +300,14 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
       const localX = typeof node.position === 'object' ? (node.position as { x: number }).x : 0
       const localY = typeof node.position === 'object' ? (node.position as { y: number }).y : 0
       const [worldX, worldY] = applyParentTransform(parentRotDeg, parentSx, parentSy, parentWorldX, parentWorldY, localX, localY)
-      const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number })?.z ?? 0
+      const rotZ = node.rotation.z ?? 0
       const cumRotZ = parentRotDeg + rotZ
       const sx = (node.scale as { x?: number })?.x ?? 1
       const sy = (node.scale as { y?: number })?.y ?? 1
       const cumSx = parentSx * sx
       const cumSy = parentSy * sy
       const effectiveActive = parentEffectiveActive && !!node.active
-      result.push({ node, worldX, worldY, depth, parentUuid, siblingIdx, siblingTotal, effectiveActive })
+      result.push({ node, worldX, worldY, worldRotZ: cumRotZ, worldScaleX: cumSx, worldScaleY: cumSy, depth, parentUuid, siblingIdx, siblingTotal, effectiveActive })
       // R2726: 씬 트리에서 접힌 노드는 자식을 SceneView에서도 숨김
       if (collapsedUuids?.has(node.uuid)) return
       for (let i = 0; i < node.children.length; i++) {
@@ -1026,7 +1026,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 </g>
           )}
           {/* 노드 렌더링 (비활성 노드는 숨김) */}
-          {flatNodes.map(({ node, worldX, worldY, depth, effectiveActive }) => {
+          {flatNodes.map(({ node, worldX, worldY, worldRotZ, worldScaleX, worldScaleY, depth, effectiveActive }) => {
             if (!effectiveActive) return null
             const isDragged = dragOverride?.uuid === node.uuid
             const isResized = resizeOverride?.uuid === node.uuid
@@ -1070,15 +1070,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             const rectX = svgPos.x - w * anchorX
             const rectY = svgPos.y - h * (1 - anchorY)
             // CC rotation: Z-euler (반시계방향 양수). SVG: 시계방향 양수 → 부호 반전
-            const rotZ = rotateOverride?.uuid === node.uuid
-              ? rotateOverride.angle
-              : (typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0)
+            const localRotZ = node.rotation.z ?? 0
+            // rotZ = 로컬 회전값 (회전 핸들/오버레이용)
+            const rotZ = rotateOverride?.uuid === node.uuid ? rotateOverride.angle : localRotZ
+            // visRotZ = 월드 누적 회전 (SVG 시각 변환용) — 인터랙티브 회전 시 로컬 델타 반영
+            const visRotZ = rotateOverride?.uuid === node.uuid
+              ? worldRotZ - localRotZ + rotateOverride.angle
+              : worldRotZ
             const sx = (node.scale as { x?: number; y?: number } | null)?.x ?? 1
             const sy = (node.scale as { x?: number; y?: number } | null)?.y ?? 1
-            const rotTransform = (sx !== 1 || sy !== 1 || rotZ !== 0)
-              ? (sx !== 1 || sy !== 1)
-                ? `translate(${svgPos.x},${svgPos.y}) rotate(${-rotZ}) scale(${sx},${sy}) translate(${-svgPos.x},${-svgPos.y})`
-                : `translate(${svgPos.x},${svgPos.y}) rotate(${-rotZ}) translate(${-svgPos.x},${-svgPos.y})`
+            // visSx/visSy = 월드 누적 스케일 (SVG 시각 변환용)
+            const visSx = worldScaleX
+            const visSy = worldScaleY
+            const rotTransform = (visSx !== 1 || visSy !== 1 || visRotZ !== 0)
+              ? (visSx !== 1 || visSy !== 1)
+                ? `translate(${svgPos.x},${svgPos.y}) rotate(${-visRotZ}) scale(${visSx},${visSy}) translate(${-svgPos.x},${-svgPos.y})`
+                : `translate(${svgPos.x},${svgPos.y}) rotate(${-visRotZ}) translate(${-svgPos.x},${-svgPos.y})`
               : undefined
 
             const hasLabel = node.components.some(c => c.type === 'cc.Label' || c.type === 'cc.RichText')
@@ -1202,7 +1209,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                     const svgMouseX = (e.clientX - svgRect.left - v.offsetX) / v.zoom
                     const svgMouseY = (e.clientY - svgRect.top - v.offsetY) / v.zoom
                     const sp = ccToSvgRef.current(worldX, worldY)
-                    const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number })?.z ?? 0
+                    const rotZ = node.rotation.z ?? 0
                     const startAngle = Math.atan2(svgMouseY - sp.y, svgMouseX - sp.x) * 180 / Math.PI
                     rotateRef.current = { uuid: node.uuid, centerX: sp.x, centerY: sp.y, startAngle, startRotation: rotZ }
                     return
@@ -1375,7 +1382,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })()}
                 {/* R2610: rotation 방향 화살표 */}
                 {showRotArrow && view.zoom > 0.3 && (() => {
-                  const rotDeg = typeof node.rotation === 'number' ? node.rotation : ((node.rotation as { z?: number })?.z ?? 0)
+                  const rotDeg = node.rotation.z ?? 0
                   if (Math.abs(rotDeg) < 1) return null
                   const mcx = rectX + w / 2, mcy = rectY + h / 2
                   const arrowLen = Math.max(6, Math.min(w, h) * 0.4)
@@ -1541,7 +1548,7 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                 })()}
                 {/* R2668: 회전각 텍스트 오버레이 */}
                 {showRotOverlay && w > 0 && h > 0 && view.zoom > 0.3 && (() => {
-                  const rot = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { x: number; y: number; z: number })?.z ?? 0
+                  const rot = node.rotation.z ?? 0
                   if (rot === 0) return null
                   return (
                     <text x={rectX + w / 2} y={rectY + h - 2 / view.zoom}

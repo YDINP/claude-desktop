@@ -10,6 +10,9 @@ export interface FlatNode {
   node: CCSceneNode
   worldX: number
   worldY: number
+  worldRotZ: number
+  worldScaleX: number
+  worldScaleY: number
   depth: number
   parentUuid: string | null
   siblingIdx: number

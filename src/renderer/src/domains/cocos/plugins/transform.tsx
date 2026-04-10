@@ -153,7 +153,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
           if (!sceneFile.root) return
           await patchNodes(n => {
             if (what === 'pos') return { ...n, position: { x: 0, y: 0, z: 0 } }
-            if (what === 'rot') return { ...n, rotation: typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 } }
+            if (what === 'rot') return { ...n, rotation: { x: 0, y: 0, z: 0 } }
             if (what === 'color') return { ...n, color: { r: 255, g: 255, b: 255, a: n.color?.a ?? 255 } }
             return { ...n, scale: { x: 1, y: 1, z: 1 } }
           }, `patch`)
@@ -384,8 +384,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const applyRandomRotation = async () => {
           await patchNodes(n => {
             const delta = (Math.random() * 2 - 1) * randomRotRange
-            if (typeof n.rotation === 'number') return { ...n, rotation: Math.round(n.rotation + delta) }
-            const r = n.rotation as { x: number; y: number; z: number }
+            const r = n.rotation
             return { ...n, rotation: { ...r, z: Math.round(r.z + delta) } }
           }, `랜덤 회전 ±${randomRotRange}° (${uuids.length}개)`)
         }
@@ -433,8 +432,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyRotReset = async () => {
           await patchNodes(n => {
-            const rot = typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 }
-            return { ...n, rotation: rot }
+            return { ...n, rotation: { x: 0, y: 0, z: 0 } }
           }, `rotation → 0 (${uuids.length}개)`)
         }
         return (
@@ -450,8 +448,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
       {uuids.length >= 1 && sceneFile.root && (() => {
         const applyAbsRot = async () => {
           await patchNodes(n => {
-            const rot = typeof n.rotation === 'number' ? absRotValue : { x: 0, y: 0, z: absRotValue }
-            return { ...n, rotation: rot }
+            return { ...n, rotation: { x: 0, y: 0, z: absRotValue } }
           }, `rotation = ${absRotValue}° (${uuids.length}개)`)
         }
         const niS = mkNiS(44)
@@ -475,14 +472,14 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const applyPreset = async (v: number) => {
           await patchNodes(n => ({
             ...n,
-            rotation: typeof n.rotation === 'number' ? v : { x: 0, y: 0, z: v },
+            rotation: { x: 0, y: 0, z: v },
           }), `rotation = ${v}° (R2727)`)
         }
         const applyDelta = async (sign: 1 | -1) => {
           await patchNodes(n => {
-            const cur = typeof n.rotation === 'number' ? n.rotation : (n.rotation as { x: number; y: number; z: number })?.z ?? 0
+            const cur = n.rotation.z ?? 0
             const next = cur + sign * rotDeltaStep
-            return { ...n, rotation: typeof n.rotation === 'number' ? next : { x: 0, y: 0, z: next } }
+            return { ...n, rotation: { ...n.rotation, z: next } }
           }, `rotation Δ${sign > 0 ? '+' : ''}${sign * rotDeltaStep}° (R2727)`)
         }
         const presets = [0, 45, 90, 180, 270]
@@ -646,7 +643,6 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
           const v = parseFloat(batchRot)
           if (isNaN(v)) return
           await patchNodes(n => {
-            if (typeof n.rotation === 'number') return { ...n, rotation: v }
             return { ...n, rotation: { x: 0, y: 0, z: v } }
           }, `회전 °=${v} (${uuids.length}개) R1706`)
         }
@@ -702,10 +698,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
       {sceneFile.root && uuids.length >= 1 && (() => {
         const applyNormRot = async () => {
           await patchNodes(n => {
-            if (typeof n.rotation === 'number') {
-              return { ...n, rotation: ((n.rotation % 360) + 360) % 360 }
-            }
-            const r = n.rotation as { x: number; y: number; z: number }
+            const r = n.rotation
             return { ...n, rotation: { ...r, z: ((r.z % 360) + 360) % 360 } }
           }, `회전 정규화 0~360 (${uuids.length}개) R1776`)
         }
@@ -889,7 +882,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const applyReset = async (what: 'scale' | 'rot') => {
           await patchNodes(n => {
             if (what === 'scale') return { ...n, scale: { x: 1, y: 1, z: 1 } }
-            return { ...n, rotation: typeof n.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 } }
+            return { ...n, rotation: { x: 0, y: 0, z: 0 } }
           }, `${what} 리셋 (${uuids.length}개) R2541`)
         }
         return (
@@ -923,7 +916,6 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
         const applyRandRot = async () => {
           await patchNodes(n => {
             const r = Math.floor(Math.random() * 360)
-            if (typeof n.rotation === 'number') return { ...n, rotation: r }
             return { ...n, rotation: { x: 0, y: 0, z: r } }
           }, `🎲rot 랜덤 회전 (${uuids.length}개) R2593`)
         }
@@ -977,8 +969,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
       {sceneFile.root && uuids.length >= 1 && (() => {
         const applyRotSnap = async (step: number) => {
           await patchNodes(n => {
-            if (typeof n.rotation === 'number') return { ...n, rotation: Math.round(n.rotation / step) * step }
-            const r = n.rotation as { x: number; y: number; z: number }
+            const r = n.rotation
             return { ...n, rotation: { ...r, z: Math.round(r.z / step) * step } }
           }, `rot스냅 ${step}° (${uuids.length}개) R2608`)
         }
@@ -998,8 +989,7 @@ export function TransformPlugin({ nodes, sceneFile, saveScene, onSelectNode, onM
           const d = parseFloat(rotOffsetInput)
           if (isNaN(d)) return
           await patchNodes(n => {
-            if (typeof n.rotation === 'number') return { ...n, rotation: n.rotation + d }
-            const r = n.rotation as { x: number; y: number; z: number }
+            const r = n.rotation
             return { ...n, rotation: { ...r, z: r.z + d } }
           }, `rot+= (R2612) ${d > 0 ? '+' : ''}${d}° (${uuids.length}개)`)
         }

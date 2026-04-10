@@ -91,8 +91,7 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
           await patchOrdered((n, idx, total) => {
             const t = total > 1 ? idx / (total - 1) : 0
             const deg = Math.round(rotDistFrom + (rotDistTo - rotDistFrom) * t)
-            const newRot = typeof n.rotation === 'number' ? deg : { ...(n.rotation as object), z: deg }
-            return { ...n, rotation: newRot }
+            return { ...n, rotation: { ...n.rotation, z: deg } }
           }, `회전 분배 ${rotDistFrom}°→${rotDistTo}° (${uuids.length}개)`)
         }
         const niS = mkNiS(40)
@@ -809,7 +808,7 @@ export function DistributionPlugin({ nodes, sceneFile, saveScene }: BatchPluginP
         const applyRotGrad = () => patchOrdered((n, idx, total) => {
           const t = total > 1 ? idx / (total - 1) : 0
           const rot = Math.round(rotGradFrom + (rotGradTo - rotGradFrom) * t)
-          return { ...n, rotation: typeof n.rotation === 'number' ? rot : { ...(n.rotation as object), z: rot } }
+          return { ...n, rotation: { ...n.rotation, z: rot } }
         }, `회전 균등 분배 ${rotGradFrom}°→${rotGradTo}° (${uuids.length}개)`)
         return (
           <div style={{ display: 'flex', gap: 3, marginBottom: 5, alignItems: 'center' }}>

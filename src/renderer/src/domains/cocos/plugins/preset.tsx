@@ -90,7 +90,7 @@ export function PresetPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) 
       const patched: CCSceneNode = { ...n }
       if (actions.opacity !== undefined) patched.opacity = actions.opacity
       if (actions.active !== undefined) patched.active = actions.active
-      if (actions.rotation !== undefined) patched.rotation = actions.rotation
+      if (actions.rotation !== undefined) patched.rotation = { x: 0, y: 0, z: actions.rotation }
       if (actions.posX !== undefined || actions.posY !== undefined) {
         const pos = (patched.position ?? { x: 0, y: 0 }) as { x: number; y: number; z?: number }
         patched.position = { ...pos, ...(actions.posX !== undefined ? { x: actions.posX } : {}), ...(actions.posY !== undefined ? { y: actions.posY } : {}) }
@@ -117,7 +117,7 @@ export function PresetPlugin({ nodes, sceneFile, saveScene }: BatchPluginProps) 
     const pos = n.position as { x?: number; y?: number } | undefined
     if (pos?.x !== undefined) { setEnPosX(true); setVPosX(pos.x) }
     if (pos?.y !== undefined) { setEnPosY(true); setVPosY(pos.y) }
-    if (n.rotation !== undefined) { setEnRot(true); setVRot(n.rotation) }
+    if (n.rotation !== undefined) { setEnRot(true); setVRot(n.rotation.z ?? 0) }
     if (n.active !== undefined) { setEnActive(true); setVActive(n.active) }
     const sc = n.scale as { x?: number; y?: number } | undefined
     if (sc?.x !== undefined) { setEnScaleX(true); setVScaleX(sc.x) }

@@ -675,7 +675,7 @@ export function CCSceneToolbar() {
         {selectedUuid && onRotate && (() => {
           const fn = flatNodes.find(f => f.node.uuid === selectedUuid)
           if (!fn) return null
-          const rot = typeof fn.node.rotation === 'number' ? fn.node.rotation : (fn.node.rotation as { x: number; y: number; z: number })?.z ?? 0
+          const rot = fn.node.rotation.z ?? 0
           return (
             <>
               <button onClick={() => onRotate!(selectedUuid, rot - 90)}

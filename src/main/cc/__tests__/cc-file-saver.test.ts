@@ -52,7 +52,7 @@ function makeNode(overrides: Partial<CCSceneNode> = {}): CCSceneNode {
     name: 'Root',
     active: true,
     position: { x: 0, y: 0, z: 0 },
-    rotation: 0,
+    rotation: { x: 0, y: 0, z: 0 },
     scale: { x: 1, y: 1, z: 1 },
     size: { x: 100, y: 100 },
     anchor: { x: 0.5, y: 0.5 },
@@ -158,7 +158,7 @@ describe('cc-file-saver', () => {
     it('should patch _trs array with updated position/rotation/scale', () => {
       const modifiedRoot = makeNode({
         position: { x: 50, y: 75, z: 0 },
-        rotation: 45,
+        rotation: { x: 0, y: 0, z: 45 },
         scale: { x: 2, y: 2, z: 1 },
         children: [],
       })

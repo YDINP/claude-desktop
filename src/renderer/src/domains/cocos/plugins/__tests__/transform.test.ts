@@ -13,7 +13,7 @@ function makeNode(uuid: string, overrides: Partial<CCSceneNode> = {}): CCSceneNo
     name: uuid,
     active: true,
     position: { x: 0, y: 0, z: 0 },
-    rotation: 0,
+    rotation: { x: 0, y: 0, z: 0 },
     scale: { x: 1, y: 1, z: 1 },
     size: { x: 100, y: 100 },
     anchor: { x: 0.5, y: 0.5 },
@@ -89,10 +89,7 @@ function applyAnchorPatch(
 // ── 회전 정규화 로직 (applyNormRot 재현) ────────────────────────────────────
 
 function normalizeRotation(node: CCSceneNode): CCSceneNode {
-  if (typeof node.rotation === 'number') {
-    return { ...node, rotation: ((node.rotation % 360) + 360) % 360 }
-  }
-  const r = node.rotation as { x: number; y: number; z: number }
+  const r = node.rotation
   return { ...node, rotation: { ...r, z: ((r.z % 360) + 360) % 360 } }
 }
 
@@ -254,34 +251,34 @@ describe('앵커 보정 (applyAnchorPatch)', () => {
 })
 
 describe('회전 정규화 (normalizeRotation)', () => {
-  it('number 타입: 음수 → 0~360 범위로 정규화', () => {
-    const node = makeNode('n', { rotation: -90 })
+  it('음수 → 0~360 범위로 정규화', () => {
+    const node = makeNode('n', { rotation: { x: 0, y: 0, z: -90 } })
     const result = normalizeRotation(node)
-    expect(result.rotation).toBe(270)
+    expect(result.rotation.z).toBe(270)
   })
 
-  it('number 타입: 360 초과 → 0~360 범위로 정규화', () => {
-    const node = makeNode('n', { rotation: 450 })
+  it('360 초과 → 0~360 범위로 정규화', () => {
+    const node = makeNode('n', { rotation: { x: 0, y: 0, z: 450 } })
     const result = normalizeRotation(node)
-    expect(result.rotation).toBe(90)
+    expect(result.rotation.z).toBe(90)
   })
 
-  it('number 타입: 0 → 0', () => {
-    const node = makeNode('n', { rotation: 0 })
+  it('0 → 0', () => {
+    const node = makeNode('n', { rotation: { x: 0, y: 0, z: 0 } })
     const result = normalizeRotation(node)
-    expect(result.rotation).toBe(0)
+    expect(result.rotation.z).toBe(0)
   })
 
-  it('object 타입 (3x): z 값 정규화', () => {
+  it('z 값 정규화', () => {
     const node = makeNode('n', { rotation: { x: 0, y: 0, z: -270 } })
     const result = normalizeRotation(node)
-    expect((result.rotation as { z: number }).z).toBe(90)
+    expect(result.rotation.z).toBe(90)
   })
 
-  it('number 타입: -360 → 0', () => {
-    const node = makeNode('n', { rotation: -360 })
+  it('-360 → 0', () => {
+    const node = makeNode('n', { rotation: { x: 0, y: 0, z: -360 } })
     const result = normalizeRotation(node)
-    expect(result.rotation).toBe(0)
+    expect(result.rotation.z).toBe(0)
   })
 })
 

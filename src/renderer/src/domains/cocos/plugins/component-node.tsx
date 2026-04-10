@@ -153,9 +153,7 @@ export function NodeSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, 
         const applyNodeRotation = async (deg: number) => {
           if (!sceneFile.root) return
           await patchNodes(n => {
-            // CC2.x: rotation is a number (z-euler); CC3.x: {x,y,z} euler
-            const rotation = typeof n.rotation === 'number' ? deg : { x: 0, y: 0, z: deg }
-            return { ...n, rotation}
+            return { ...n, rotation: { x: 0, y: 0, z: deg } }
           }, `rotation=${deg}° (${uuids.length}개)`)
         }
         return (

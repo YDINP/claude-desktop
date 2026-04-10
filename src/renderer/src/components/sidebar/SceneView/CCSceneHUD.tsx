@@ -88,7 +88,7 @@ export function CCSceneInnerHUD() {
         if (!fn) return null
         const pos = fn.node.position as { x: number; y: number }
         const sz = fn.node.size
-        const rot = typeof fn.node.rotation === 'number' ? fn.node.rotation : (fn.node.rotation as { z?: number })?.z ?? 0
+        const rot = fn.node.rotation.z ?? 0
         return (
           <div style={{
             position: 'absolute', top: 6, right: 6, zIndex: 10,
@@ -208,7 +208,7 @@ export function CCSceneOuterHUD() {
         const pos = dragOverride?.uuid === node.uuid
           ? { x: dragOverride.x, y: dragOverride.y }
           : rawPos
-        const rotRaw = typeof node.rotation === 'number' ? node.rotation : (node.rotation as { z?: number }).z ?? 0
+        const rotRaw = node.rotation.z ?? 0
         const rotZ = rotateOverride?.uuid === node.uuid ? rotateOverride.angle : rotRaw
         const w = resizeOverride?.uuid === node.uuid ? resizeOverride.w : (node.size?.x ?? 0)
         const h = resizeOverride?.uuid === node.uuid ? resizeOverride.h : (node.size?.y ?? 0)

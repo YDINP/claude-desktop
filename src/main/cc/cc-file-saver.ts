@@ -78,6 +78,22 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
         ? buildNewRawNode2x(cur, parentRawIdx)
         : buildNewRawNode3x(cur, parentRawIdx))
       cur = { ...cur, _rawIndex: newIdx }
+      // 3x: 새 노드에 UITransform 엔트리 추가 + uiTransformByNodeIdx 맵 갱신
+      if (version === '3x') {
+        const uitIdx = raw.length
+        raw.push({
+          __type__: 'cc.UITransform',
+          _name: '',
+          _objFlags: 0,
+          '__editorExtras__': {},
+          node: { __id__: newIdx },
+          _enabled: true,
+          _contentSize: { width: cur.size?.x ?? 100, height: cur.size?.y ?? 100 },
+          _anchorPoint: { x: cur.anchor?.x ?? 0.5, y: cur.anchor?.y ?? 0.5 },
+          _priority: 0,
+        })
+        uiTransformByNodeIdx.set(newIdx, uitIdx)
+      }
     }
     // R2459: 새 컴포넌트 정규화 (rawIndex 없는 컴포넌트 → raw 배열에 추가)
     const normalizedComps = cur.components.map(comp => {
@@ -340,8 +356,8 @@ function patch2x(e: RawEntry, node: CCSceneNode) {
     a[1] = pos.y ?? 0
     a[2] = pos.z ?? 0
 
-    // rotation: 2x stores as Z-euler number
-    const rotZ = typeof node.rotation === 'number' ? node.rotation : (node.rotation as CCVec3).z ?? 0
+    // rotation: z-euler degrees
+    const rotZ = node.rotation.z ?? 0
     const rad = rotZ * Math.PI / 180
     // euler Z → quaternion (2D: only Z axis)
     a[3] = 0          // qx
@@ -384,10 +400,8 @@ function patch3x(
 
   e._lpos = { x: pos.x ?? 0, y: pos.y ?? 0, z: pos.z ?? 0 }
 
-  // rotation: node.rotation은 euler degrees {x,y,z}, 저장 시 euler Z → quaternion 변환
-  const rotZ = typeof node.rotation === 'number'
-    ? node.rotation
-    : (node.rotation as CCVec3).z ?? 0
+  // rotation: euler degrees {x,y,z}, 저장 시 euler Z → quaternion 변환
+  const rotZ = node.rotation.z ?? 0
   const rad = rotZ * Math.PI / 180
   // euler Z → quaternion (2D: only Z axis)
   e._lrot = { x: 0, y: 0, z: Math.sin(rad / 2), w: Math.cos(rad / 2) }

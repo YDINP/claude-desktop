@@ -218,16 +218,15 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
             )}
             <div style={{ fontSize: 9, color: 'var(--text-muted)', margin: '5px 0 3px', display: 'flex', alignItems: 'center', gap: 4 }}>
               회전
-              <span title="회전 리셋 (0°)" onClick={() => applyAndSave({ rotation: typeof draft.rotation === 'number' ? 0 : { x: 0, y: 0, z: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
+              <span title="회전 리셋 (0°)" onClick={() => applyAndSave({ rotation: { x: 0, y: 0, z: 0 } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>↺</span>
               {/* R1653: 회전 부호 반전 버튼 */}
-              <span title="회전 부호 반전 (±)" onClick={() => { const r = typeof draft.rotation === 'number' ? -draft.rotation : { ...(draft.rotation as object), z: -(draft.rotation as {z?:number}).z! } as CCSceneNode['rotation']; applyAndSave({ rotation: r }) }} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>±</span>
+              <span title="회전 부호 반전 (±)" onClick={() => applyAndSave({ rotation: { ...draft.rotation, z: -draft.rotation.z } })} style={{ cursor: 'pointer', color: '#555', fontSize: 8 }} onMouseEnter={e => (e.currentTarget.style.color = '#aaa')} onMouseLeave={e => (e.currentTarget.style.color = '#555')}>±</span>
               {/* R1775: 회전 정규화 버튼 (-180~180) */}
               {Math.abs(rotation) > 180 && (
                 <span title={`회전 정규화: ${rotation}° → ${((((rotation % 360) + 540) % 360) - 180).toFixed(1)}°`}
                   onClick={() => {
                     const norm = ((rotation % 360) + 540) % 360 - 180
-                    const r = typeof draft.rotation === 'number' ? norm : { ...(draft.rotation as object), z: norm } as CCSceneNode['rotation']
-                    applyAndSave({ rotation: r })
+                    applyAndSave({ rotation: { ...draft.rotation, z: norm } })
                   }}
                   style={{ cursor: 'pointer', color: '#f87171', fontSize: 8, padding: '0 2px', border: '1px solid rgba(248,113,113,0.4)', borderRadius: 2 }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#fca5a5')}
@@ -243,14 +242,13 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
               >R↑</span>
               <span
                 title={rotClipFilled && rotClipboard.current !== null ? `회전 붙여넣기 (${rotClipboard.current}°) — R2563` : '복사된 회전 없음'}
-                onClick={() => { if (rotClipboard.current !== null) { const r = typeof draft.rotation === 'number' ? rotClipboard.current : { ...(draft.rotation as object), z: rotClipboard.current } as CCSceneNode['rotation']; applyAndSave({ rotation: r }) } }}
+                onClick={() => { if (rotClipboard.current !== null) { applyAndSave({ rotation: { ...draft.rotation, z: rotClipboard.current } }) } }}
                 style={{ fontSize: 9, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', cursor: rotClipFilled ? 'pointer' : 'default', color: rotClipFilled ? '#a78bfa' : '#333', background: 'none', userSelect: 'none' }}
                 onMouseEnter={e => { if (rotClipFilled) e.currentTarget.style.color = '#c4b5fd' }} onMouseLeave={e => { e.currentTarget.style.color = rotClipFilled ? '#a78bfa' : '#333' }}
               >R↓</span>
             </div>
             {numInput('Z°', rotation, v => {
-              const r = typeof draft.rotation === 'number' ? v : { ...(draft.rotation as object), z: v } as CCSceneNode['rotation']
-              applyAndSave({ rotation: r })
+              applyAndSave({ rotation: { ...draft.rotation, z: v } })
             })}
             {/* R1732: 회전 스텝 버튼 ±15°/±90° */}
             <div style={{ display: 'flex', gap: 2, marginTop: 2, flexWrap: 'wrap' }}>
@@ -259,8 +257,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
                   key={delta}
                   title={`회전 ${delta > 0 ? '+' : ''}${delta}°`}
                   onClick={() => {
-                    const r = typeof draft.rotation === 'number' ? (rotation + delta) : { ...(draft.rotation as object), z: rotation + delta } as CCSceneNode['rotation']
-                    applyAndSave({ rotation: r })
+                    applyAndSave({ rotation: { ...draft.rotation, z: rotation + delta } })
                   }}
                   style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--text-muted)', userSelect: 'none', whiteSpace: 'nowrap' }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#aaa')}
@@ -271,8 +268,7 @@ export function NodeTransformSection({ ctx, is3x }: NodeTransformSectionProps) {
               {Math.abs(rotation) > 0.01 && (
                 <span title="회전 0°으로 리셋"
                   onClick={() => {
-                    const r = typeof draft.rotation === 'number' ? 0 : { ...(draft.rotation as object), z: 0 } as CCSceneNode['rotation']
-                    applyAndSave({ rotation: r })
+                    applyAndSave({ rotation: { ...draft.rotation, z: 0 } })
                   }}
                   style={{ fontSize: 8, padding: '0 3px', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: 2, color: '#34d399', userSelect: 'none' }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#6ee7b7')}
