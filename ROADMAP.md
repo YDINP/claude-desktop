@@ -1020,3 +1020,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2820 | 호환성 — 3.x UITransform 자동생성 + Label spacingY + rotation CCVec3 통일 (14파일) | ✅ |
 | R2821 | Atlas 스프라이트 프레임 추출 (plist/meta→SVG viewBox 크롭) + color plugin 30테스트 (총 1,620) | ✅ |
 | R2822 | Widget 레이아웃 계산 (alignFlags→position/size) + BMFont 폴백 + plugin 102테스트 (총 1,729) | ✅ |
+| R2823 | Overflow:SHRINK 텍스트 축소 + parseCCSceneChunked 경량화 + UUID 캐시 클리어 + preset/history/component 65테스트 (총 1,788) | ✅ |
