@@ -20,6 +20,9 @@ let _registered = false
 let _watchUnsubscribe: (() => void) | null = null
 let _partialUpdateUnsubscribe: (() => void) | null = null
 
+// per-scenePath 저장 직렬화 큐 — 동시 저장 요청 시 순서 보장
+const _saveQueues = new Map<string, Promise<unknown>>()
+
 // UUID 맵 캐시 (assetsDir → map, 30초 TTL) — buildUUIDMap은 디렉토리 전체 스캔이므로 캐싱 필수
 const _uuidMapCache = new Map<string, { map: UUIDMap; ts: number }>()
 async function getCachedUUIDMap(assetsDir: string): Promise<UUIDMap> {
@@ -94,12 +97,16 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
   })
 
   /** 수정된 씬 트리 → 파일 저장 (temp→rename 원자적, .bak 백업) */
-  ipcMain.handle(CC_FILE_SAVE_SCENE, async (
+  ipcMain.handle(CC_FILE_SAVE_SCENE, (
     _e,
     sceneFile: CCSceneFile,
     modifiedRoot: CCSceneNode
   ) => {
-    return saveCCScene(sceneFile, modifiedRoot)
+    const scenePath = sceneFile.scenePath
+    const prev = _saveQueues.get(scenePath) ?? Promise.resolve()
+    const current = prev.then(() => saveCCScene(sceneFile, modifiedRoot)).catch((err) => ({ success: false, error: String(err) }))
+    _saveQueues.set(scenePath, current)
+    return current
   })
 
   /** R2327: 다른 이름으로 저장 (Save As) */
