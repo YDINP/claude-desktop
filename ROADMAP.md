@@ -1015,3 +1015,6 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2815 | SettingsPanel/SearchPanel/ConnectionPanel/StatsPanel/OutlinePanel 78 렌더테스트 (총 1,456) | ✅ |
 | R2816 | GlobalSearch/ChangedFiles/ModelSelector/ExportButtons/MiniMap 76테스트 (총 1,532) | ✅ |
 | R2817 | CC Editor 감사 — 3.x rotation quat→euler 버그 수정, enabled 저장 누락 수정, 컴포넌트 기본값 확장 (총 1,533) | ✅ |
+| R2818 | CC 3.x rotation 라운드트립 테스트 + buildUUIDMap async + transform 24테스트 (총 1,575) | ✅ |
+| R2819 | 렌더링 버그 — 부모 회전/스케일 자식 시각 반영 (worldRotZ/worldScaleX/Y) | ✅ |
+| R2820 | 호환성 — 3.x UITransform 자동생성 + Label spacingY + rotation CCVec3 통일 (14파일) | ✅ |
