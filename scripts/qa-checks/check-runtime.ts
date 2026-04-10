@@ -56,12 +56,23 @@ export function runRuntimeChecks(root: string, log: LogFn): void {
         if (started && braces === 0) break
       }
 
-      // 객체 shorthand로 전달된 변수명 추출 (key: value가 아닌 단독 identifier)
-      const shorthandVars = [...argBlock.matchAll(/(?:^|,|\{)\s*(\w+)\s*(?:,|\}|$)/gm)]
-        .map(m => m[1])
-        .filter(v => v && !['true', 'false', 'null', 'undefined'].includes(v))
+      // 객체에서 참조되는 변수명 추출:
+      // 1. shorthand: { varName, ... }
+      // 2. key: value: { key: varName, ... }
+      const referencedVars = new Set<string>()
 
-      for (const varName of shorthandVars) {
+      // shorthand 패턴
+      for (const m of argBlock.matchAll(/(?:^|[,{])\s*(\w+)\s*(?=[,}])/gm)) {
+        if (m[1]) referencedVars.add(m[1])
+      }
+      // key: value 패턴 (value가 단독 identifier인 경우)
+      for (const m of argBlock.matchAll(/\w+\s*:\s*(\w+)\s*(?=[,}])/gm)) {
+        if (m[1] && !['true', 'false', 'null', 'undefined', 'void'].includes(m[1])) {
+          referencedVars.add(m[1])
+        }
+      }
+
+      for (const varName of referencedVars) {
         const declLine = varDecls.get(varName)
         if (declLine !== undefined && declLine > i) {
           log('critical', 'TDZ', `'${varName}' used in ${hookName}() at line ${i + 1} but declared at line ${declLine + 1}`, file, i + 1)
