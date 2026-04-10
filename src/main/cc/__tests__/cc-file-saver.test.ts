@@ -616,6 +616,260 @@ describe('cc-file-saver', () => {
     })
   })
 
+  // ── 새 키 자동 생성 (enabled 키 생성) ────────────────────────────────────────
+
+  describe('컴포넌트 props — 새 키 자동 생성', () => {
+    afterEach(() => {
+      clearMtimeMap()
+    })
+
+    it('2x: 기존 raw entry에 없는 key → _N$ prefix로 신규 생성된다', () => {
+      const root = makeNode({
+        children: [],
+        components: [{
+          type: 'cc.Label',
+          props: { string: 'NewText', enabled: true },
+          _rawIndex: 1,
+        }],
+      })
+      const raw2x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [{ __id__: 1 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 100, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 },
+          _opacity: 255,
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+        },
+        {
+          __type__: 'cc.Label',
+          node: { __id__: 0 },
+          _enabled: true,
+          // 'string' 키 없음 → _N$string으로 신규 생성됨
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw2x)
+
+      const result = saveCCScene(sceneFile, root)
+
+      expect(result.success).toBe(true)
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      // 'string' 없음 → '_N$string' 생성
+      expect(writtenRaw[1]['_N$string']).toBe('NewText')
+    })
+
+    it('2x: 기존 raw entry에 _N$string이 있으면 해당 키를 업데이트한다', () => {
+      const root = makeNode({
+        children: [],
+        components: [{
+          type: 'cc.Label',
+          props: { string: 'Updated' },
+          _rawIndex: 1,
+        }],
+      })
+      const raw2x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [{ __id__: 1 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 100, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 },
+          _opacity: 255,
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+        },
+        {
+          __type__: 'cc.Label',
+          node: { __id__: 0 },
+          _enabled: true,
+          '_N$string': 'Original',
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw2x)
+
+      saveCCScene(sceneFile, root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      expect(writtenRaw[1]['_N$string']).toBe('Updated')
+    })
+
+    it('3x: 기존 raw entry에 없는 key → _ prefix로 신규 생성된다', () => {
+      const root = makeNode({
+        children: [],
+        rotation: { x: 0, y: 0, z: 0 },
+        components: [{
+          type: 'cc.Label',
+          props: { string: '3xNew', enabled: true },
+          _rawIndex: 1,
+        }],
+      })
+      const raw3x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [{ __id__: 1 }],
+          _lpos: { x: 0, y: 0, z: 0 },
+          _lrot: { x: 0, y: 0, z: 0, w: 1 },
+          _lscale: { x: 1, y: 1, z: 1 },
+          _uiProps: { _localOpacity: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+          layer: 33554432,
+        },
+        {
+          __type__: 'cc.Label',
+          node: { __id__: 0 },
+          _enabled: true,
+          // 'string' 키 없음 → _string으로 신규 생성됨
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw3x, '3x')
+
+      const result = saveCCScene(sceneFile, root)
+
+      expect(result.success).toBe(true)
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      expect(writtenRaw[1]['_string']).toBe('3xNew')
+    })
+  })
+
+  // ── COMP_DEFAULT 확장 (Camera, ParticleSystem) ─────────────────────────────
+
+  describe('새 노드 추가 — COMP_DEFAULT 기본값 포함', () => {
+    afterEach(() => {
+      clearMtimeMap()
+    })
+
+    it('2x: 새 cc.Camera 컴포넌트 생성 시 COMP_DEFAULT_2x 기본값이 포함된다', () => {
+      const newChild = makeChildNode({
+        _rawIndex: undefined as unknown as number,
+        components: [{
+          type: 'cc.Camera',
+          props: {},
+          _rawIndex: undefined as unknown as number,
+        }],
+      })
+      const root = makeNode({ children: [newChild] })
+      const raw2x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 100, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 },
+          _opacity: 255,
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw2x)
+
+      const result = saveCCScene(sceneFile, root)
+
+      expect(result.success).toBe(true)
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      // 새 노드(idx 1) + 새 Camera 컴포넌트(idx 2) 생성됨
+      const cameraEntry = writtenRaw.find((e: Record<string, unknown>) => e.__type__ === 'cc.Camera')
+      expect(cameraEntry).toBeDefined()
+      // COMP_DEFAULT_2x['cc.Camera'] 기본값 포함
+      expect(cameraEntry['_N$depth']).toBe(-1)
+      expect(cameraEntry['_N$cullingMask']).toBe(4294967295)
+    })
+
+    it('2x: 새 cc.ParticleSystem 컴포넌트 생성 시 COMP_DEFAULT_2x 기본값이 포함된다', () => {
+      const newChild = makeChildNode({
+        _rawIndex: undefined as unknown as number,
+        components: [{
+          type: 'cc.ParticleSystem',
+          props: {},
+          _rawIndex: undefined as unknown as number,
+        }],
+      })
+      const root = makeNode({ children: [newChild] })
+      const raw2x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 100, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 },
+          _opacity: 255,
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw2x)
+
+      const result = saveCCScene(sceneFile, root)
+
+      expect(result.success).toBe(true)
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      const psEntry = writtenRaw.find((e: Record<string, unknown>) => e.__type__ === 'cc.ParticleSystem')
+      expect(psEntry).toBeDefined()
+      expect(psEntry['_N$playOnLoad']).toBe(true)
+      expect(psEntry['_N$duration']).toBe(1)
+    })
+
+    it('3x: 새 cc.Camera 컴포넌트 생성 시 COMP_DEFAULT_3x 기본값이 포함된다', () => {
+      const newChild = makeChildNode({
+        _rawIndex: undefined as unknown as number,
+        rotation: { x: 0, y: 0, z: 0 },
+        components: [{
+          type: 'cc.Camera',
+          props: {},
+          _rawIndex: undefined as unknown as number,
+        }],
+      })
+      const root = makeNode({
+        rotation: { x: 0, y: 0, z: 0 },
+        children: [newChild],
+      })
+      const raw3x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [],
+          _lpos: { x: 0, y: 0, z: 0 },
+          _lrot: { x: 0, y: 0, z: 0, w: 1 },
+          _lscale: { x: 1, y: 1, z: 1 },
+          _uiProps: { _localOpacity: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+          layer: 33554432,
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw3x, '3x')
+
+      const result = saveCCScene(sceneFile, root)
+
+      expect(result.success).toBe(true)
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      const cameraEntry = writtenRaw.find((e: Record<string, unknown>) => e.__type__ === 'cc.Camera')
+      expect(cameraEntry).toBeDefined()
+      // COMP_DEFAULT_3x['cc.Camera'] 기본값 포함
+      expect(cameraEntry['_projection']).toBe(0)
+      expect(cameraEntry['_far']).toBe(1000)
+    })
+  })
+
   // ── listBakFiles ───────────────────────────────────────────────────────────
 
   describe('listBakFiles', () => {

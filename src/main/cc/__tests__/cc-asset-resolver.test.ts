@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import fs from 'fs'
 
 vi.mock('fs', () => ({
   default: {
@@ -9,7 +10,16 @@ vi.mock('fs', () => ({
   readFileSync: vi.fn(),
 }))
 
-import fs from 'fs'
+vi.mock('fs/promises', () => ({
+  default: {
+    readdir: vi.fn(),
+    readFile: vi.fn(),
+  },
+  readdir: vi.fn(),
+  readFile: vi.fn(),
+}))
+
+import fsPromises from 'fs/promises'
 import {
   decompressCCUuid,
   compressCCUuid,
@@ -21,8 +31,8 @@ import {
   getAllTextureUUIDs,
 } from '../cc-asset-resolver'
 
-const mockReaddirSync = vi.mocked(fs.readdirSync)
-const mockReadFileSync = vi.mocked(fs.readFileSync)
+const mockReaddir = vi.mocked(fsPromises.readdir)
+const mockReadFile = vi.mocked(fsPromises.readFile)
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -91,89 +101,89 @@ describe('buildUUIDMap', () => {
     vi.clearAllMocks()
   })
 
-  it('returns empty map when directory is empty', () => {
-    mockReaddirSync.mockReturnValue([])
-    const map = buildUUIDMap('/project/assets')
+  it('returns empty map when directory is empty', async () => {
+    mockReaddir.mockResolvedValue([])
+    const map = await buildUUIDMap('/project/assets')
     expect(map.size).toBe(0)
   })
 
-  it('parses a texture .meta and registers uuid', () => {
+  it('parses a texture .meta and registers uuid', async () => {
     const uuid = 'aaaabbbb-cccc-dddd-eeee-ffffaaaabbbb'
-    mockReaddirSync.mockImplementation((dir) => {
-      if (dir === '/project/assets') return [makeDirent('hero.png.meta', false)]
+    mockReaddir.mockImplementation(async (dir) => {
+      if (String(dir) === '/project/assets') return [makeDirent('hero.png.meta', false)]
       return []
     })
-    mockReadFileSync.mockReturnValue(makeMetaJson(uuid) as unknown as Buffer)
+    mockReadFile.mockResolvedValue(makeMetaJson(uuid) as unknown as Buffer)
 
-    const map = buildUUIDMap('/project/assets')
+    const map = await buildUUIDMap('/project/assets')
     expect(map.has(uuid)).toBe(true)
     expect(map.get(uuid)!.type).toBe('texture')
     expect(map.get(uuid)!.relPath).toBe('hero.png')
   })
 
-  it('registers compressed uuid alongside dashed uuid for texture', () => {
+  it('registers compressed uuid alongside dashed uuid for texture', async () => {
     const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
-    mockReaddirSync.mockImplementation(() => [makeDirent('img.png.meta', false)])
-    mockReadFileSync.mockReturnValue(makeMetaJson(uuid) as unknown as Buffer)
+    mockReaddir.mockResolvedValue([makeDirent('img.png.meta', false)])
+    mockReadFile.mockResolvedValue(makeMetaJson(uuid) as unknown as Buffer)
 
-    const map = buildUUIDMap('/project/assets')
+    const map = await buildUUIDMap('/project/assets')
     const compressed = compressCCUuid(uuid)
     expect(compressed).not.toBeNull()
     expect(map.has(compressed!)).toBe(true)
   })
 
-  it('registers subMeta uuids as texture type', () => {
+  it('registers subMeta uuids as texture type', async () => {
     const mainUuid = 'main1111-1111-1111-1111-111111111111'
     const subUuid  = 'sub22222-2222-2222-2222-222222222222'
-    mockReaddirSync.mockImplementation(() => [makeDirent('atlas.png.meta', false)])
-    mockReadFileSync.mockReturnValue(
+    mockReaddir.mockResolvedValue([makeDirent('atlas.png.meta', false)])
+    mockReadFile.mockResolvedValue(
       makeMetaJson(mainUuid, { frame1: { uuid: subUuid } }) as unknown as Buffer
     )
 
-    const map = buildUUIDMap('/project/assets')
+    const map = await buildUUIDMap('/project/assets')
     expect(map.has(subUuid)).toBe(true)
     expect(map.get(subUuid)!.type).toBe('texture')
   })
 
-  it('detects prefab type from .prefab.meta', () => {
+  it('detects prefab type from .prefab.meta', async () => {
     const uuid = 'prefb111-1111-1111-1111-111111111111'
-    mockReaddirSync.mockImplementation(() => [makeDirent('enemy.prefab.meta', false)])
-    mockReadFileSync.mockReturnValue(makeMetaJson(uuid) as unknown as Buffer)
+    mockReaddir.mockResolvedValue([makeDirent('enemy.prefab.meta', false)])
+    mockReadFile.mockResolvedValue(makeMetaJson(uuid) as unknown as Buffer)
 
-    const map = buildUUIDMap('/project/assets')
+    const map = await buildUUIDMap('/project/assets')
     expect(map.get(uuid)!.type).toBe('prefab')
   })
 
-  it('detects script type from .ts.meta', () => {
+  it('detects script type from .ts.meta', async () => {
     const uuid = 'scrpt111-1111-1111-1111-111111111111'
-    mockReaddirSync.mockImplementation(() => [makeDirent('GameManager.ts.meta', false)])
-    mockReadFileSync.mockReturnValue(makeMetaJson(uuid) as unknown as Buffer)
+    mockReaddir.mockResolvedValue([makeDirent('GameManager.ts.meta', false)])
+    mockReadFile.mockResolvedValue(makeMetaJson(uuid) as unknown as Buffer)
 
-    const map = buildUUIDMap('/project/assets')
+    const map = await buildUUIDMap('/project/assets')
     expect(map.get(uuid)!.type).toBe('script')
   })
 
-  it('recurses into subdirectories', () => {
+  it('recurses into subdirectories', async () => {
     const uuid = 'deeeeeee-1111-1111-1111-111111111111'
-    mockReaddirSync.mockImplementation((dir) => {
+    mockReaddir.mockImplementation(async (dir) => {
       // normalize separators for cross-platform comparison
       const normalized = String(dir).replace(/\\/g, '/')
       if (normalized === '/project/assets') return [makeDirent('sub', true)]
       if (normalized === '/project/assets/sub') return [makeDirent('icon.png.meta', false)]
       return []
     })
-    mockReadFileSync.mockReturnValue(makeMetaJson(uuid) as unknown as Buffer)
+    mockReadFile.mockResolvedValue(makeMetaJson(uuid) as unknown as Buffer)
 
-    const map = buildUUIDMap('/project/assets')
+    const map = await buildUUIDMap('/project/assets')
     expect(map.has(uuid)).toBe(true)
     expect(map.get(uuid)!.relPath).toBe('sub/icon.png')
   })
 
-  it('ignores malformed .meta files without throwing', () => {
-    mockReaddirSync.mockImplementation(() => [makeDirent('broken.png.meta', false)])
-    mockReadFileSync.mockReturnValue('not json' as unknown as Buffer)
+  it('ignores malformed .meta files without throwing', async () => {
+    mockReaddir.mockResolvedValue([makeDirent('broken.png.meta', false)])
+    mockReadFile.mockResolvedValue('not json' as unknown as Buffer)
 
-    expect(() => buildUUIDMap('/project/assets')).not.toThrow()
+    await expect(buildUUIDMap('/project/assets')).resolves.not.toThrow()
   })
 })
 

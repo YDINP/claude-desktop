@@ -15,7 +15,7 @@ type RawEntry = Record<string, unknown>
  * - flat JSON 배열 → CCSceneNode 트리로 변환
  * - 파일 확장자(.fire/.scene/.prefab) 또는 내부 필드(_trs/_lpos)로 버전 자동 감지
  */
-export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo): CCSceneFile {
+export async function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo): Promise<CCSceneFile> {
   let raw: RawEntry[]
   try {
     raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
@@ -38,7 +38,7 @@ export function parseCCScene(scenePath: string, projectInfo: CCFileProjectInfo):
   // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames 맵 (인스펙터 표시용)
   const scriptNames: Record<string, string> = {}
   if (projectInfo.assetsDir) {
-    const uuidMap = buildUUIDMap(projectInfo.assetsDir)
+    const uuidMap = await buildUUIDMap(projectInfo.assetsDir)
     const scriptUuidToName = new Map<string, string>()
     for (const [uuid, meta] of uuidMap) {
       if (meta.type === 'script') {
@@ -1394,12 +1394,12 @@ export interface CCSceneStreamState {
  * 실제 파싱은 sync이지만 청크 단위로 루트 자식을 잘라서 반환.
  * chunkSize: 최상위 자식 노드 최대 파싱 수 (기본 50, 0 = 전체)
  */
-export function parseCCSceneChunked(
+export async function parseCCSceneChunked(
   scenePath: string,
   projectInfo: CCFileProjectInfo,
   chunkSize = 50,
   chunkOffset = 0
-): { scene: CCSceneFile; state: CCSceneStreamState } {
+): Promise<{ scene: CCSceneFile; state: CCSceneStreamState }> {
   let raw: RawEntry[]
   try {
     raw = JSON.parse(fs.readFileSync(scenePath, 'utf-8')) as RawEntry[]
@@ -1420,7 +1420,7 @@ export function parseCCSceneChunked(
   // 커스텀 스크립트 UUID → 파일명 해결 + scriptNames (인스펙터 표시용)
   const scriptNamesChunked: Record<string, string> = {}
   if (projectInfo.assetsDir) {
-    const uuidMap = buildUUIDMap(projectInfo.assetsDir)
+    const uuidMap = await buildUUIDMap(projectInfo.assetsDir)
     const scriptUuidToName = new Map<string, string>()
     for (const [uuid, meta] of uuidMap) {
       if (meta.type === 'script') {

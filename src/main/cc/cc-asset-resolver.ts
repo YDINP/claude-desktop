@@ -1,4 +1,5 @@
 import fs from 'fs'
+import fsPromises from 'fs/promises'
 import path from 'path'
 
 export interface AssetMeta {
@@ -74,26 +75,26 @@ export function compressCCUuid(uuid: string): string | null {
  * .meta 파일 전수 스캔 → UUID → 에셋 경로 맵 빌드
  * CC 2.x / 3.x 모두 동일한 .meta JSON 포맷 사용
  */
-export function buildUUIDMap(assetsDir: string): UUIDMap {
+export async function buildUUIDMap(assetsDir: string): Promise<UUIDMap> {
   const map = new Map<string, AssetMeta>()
   try {
-    walkMeta(assetsDir, assetsDir, map)
+    await walkMeta(assetsDir, assetsDir, map)
     // .meta 없는 .prefab 파일 폴백 스캔
     const pathSet = new Set([...map.values()].map(v => v.path))
-    walkPrefabFiles(assetsDir, assetsDir, map, pathSet)
+    await walkPrefabFiles(assetsDir, assetsDir, map, pathSet)
   } catch { /* ignore */ }
   return map
 }
 
-function walkPrefabFiles(dir: string, assetsDir: string, map: UUIDMap, pathSet: Set<string>) {
+async function walkPrefabFiles(dir: string, assetsDir: string, map: UUIDMap, pathSet: Set<string>): Promise<void> {
   if (map.size > 10000) return
   let entries: fs.Dirent[]
-  try { entries = fs.readdirSync(dir, { withFileTypes: true }) } catch { return }
+  try { entries = await fsPromises.readdir(dir, { withFileTypes: true }) } catch { return }
   for (const e of entries) {
     if (map.size > 10000) break
     const full = path.join(dir, e.name)
     if (e.isDirectory()) {
-      walkPrefabFiles(full, assetsDir, map, pathSet)
+      await walkPrefabFiles(full, assetsDir, map, pathSet)
     } else if (e.isFile() && e.name.endsWith('.prefab') && !pathSet.has(full)) {
       const relPath = path.relative(assetsDir, full).replace(/\\/g, '/')
       const syntheticUuid = 'nometaprefab-' + Buffer.from(relPath).toString('base64').slice(0, 24)
@@ -103,11 +104,11 @@ function walkPrefabFiles(dir: string, assetsDir: string, map: UUIDMap, pathSet: 
   }
 }
 
-function walkMeta(dir: string, assetsDir: string, map: UUIDMap) {
+async function walkMeta(dir: string, assetsDir: string, map: UUIDMap): Promise<void> {
   if (map.size > 10000) return  // safety limit
   let entries: fs.Dirent[]
   try {
-    entries = fs.readdirSync(dir, { withFileTypes: true })
+    entries = await fsPromises.readdir(dir, { withFileTypes: true })
   } catch {
     return
   }
@@ -116,16 +117,16 @@ function walkMeta(dir: string, assetsDir: string, map: UUIDMap) {
     if (map.size > 10000) break
     const full = path.join(dir, e.name)
     if (e.isDirectory()) {
-      walkMeta(full, assetsDir, map)
+      await walkMeta(full, assetsDir, map)
     } else if (e.isFile() && e.name.endsWith('.meta')) {
-      parseMeta(full, assetsDir, map)
+      await parseMeta(full, assetsDir, map)
     }
   }
 }
 
-function parseMeta(metaPath: string, assetsDir: string, map: UUIDMap) {
+async function parseMeta(metaPath: string, assetsDir: string, map: UUIDMap): Promise<void> {
   try {
-    const raw = fs.readFileSync(metaPath, 'utf-8')
+    const raw = await fsPromises.readFile(metaPath, 'utf-8')
     const meta = JSON.parse(raw)
 
     // .meta 대응 에셋 경로 (.meta 확장자 제거)

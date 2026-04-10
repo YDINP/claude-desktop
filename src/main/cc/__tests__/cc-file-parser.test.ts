@@ -13,7 +13,7 @@ vi.mock('fs', () => ({
 }))
 
 vi.mock('../cc-asset-resolver', () => ({
-  buildUUIDMap: vi.fn(() => new Map()),
+  buildUUIDMap: vi.fn(() => Promise.resolve(new Map())),
 }))
 
 import fs from 'fs'
@@ -143,11 +143,11 @@ describe('cc-file-parser', () => {
   })
 
   describe('parseCCScene — 2.x basic', () => {
-    it('should parse a 2.x scene into a node tree', () => {
+    it('should parse a 2.x scene into a node tree', async () => {
       const raw = make2xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
 
       expect(result.root.name).toBe('TestScene')
       expect(result.root.uuid).toBe('scene-uuid')
@@ -163,21 +163,21 @@ describe('cc-file-parser', () => {
       expect(child.tag).toBe(42)
     })
 
-    it('should preserve _rawIndex for each node', () => {
+    it('should preserve _rawIndex for each node', async () => {
       const raw = make2xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
 
       expect(result.root._rawIndex).toBe(1)
       expect(result.root.children[0]._rawIndex).toBe(2)
     })
 
-    it('should parse components with props', () => {
+    it('should parse components with props', async () => {
       const raw = make2xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
       const child = result.root.children[0]
 
       expect(child.components).toHaveLength(1)
@@ -187,11 +187,11 @@ describe('cc-file-parser', () => {
       expect(child.components[0]._rawIndex).toBe(3)
     })
 
-    it('should store _raw for roundtrip saving', () => {
+    it('should store _raw for roundtrip saving', async () => {
       const raw = make2xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
       expect(result._raw).toBeDefined()
       expect(Array.isArray(result._raw)).toBe(true)
       expect(result._raw).toHaveLength(raw.length)
@@ -199,7 +199,7 @@ describe('cc-file-parser', () => {
   })
 
   describe('parseCCScene — 2.x _trs decoding', () => {
-    it('should decode _trs TypedArray with array field', () => {
+    it('should decode _trs TypedArray with array field', async () => {
       const raw = make2xRaw()
       // Set specific position/rotation/scale via _trs
       ;(raw[2] as Record<string, unknown>)._trs = {
@@ -209,7 +209,7 @@ describe('cc-file-parser', () => {
       }
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
       const child = result.root.children[0]
 
       expect(child.position).toEqual({ x: 10, y: 20, z: 30 })
@@ -218,7 +218,7 @@ describe('cc-file-parser', () => {
       expect(child.rotation).toBeCloseTo(90, 0)
     })
 
-    it('should decode base64-encoded _trs (Float64Array)', () => {
+    it('should decode base64-encoded _trs (Float64Array)', async () => {
       // Create a Float64Array with known values and encode to base64
       const values = [100, 200, 0, 0, 0, 0, 1, 1.5, 2.5, 1]
       const buf = Buffer.alloc(values.length * 8)
@@ -233,7 +233,7 @@ describe('cc-file-parser', () => {
       }
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
       const child = result.root.children[0]
 
       expect(child.position.x).toBeCloseTo(100)
@@ -242,7 +242,7 @@ describe('cc-file-parser', () => {
       expect(child.scale.y).toBeCloseTo(2.5)
     })
 
-    it('should fall back to _position/_scale fields when _trs is missing', () => {
+    it('should fall back to _position/_scale fields when _trs is missing', async () => {
       const raw = make2xRaw()
       const node = raw[2] as Record<string, unknown>
       delete node._trs
@@ -251,7 +251,7 @@ describe('cc-file-parser', () => {
       node._rotation = { x: 0, y: 0, z: 0, w: 1 }
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
       const child = result.root.children[0]
 
       expect(child.position).toEqual({ x: 55, y: 66, z: 0 })
@@ -261,11 +261,11 @@ describe('cc-file-parser', () => {
   })
 
   describe('parseCCScene — 3.x', () => {
-    it('should parse a 3.x scene with _lpos/_lrot/_lscale', () => {
+    it('should parse a 3.x scene with _lpos/_lrot/_lscale', async () => {
       const raw = make3xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.scene', projectInfo3x)
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
       const child = result.root.children[0]
 
       expect(child.name).toBe('Child3x')
@@ -273,11 +273,11 @@ describe('cc-file-parser', () => {
       expect(child.scale).toEqual({ x: 2, y: 2, z: 1 })
     })
 
-    it('should convert 3.x _lrot quaternion to euler Z degrees', () => {
+    it('should convert 3.x _lrot quaternion to euler Z degrees', async () => {
       const raw = make3xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.scene', projectInfo3x)
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
       const child = result.root.children[0]
 
       // _lrot: { x:0, y:0, z:0.707, w:0.707 } → euler Z ≈ 90 degrees
@@ -286,44 +286,44 @@ describe('cc-file-parser', () => {
       expect((child.rotation as { x: number; y: number; z: number }).y).toBe(0)
     })
 
-    it('should map UITransform size/anchor to node', () => {
+    it('should map UITransform size/anchor to node', async () => {
       const raw = make3xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.scene', projectInfo3x)
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
       const child = result.root.children[0]
 
       expect(child.size).toEqual({ x: 300, y: 150 })
       expect(child.anchor).toEqual({ x: 0, y: 1 })
     })
 
-    it('should convert _localOpacity (0~1) to opacity (0~255)', () => {
+    it('should convert _localOpacity (0~1) to opacity (0~255)', async () => {
       const raw = make3xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.scene', projectInfo3x)
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
       const child = result.root.children[0]
 
       // _localOpacity: 0.5 -> 128 (rounded)
       expect(child.opacity).toBe(128)
     })
 
-    it('should preserve _lrotW for roundtrip', () => {
+    it('should preserve _lrotW for roundtrip', async () => {
       const raw = make3xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.scene', projectInfo3x)
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
       const child = result.root.children[0]
 
       // _lrot.w = 0.707 should be preserved as _lrotW
       expect(child._lrotW).toBeCloseTo(0.707, 2)
     })
 
-    it('should parse 3.x label component props', () => {
+    it('should parse 3.x label component props', async () => {
       const raw = make3xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.scene', projectInfo3x)
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
       const child = result.root.children[0]
 
       expect(child.components).toHaveLength(1)
@@ -333,22 +333,116 @@ describe('cc-file-parser', () => {
     })
   })
 
-  describe('version detection', () => {
-    it('should auto-detect 2.x from _trs field when version is not specified', () => {
+  describe('parseCCScene — 3.x rotation accuracy (quaternion→euler)', () => {
+    const rotCases: [string, number, number, number][] = [
+      // [label, qz, qw, expectedEulerZ]
+      ['0°',   0,                    1,                    0],
+      ['30°',  Math.sin(15 * Math.PI / 180), Math.cos(15 * Math.PI / 180), 30],
+      ['45°',  Math.sin(22.5 * Math.PI / 180), Math.cos(22.5 * Math.PI / 180), 45],
+      ['90°',  Math.sin(45 * Math.PI / 180), Math.cos(45 * Math.PI / 180), 90],
+      ['180°', Math.sin(90 * Math.PI / 180), Math.cos(90 * Math.PI / 180), 180],
+      ['-45°', Math.sin(-22.5 * Math.PI / 180), Math.cos(22.5 * Math.PI / 180), -45],
+    ]
+
+    for (const [label, qz, qw, expectedZ] of rotCases) {
+      it(`3.x _lrot quaternion → euler ${label}`, async () => {
+        const raw = make3xRaw()
+        ;(raw[2] as Record<string, unknown>)._lrot = { x: 0, y: 0, z: qz, w: qw }
+        mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+        const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
+        const child = result.root.children[0]
+        const rot = child.rotation as { x: number; y: number; z: number }
+
+        expect(rot.z).toBeCloseTo(expectedZ, 1)
+        expect(rot.x).toBe(0)
+        expect(rot.y).toBe(0)
+      })
+    }
+  })
+
+  describe('parseCCScene — roundtrip (parse → raw values preserved)', () => {
+    it('2x: 파싱 후 _raw가 원본 배열과 동일하다 (라운드트립 기반)', async () => {
+      const raw = make2xRaw()
+      const rawStr = JSON.stringify(raw)
+      mockReadFileSync.mockReturnValue(rawStr)
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      // _raw는 파싱 원본 그대로여야 함
+      expect(JSON.stringify(result._raw)).toBe(rawStr)
+    })
+
+    it('2x: _rawIndex → _raw[_rawIndex]._name이 노드 이름과 일치한다', async () => {
       const raw = make2xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', { detected: true })
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0]
+
+      expect((result._raw![child._rawIndex] as Record<string, unknown>)._name).toBe(child.name)
+    })
+
+    it('3x: 파싱 후 _raw가 원본 배열과 동일하다 (라운드트립 기반)', async () => {
+      const raw = make3xRaw()
+      const rawStr = JSON.stringify(raw)
+      mockReadFileSync.mockReturnValue(rawStr)
+
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
+      expect(JSON.stringify(result._raw)).toBe(rawStr)
+    })
+
+    it('3x: _rawIndex → _raw[_rawIndex]._name이 노드 이름과 일치한다', async () => {
+      const raw = make3xRaw()
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
+      const child = result.root.children[0]
+
+      expect((result._raw![child._rawIndex] as Record<string, unknown>)._name).toBe(child.name)
+    })
+
+    it('3x: 파싱된 rotation.z → 저장 → 재파싱 시 동일 값 보존 (수학적 라운드트립)', () => {
+      // 45° → qz/qw → 다시 euler로 복원
+      const angleIn = 45
+      const rad = angleIn * Math.PI / 180
+      const qz = Math.sin(rad / 2), qw = Math.cos(rad / 2)
+      // 복원: sinZ = 2*qw*qz, cosZ = 1 - 2*qz*qz
+      const sinZ = 2 * qw * qz
+      const cosZ = 1 - 2 * qz * qz
+      const angleOut = Math.atan2(sinZ, cosZ) * (180 / Math.PI)
+
+      expect(angleOut).toBeCloseTo(angleIn, 5)
+    })
+
+    it('2x: 파싱된 rotation(number) → 저장 → 재파싱 시 동일 값 보존 (수학적 라운드트립)', () => {
+      // 90° → qz/qw → 다시 euler로 복원
+      const angleIn = 90
+      const rad = angleIn * Math.PI / 180
+      const qz = Math.sin(rad / 2), qw = Math.cos(rad / 2)
+      const sinZ = 2 * qw * qz
+      const cosZ = 1 - 2 * qz * qz
+      const angleOut = Math.atan2(sinZ, cosZ) * (180 / Math.PI)
+
+      expect(angleOut).toBeCloseTo(angleIn, 5)
+    })
+  })
+
+  describe('version detection', () => {
+    it('should auto-detect 2.x from _trs field when version is not specified', async () => {
+      const raw = make2xRaw()
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', { detected: true })
       // Should parse successfully as 2x (the _trs field triggers 2x detection)
       expect(result.root).toBeDefined()
       expect(result.root.name).toBe('TestScene')
     })
 
-    it('should auto-detect 3.x from _lpos field when version is not specified', () => {
+    it('should auto-detect 3.x from _lpos field when version is not specified', async () => {
       const raw = make3xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.scene', { detected: true })
+      const result = await parseCCScene('/fake/scene.scene', { detected: true })
       // Should parse successfully as 3x (the _lpos field triggers 3x detection)
       expect(result.root).toBeDefined()
       expect(result.root.name).toBe('Scene3x')
@@ -356,33 +450,33 @@ describe('cc-file-parser', () => {
   })
 
   describe('edge cases', () => {
-    it('should throw on invalid JSON', () => {
+    it('should throw on invalid JSON', async () => {
       mockReadFileSync.mockReturnValue('not valid json')
 
-      expect(() => parseCCScene('/fake/bad.fire', projectInfo2x)).toThrow('씬 파일 파싱 실패')
+      await expect(parseCCScene('/fake/bad.fire', projectInfo2x)).rejects.toThrow('씬 파일 파싱 실패')
     })
 
-    it('should throw when root node is not found', () => {
+    it('should throw when root node is not found', async () => {
       mockReadFileSync.mockReturnValue(JSON.stringify([{ __type__: 'cc.SomeOther' }]))
 
-      expect(() => parseCCScene('/fake/empty.fire', projectInfo2x)).toThrow('씬 루트 노드를 찾을 수 없습니다')
+      await expect(parseCCScene('/fake/empty.fire', projectInfo2x)).rejects.toThrow('씬 루트 노드를 찾을 수 없습니다')
     })
 
-    it('should handle missing _anchorPoint by defaulting to 0.5, 0.5', () => {
+    it('should handle missing _anchorPoint by defaulting to 0.5, 0.5', async () => {
       const raw = make2xRaw()
       delete (raw[2] as Record<string, unknown>)._anchorPoint
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
       expect(result.root.children[0].anchor).toEqual({ x: 0.5, y: 0.5 })
     })
 
-    it('should handle missing _opacity by defaulting to 255', () => {
+    it('should handle missing _opacity by defaulting to 255', async () => {
       const raw = make2xRaw()
       delete (raw[2] as Record<string, unknown>)._opacity
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))
 
-      const result = parseCCScene('/fake/scene.fire', projectInfo2x)
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
       expect(result.root.children[0].opacity).toBe(255)
     })
   })
