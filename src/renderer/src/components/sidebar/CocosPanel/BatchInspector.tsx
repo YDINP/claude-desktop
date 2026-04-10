@@ -12,6 +12,7 @@ import React, { useMemo } from 'react'
 import type { CCSceneFile, CCSceneNode } from '../../../../../shared/ipc-schema'
 import { getApplicablePlugins } from '../../../domains/cocos'
 import type { BatchPluginProps } from '../../../domains/cocos'
+import { t } from '../../../utils/i18n'
 
 interface Props {
   uuids: string[]
@@ -57,7 +58,7 @@ export function CCFileBatchInspector({
   }
 
   if (uuids.length === 0) {
-    return <div style={{ padding: 8, fontSize: 10, color: 'var(--text-muted)' }}>노드를 선택하세요.</div>
+    return <div style={{ padding: 8, fontSize: 10, color: 'var(--text-muted)' }}>{t('batch.selectNode', '노드를 선택하세요.')}</div>
   }
 
   return (

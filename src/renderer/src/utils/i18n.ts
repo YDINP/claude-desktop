@@ -831,6 +831,9 @@ const ko: Record<string, string> = {
   'inspector.nodeNameTitle':    '{n} (더블클릭하여 이름 변경)',
   'inspector.childNodes':       '자식 노드 {n}개 — 클릭으로 목록 펼치기',
 
+  // BatchInspector
+  'batch.selectNode':           '노드를 선택하세요.',
+
   // BookmarkView
   'bookmarkView.empty':         '즐겨찾기한 메시지가 없습니다',
   'bookmarkView.exportAll':     '전체 즐겨찾기 내보내기',
@@ -1875,6 +1878,9 @@ const en: Record<string, string> = {
   'inspector.applyBatch':       'Apply batch',
   'inspector.nodeNameTitle':    '{n} (double-click to rename)',
   'inspector.childNodes':       '↳{n} child nodes — click to expand',
+
+  // BatchInspector
+  'batch.selectNode':           'Select a node.',
 
   // BookmarkView
   'bookmarkView.empty':         'No bookmarked messages',
