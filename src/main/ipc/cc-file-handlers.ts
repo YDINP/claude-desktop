@@ -215,14 +215,15 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
     }
   })
 
-  /** UUID → 스프라이트 dataURL + spriteFrame meta border값 반환 (9-slice용) */
+  /** UUID → 스프라이트 dataURL + spriteFrame meta border값 + atlas frame rect 반환 */
   ipcMain.handle('cc:file:resolveSprite', async (_e, uuid: string, assetsDir: string) => {
     const map = await getCachedUUIDMap(assetsDir)
     const asset = map.get(uuid)
     if (!asset) return null
     if (asset.type !== 'texture' && asset.type !== 'sprite-atlas') return null
     try {
-      let imgPath = asset.path
+      const originalPath = asset.path
+      let imgPath = originalPath
       if (imgPath.endsWith('.plist')) {
         const pngPath = imgPath.slice(0, -5) + 'png'
         try { await readFile(pngPath); imgPath = pngPath } catch { /* ignore */ }
@@ -231,23 +232,60 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
       const ext = imgPath.split('.').pop()?.toLowerCase() ?? 'png'
       const mime: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif' }
       const dataUrl = `data:${mime[ext] ?? 'image/png'};base64,${data.toString('base64')}`
-      // spriteFrame meta에서 border(9-slice inset)값 읽기
+      // spriteFrame meta에서 border(9-slice inset)값 + atlas frame rect 읽기
       let borderTop = 0, borderBottom = 0, borderLeft = 0, borderRight = 0
+      let frame: { x: number; y: number; w: number; h: number; rotated: boolean } | null = null
       try {
-        const metaRaw = await readFile(imgPath + '.meta', 'utf-8')
-        const meta = JSON.parse(metaRaw) as { subMetas?: Record<string, { uuid?: string; borderTop?: number; borderBottom?: number; borderLeft?: number; borderRight?: number }> }
+        // plist atlas → plist.meta에서 읽어야 함 (png.meta 아님)
+        const metaPath = originalPath + '.meta'
+        const metaRaw = await readFile(metaPath, 'utf-8')
+        const meta = JSON.parse(metaRaw) as {
+          subMetas?: Record<string, {
+            uuid?: string
+            // CC 2.x: border/trim 직접
+            borderTop?: number; borderBottom?: number; borderLeft?: number; borderRight?: number
+            trimX?: number; trimY?: number; width?: number; height?: number
+            rawWidth?: number; rawHeight?: number; rotated?: boolean
+            rawTextureUuid?: string
+            // CC 3.x: userData 내부
+            userData?: {
+              borderTop?: number; borderBottom?: number; borderLeft?: number; borderRight?: number
+              trimX?: number; trimY?: number; width?: number; height?: number
+              rawWidth?: number; rawHeight?: number; rotated?: boolean
+              atlasUuid?: string; imageUuidOrDatabaseUri?: string
+            }
+          }>
+        }
         const subMetas = meta.subMetas ?? {}
         for (const sub of Object.values(subMetas)) {
           if (sub.uuid === uuid) {
-            borderTop = sub.borderTop ?? 0
-            borderBottom = sub.borderBottom ?? 0
-            borderLeft = sub.borderLeft ?? 0
-            borderRight = sub.borderRight ?? 0
+            // CC 3.x: userData 내부에 값이 있음 / CC 2.x: 직접
+            const ud = sub.userData
+            borderTop = ud?.borderTop ?? sub.borderTop ?? 0
+            borderBottom = ud?.borderBottom ?? sub.borderBottom ?? 0
+            borderLeft = ud?.borderLeft ?? sub.borderLeft ?? 0
+            borderRight = ud?.borderRight ?? sub.borderRight ?? 0
+            // atlas frame rect 추출 — trimX/trimY가 있고 rawTextureUuid 또는 atlasUuid가 있으면 atlas 소속
+            const trimX = ud?.trimX ?? sub.trimX
+            const trimY = ud?.trimY ?? sub.trimY
+            const fw = ud?.width ?? sub.width
+            const fh = ud?.height ?? sub.height
+            const rawW = ud?.rawWidth ?? sub.rawWidth
+            const rawH = ud?.rawHeight ?? sub.rawHeight
+            const isAtlas = !!(ud?.atlasUuid ?? ud?.imageUuidOrDatabaseUri ?? sub.rawTextureUuid)
+            const rotated = ud?.rotated ?? sub.rotated ?? false
+            // frame이 전체 이미지와 다르면(atlas에서 크롭 필요) frame 정보 반환
+            if (isAtlas && trimX != null && trimY != null && fw != null && fh != null) {
+              const isFullImage = trimX === 0 && trimY === 0 && fw === rawW && fh === rawH
+              if (!isFullImage) {
+                frame = { x: trimX, y: trimY, w: fw, h: fh, rotated }
+              }
+            }
             break
           }
         }
-      } catch { /* meta 없으면 border 0 유지 */ }
-      return { dataUrl, borderTop, borderBottom, borderLeft, borderRight }
+      } catch { /* meta 없으면 border 0, frame null 유지 */ }
+      return { dataUrl, borderTop, borderBottom, borderLeft, borderRight, frame }
     } catch {
       return null
     }

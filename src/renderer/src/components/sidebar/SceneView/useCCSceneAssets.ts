@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import type { CCSceneFile } from '../../../../../shared/ipc-schema'
 import type { FlatNode } from './ccSceneTypes'
 
-export interface SpriteEntry { dataUrl: string; w: number; h: number; bL: number; bR: number; bT: number; bB: number }
+export interface SpriteFrame { x: number; y: number; w: number; h: number; rotated: boolean }
+export interface SpriteEntry { dataUrl: string; w: number; h: number; bL: number; bR: number; bT: number; bB: number; frame?: SpriteFrame | null }
 export interface FontEntry { dataUrl: string; familyName: string }
 
 /**
@@ -27,7 +28,7 @@ export function useCCSceneAssets(sceneFile: CCSceneFile, flatNodes: FlatNode[]) 
       .filter((u): u is string => !!u && !spriteCacheRef.current.has(u))
     if (!uuids.length) return
     uuids.forEach(uuid => {
-      spriteCacheRef.current.set(uuid, { dataUrl: '', w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0 })
+      spriteCacheRef.current.set(uuid, { dataUrl: '', w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0, frame: null })
       const spritePromise = window.api.ccFileResolveSprite
         ? window.api.ccFileResolveSprite(uuid, assetsDir)
         : window.api.ccFileResolveTexture?.(uuid, assetsDir).then(url =>
@@ -40,11 +41,12 @@ export function useCCSceneAssets(sceneFile: CCSceneFile, flatNodes: FlatNode[]) 
             spriteCacheRef.current.set(uuid, {
               dataUrl: result.dataUrl, w: img.naturalWidth, h: img.naturalHeight,
               bL: result.borderLeft, bR: result.borderRight, bT: result.borderTop, bB: result.borderBottom,
+              frame: result.frame ?? null,
             })
             setSpriteCacheVer(v => v + 1)
           }
           img.onerror = () => {
-            spriteCacheRef.current.set(uuid, { dataUrl: result.dataUrl, w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0 })
+            spriteCacheRef.current.set(uuid, { dataUrl: result.dataUrl, w: 0, h: 0, bL: 0, bR: 0, bT: 0, bB: 0, frame: null })
             setSpriteCacheVer(v => v + 1)
           }
           img.src = result.dataUrl

@@ -1960,65 +1960,108 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   const sizeMode = Number(sc?.props?.sizeMode ?? sc?.props?._sizeMode ?? sc?.props?.['_N$sizeMode'] ?? 1)
                   // Sliced (type=1) 9-slice 렌더링
                   if (spriteType === 1 && texW > 0 && texH > 0) {
-                    // border값: spriteFrame .meta 파일에서 읽은 값 (캐시에 저장됨)
-                    // cc.Sprite 컴포넌트 props에는 없고 spriteFrame meta의 borderTop/Bottom/Left/Right에 있음
                     const capL = spriteEntry?.bL ?? 0
                     const capT = spriteEntry?.bT ?? 0
                     const capR = spriteEntry?.bR ?? 0
                     const capB = spriteEntry?.bB ?? 0
+                    // atlas frame이 있으면 frame 내부 좌표 기준으로 9-slice
+                    const sliceFrame = spriteEntry?.frame
+                    // rotated atlas frame + 9-slice는 복잡하므로 frame 무시 (드문 케이스)
+                    const fOx = (sliceFrame && !sliceFrame.rotated) ? sliceFrame.x : 0
+                    const fOy = (sliceFrame && !sliceFrame.rotated) ? sliceFrame.y : 0
+                    const fW = (sliceFrame && !sliceFrame.rotated) ? sliceFrame.w : texW
+                    const fH = (sliceFrame && !sliceFrame.rotated) ? sliceFrame.h : texH
 
-                    // border가 0이어도 sliced 타입이면 9-slice 레이아웃 적용 (중앙만 늘어남)
-                    if (true) {
-                      const srcCW = Math.max(1, texW - capL - capR)
-                      const srcCH = Math.max(1, texH - capT - capB)
-                      const dstCW = Math.max(0, iw - capL - capR)
-                      const dstCH = Math.max(0, ih - capT - capB)
-                      const filterStyle = isGrayscale ? 'grayscale(1)' : undefined
+                    const srcCW = Math.max(1, fW - capL - capR)
+                    const srcCH = Math.max(1, fH - capT - capB)
+                    const dstCW = Math.max(0, iw - capL - capR)
+                    const dstCH = Math.max(0, ih - capT - capB)
+                    const filterStyle = isGrayscale ? 'grayscale(1)' : undefined
 
-                      // 9개 조각: [srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH]
-                      const pieces: [number,number,number,number, number,number,number,number][] = [
-                        [0, 0, capL, capT,  0, 0, capL, capT],                                                         // TL
-                        [capL, 0, srcCW, capT,  capL, 0, dstCW, capT],                                                  // TM
-                        [texW-capR, 0, capR, capT,  iw-capR, 0, capR, capT],                                            // TR
-                        [0, capT, capL, srcCH,  0, capT, capL, dstCH],                                                  // ML
-                        [capL, capT, srcCW, srcCH,  capL, capT, dstCW, dstCH],                                          // MM
-                        [texW-capR, capT, capR, srcCH,  iw-capR, capT, capR, dstCH],                                    // MR
-                        [0, texH-capB, capL, capB,  0, ih-capB, capL, capB],                                            // BL
-                        [capL, texH-capB, srcCW, capB,  capL, ih-capB, dstCW, capB],                                    // BM
-                        [texW-capR, texH-capB, capR, capB,  iw-capR, ih-capB, capR, capB],                              // BR
-                      ]
+                    // 9개 조각: [srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH]
+                    const pieces: [number,number,number,number, number,number,number,number][] = [
+                      [fOx, fOy, capL, capT,  0, 0, capL, capT],
+                      [fOx+capL, fOy, srcCW, capT,  capL, 0, dstCW, capT],
+                      [fOx+fW-capR, fOy, capR, capT,  iw-capR, 0, capR, capT],
+                      [fOx, fOy+capT, capL, srcCH,  0, capT, capL, dstCH],
+                      [fOx+capL, fOy+capT, srcCW, srcCH,  capL, capT, dstCW, dstCH],
+                      [fOx+fW-capR, fOy+capT, capR, srcCH,  iw-capR, capT, capR, dstCH],
+                      [fOx, fOy+fH-capB, capL, capB,  0, ih-capB, capL, capB],
+                      [fOx+capL, fOy+fH-capB, srcCW, capB,  capL, ih-capB, dstCW, capB],
+                      [fOx+fW-capR, fOy+fH-capB, capR, capB,  iw-capR, ih-capB, capR, capB],
+                    ]
 
-                      return (
+                    return (
+                      <>
+                        {pieces.map(([sx, sy, sw, sh, dx, dy, dw, dh], pi) => {
+                          if (dw <= 0 || dh <= 0 || sw <= 0 || sh <= 0) return null
+                          return (
+                            <svg key={pi}
+                              x={rectX + dx} y={rectY + dy}
+                              width={dw} height={dh}
+                              viewBox={`${sx} ${sy} ${sw} ${sh}`}
+                              preserveAspectRatio="none" overflow="hidden"
+                              style={{ pointerEvents: 'none' }}
+                            >
+                              <image href={imgUrl} x={0} y={0} width={texW} height={texH}
+                                preserveAspectRatio="none"
+                                style={{ filter: filterStyle }}
+                              />
+                            </svg>
+                          )
+                        })}
+                        {hasTint && (
+                          <rect x={rectX} y={rectY} width={iw} height={ih}
+                            fill={`rgb(${tr},${tg},${tb})`} opacity={0.45}
+                            style={{ pointerEvents: 'none', mixBlendMode: 'multiply' as const }} />
+                        )}
+                      </>
+                    )
+                  }
+                  // atlas frame 정보
+                  const atlasFrame = spriteEntry?.frame
+                  return (
+                    <>
+                      {atlasFrame ? (
                         <>
-                          {pieces.map(([sx, sy, sw, sh, dx, dy, dw, dh], pi) => {
-                            if (dw <= 0 || dh <= 0 || sw <= 0 || sh <= 0) return null
-                            return (
-                              <svg key={pi}
-                                x={rectX + dx} y={rectY + dy}
-                                width={dw} height={dh}
-                                viewBox={`${sx} ${sy} ${sw} ${sh}`}
-                                preserveAspectRatio="none" overflow="hidden"
-                                style={{ pointerEvents: 'none' }}
-                              >
-                                <image href={imgUrl} x={0} y={0} width={texW} height={texH}
+                          {/* atlas 프레임 크롭: SVG viewBox로 해당 영역만 표시 */}
+                          {atlasFrame.rotated ? (
+                            /* rotated=true: atlas에서 90도 CW 회전 저장 → 실제 차지 영역은 (x, y, h, w) */
+                            <svg
+                              x={rectX} y={rectY} width={iw} height={ih}
+                              viewBox={`0 0 ${atlasFrame.w} ${atlasFrame.h}`}
+                              preserveAspectRatio="none" overflow="hidden"
+                              style={{ pointerEvents: 'none' }}
+                            >
+                              <g transform={`translate(${atlasFrame.w}, 0) rotate(90)`}>
+                                <image href={imgUrl}
+                                  x={-atlasFrame.x} y={-atlasFrame.y}
+                                  width={texW} height={texH}
                                   preserveAspectRatio="none"
-                                  style={{ filter: filterStyle }}
+                                  style={{ filter: isGrayscale ? 'grayscale(1)' : undefined }}
                                 />
-                              </svg>
-                            )
-                          })}
+                              </g>
+                            </svg>
+                          ) : (
+                            <svg
+                              x={rectX} y={rectY} width={iw} height={ih}
+                              viewBox={`${atlasFrame.x} ${atlasFrame.y} ${atlasFrame.w} ${atlasFrame.h}`}
+                              preserveAspectRatio="none" overflow="hidden"
+                              style={{ pointerEvents: 'none' }}
+                            >
+                              <image href={imgUrl} x={0} y={0} width={texW} height={texH}
+                                preserveAspectRatio="none"
+                                style={{ filter: isGrayscale ? 'grayscale(1)' : undefined }}
+                              />
+                            </svg>
+                          )}
                           {hasTint && (
                             <rect x={rectX} y={rectY} width={iw} height={ih}
                               fill={`rgb(${tr},${tg},${tb})`} opacity={0.45}
                               style={{ pointerEvents: 'none', mixBlendMode: 'multiply' as const }} />
                           )}
                         </>
-                      )
-                    }
-                  }
-                  return (
-                    <>
-                      {hasTint ? (
+                      ) : hasTint ? (
                         <>
                           <image
                             href={imgUrl}

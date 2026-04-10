@@ -1011,4 +1011,123 @@ describe('cc-file-saver', () => {
       expect(result.error).toContain('없습니다')
     })
   })
+
+  // ── UITransform 자동 생성 (3x 전용) ──────────────────────────────────────
+
+  describe('3x UITransform 자동 생성', () => {
+    afterEach(() => {
+      clearMtimeMap()
+    })
+
+    function make3xSceneFile(root: CCSceneNode, raw: Record<string, unknown>[]) {
+      return makeSceneFile(root, raw, '3x')
+    }
+
+    it('3x 새 노드(_rawIndex 없음)에 UITransform이 자동 추가된다', () => {
+      const newChild = makeChildNode({
+        _rawIndex: undefined as unknown as number,
+        size: { x: 200, y: 80 },
+        anchor: { x: 0.5, y: 0.5 },
+      })
+      const root = makeNode({ children: [newChild] })
+      const raw3x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [],
+          _lpos: { x: 0, y: 0, z: 0 },
+          _lrot: { x: 0, y: 0, z: 0, w: 1 },
+          _lscale: { x: 1, y: 1, z: 1 },
+          _uiProps: { _localOpacity: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+          layer: 33554432,
+        },
+      ]
+
+      saveCCScene(make3xSceneFile(root, raw3x), root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+
+      // 원본 1개 + 새 노드 1개 + UITransform 1개 = 3개
+      expect(writtenRaw.length).toBe(3)
+
+      // 마지막 항목이 cc.UITransform이어야 함
+      const uitEntry = writtenRaw.find((e: Record<string, unknown>) => e.__type__ === 'cc.UITransform')
+      expect(uitEntry).toBeDefined()
+      expect(uitEntry._contentSize).toEqual({ width: 200, height: 80 })
+      expect(uitEntry._anchorPoint).toEqual({ x: 0.5, y: 0.5 })
+    })
+
+    it('3x 새 노드 UITransform의 node ref는 새 노드 인덱스를 가리킨다', () => {
+      const newChild = makeChildNode({
+        _rawIndex: undefined as unknown as number,
+        size: { x: 100, y: 50 },
+      })
+      const root = makeNode({ children: [newChild] })
+      const raw3x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [],
+          _lpos: { x: 0, y: 0, z: 0 },
+          _lrot: { x: 0, y: 0, z: 0, w: 1 },
+          _lscale: { x: 1, y: 1, z: 1 },
+          _uiProps: { _localOpacity: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+          layer: 33554432,
+        },
+      ]
+
+      saveCCScene(make3xSceneFile(root, raw3x), root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+
+      // 새 노드는 index 1에 추가됨, UITransform의 node.__id__ = 1
+      const uitEntry = writtenRaw.find((e: Record<string, unknown>) => e.__type__ === 'cc.UITransform')
+      expect(uitEntry).toBeDefined()
+      const nodeRef = uitEntry.node as { __id__: number }
+      expect(nodeRef.__id__).toBe(1)
+    })
+
+    it('3x 기존 노드(_rawIndex 있음)에는 UITransform이 중복 추가되지 않는다', () => {
+      const root = makeNode({ children: [] })
+      const raw3x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [{ __id__: 1 }],
+          _lpos: { x: 0, y: 0, z: 0 },
+          _lrot: { x: 0, y: 0, z: 0, w: 1 },
+          _lscale: { x: 1, y: 1, z: 1 },
+          _uiProps: { _localOpacity: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+          layer: 33554432,
+        },
+        {
+          __type__: 'cc.UITransform',
+          node: { __id__: 0 },
+          _contentSize: { width: 100, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 },
+        },
+      ]
+
+      saveCCScene(make3xSceneFile(root, raw3x), root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+
+      // 추가 없이 2개 유지
+      expect(writtenRaw.length).toBe(2)
+      const uitEntries = writtenRaw.filter((e: Record<string, unknown>) => e.__type__ === 'cc.UITransform')
+      expect(uitEntries).toHaveLength(1)
+    })
+  })
 })

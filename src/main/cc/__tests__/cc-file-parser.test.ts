@@ -482,4 +482,127 @@ describe('cc-file-parser', () => {
       expect(result.root.children[0].opacity).toBe(255)
     })
   })
+
+  describe('rotation 타입 통일 — CCVec3 정규화', () => {
+    it('2x: rotation이 {x:0, y:0, z:euler} 형태로 정규화된다', async () => {
+      const raw = make2xRaw()
+      // _trs: qz=sin(22.5deg), qw=cos(22.5deg) → euler 45°
+      const rad = 45 * Math.PI / 180
+      ;(raw[2] as Record<string, unknown>)._trs = {
+        __type__: 'TypedArray',
+        ctor: 'Float64Array',
+        array: [0, 0, 0, 0, 0, Math.sin(rad / 2), Math.cos(rad / 2), 1, 1, 1],
+      }
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const rot = result.root.children[0].rotation
+
+      // rotation은 CCVec3 {x, y, z} 형태여야 함
+      expect(rot).toHaveProperty('x')
+      expect(rot).toHaveProperty('y')
+      expect(rot).toHaveProperty('z')
+      expect((rot as { x: number; y: number; z: number }).x).toBe(0)
+      expect((rot as { x: number; y: number; z: number }).y).toBe(0)
+      expect((rot as { x: number; y: number; z: number }).z).toBeCloseTo(45, 1)
+    })
+
+    it('3x: rotation이 {x:0, y:0, z:euler} 형태로 정규화된다', async () => {
+      const raw = make3xRaw()
+      // _lrot: x:0, y:0, z:sin(30deg), w:cos(30deg) → euler 60°
+      ;(raw[2] as Record<string, unknown>)._lrot = { x: 0, y: 0, z: Math.sin(30 * Math.PI / 180), w: Math.cos(30 * Math.PI / 180) }
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
+      const rot = result.root.children[0].rotation
+
+      expect(rot).toHaveProperty('x')
+      expect(rot).toHaveProperty('y')
+      expect(rot).toHaveProperty('z')
+      expect((rot as { x: number; y: number; z: number }).x).toBe(0)
+      expect((rot as { x: number; y: number; z: number }).y).toBe(0)
+      expect((rot as { x: number; y: number; z: number }).z).toBeCloseTo(60, 0)
+    })
+
+    it('2x: rotation=0이면 {x:0, y:0, z:0}', async () => {
+      const raw = make2xRaw()
+      ;(raw[2] as Record<string, unknown>)._trs = {
+        __type__: 'TypedArray',
+        ctor: 'Float64Array',
+        array: [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+      }
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      expect(result.root.children[0].rotation).toEqual({ x: 0, y: 0, z: 0 })
+    })
+
+    it('3x: rotation=0이면 {x:0, y:0, z:0}', async () => {
+      const raw = make3xRaw()
+      ;(raw[2] as Record<string, unknown>)._lrot = { x: 0, y: 0, z: 0, w: 1 }
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
+      expect(result.root.children[0].rotation).toEqual({ x: 0, y: 0, z: 0 })
+    })
+
+    it('2x: 저장→재파싱 시 rotation.z 보존 (수학적 라운드트립)', () => {
+      // euler → quat → euler 변환이 가역적인지 확인
+      const angles = [0, 30, 45, 90, -45, 180]
+      for (const angle of angles) {
+        const rad = angle * Math.PI / 180
+        const qz = Math.sin(rad / 2)
+        const qw = Math.cos(rad / 2)
+        const sinZ = 2 * qw * qz
+        const cosZ = 1 - 2 * qz * qz
+        const restored = Math.atan2(sinZ, cosZ) * (180 / Math.PI)
+        expect(restored).toBeCloseTo(angle, 4)
+      }
+    })
+  })
+
+  describe('Label 3x spacingY 파싱', () => {
+    it('3x Label에서 _spacingY를 추출한다', async () => {
+      const raw = make3xRaw()
+      ;(raw[4] as Record<string, unknown>)._spacingY = 8
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
+      const label = result.root.children[0].components[0]
+
+      expect(label.props.spacingY).toBe(8)
+    })
+
+    it('3x Label에서 spacingY(prefix 없음)를 추출한다', async () => {
+      const raw = make3xRaw()
+      ;(raw[4] as Record<string, unknown>).spacingY = 12
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
+      const label = result.root.children[0].components[0]
+
+      expect(label.props.spacingY).toBe(12)
+    })
+
+    it('3x Label에서 _spacingY가 없으면 기본값 0', async () => {
+      const raw = make3xRaw()
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.scene', projectInfo3x)
+      const label = result.root.children[0].components[0]
+
+      expect(label.props.spacingY).toBe(0)
+    })
+
+    it('2x Label에서 _N$spacingY를 추출한다', async () => {
+      const raw = make2xRaw()
+      ;(raw[3] as Record<string, unknown>)._N$spacingY = 5
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const label = result.root.children[0].components[0]
+
+      expect(label.props.spacingY).toBe(5)
+    })
+  })
 })

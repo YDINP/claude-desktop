@@ -334,7 +334,7 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('cc:file:isLargeScene', scenePath),
   ccFileResolveTexture: (uuid: string, assetsDir: string): Promise<string | null> =>
     ipcRenderer.invoke('cc:file:resolveTexture', uuid, assetsDir),
-  ccFileResolveSprite: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number } | null> =>
+  ccFileResolveSprite: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number; frame?: { x: number; y: number; w: number; h: number; rotated: boolean } | null } | null> =>
     ipcRenderer.invoke('cc:file:resolveSprite', uuid, assetsDir),
   ccFileResolveFont: (uuid: string, assetsDir: string): Promise<{ dataUrl: string; familyName: string } | null> =>
     ipcRenderer.invoke('cc:file:resolveFont', uuid, assetsDir),
@@ -576,7 +576,7 @@ getNotificationSettings: () => Promise<{ responseComplete: boolean; backgroundOn
       onCCFileChanged: (cb: (event: { type: string; path: string; timestamp: number }) => void) => () => void
       ccFileBuildUUIDMap: (assetsDir: string) => Promise<Record<string, { uuid: string; path: string; relPath: string; type: string }>>
       ccFileResolveTexture: (uuid: string, assetsDir: string) => Promise<string | null>
-      ccFileResolveSprite: (uuid: string, assetsDir: string) => Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number } | null>
+      ccFileResolveSprite: (uuid: string, assetsDir: string) => Promise<{ dataUrl: string; borderTop: number; borderBottom: number; borderLeft: number; borderRight: number; frame?: { x: number; y: number; w: number; h: number; rotated: boolean } | null } | null>
       ccFileResolveFont: (uuid: string, assetsDir: string) => Promise<{ dataUrl: string; familyName: string } | null>
       ccFileExtractUUIDs: (raw: unknown[]) => Promise<string[]>
       // R1438

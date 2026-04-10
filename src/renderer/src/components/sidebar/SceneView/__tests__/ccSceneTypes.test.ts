@@ -4,6 +4,7 @@ import {
   ALIGN_SNAP_THRESHOLD,
   RESOLUTION_PRESETS,
   UUID_RE,
+  type FlatNode,
 } from '../ccSceneTypes'
 
 // ── sceneViewKey ───────────────────────────────────────────────
@@ -113,5 +114,103 @@ describe('UUID_RE', () => {
   it('hex 이외 문자가 포함되면 매칭 안 된다', () => {
     expect(UUID_RE.test('abcdef-123456')).toBe(false)
     expect(UUID_RE.test('gggggggggggggg')).toBe(false)
+  })
+})
+
+// ── FlatNode world 필드 ────────────────────────────────────────
+
+describe('FlatNode 인터페이스 — world 필드 존재 확인', () => {
+  it('FlatNode 타입에 worldRotZ 필드가 있다', () => {
+    // 타입 레벨 검증: FlatNode 객체를 구성해 world 필드가 있음을 확인
+    const node = {
+      uuid: 'test',
+      name: 'TestNode',
+      active: true,
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+      size: { x: 100, y: 100 },
+      anchor: { x: 0.5, y: 0.5 },
+      opacity: 255,
+      color: { r: 255, g: 255, b: 255, a: 255 },
+      components: [],
+      children: [],
+      _rawIndex: 0,
+    }
+    const flatNode: FlatNode = {
+      node,
+      worldX: 10,
+      worldY: 20,
+      worldRotZ: 45,
+      worldScaleX: 2,
+      worldScaleY: 3,
+      depth: 1,
+      parentUuid: null,
+      siblingIdx: 0,
+      siblingTotal: 1,
+      effectiveActive: true,
+    }
+    expect(flatNode.worldRotZ).toBe(45)
+    expect(flatNode.worldScaleX).toBe(2)
+    expect(flatNode.worldScaleY).toBe(3)
+  })
+
+  it('FlatNode worldX/worldY는 로컬 포지션과 다를 수 있다', () => {
+    const node = {
+      uuid: 'child',
+      name: 'Child',
+      active: true,
+      position: { x: 50, y: 50, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+      size: { x: 100, y: 100 },
+      anchor: { x: 0.5, y: 0.5 },
+      opacity: 255,
+      color: { r: 255, g: 255, b: 255, a: 255 },
+      components: [],
+      children: [],
+      _rawIndex: 1,
+    }
+    const flatNode: FlatNode = {
+      node,
+      worldX: 150,   // 부모 위치 100 + 로컬 50
+      worldY: 200,
+      worldRotZ: 0,
+      worldScaleX: 1,
+      worldScaleY: 1,
+      depth: 2,
+      parentUuid: 'parent',
+      siblingIdx: 0,
+      siblingTotal: 3,
+      effectiveActive: true,
+    }
+    // worldX는 로컬 포지션 x(50)와 다를 수 있음
+    expect(flatNode.worldX).not.toBe(flatNode.node.position.x)
+    expect(flatNode.worldX).toBe(150)
+  })
+
+  it('FlatNode depth는 0 이상이다', () => {
+    const node = {
+      uuid: 'root',
+      name: 'Root',
+      active: true,
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+      size: { x: 100, y: 100 },
+      anchor: { x: 0.5, y: 0.5 },
+      opacity: 255,
+      color: { r: 255, g: 255, b: 255, a: 255 },
+      components: [],
+      children: [],
+      _rawIndex: 0,
+    }
+    const flatNodeRoot: FlatNode = {
+      node, worldX: 0, worldY: 0, worldRotZ: 0,
+      worldScaleX: 1, worldScaleY: 1,
+      depth: 0, parentUuid: null,
+      siblingIdx: 0, siblingTotal: 1, effectiveActive: true,
+    }
+    expect(flatNodeRoot.depth).toBeGreaterThanOrEqual(0)
   })
 })
