@@ -22,6 +22,7 @@ function useHudCtx() {
     onToggleActive, onAddNode,
     setMultiSelected,
     mmPos, setMmPos,
+    setView,
   } = ctx
   const {
     showHelp, showMinimap, showWorldPos, setShowWorldPos,
@@ -39,6 +40,7 @@ function useHudCtx() {
     handleFit, handleFitToSelected, dragRef,
     onToggleActive, onAddNode, setMultiSelected,
     mmPos, setMmPos,
+    setView,
     showHelp, showMinimap, showWorldPos, setShowWorldPos,
     selectionColor, snapSize, resOverride,
   }
@@ -125,6 +127,7 @@ export function CCSceneOuterHUD() {
     handleFit, handleFitToSelected, dragRef,
     onToggleActive, onAddNode, setMultiSelected,
     mmPos, setMmPos,
+    setView,
     showHelp, showMinimap, showWorldPos, setShowWorldPos,
     selectionColor, snapSize, resOverride,
   } = h

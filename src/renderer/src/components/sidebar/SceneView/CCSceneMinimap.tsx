@@ -1,5 +1,5 @@
 // QA: R2560 미니맵 클릭 팬 구현 (CCFileSceneView에서 추출)
-import { useRef } from 'react'
+import React, { useRef } from 'react'
 import type { FlatNode, ViewTransformCC } from './ccSceneTypes'
 
 export interface CCSceneMinimapProps {
@@ -19,7 +19,7 @@ export interface CCSceneMinimapProps {
   onSelect: (uuid: string | null) => void
 }
 
-export function CCSceneMinimap({
+function CCSceneMinimapInner({
   flatNodes, selectedUuid, multiSelected, svSearch, svSearchMatches,
   effectiveW, effectiveH, view, svgRef, viewRef, mmPos, setMmPos, setView, onSelect,
 }: CCSceneMinimapProps) {
@@ -150,3 +150,4 @@ export function CCSceneMinimap({
     </div>
   )
 }
+export const CCSceneMinimap = React.memo(CCSceneMinimapInner)

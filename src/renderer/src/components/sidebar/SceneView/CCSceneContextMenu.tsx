@@ -1,3 +1,4 @@
+import React from 'react'
 import type { FlatNode } from './ccSceneTypes'
 
 export interface CCSceneContextMenuProps {
@@ -15,7 +16,7 @@ export interface CCSceneContextMenuProps {
   onAddNode?: (parentUuid: string | null, pos?: { x: number; y: number }) => void
 }
 
-export function CCSceneContextMenu({
+function CCSceneContextMenuInner({
   ctxMenu, flatNodes, lockedUuids, selectedUuid,
   onClose, toggleLock, handleFit, handleFitToSelected,
   onSelect, setMultiSelected, onToggleActive, onAddNode,
@@ -90,6 +91,7 @@ export function CCSceneContextMenu({
     </div>
   )
 }
+export const CCSceneContextMenu = React.memo(CCSceneContextMenuInner)
 
 export interface CCSceneNodePickMenuProps {
   nodePickMenu: { x: number; y: number; nodes: Array<{ uuid: string; name: string }> }
@@ -98,7 +100,7 @@ export interface CCSceneNodePickMenuProps {
   onClose: () => void
 }
 
-export function CCSceneNodePickMenu({ nodePickMenu, nodePickMenuRef, onSelect, onClose }: CCSceneNodePickMenuProps) {
+function CCSceneNodePickMenuInner({ nodePickMenu, nodePickMenuRef, onSelect, onClose }: CCSceneNodePickMenuProps) {
   return (
     <div ref={nodePickMenuRef} style={{
       position: 'fixed', left: nodePickMenu.x, top: nodePickMenu.y, zIndex: 1000,
@@ -121,3 +123,4 @@ export function CCSceneNodePickMenu({ nodePickMenu, nodePickMenuRef, onSelect, o
     </div>
   )
 }
+export const CCSceneNodePickMenu = React.memo(CCSceneNodePickMenuInner)
