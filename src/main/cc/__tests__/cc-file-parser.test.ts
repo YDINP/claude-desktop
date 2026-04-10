@@ -273,6 +273,19 @@ describe('cc-file-parser', () => {
       expect(child.scale).toEqual({ x: 2, y: 2, z: 1 })
     })
 
+    it('should convert 3.x _lrot quaternion to euler Z degrees', () => {
+      const raw = make3xRaw()
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = parseCCScene('/fake/scene.scene', projectInfo3x)
+      const child = result.root.children[0]
+
+      // _lrot: { x:0, y:0, z:0.707, w:0.707 } → euler Z ≈ 90 degrees
+      expect((child.rotation as { x: number; y: number; z: number }).z).toBeCloseTo(90, 0)
+      expect((child.rotation as { x: number; y: number; z: number }).x).toBe(0)
+      expect((child.rotation as { x: number; y: number; z: number }).y).toBe(0)
+    })
+
     it('should map UITransform size/anchor to node', () => {
       const raw = make3xRaw()
       mockReadFileSync.mockReturnValue(JSON.stringify(raw))

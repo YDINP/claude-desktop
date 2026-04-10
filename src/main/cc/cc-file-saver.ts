@@ -138,17 +138,19 @@ export function saveCCScene(sceneFile: CCSceneFile, modifiedRoot: CCSceneNode): 
       if (!ce) continue
       for (const [propKey, propVal] of Object.entries(comp.props)) {
         if (version === '2x') {
-          // 2x: _N$key or _key
+          // 2x: _N$key → _key → key 순서로 검색, 없으면 _N$key로 신규 생성
           const nKey = '_N$' + propKey
           const uKey = '_' + propKey
           if (nKey in ce) ce[nKey] = propVal
           else if (uKey in ce) ce[uKey] = propVal
           else if (propKey in ce) ce[propKey] = propVal
+          else ce[nKey] = propVal  // 기존 키 없으면 _N$ prefix로 새 키 생성
         } else {
-          // 3x: _key
+          // 3x: _key → key 순서로 검색, 없으면 _key로 신규 생성
           const uKey = '_' + propKey
           if (uKey in ce) ce[uKey] = propVal
           else if (propKey in ce) ce[propKey] = propVal
+          else ce[uKey] = propVal  // 기존 키 없으면 _ prefix로 새 키 생성
         }
       }
     }
@@ -267,6 +269,13 @@ const COMP_DEFAULT_2x: Record<string, Record<string, unknown>> = {
   'cc.AudioSource': { '_N$clip': null, '_N$volume': 1, '_N$loop': false, '_N$playOnLoad': false },
   'cc.Mask':        { '_N$type': 0, '_N$inverted': false },
   'cc.Graphics':    { '_N$lineWidth': 2, '_N$strokeColor': { '__type__': 'cc.Color', r: 255, g: 255, b: 255, a: 255 } },
+  'cc.Camera':       { '_N$depth': -1, '_N$cullingMask': 4294967295, '_N$clearFlags': 7, '_N$backgroundColor': { '__type__': 'cc.Color', r: 0, g: 0, b: 0, a: 255 } },
+  'cc.ParticleSystem': { '_N$playOnLoad': true, '_N$autoRemoveOnFinish': false, '_N$duration': 1, '_N$emissionRate': 10 },
+  'cc.RigidBody':    { '_N$type': 2, '_N$allowSleep': true, '_N$gravityScale': 1, '_N$linearDamping': 0, '_N$angularDamping': 0 },
+  'cc.PhysicsCollider': { '_N$density': 1, '_N$sensor': false, '_N$friction': 0.2, '_N$restitution': 0 },
+  'cc.TiledMap':     { '_N$tmxAsset': null },
+  'cc.PageView':     { '_N$direction': 0, '_N$scrollThreshold': 0.5, '_N$pageTurningSpeed': 0.3, '_N$autoPageTurningThreshold': 100 },
+  'cc.BlockInputEvents': {},
 }
 
 /** CC 3.x 컴포넌트 타입별 기본 필드 맵 (언더스코어 접두사) */
@@ -286,6 +295,14 @@ const COMP_DEFAULT_3x: Record<string, Record<string, unknown>> = {
   'cc.AudioSource': { '_clip': null, '_volume': 1, '_loop': false, '_playOnLoad': false },
   'cc.Mask':        { '_type': 0, '_inverted': false },
   'cc.Graphics':    { '_lineWidth': 2, '_strokeColor': { '__type__': 'cc.Color', r: 255, g: 255, b: 255, a: 255 } },
+  'cc.Camera':       { '_projection': 0, '_priority': 0, '_far': 1000, '_near': 1, '_clearFlags': 7, '_color': { '__type__': 'cc.Color', r: 51, g: 51, b: 51, a: 255 } },
+  'cc.ParticleSystem2D': { '_playOnLoad': true, '_autoRemoveOnFinish': false, '_duration': -1, '_emissionRate': 10 },
+  'cc.RigidBody2D':  { '_type': 2, '_allowSleep': true, '_gravityScale': 1, '_linearDamping': 0, '_angularDamping': 0 },
+  'cc.BoxCollider2D': { '_density': 1, '_sensor': false, '_friction': 0.2, '_restitution': 0, '_size': { '__type__': 'cc.Size', width: 100, height: 100 } },
+  'cc.CircleCollider2D': { '_density': 1, '_sensor': false, '_friction': 0.2, '_restitution': 0, '_radius': 50 },
+  'cc.TiledMap':     { '_tmxAsset': null },
+  'cc.PageView':     { '_direction': 0, '_scrollThreshold': 0.5, '_pageTurningSpeed': 0.3, '_autoPageTurningThreshold': 100 },
+  'cc.BlockInputEvents': {},
 }
 
 function buildNewRawComp2x(type: string, nodeIdx: number): RawEntry {
@@ -367,13 +384,13 @@ function patch3x(
 
   e._lpos = { x: pos.x ?? 0, y: pos.y ?? 0, z: pos.z ?? 0 }
 
-  // rotation: 3x stores quaternion {x,y,z,w}; w defaults to 1 if not preserved
-  const lrotW = node._lrotW ?? 1
-  if (typeof node.rotation === 'object' && node.rotation !== null) {
-    e._lrot = { x: (node.rotation as CCVec3).x ?? 0, y: (node.rotation as CCVec3).y ?? 0, z: (node.rotation as CCVec3).z ?? 0, w: lrotW }
-  } else {
-    e._lrot = { x: 0, y: 0, z: typeof node.rotation === 'number' ? node.rotation : 0, w: lrotW }
-  }
+  // rotation: node.rotation은 euler degrees {x,y,z}, 저장 시 euler Z → quaternion 변환
+  const rotZ = typeof node.rotation === 'number'
+    ? node.rotation
+    : (node.rotation as CCVec3).z ?? 0
+  const rad = rotZ * Math.PI / 180
+  // euler Z → quaternion (2D: only Z axis)
+  e._lrot = { x: 0, y: 0, z: Math.sin(rad / 2), w: Math.cos(rad / 2) }
 
   e._lscale = { x: sc.x ?? 1, y: sc.y ?? 1, z: sc.z ?? 1 }
 

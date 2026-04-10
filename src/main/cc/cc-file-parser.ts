@@ -727,7 +727,13 @@ function parseNode3x(
   const lscale = e._lscale as { x?: number; y?: number; z?: number } | undefined
 
   const position: CCVec3 = { x: lpos?.x ?? 0, y: lpos?.y ?? 0, z: lpos?.z ?? 0 }
-  const rotation: CCVec3 = { x: lrot?.x ?? 0, y: lrot?.y ?? 0, z: lrot?.z ?? 0 }
+
+  // 3.x: _lrot quaternion → euler Z (degrees), 2.x parseTRS2x와 동일한 변환
+  const qx = lrot?.x ?? 0, qy = lrot?.y ?? 0, qz = lrot?.z ?? 0, qw = lrot?.w ?? 1
+  const sinZ = 2 * (qw * qz + qx * qy)
+  const cosZ = 1 - 2 * (qy * qy + qz * qz)
+  const eulerZ = Math.round(Math.atan2(sinZ, cosZ) * (180 / Math.PI) * 1000) / 1000
+  const rotation: CCVec3 = { x: 0, y: 0, z: eulerZ }
   const lrotW: number | undefined = lrot?.w
   const scale: CCVec3 = { x: lscale?.x ?? 1, y: lscale?.y ?? 1, z: lscale?.z ?? 1 }
 

@@ -228,9 +228,8 @@ describe('cc-file-saver', () => {
     it('should patch _lpos, _lrot, _lscale for 3.x nodes', () => {
       const modifiedRoot = makeNode({
         position: { x: 100, y: 200, z: 50 },
-        rotation: { x: 0, y: 0, z: 0.5 },
+        rotation: { x: 0, y: 0, z: 60 },  // euler 60 degrees
         scale: { x: 3, y: 3, z: 1 },
-        _lrotW: 0.866,
         children: [],
       })
       const raw3x = [
@@ -257,12 +256,15 @@ describe('cc-file-saver', () => {
 
       expect(writtenRaw[0]._lpos).toEqual({ x: 100, y: 200, z: 50 })
       expect(writtenRaw[0]._lscale).toEqual({ x: 3, y: 3, z: 1 })
+      // euler 60 degrees → quaternion: qz=sin(30deg)=0.5, qw=cos(30deg)≈0.866
+      expect(writtenRaw[0]._lrot.z).toBeCloseTo(0.5, 3)
+      expect(writtenRaw[0]._lrot.w).toBeCloseTo(0.866, 2)
     })
 
-    it('should preserve _lrot.w (previous bug fix verification)', () => {
+    it('should convert euler Z to quaternion for _lrot (roundtrip verification)', () => {
+      // 45 degrees euler → qz=sin(22.5deg)≈0.3827, qw=cos(22.5deg)≈0.9239
       const modifiedRoot = makeNode({
-        rotation: { x: 0, y: 0, z: 0.383 },
-        _lrotW: 0.924,
+        rotation: { x: 0, y: 0, z: 45 },  // euler 45 degrees
         children: [],
       })
       const raw3x = [
@@ -287,14 +289,14 @@ describe('cc-file-saver', () => {
       const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
       const writtenRaw = JSON.parse(writtenContent)
 
-      // _lrot.w should be the preserved _lrotW value, NOT defaulting to 1
-      expect(writtenRaw[0]._lrot.w).toBe(0.924)
+      // euler 45deg → qz=sin(22.5deg), qw=cos(22.5deg)
+      expect(writtenRaw[0]._lrot.z).toBeCloseTo(Math.sin(45 * Math.PI / 360), 5)
+      expect(writtenRaw[0]._lrot.w).toBeCloseTo(Math.cos(45 * Math.PI / 360), 5)
     })
 
-    it('should default _lrot.w to 1 when _lrotW is undefined', () => {
+    it('should produce identity quaternion for 0-degree rotation', () => {
       const modifiedRoot = makeNode({
-        rotation: { x: 0, y: 0, z: 0 },
-        // _lrotW not set
+        rotation: { x: 0, y: 0, z: 0 },  // euler 0 degrees
         children: [],
       })
       const raw3x = [
@@ -319,7 +321,8 @@ describe('cc-file-saver', () => {
       const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
       const writtenRaw = JSON.parse(writtenContent)
 
-      expect(writtenRaw[0]._lrot.w).toBe(1)
+      // 0 degrees → identity quaternion: qz=0, qw=1
+      expect(writtenRaw[0]._lrot).toEqual({ x: 0, y: 0, z: 0, w: 1 })
     })
   })
 
