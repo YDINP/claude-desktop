@@ -1027,3 +1027,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2827 | 3.x UIOpacity 가드 + Inspector 10렌더러 React.memo + renderers/NodeInspector/SceneToolbar 84테스트 (총 2,193) | ✅ |
 | R2828 | CC i18n 145키(총~750) + Effects/Physics/Particle/ScrollView/Animation 66 렌더러 테스트 (총 2,259) | ✅ |
 | R2829 | CC 엔진 경량화 (extractor 통합/캐시 주입/단일패스/IPC 타임아웃) + Layout/Keyboard/Hierarchy/SceneTab 119테스트 (총 2,378) | ✅ |
+| R2830 | CC-COMPAT.md 호환 매트릭스 + COMP_SKIP 41개 + memo 3컴포넌트 + Generic/QuickEdit/Transform/Header 128테스트 (총 2,506) | ✅ |
