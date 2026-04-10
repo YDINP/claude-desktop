@@ -65,8 +65,9 @@ export function registerCCFileHandlers(mainWindow?: BrowserWindow) {
       properties: ['openDirectory'],
     })
     if (result.canceled || result.filePaths.length === 0) return null
-    // 프로젝트 전환 시 이전 프로젝트의 mtime 캐시 클리어
+    // 프로젝트 전환 시 이전 프로젝트의 mtime/UUID 캐시 클리어
     clearMtimeMap()
+    _uuidMapCache.clear()
     return detectCCVersion(result.filePaths[0])
   })
 

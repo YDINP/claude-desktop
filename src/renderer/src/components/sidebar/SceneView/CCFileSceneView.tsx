@@ -2136,7 +2136,18 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
                   if (!(lc?.props?.enabled ?? lc?.props?._enabled ?? true)) return null
                   const str = (lc?.props?.string as string | undefined) ?? (lc?.props?._string as string | undefined) ?? ''
                   if (!str && editingLabelUuid !== node.uuid) return null
-                  const fs = Math.min(Math.max((lc?.props?.fontSize as number | undefined) ?? 20, 8), 200)
+                  const rawFs = Math.min(Math.max((lc?.props?.fontSize as number | undefined) ?? 20, 8), 200)
+                  // Overflow: 0=None, 1=Clamp, 2=Shrink — SHRINK 모드는 fontSize 축소로 텍스트가 바운딩박스 안에 맞게 함
+                  const _overflowModeEarly = Number(lc?.props?.overflow ?? lc?.props?._overflow ?? lc?.props?.['_N$overflow'] ?? 0)
+                  let fs = rawFs
+                  if (_overflowModeEarly === 2 && w > 0) {
+                    const isKorean = /[\uAC00-\uD7A3]/.test(str)
+                    const charWidthRatio = isKorean ? 0.9 : 0.6
+                    const estimatedW = str.length * rawFs * charWidthRatio
+                    if (estimatedW > w) {
+                      fs = Math.max(rawFs * (w / estimatedW), 6)
+                    }
+                  }
                   // Label 텍스트 색상: comp.props.color 우선, 없으면 노드 tint
                   const labelTextColorProp = lc?.props?.color as { r?: number; g?: number; b?: number } | undefined
                   const { r: cr = 255, g: cg = 255, b: cb = 255 } = labelTextColorProp ?? node.color ?? {}

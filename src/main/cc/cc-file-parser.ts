@@ -1457,7 +1457,7 @@ export async function parseCCSceneChunked(
       : root
 
   return {
-    scene: { projectInfo, scenePath, root: chunkedRoot, _raw: raw, scriptNames: scriptNamesChunked },
+    scene: { projectInfo, scenePath, root: chunkedRoot, scriptNames: scriptNamesChunked },
     state: {
       done: parsedTopChildren >= totalTopChildren,
       parsedTopChildren,

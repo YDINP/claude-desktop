@@ -753,6 +753,97 @@ describe('cc-file-parser', () => {
       expect(child.size.y).toBe(100)
     })
 
+    it('RIGHT only: 우측 여백만 적용', async () => {
+      // alignFlags: RIGHT(32) = 32, right=40
+      const raw = makeWidgetRaw({
+        _N$alignFlags: 32, _N$left: 0, _N$right: 40, _N$top: 0, _N$bottom: 0,
+        _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+        _N$isAlignLeft: false, _N$isAlignRight: true,
+        _N$isAlignTop: false, _N$isAlignBottom: false,
+      })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const child = result.root.children[0].children[0]
+
+      // x = parentW*0.5 - right - width*(1-anchor) = 480 - 40 - 200*0.5 = 340
+      expect(child.position.x).toBeCloseTo(340, 1)
+      // width 유지
+      expect(child.size.x).toBe(200)
+    })
+
+    it('중첩 Widget: 자식 노드도 Widget을 가지면 부모 크기 기준으로 재계산', async () => {
+      // Canvas(960x640) → Parent(Widget LEFT+RIGHT) → Child(Widget TOP+BOTTOM)
+      const raw = [
+        { __type__: 'cc.SceneAsset', scene: { __id__: 1 } },
+        // [1] cc.Scene
+        {
+          __type__: 'cc.Scene',
+          _name: 'Scene', _active: true, _id: 'scene-uuid',
+          _children: [{ __id__: 2 }], _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 0, height: 0 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        // [2] Canvas node (960x640)
+        {
+          __type__: 'cc.Node',
+          _name: 'Canvas', _active: true, _id: 'canvas-uuid',
+          _children: [{ __id__: 4 }],
+          _components: [{ __id__: 3 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 960, height: 640 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        // [3] cc.Canvas
+        { __type__: 'cc.Canvas', node: { __id__: 2 } },
+        // [4] Parent node: Widget LEFT(8)+RIGHT(32)=40, left=0, right=0 → 960x640 그대로
+        {
+          __type__: 'cc.Node',
+          _name: 'Parent', _active: true, _id: 'parent-uuid',
+          _children: [{ __id__: 6 }],
+          _components: [{ __id__: 5 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 100, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        // [5] cc.Widget for Parent: LEFT+RIGHT, left=0, right=0 → width=960
+        {
+          __type__: 'cc.Widget', node: { __id__: 4 },
+          _N$alignFlags: 40, _N$left: 0, _N$right: 0, _N$top: 0, _N$bottom: 0,
+          _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+          _N$isAlignLeft: true, _N$isAlignRight: true, _N$isAlignTop: false, _N$isAlignBottom: false,
+        },
+        // [6] Child node: Widget TOP(1)+BOTTOM(4)=5, top=20, bottom=20
+        {
+          __type__: 'cc.Node',
+          _name: 'Child', _active: true, _id: 'child-uuid',
+          _children: [],
+          _components: [{ __id__: 7 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 50, height: 50 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        // [7] cc.Widget for Child: TOP+BOT, top=20, bottom=20 → height = parentH - 40
+        {
+          __type__: 'cc.Widget', node: { __id__: 6 },
+          _N$alignFlags: 5, _N$left: 0, _N$right: 0, _N$top: 20, _N$bottom: 20,
+          _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+          _N$isAlignLeft: false, _N$isAlignRight: false, _N$isAlignTop: true, _N$isAlignBottom: true,
+        },
+      ]
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const parent = result.root.children[0].children[0]  // Canvas → Parent
+      const child = parent.children[0]                     // Parent → Child
+
+      // Parent: LEFT+RIGHT, left=0, right=0, parentW=960 → width=960
+      expect(parent.size.x).toBe(960)
+      // Child: TOP+BOTTOM, top=20, bottom=20, parentH=parent.size.y(=100, height 미변경) → height=60
+      expect(child.size.y).toBe(60)
+    })
+
     it('부모 크기가 0이면 Widget 해결을 건너뛴다', async () => {
       // Scene root의 size는 {0, 0} → Canvas 없이 직접 Widget 자식을 둔 경우
       const raw = [
