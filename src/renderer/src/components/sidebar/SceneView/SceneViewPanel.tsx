@@ -50,6 +50,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   // R1404: PNG 내보내기 설정 (배경색, 해상도) — useSceneViewActions에서 참조하므로 먼저 선언
   const [pngExportBg, setPngExportBg] = useState<'dark' | 'light' | 'transparent'>('dark')
   const [pngExportScale, setPngExportScale] = useState<1 | 2 | 4>(1)
+  const [screenshotDone, setScreenshotDone] = useState(false)
   const [gridVisible, setGridVisible] = useState(true)
   // R1422: 그리드 커스터마이즈 (크기/색상/불투명도) — localStorage grid-settings
   const [gridSettings, setGridSettings] = useState<{ size: number; theme: 'light' | 'dark'; opacity: number }>(() => {
