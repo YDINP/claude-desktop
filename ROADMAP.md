@@ -1036,3 +1036,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2836 | watcher race condition + NodeRenderer LOD + 3x _id + deepCopy 엣지 33테스트 (총 2,683) | ✅ |
 | R2837 | Widget 라운드트립 + enabled 키생성 + walkPrefabFiles 8테스트 (총 2,691) + handoff 최종 갱신 | ✅ |
 | R2838 | isNodeVisibleInViewport 순수함수 추출 + 뷰포트컬링/Widget 엣지 24테스트 (총 2,715) | ✅ |
+| R2839 | CC 라운드트립 통합(18) + 성능벤치(9) + 에셋 엣지(16) + handoff Prefab 수정 (총 2,755) | ✅ |
