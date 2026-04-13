@@ -1,5 +1,5 @@
 # Handoff — claude-desktop
-> 마지막 업데이트: 2026-04-08
+> 마지막 업데이트: 2026-04-13
 
 ---
 
@@ -8,8 +8,10 @@
 - **QA**: 0 Critical / 0 Warning / 2612 Pass
 - **tsc**: 0 에러
 - **빌드**: 성공
-- **테스트**: 2193/2193 (106 파일) ← +84 (이전: 2109/103 파일)
+- **테스트**: 2691/2691 (128 파일) ← +8 (이전: 2683/128 파일)
 - **최신 커밋**: `4cbb74f7` — docs: ROADMAP R2789~R2790 CCFileSceneView Context/6차감사 기록
+- **감사**: 11차 완료 — 모든 렌더링/호환성/성능 이슈 해소
+- **Unhandled Rejection 1건**: SettingsPanel.tsx settingsGet null 처리 (기존 이슈, 테스트 실패 아님)
 
 ---
 
@@ -19,9 +21,18 @@
 
 ---
 
+## 인지된 한계 (11차 감사 기준)
+
+- **3D 컴포넌트 미지원**: MeshRenderer, SkinnedMeshRenderer 등 CC 3.x 3D 컴포넌트 inspector 렌더러 미구현
+- **Prefab 라이브 편집 불가**: .prefab 파일은 읽기 전용 (씬 파일만 저장 가능)
+- **대용량 씬 한계**: raw 배열 10,000개 초과 씬 안전망만 적용, UI 성능 미최적화
+- **애니메이션 클립 편집 불가**: cc.Animation 컴포넌트 props 조회만 가능
+
+---
+
 ## 남은 장기 과제
 
-- **테스트 커버리지**: vitest 197 테스트 / 단위 테스트 부분 적용
+- **테스트 커버리지**: vitest 2691 테스트 / 단위 테스트 부분 적용
 - **i18n**: 기반 구축 완료 (t() + 언어 선택 UI), 한국어 하드코딩 잔여 건수 추가 전환 필요
 - **대형 파일 한계**: CCFileSceneView.tsx 2,530줄 / SceneViewPanel 3,636줄 — 구조적 추가 분리 후보 (하단 참조)
 - **인라인 style 전환**: 점진적 추가 CSS 클래스 전환 미완
@@ -131,6 +142,11 @@ src/renderer/
   - `src/renderer/src/components/sidebar/CocosPanel/NodeInspector/__tests__/` (2개)
   - `src/renderer/src/components/sidebar/SceneView/__tests__/SceneToolbar.test.tsx` (1개)
 
+### 12. CC Editor 최종 테스트 추가 (+8) — 2026-04-13
+- **cc-file-parser.test.ts** (+3) — Widget 라운드트립 최종: HMID+VMID 완전 중앙, HMID+VMID offset, LEFT+TOP 적용 후 실제 값 변경 검증
+- **cc-file-saver.test.ts** (+2) — enabled prop 신규 키 생성: 2x → `_N$enabled`, 3x → `_enabled` 자동 생성 확인
+- **cc-asset-resolver.test.ts** (+3) — walkPrefabFiles: .meta 없는 prefab fallback synthetic uuid 등록, .meta 있는 prefab 중복 방지, .prefab 없으면 synthetic 미생성
+
 ---
 
 ## CCFileSceneView.tsx 추가 분리 후보 (CCSceneContext 분리 후 현황)
@@ -147,6 +163,11 @@ Context 분리 완료 후 2,530줄. 추가 분리 가능 영역:
 ---
 
 ## 이전 작업 이력 (축약)
+
+### 2026-04-13 — 최종 테스트 +8, handoff 갱신
+- Widget 라운드트립 (HMID+VMID, LEFT+TOP), enabled 신규 키 생성, walkPrefabFiles fallback 테스트
+- 2683 → 2691 테스트 통과
+- 11차 감사 완료 상태 기록
 
 ### 2026-04-08 — Context 분리 / 감사 5~6차 / as-any 제거 / 테스트 확장
 - CCFileSceneView Context 분리: 4,374 → 2,530줄 (CCSceneContext/Toolbar/HUD/SVGOverlays)

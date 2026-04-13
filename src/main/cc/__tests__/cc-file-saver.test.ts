@@ -741,6 +741,90 @@ describe('cc-file-saver', () => {
       const writtenRaw = JSON.parse(writtenContent)
       expect(writtenRaw[1]['_string']).toBe('3xNew')
     })
+
+    it('2x: raw에 없는 enabled 키 → _N$enabled로 신규 생성된다', () => {
+      const root = makeNode({
+        children: [],
+        components: [{
+          type: 'cc.Label',
+          props: { enabled: true },
+          _rawIndex: 1,
+        }],
+      })
+      const raw2x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [{ __id__: 1 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 100, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 },
+          _opacity: 255,
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+        },
+        {
+          __type__: 'cc.Label',
+          node: { __id__: 0 },
+          // enabled 키 없음 (_enabled도, _N$enabled도 없음)
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw2x)
+
+      const result = saveCCScene(sceneFile, root)
+
+      expect(result.success).toBe(true)
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      // enabled 없음 → _N$enabled 신규 생성 (2x 규칙)
+      expect(writtenRaw[1]['_N$enabled']).toBe(true)
+      expect(writtenRaw[1]['_enabled']).toBeUndefined()
+      expect(writtenRaw[1]['enabled']).toBeUndefined()
+    })
+
+    it('3x: raw에 없는 enabled 키 → _enabled로 신규 생성된다', () => {
+      const root = makeNode({
+        children: [],
+        rotation: { x: 0, y: 0, z: 0 },
+        components: [{
+          type: 'cc.Label',
+          props: { enabled: false },
+          _rawIndex: 1,
+        }],
+      })
+      const raw3x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [{ __id__: 1 }],
+          _lpos: { x: 0, y: 0, z: 0 },
+          _lrot: { x: 0, y: 0, z: 0, w: 1 },
+          _lscale: { x: 1, y: 1, z: 1 },
+          _uiProps: { _localOpacity: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+          layer: 33554432,
+        },
+        {
+          __type__: 'cc.Label',
+          node: { __id__: 0 },
+          // enabled 키 없음 (_enabled도 없음)
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw3x, '3x')
+
+      const result = saveCCScene(sceneFile, root)
+
+      expect(result.success).toBe(true)
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      // enabled 없음 → _enabled 신규 생성 (3x 규칙)
+      expect(writtenRaw[1]['_enabled']).toBe(false)
+      expect(writtenRaw[1]['_N$enabled']).toBeUndefined()
+      expect(writtenRaw[1]['enabled']).toBeUndefined()
+    })
   })
 
   // ── COMP_DEFAULT 확장 (Camera, ParticleSystem) ─────────────────────────────

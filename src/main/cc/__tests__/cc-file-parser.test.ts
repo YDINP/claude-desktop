@@ -874,4 +874,115 @@ describe('cc-file-parser', () => {
       expect(child.position.y).toBe(88)
     })
   })
+
+  // ── Widget 라운드트립 최종: 적용 후 position/size 변경 확인 ──────────────────
+
+  describe('Widget 라운드트립 — 적용 후 값 변경 검증', () => {
+    function makeWidgetRoundtripRaw(widgetProps: Record<string, unknown>, nodeOverrides: Record<string, unknown> = {}) {
+      return [
+        { __type__: 'cc.SceneAsset', scene: { __id__: 1 } },
+        {
+          __type__: 'cc.Scene',
+          _name: 'Scene', _active: true, _id: 'scene-uuid',
+          _children: [{ __id__: 2 }], _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 0, height: 0 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        // Canvas 960x640
+        {
+          __type__: 'cc.Node',
+          _name: 'Canvas', _active: true, _id: 'canvas-uuid',
+          _children: [{ __id__: 4 }],
+          _components: [{ __id__: 3 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 960, height: 640 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+        },
+        { __type__: 'cc.Canvas', node: { __id__: 2 } },
+        // Widget 노드 (초기 position 원점, size 200x100)
+        {
+          __type__: 'cc.Node',
+          _name: 'WidgetNode', _active: true, _id: 'widget-uuid',
+          _children: [], _components: [{ __id__: 5 }],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 200, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 }, _opacity: 255, _color: { r:255,g:255,b:255,a:255 },
+          ...nodeOverrides,
+        },
+        { __type__: 'cc.Widget', node: { __id__: 4 }, ...widgetProps },
+      ]
+    }
+
+    it('HMID+VMID: 완전 중앙 정렬 적용 후 position이 (0,0)이다', async () => {
+      // alignFlags: HMID(16) | VMID(2) = 18
+      const raw = makeWidgetRoundtripRaw({
+        _N$alignFlags: 18,
+        _N$left: 0, _N$right: 0, _N$top: 0, _N$bottom: 0,
+        _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+        _N$isAlignLeft: false, _N$isAlignRight: false,
+        _N$isAlignTop: false, _N$isAlignBottom: false,
+      })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const node = result.root.children[0].children[0] // Canvas → WidgetNode
+
+      // Widget 적용 전 원점(0,0), 적용 후도 (0,0) — HMID/VMID가 실제로 적용됐음 확인
+      expect(node.position.x).toBe(0)
+      expect(node.position.y).toBe(0)
+      // size는 변경 없음 (HMID/VMID는 위치만 조정)
+      expect(node.size.x).toBe(200)
+      expect(node.size.y).toBe(100)
+    })
+
+    it('HMID+VMID: horizontalCenter=50, verticalCenter=30이면 position이 (50,30)으로 변경된다', async () => {
+      // alignFlags: HMID(16) | VMID(2) = 18
+      const raw = makeWidgetRoundtripRaw({
+        _N$alignFlags: 18,
+        _N$left: 0, _N$right: 0, _N$top: 0, _N$bottom: 0,
+        _N$horizontalCenter: 50, _N$verticalCenter: 30, _N$alignMode: 1,
+        _N$isAlignLeft: false, _N$isAlignRight: false,
+        _N$isAlignTop: false, _N$isAlignBottom: false,
+      }, { _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [99,88,0,0,0,0,1,1,1,1] } })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const node = result.root.children[0].children[0]
+
+      // Widget 적용 전 position (99,88) → HMID=50, VMID=30으로 변경됐는지 확인
+      expect(node.position.x).toBe(50)
+      expect(node.position.y).toBe(30)
+      // size 불변
+      expect(node.size.x).toBe(200)
+      expect(node.size.y).toBe(100)
+    })
+
+    it('LEFT+TOP: 좌상 고정 적용 후 position/size가 실제로 변경된다', async () => {
+      // alignFlags: LEFT(8) | TOP(1) = 9, left=20, top=15
+      // 초기 position을 원점이 아닌 (99,88)로 설정해 변경 여부를 명확히 확인
+      const raw = makeWidgetRoundtripRaw({
+        _N$alignFlags: 9,
+        _N$left: 20, _N$right: 0, _N$top: 15, _N$bottom: 0,
+        _N$horizontalCenter: 0, _N$verticalCenter: 0, _N$alignMode: 1,
+        _N$isAlignLeft: true, _N$isAlignRight: false,
+        _N$isAlignTop: true, _N$isAlignBottom: false,
+      }, { _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [99,88,0,0,0,0,1,1,1,1] } })
+      mockReadFileSync.mockReturnValue(JSON.stringify(raw))
+
+      const result = await parseCCScene('/fake/scene.fire', projectInfo2x)
+      const node = result.root.children[0].children[0]
+
+      // LEFT(8) only: x = left + w*ax - parentW*0.5 = 20 + 200*0.5 - 480 = -360
+      expect(node.position.x).toBeCloseTo(-360, 1)
+      // TOP(1) only: y = parentH*0.5 - top - h*(1-ay) = 320 - 15 - 100*0.5 = 255
+      expect(node.position.y).toBeCloseTo(255, 1)
+      // size 변경 없음 (LEFT+TOP은 위치만 조정)
+      expect(node.size.x).toBe(200)
+      expect(node.size.y).toBe(100)
+      // Widget 적용 전 position(99,88)에서 실제로 달라졌는지 확인
+      expect(node.position.x).not.toBe(99)
+      expect(node.position.y).not.toBe(88)
+    })
+  })
 })
