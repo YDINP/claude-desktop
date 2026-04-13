@@ -1,6 +1,7 @@
 import React, { useState, memo, lazy, Suspense } from 'react'
 import { SyntaxHighlighter, vscDarkPlus } from '../../utils/syntaxLanguages'
 import { clipboardStore } from '../../utils/clipboard-store'
+import { t } from '../../utils/i18n'
 
 const MermaidBlock = lazy(() => import('./MermaidBlock').then(m => ({ default: m.MermaidBlock })))
 

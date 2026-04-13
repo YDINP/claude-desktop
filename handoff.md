@@ -24,7 +24,7 @@
 ## 인지된 한계 (11차 감사 기준)
 
 - **3D 컴포넌트 미지원**: MeshRenderer, SkinnedMeshRenderer 등 CC 3.x 3D 컴포넌트 inspector 렌더러 미구현
-- **Prefab 라이브 편집 불가**: .prefab 파일은 읽기 전용 (씬 파일만 저장 가능)
+- **Prefab 편집 지원**: .prefab 파일도 파싱 + 저장 가능 (saveCCScene이 확장자 무관하게 동작)
 - **대용량 씬 한계**: raw 배열 10,000개 초과 씬 안전망만 적용, UI 성능 미최적화
 - **애니메이션 클립 편집 불가**: cc.Animation 컴포넌트 props 조회만 가능
 
