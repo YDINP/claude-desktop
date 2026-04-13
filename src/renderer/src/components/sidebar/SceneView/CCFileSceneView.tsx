@@ -1,7 +1,7 @@
 // QA anchors (overlays extracted): 818cf8 Sz C# ×S S× ↳N '∞' maxNodeArea depthDim 22d3ee
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import type { CCSceneNode, CCSceneFile, CCVec3 } from '../../../../../shared/ipc-schema'
-import { sceneViewKey, ALIGN_SNAP_THRESHOLD, UUID_RE, type FlatNode, type CCFileSceneViewProps, type ViewTransformCC } from './ccSceneTypes'
+import { sceneViewKey, ALIGN_SNAP_THRESHOLD, UUID_RE, isNodeVisibleInViewport, type FlatNode, type CCFileSceneViewProps, type ViewTransformCC } from './ccSceneTypes'
 import { useCCSceneOverlayState } from './useCCSceneOverlayState'
 import { useCCSceneAssets } from './useCCSceneAssets'
 import { useCCSceneKeyboard } from './useCCSceneKeyboard'
@@ -1052,26 +1052,22 @@ export function CCFileSceneView({ sceneFile, selectedUuid, onSelect, onMove, onR
             if (hideInactiveNodes && !effectiveActive) return null  // R1610
             if (hiddenUuids.has(node.uuid)) return null  // R1692: 시각적 숨기기
 
+            const isSelected = node.uuid === selectedUuid || multiSelected.has(node.uuid)
+
             // 뷰포트 컬링: 선택/호버/드래그 노드는 항상 렌더링
             if (!isSelected && node.uuid !== hoverUuid && !isDragged && !isMultiDragged) {
               const svgEl = svgRef.current
               const vpW = svgEl ? svgEl.clientWidth : 800
               const vpH = svgEl ? svgEl.clientHeight : 600
-              const MARGIN = 100
               const anchorX_ = node.anchor?.x ?? 0.5
               const anchorY_ = node.anchor?.y ?? 0.5
-              const screenL = (svgPos.x - w * anchorX_) * view.zoom + view.offsetX
-              const screenT = (svgPos.y - h * (1 - anchorY_)) * view.zoom + view.offsetY
-              const screenR = screenL + w * view.zoom
-              const screenB = screenT + h * view.zoom
-              if (screenR < -MARGIN || screenL > vpW + MARGIN || screenB < -MARGIN || screenT > vpH + MARGIN) {
+              if (!isNodeVisibleInViewport(svgPos.x, svgPos.y, w, h, anchorX_, anchorY_, view.zoom, view.offsetX, view.offsetY, vpW, vpH)) {
                 return null
               }
             }
 
             // 캔버스 범위 밖 노드 감지
             const isOutOfCanvas = effX + w / 2 < -designW / 2 || effX - w / 2 > designW / 2 || effY + h / 2 < -designH / 2 || effY - h / 2 > designH / 2
-            const isSelected = node.uuid === selectedUuid || multiSelected.has(node.uuid)
             const isHovered = node.uuid === hoverUuid && !isSelected
             // R1550: 검색 매칭 하이라이트
             const isSearchMatch = svSearch.trim() ? svSearchMatches.has(node.uuid) : false
