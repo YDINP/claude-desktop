@@ -5,16 +5,17 @@ import { detectCCVersion } from '../cc/cc-version-detector'
 import { parseCCScene, parseCCSceneChunked, isLargeScene } from '../cc/cc-file-parser'
 import { saveCCScene, restoreFromBackup, listBakFiles, deleteAllBakFiles, restoreFromBakFile, recordSceneMtime, forceOverwriteScene, clearMtimeMap } from '../cc/cc-file-saver'
 import { ccFileWatcher } from '../cc/cc-file-watcher'
-import { buildUUIDMap, extractReferencedUUIDs, resolveTextureUrl } from '../cc/cc-asset-resolver'
-import type { UUIDMap } from '../cc/cc-asset-resolver'
+import { buildUUIDMap, extractReferencedUUIDs, resolveTextureUrl, type UUIDMap } from '../cc/cc-asset-resolver'
 import {
   CC_FILE_DETECT,
   CC_FILE_OPEN_PROJECT,
   CC_FILE_LIST_SCENES,
   CC_FILE_READ_SCENE,
   CC_FILE_SAVE_SCENE,
+  type CCFileProjectInfo,
+  type CCSceneFile,
+  type CCSceneNode,
 } from '../../shared/ipc-schema'
-import type { CCFileProjectInfo, CCSceneFile, CCSceneNode } from '../../shared/ipc-schema'
 
 let _registered = false
 let _watchUnsubscribe: (() => void) | null = null

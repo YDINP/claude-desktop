@@ -1,14 +1,11 @@
 # QA Report — Round latest
-> 2026-04-10T09:04:51.873Z
+> 2026-04-13T00:25:17.636Z
 
 ## Critical
 _없음_
 
 ## Warning
-- [src/main/cc/cc-file-parser.ts] 중복 import: './cc-asset-resolver'
-- [src/main/ipc/cc-file-handlers.ts] 중복 import: '../cc/cc-asset-resolver'
-- [src/main/ipc/cc-file-handlers.ts] 중복 import: '../../shared/ipc-schema'
-- [] 중복 import 총 38건
+_없음_
 
 ## Pass
 - bun run build 성공
@@ -36,6 +33,7 @@ _없음_
 - React Hooks 규칙 위반 0건
 - vitest 126 테스트 통과
 - console.log 잔존 0건
+- 중복 import 0건
 - AssetBrowserPanel.tsx 존재
 - RunTimeline.tsx 존재
 - ollama-handlers.ts 존재

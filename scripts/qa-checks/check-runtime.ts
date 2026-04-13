@@ -156,7 +156,7 @@ export function runRuntimeChecks(root: string, log: LogFn): void {
   for (const file of srcFiles) {
     if (file.includes('__tests__') || file.includes('.test.')) continue
     const content = readFileSync(join(root, file), 'utf-8')
-    const imports = [...content.matchAll(/from\s+['"]([^'"]+)['"]/g)].map(m => m[1])
+    const imports = [...content.matchAll(/^import\s.*from\s+['"]([^'"]+)['"]/gm)].map(m => m[1])
     const seen = new Set<string>()
     for (const imp of imports) {
       if (seen.has(imp)) {

@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
-import type React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 export interface ResizeHandlers {
   // Terminal

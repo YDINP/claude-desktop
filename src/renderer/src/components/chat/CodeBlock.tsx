@@ -1,5 +1,4 @@
-import { useState, memo, lazy, Suspense } from 'react'
-import React from 'react'
+import React, { useState, memo, lazy, Suspense } from 'react'
 import { SyntaxHighlighter, vscDarkPlus } from '../../utils/syntaxLanguages'
 import { clipboardStore } from '../../utils/clipboard-store'
 

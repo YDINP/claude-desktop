@@ -1,6 +1,5 @@
 import { ipcMain, shell, dialog, app } from 'electron'
-import { AppConfig } from '../store/app-config'
-import type { Snippet } from '../store/app-config'
+import { AppConfig, type Snippet } from '../store/app-config'
 import { readdir, readFile, writeFile, stat, mkdir, rename as fsRename, unlink, rm } from 'fs/promises'
 import { watch, FSWatcher } from 'fs'
 import path, { join, relative, dirname } from 'path'

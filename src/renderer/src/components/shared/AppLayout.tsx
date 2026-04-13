@@ -2,15 +2,13 @@
  * AppLayout — App.tsx JSX 전체를 담는 레이아웃 컴포넌트 (Phase D.2)
  * AppContent는 훅/상태 선언만 담고, 렌더링은 여기서 담당.
  */
-import type React from 'react'
-import { useRef, useCallback } from 'react'
+import React, { useRef, useCallback } from 'react'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'
 import { t } from '../../utils/i18n'
 import { AgentBay } from '../hq/AgentBay'
 import { ResourceBar } from '../hq/ResourceBar'
 import { OpsFeed } from '../hq/OpsFeed'
-import { Sidebar } from '../sidebar/Sidebar'
-import type { SidebarTab } from '../sidebar/Sidebar'
+import { Sidebar, type SidebarTab } from '../sidebar/Sidebar'
 import type { ChangedFile } from '../sidebar/ChangedFilesPanel'
 import { ChatPanel } from '../chat/ChatPanel'
 import { TerminalPanel } from '../terminal/TerminalPanel'

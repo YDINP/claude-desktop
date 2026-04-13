@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import type { SceneNode, ViewTransform, DragState, ResizeState, UndoEntry } from './types'
-import { LABEL_COLORS, VB_KEY } from './sceneViewConstants'
-import type { CameraBookmark } from './sceneViewConstants'
+import { LABEL_COLORS, VB_KEY, type CameraBookmark } from './sceneViewConstants'
 
 interface KeyboardDeps {
   nodeMap: Map<string, SceneNode>
