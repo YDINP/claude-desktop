@@ -1130,4 +1130,165 @@ describe('cc-file-saver', () => {
       expect(uitEntries).toHaveLength(1)
     })
   })
+
+  // ── buildNewRawNode3x — _id 필드 ──────────────────────────────────────────
+
+  describe('buildNewRawNode3x — _id 필드', () => {
+    afterEach(() => {
+      clearMtimeMap()
+    })
+
+    function make3xBase(): Record<string, unknown>[] {
+      return [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [],
+          _lpos: { x: 0, y: 0, z: 0 },
+          _lrot: { x: 0, y: 0, z: 0, w: 1 },
+          _lscale: { x: 1, y: 1, z: 1 },
+          _uiProps: { _localOpacity: 1 },
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+          layer: 33554432,
+        },
+      ]
+    }
+
+    it('3x 새 노드에 _id 필드가 포함된다 (node.uuid 값)', () => {
+      const newChild = makeChildNode({
+        uuid: 'child-uuid-3x',
+        _rawIndex: undefined as unknown as number,
+      })
+      const root = makeNode({ children: [newChild] })
+      const sceneFile = makeSceneFile(root, make3xBase(), '3x')
+
+      saveCCScene(sceneFile, root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+
+      // 새 노드는 index 1에 추가됨
+      const newEntry = writtenRaw[1] as Record<string, unknown>
+      expect(newEntry.__type__).toBe('cc.Node')
+      expect(newEntry._id).toBe('child-uuid-3x')
+    })
+
+    it('3x 새 노드에 _lpos/_lrot/_lscale 필드가 포함된다', () => {
+      const newChild = makeChildNode({
+        uuid: 'child-lpos',
+        _rawIndex: undefined as unknown as number,
+        position: { x: 10, y: 20, z: 5 },
+        scale: { x: 2, y: 3, z: 1 },
+      })
+      const root = makeNode({ children: [newChild] })
+      const sceneFile = makeSceneFile(root, make3xBase(), '3x')
+
+      saveCCScene(sceneFile, root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      const newEntry = writtenRaw[1] as Record<string, unknown>
+
+      expect(newEntry._lpos).toEqual({ x: 10, y: 20, z: 5 })
+      expect(newEntry._lscale).toEqual({ x: 2, y: 3, z: 1 })
+      // _lrot은 쿼터니언 형식이어야 함
+      const lrot = newEntry._lrot as { x: number; y: number; z: number; w: number }
+      expect(typeof lrot.w).toBe('number')
+      expect(typeof lrot.z).toBe('number')
+    })
+
+    it('3x 새 노드에 _trs가 아닌 3x 전용 필드가 포함된다 (_trs 없음)', () => {
+      const newChild = makeChildNode({
+        uuid: 'child-no-trs',
+        _rawIndex: undefined as unknown as number,
+      })
+      const root = makeNode({ children: [newChild] })
+      const sceneFile = makeSceneFile(root, make3xBase(), '3x')
+
+      saveCCScene(sceneFile, root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      const newEntry = writtenRaw[1] as Record<string, unknown>
+
+      // 3x 노드는 _trs가 없어야 함
+      expect(newEntry._trs).toBeUndefined()
+      // 3x 필드 있어야 함
+      expect(newEntry._lpos).toBeDefined()
+    })
+
+    it('3x 새 노드에 _uiProps._localOpacity가 포함된다', () => {
+      const newChild = makeChildNode({
+        uuid: 'child-opacity',
+        _rawIndex: undefined as unknown as number,
+        opacity: 128,
+      })
+      const root = makeNode({ children: [newChild] })
+      const sceneFile = makeSceneFile(root, make3xBase(), '3x')
+
+      saveCCScene(sceneFile, root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      const newEntry = writtenRaw[1] as Record<string, unknown>
+      const uiProps = newEntry._uiProps as { _localOpacity: number }
+
+      // opacity 128 / 255 ≈ 0.502
+      expect(uiProps._localOpacity).toBeCloseTo(128 / 255, 3)
+    })
+
+    it('3x 새 노드에 layer 필드가 포함된다', () => {
+      const newChild = makeChildNode({
+        _rawIndex: undefined as unknown as number,
+      })
+      const root = makeNode({ children: [newChild] })
+      const sceneFile = makeSceneFile(root, make3xBase(), '3x')
+
+      saveCCScene(sceneFile, root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      const newEntry = writtenRaw[1] as Record<string, unknown>
+
+      expect(newEntry.layer).toBeDefined()
+      expect(typeof newEntry.layer).toBe('number')
+    })
+
+    it('2x 새 노드에는 _id 없이 id 필드가 포함된다', () => {
+      const newChild = makeChildNode({
+        uuid: 'child-2x-id',
+        _rawIndex: undefined as unknown as number,
+      })
+      const root = makeNode({ children: [newChild] })
+      // 2x raw 기반
+      const raw2x = [
+        {
+          __type__: 'cc.Node',
+          _name: 'Root',
+          _active: true,
+          _children: [],
+          _components: [],
+          _trs: { __type__: 'TypedArray', ctor: 'Float64Array', array: [0,0,0,0,0,0,1,1,1,1] },
+          _contentSize: { width: 100, height: 100 },
+          _anchorPoint: { x: 0.5, y: 0.5 },
+          _opacity: 255,
+          _color: { r: 255, g: 255, b: 255, a: 255 },
+        },
+      ]
+      const sceneFile = makeSceneFile(root, raw2x, '2x')
+
+      saveCCScene(sceneFile, root)
+
+      const writtenContent = mockWriteFileSync.mock.calls[0]?.[1] as string
+      const writtenRaw = JSON.parse(writtenContent)
+      const newEntry = writtenRaw[1] as Record<string, unknown>
+
+      // 2x는 id 필드 사용 (buildNewRawNode2x)
+      expect(newEntry.id).toBe('child-2x-id')
+      // _id 없음
+      expect(newEntry._id).toBeUndefined()
+    })
+  })
 })
