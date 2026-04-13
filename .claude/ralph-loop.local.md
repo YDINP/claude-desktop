@@ -1,5 +1,5 @@
 ---
-active: true
+active: false
 iteration: 1
 max_iterations: 999
 completion_promise: CC Editor 엔진 경량화 + 2.x/3.x 호환성 + 렌더링 이슈 체크

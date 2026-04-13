@@ -47,6 +47,12 @@ export async function parseCCScene(scenePath: string, projectInfo: CCFileProject
 
   if (!root) throw new Error(`루트 노드 파싱 실패 (depth 초과): ${scenePath}`)
 
+  // CC 2.x cc.Scene 노드는 _active: false로 직렬화됨 — 이는 Cocos 직렬화 아티팩트이며
+  // 실제 런타임에서 씬은 항상 활성 상태. 루트를 강제 활성화하여 SceneView 렌더링 보장.
+  if (raw[rootIdx]?.__type__ === 'cc.Scene' || raw[rootIdx]?.__type__ === 'cc.Node') {
+    root.active = true
+  }
+
   // R3: Widget 레이아웃 기본 계산 — 부모 크기 기준으로 position/size 재계산
   resolveWidgetLayout(root)
 
@@ -251,9 +257,9 @@ const LABEL_EXTRACTOR_2X = (e: RawEntry): Record<string, unknown> => ({
   lineHeight: e._N$lineHeight ?? e._lineHeight ?? 0,
   horizontalAlign: e._N$horizontalAlign ?? e._horizontalAlign ?? 0,
   verticalAlign: e._N$verticalAlign ?? e._verticalAlign ?? 0,
-  font: e._N$font ?? undefined,           // BMFont UUID 참조
-  fontFamily: e._N$fontFamily ?? '',       // 시스템 폰트 이름
-  isSystemFontUsed: e._N$isSystemFontUsed ?? true,
+  font: e._N$font ?? e._N$file ?? e._font ?? undefined,  // TTF/BMFont UUID 참조 (_N$file은 CC 2.x 폰트 필드)
+  fontFamily: e._N$fontFamily ?? e._fontFamily ?? '',    // 시스템 폰트 이름
+  isSystemFontUsed: e._N$isSystemFontUsed ?? e._isSystemFontUsed ?? true,
   spacingX: e._N$spacingX ?? 0,
   spacingY: e._N$spacingY ?? 0,
   overflow: e._N$overflow ?? 0,            // 0=NONE, 1=CLAMP, 2=SHRINK, 3=RESIZE_HEIGHT
@@ -1429,6 +1435,11 @@ export async function parseCCSceneChunked(
       ? parseNode2x(raw, rootIdx)
       : parseNode3x(raw, rootIdx, buildUiTransformMap(raw))
   if (!root) throw new Error(`루트 노드 파싱 실패: ${scenePath}`)
+
+  // cc.Scene _active: false 아티팩트 처리 (parseCCScene과 동일)
+  if (raw[rootIdx]?.__type__ === 'cc.Scene' || raw[rootIdx]?.__type__ === 'cc.Node') {
+    root.active = true
+  }
 
   // R3: Widget 레이아웃 기본 계산
   resolveWidgetLayout(root)
