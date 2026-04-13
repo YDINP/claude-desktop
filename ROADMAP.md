@@ -1033,3 +1033,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2833 | 중복 import 23파일 통합 + QA 정규식 수정 + useBatchPatch 결과확인 + alpha 클램핑 + cursor 수정 | ✅ |
 | R2834 | useBatchPatch 결과확인 테스트 + SceneInspector alpha 클램핑 테스트 + i18n 완료 확인 (총 2,650) | ✅ |
 | R2835 | 11차 감사 — NodeRenderer dead prop 제거 + 3.x _id + watcher 정적 import | ✅ |
+| R2836 | watcher race condition + NodeRenderer LOD + 3x _id + deepCopy 엣지 33테스트 (총 2,683) | ✅ |
