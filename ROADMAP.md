@@ -1030,3 +1030,8 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2830 | CC-COMPAT.md 호환 매트릭스 + COMP_SKIP 41개 + memo 3컴포넌트 + Generic/QuickEdit/Transform/Header 128테스트 (총 2,506) | ✅ |
 | R2831 | useCCFileProject(30) + BuildTab/AssetBrowser/BackupManager/ProjectHeader 67테스트 (총 2,603) | ✅ |
 | R2832 | BatchInspector 21플러그인 i18n 530키(총~1,280) + 엣지케이스 37테스트 + JSDoc (총 2,640) | ✅ |
+| R2833 | 중복 import 23파일 통합 + QA 정규식 수정 + useBatchPatch 결과확인 + alpha 클램핑 + cursor 수정 | ✅ |
+| R2834 | useBatchPatch 결과확인 테스트 + SceneInspector alpha 클램핑 테스트 + i18n 완료 확인 (총 2,650) | ✅ |
+| R2835 | 11차 감사 — NodeRenderer dead prop 제거 + 3.x _id + watcher 정적 import | ✅ |
+| R2836 | watcher race condition + NodeRenderer LOD + 3x _id + deepCopy 엣지 33테스트 (총 2,683) | ✅ |
+| R2837 | Widget 라운드트립 + enabled 키생성 + walkPrefabFiles 8테스트 (총 2,691) + handoff 최종 갱신 | ✅ |

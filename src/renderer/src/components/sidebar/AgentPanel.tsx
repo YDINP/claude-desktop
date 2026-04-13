@@ -1,8 +1,6 @@
-import { useState, useEffect, useCallback, useRef, lazy, Suspense, Component } from 'react'
+import { useState, useEffect, useCallback, useRef, lazy, Suspense, Component, type ReactNode } from 'react'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
-import type { ReactNode } from 'react'
-import { saveRun, loadRuns } from '../../utils/work-history'
-import type { WorkRun } from '../../utils/work-history'
+import { saveRun, loadRuns, type WorkRun } from '../../utils/work-history'
 import { RunTimeline } from './RunTimeline'
 import { t } from '../../utils/i18n'
 

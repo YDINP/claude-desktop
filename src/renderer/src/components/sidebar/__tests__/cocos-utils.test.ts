@@ -174,4 +174,91 @@ describe('deepCopyNodeWithNewUuids', () => {
     const copy = deepCopyNodeWithNewUuids(node)
     expect((copy.components[0] as unknown as Record<string, unknown>)._rawIndex).toBeUndefined()
   })
+
+  // ── 깊은 중첩 (5레벨+) ──────────────────────────────────────────────────────
+
+  it('5레벨 중첩 노드 복사 — 모든 레벨이 정상 복사됨', () => {
+    // depth 5: root → l1 → l2 → l3 → l4 (leaf)
+    const leaf = makeNode({ uuid: 'l4', name: 'Leaf' })
+    const l3 = makeNode({ uuid: 'l3', name: 'L3', children: [leaf] })
+    const l2 = makeNode({ uuid: 'l2', name: 'L2', children: [l3] })
+    const l1 = makeNode({ uuid: 'l1', name: 'L1', children: [l2] })
+    const root = makeNode({ uuid: 'root', name: 'Root', children: [l1] })
+
+    const copy = deepCopyNodeWithNewUuids(root)
+
+    // 구조 유지 확인
+    expect(copy.children).toHaveLength(1)
+    expect(copy.children[0].children).toHaveLength(1)
+    expect(copy.children[0].children[0].children).toHaveLength(1)
+    expect(copy.children[0].children[0].children[0].children).toHaveLength(1)
+    expect(copy.children[0].children[0].children[0].children[0].name).toBe('Leaf')
+  })
+
+  it('5레벨 중첩 노드 복사 — 모든 레벨 UUID가 원본과 다르다', () => {
+    const leaf = makeNode({ uuid: 'l4', name: 'Leaf' })
+    const l3 = makeNode({ uuid: 'l3', name: 'L3', children: [leaf] })
+    const l2 = makeNode({ uuid: 'l2', name: 'L2', children: [l3] })
+    const l1 = makeNode({ uuid: 'l1', name: 'L1', children: [l2] })
+    const root = makeNode({ uuid: 'root', name: 'Root', children: [l1] })
+
+    const copy = deepCopyNodeWithNewUuids(root)
+
+    const origUuids = ['root', 'l1', 'l2', 'l3', 'l4']
+    const copyUuids = [
+      copy.uuid,
+      copy.children[0].uuid,
+      copy.children[0].children[0].uuid,
+      copy.children[0].children[0].children[0].uuid,
+      copy.children[0].children[0].children[0].children[0].uuid,
+    ]
+
+    for (const orig of origUuids) {
+      expect(copyUuids).not.toContain(orig)
+    }
+  })
+
+  // ── UUID 고유성 보장 ───────────────────────────────────────────────────────
+
+  it('대규모 트리 복사 시 모든 UUID가 서로 고유하다', () => {
+    // 형제 10개 × 자식 5개 = 51 노드 (root + 10*5)
+    const children = Array.from({ length: 10 }, (_, i) => {
+      const grandchildren = Array.from({ length: 5 }, (_, j) =>
+        makeNode({ uuid: `gc-${i}-${j}`, name: `GC${i}${j}` })
+      )
+      return makeNode({ uuid: `child-${i}`, name: `Child${i}`, children: grandchildren })
+    })
+    const root = makeNode({ uuid: 'big-root', name: 'BigRoot', children })
+
+    const copy = deepCopyNodeWithNewUuids(root)
+
+    // BFS UUID 수집
+    const uuids: string[] = []
+    const queue: CCSceneNode[] = [copy]
+    while (queue.length > 0) {
+      const n = queue.shift()!
+      uuids.push(n.uuid)
+      queue.push(...n.children)
+    }
+
+    const unique = new Set(uuids)
+    expect(unique.size).toBe(uuids.length)
+  })
+
+  it('복사된 UUID가 원본 UUID와 겹치지 않는다', () => {
+    const children = Array.from({ length: 5 }, (_, i) =>
+      makeNode({ uuid: `orig-${i}`, name: `Node${i}` })
+    )
+    const root = makeNode({ uuid: 'orig-root', name: 'Root', children })
+
+    const copy = deepCopyNodeWithNewUuids(root)
+
+    const origUuids = new Set(['orig-root', ...children.map(c => c.uuid)])
+    const copyQueue: CCSceneNode[] = [copy]
+    while (copyQueue.length > 0) {
+      const n = copyQueue.shift()!
+      expect(origUuids.has(n.uuid)).toBe(false)
+      copyQueue.push(...n.children)
+    }
+  })
 })

@@ -1,7 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
-import { DEFAULT_FEATURES, FEATURE_GROUP_MAP } from '../../../shared/feature-types'
-import type { FeatureFlags } from '../../../shared/feature-types'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { DEFAULT_FEATURES, FEATURE_GROUP_MAP, type FeatureFlags } from '../../../shared/feature-types'
 
 // ── Context ──────────────────────────────────────────────
 interface FeatureFlagsContextValue {

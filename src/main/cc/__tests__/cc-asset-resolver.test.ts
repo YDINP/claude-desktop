@@ -185,6 +185,65 @@ describe('buildUUIDMap', () => {
 
     await expect(buildUUIDMap('/project/assets')).resolves.not.toThrow()
   })
+
+  // ── walkPrefabFiles: .meta 없는 prefab fallback ───────────────────────────────
+
+  it('walkPrefabFiles: .meta 없는 .prefab 파일은 synthetic uuid로 폴백 등록된다', async () => {
+    // .meta 없이 .prefab 파일만 존재하는 경우
+    mockReaddir.mockImplementation(async (dir) => {
+      const normalized = String(dir).replace(/\\/g, '/')
+      if (normalized === '/project/assets') return [makeDirent('enemy.prefab', false)]
+      return []
+    })
+    // .prefab 파일 자체는 readFile로 읽지 않음 (walkPrefabFiles는 경로만 등록)
+    mockReadFile.mockResolvedValue('{}' as unknown as Buffer)
+
+    const map = await buildUUIDMap('/project/assets')
+
+    // synthetic uuid 형태: 'nometaprefab-{base64}'
+    const entries = [...map.entries()]
+    const syntheticEntry = entries.find(([k]) => k.startsWith('nometaprefab-'))
+    expect(syntheticEntry).toBeDefined()
+    const [syntheticUuid, meta] = syntheticEntry!
+    expect(syntheticUuid).toMatch(/^nometaprefab-/)
+    expect(meta.type).toBe('prefab')
+    expect(meta.relPath).toBe('enemy.prefab')
+    expect(meta.path).toContain('enemy.prefab')
+  })
+
+  it('walkPrefabFiles: .meta가 있는 .prefab은 synthetic 등록 대상에서 제외된다', async () => {
+    const uuid = 'prefb222-2222-2222-2222-222222222222'
+    // .prefab.meta가 있으면 walkMeta가 먼저 등록 → walkPrefabFiles는 pathSet으로 중복 방지
+    mockReaddir.mockImplementation(async (dir) => {
+      const normalized = String(dir).replace(/\\/g, '/')
+      if (normalized === '/project/assets')
+        return [makeDirent('hero.prefab.meta', false), makeDirent('hero.prefab', false)]
+      return []
+    })
+    mockReadFile.mockResolvedValue(makeMetaJson(uuid) as unknown as Buffer)
+
+    const map = await buildUUIDMap('/project/assets')
+
+    // meta uuid가 등록됨
+    expect(map.has(uuid)).toBe(true)
+    expect(map.get(uuid)!.type).toBe('prefab')
+    // synthetic uuid는 등록되지 않음
+    const syntheticEntry = [...map.keys()].find(k => k.startsWith('nometaprefab-'))
+    expect(syntheticEntry).toBeUndefined()
+  })
+
+  it('walkPrefabFiles: .prefab이 없으면 synthetic uuid가 생성되지 않는다', async () => {
+    // .meta 파일만 있는 경우
+    const uuid = 'aaaabbbb-0000-1111-2222-333344445555'
+    mockReaddir.mockResolvedValue([makeDirent('sprite.png.meta', false)])
+    mockReadFile.mockResolvedValue(makeMetaJson(uuid) as unknown as Buffer)
+
+    const map = await buildUUIDMap('/project/assets')
+
+    const syntheticEntry = [...map.keys()].find(k => k.startsWith('nometaprefab-'))
+    expect(syntheticEntry).toBeUndefined()
+    expect(map.has(uuid)).toBe(true)
+  })
 })
 
 // ── extractReferencedUUIDs ────────────────────────────────────────────────────

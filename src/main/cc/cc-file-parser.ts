@@ -3,8 +3,7 @@ import type {
   CCSceneNode, CCSceneComponent, CCSceneFile,
   CCVec2, CCVec3, CCColor, CCFileProjectInfo,
 } from '../../shared/ipc-schema'
-import { buildUUIDMap } from './cc-asset-resolver'
-import type { UUIDMap } from './cc-asset-resolver'
+import { buildUUIDMap, type UUIDMap } from './cc-asset-resolver'
 // CCSceneNode is used by extractSceneMeta (R1459)
 
 type RawEntry = Record<string, unknown>

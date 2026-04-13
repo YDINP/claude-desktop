@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron'
 import { AppConfig } from '../store/app-config'
-import type { FeatureFlags } from '../../shared/feature-types'
-import { DEFAULT_FEATURES } from '../../shared/feature-types'
+import { DEFAULT_FEATURES, type FeatureFlags } from '../../shared/feature-types'
 
 export function registerFeatureHandlers(): void {
   ipcMain.handle('features:get', () => AppConfig.getInstance().getFeatures())

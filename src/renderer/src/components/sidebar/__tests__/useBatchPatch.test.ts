@@ -101,6 +101,36 @@ describe('useBatchPatch', () => {
       expect(setBatchMsg).toHaveBeenCalledWith('✓ 적용')
     })
 
+    it('saveScene 실패 시 에러 메시지를 표시한다', async () => {
+      saveScene = vi.fn().mockResolvedValue({ success: false, error: '파일 잠금' })
+      const root = makeNode('root', [makeNode('a')])
+      const sceneFile = makeSceneFile(root)
+      const { result } = renderHook(() =>
+        useBatchPatch({ sceneFile, saveScene, uuidSet: new Set(['a']), uuids: ['a'], setBatchMsg })
+      )
+
+      await act(async () => {
+        await result.current.patchNodes(n => n, '적용')
+      })
+
+      expect(setBatchMsg).toHaveBeenCalledWith('✗ 저장 실패: 파일 잠금')
+    })
+
+    it('saveScene 실패 시 error 없으면 알 수 없는 오류 메시지를 표시한다', async () => {
+      saveScene = vi.fn().mockResolvedValue({ success: false })
+      const root = makeNode('root', [makeNode('a')])
+      const sceneFile = makeSceneFile(root)
+      const { result } = renderHook(() =>
+        useBatchPatch({ sceneFile, saveScene, uuidSet: new Set(['a']), uuids: ['a'], setBatchMsg })
+      )
+
+      await act(async () => {
+        await result.current.patchNodes(n => n, '적용')
+      })
+
+      expect(setBatchMsg).toHaveBeenCalledWith('✗ 저장 실패: 알 수 없는 오류')
+    })
+
     it('2초 후 setBatchMsg(null)이 호출된다', async () => {
       const root = makeNode('root', [makeNode('a')])
       const { result } = setup(['a'], root)

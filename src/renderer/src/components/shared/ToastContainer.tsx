@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { subscribe, unsubscribe } from '../../utils/toast'
-import type { Toast, ToastType } from '../../utils/toast'
+import { subscribe, unsubscribe, type Toast, type ToastType } from '../../utils/toast'
 
 const MAX_TOASTS = 5
 

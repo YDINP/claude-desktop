@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs'
 import type { FSWatcher } from 'chokidar'
 
 export type CCFileChangeType = 'change' | 'add' | 'unlink'
@@ -106,7 +107,6 @@ export class CCFileWatcher {
   // R1389: 파일 diff 기반 부분 업데이트 이벤트 전송
   private async emitPartialUpdate(path: string) {
     try {
-      const { readFileSync } = await import('fs')
       const newContent = readFileSync(path, 'utf-8')
       const oldContent = this.fileContentCache.get(path)
       // 캐시 크기 제한 (50개 초과 시 가장 오래된 항목 제거)

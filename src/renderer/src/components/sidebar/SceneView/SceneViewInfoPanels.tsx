@@ -382,7 +382,7 @@ export function SceneViewInfoPanels(props: SceneViewInfoPanelsProps) {
             style={{
               fontSize: 10, padding: '3px 10px', background: 'rgba(96,165,250,0.18)',
               border: '1px solid rgba(96,165,250,0.5)', borderRadius: 4, color: '#60a5fa',
-              cursor: 'pointer', whiteSpace: 'nowrap',
+              cursor: 'not-allowed', whiteSpace: 'nowrap',
             }}
           >
             그룹화 ({multiSelectedSize})

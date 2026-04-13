@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type { SceneNode, ViewTransform, DragState, ResizeState, MarqueeState, UndoEntry, ClipboardEntry } from './types'
 import { useSceneSync } from './useSceneSync'
 import { NodeRenderer } from './NodeRenderer'
-import { SceneToolbar } from './SceneToolbar'
-import type { SceneBgValue } from './SceneToolbar'
+import { SceneToolbar, type SceneBgValue } from './SceneToolbar'
 import { SceneInspector } from './SceneInspector'
 import { cocosToSvg } from './utils'
 import { NodeHierarchyList } from './NodeHierarchyList'
@@ -51,6 +50,9 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
   const [pngExportBg, setPngExportBg] = useState<'dark' | 'light' | 'transparent'>('dark')
   const [pngExportScale, setPngExportScale] = useState<1 | 2 | 4>(1)
   const [screenshotDone, setScreenshotDone] = useState(false)
+  // saveScene ref — useSceneViewActions보다 먼저 선언, 나중에 실제 함수 할당
+  const saveSceneRef = useRef<() => Promise<void>>(() => Promise.resolve())
+  const saveSceneForActions = useCallback(async () => { await saveSceneRef.current() }, [])
   const [gridVisible, setGridVisible] = useState(true)
   // R1422: 그리드 커스터마이즈 (크기/색상/불투명도) — localStorage grid-settings
   const [gridSettings, setGridSettings] = useState<{ size: number; theme: 'light' | 'dark'; opacity: number }>(() => {
@@ -635,7 +637,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
     DESIGN_W, DESIGN_H, clipboard, svgRef, pngExportScale, pngExportBg,
     setSelectedUuid, setSelectedUuidsReplace: setSelectedUuids as unknown as (s: Set<string>) => void,
     setClipboard, setCopiedNode, setScreenshotDone,
-    updateNode, refresh, saveScene: saveSceneAsync,
+    updateNode, refresh, saveScene: saveSceneForActions,
   })
 
   // ── Keyboard hook (단축키 + Space패닝 + Ctrl+1~5 뷰북마크 + 전체선택 + 방향키) ──
@@ -932,6 +934,7 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
 
   const handleSaveScene = useCallback(() => saveToSlot(activeSlot), [saveToSlot, activeSlot])
   const saveSceneAsync = useCallback(async () => { saveToSlot(activeSlot) }, [saveToSlot, activeSlot])
+  saveSceneRef.current = saveSceneAsync  // ref 갱신 — useSceneViewActions가 항상 최신 함수 사용
   const handleLoadScene = useCallback(() => loadFromSlot(activeSlot), [loadFromSlot, activeSlot])
 
   const handleSlotChange = useCallback((newSlot: number) => {
@@ -1806,7 +1809,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 <NodeRenderer
                   key={uuid}
                   node={node}
-                  nodeMap={nodeMap}
                   view={view}
                   selected={selectedUuid === uuid}
                   hovered={hoveredUuid === uuid}

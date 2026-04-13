@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { aguiSubscribe } from '../../utils/agui-store'
-import type { AguiRun } from '../../utils/agui-store'
+import { aguiSubscribe, type AguiRun } from '../../utils/agui-store'
 import { t } from '../../utils/i18n'
 
 function fmtMs(ms: number): string {

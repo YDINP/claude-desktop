@@ -1,5 +1,4 @@
-import type { BrowserWindow } from 'electron'
-import { ipcMain, app } from 'electron'
+import { ipcMain, app, type BrowserWindow } from 'electron'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { openaiChat } from '../providers/openai-bridge'

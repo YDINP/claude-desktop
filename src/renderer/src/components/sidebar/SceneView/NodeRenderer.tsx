@@ -4,7 +4,6 @@ import { cocosToSvg, getComponentIcon } from './utils'
 
 interface NodeRendererProps {
   node: SceneNode
-  nodeMap: Map<string, SceneNode>
   view: ViewTransform
   selected: boolean
   hovered: boolean

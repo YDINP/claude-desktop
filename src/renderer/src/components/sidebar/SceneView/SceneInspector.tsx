@@ -797,7 +797,7 @@ export function SceneInspector({ node, onUpdate, onColorUpdate, onClose, selecti
           min={0}
           max={255}
           value={node.color.a}
-          onChange={e => onColorUpdate?.(node.uuid, { a: parseInt(e.target.value) })}
+          onChange={e => onColorUpdate?.(node.uuid, { a: Math.max(0, Math.min(255, parseInt(e.target.value) || 0)) })}
           title={`알파: ${Math.round(node.color.a / 255 * 100)}%`}
           style={{ flex: 1, height: 4, cursor: 'pointer', accentColor: 'var(--accent)', minWidth: 0 }}
         />

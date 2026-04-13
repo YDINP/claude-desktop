@@ -1,12 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { playCompletionSound } from '../../utils/sound'
 import { applyCustomCSS } from '../../utils/css'
-import { useFeatureFlags } from '../../hooks/useFeatureFlags'
-import type { FeatureFlags } from '../../hooks/useFeatureFlags'
-import { FEATURE_GROUP_MAP } from '../../../../shared/feature-types'
-import type { FeatureGroup } from '../../../../shared/feature-types'
-import { t, setLanguage, getCurrentLanguage } from '../../utils/i18n'
-import type { SupportedLang } from '../../utils/i18n'
+import { useFeatureFlags, type FeatureFlags } from '../../hooks/useFeatureFlags'
+import { FEATURE_GROUP_MAP, type FeatureGroup } from '../../../../shared/feature-types'
+import { t, setLanguage, getCurrentLanguage, type SupportedLang } from '../../utils/i18n'
 
 function trapFocus(container: HTMLElement, e: React.KeyboardEvent) {
   if (e.key !== 'Tab') return

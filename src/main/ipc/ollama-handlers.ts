@@ -1,5 +1,4 @@
-import type { BrowserWindow } from 'electron'
-import { ipcMain } from 'electron'
+import { ipcMain, type BrowserWindow } from 'electron'
 import { ollamaListModels, ollamaChat } from '../ollama/ollama-bridge'
 
 const IPC_CLAUDE_MESSAGE = 'claude:message'

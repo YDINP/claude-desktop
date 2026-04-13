@@ -10,8 +10,7 @@
  */
 import React, { useMemo } from 'react'
 import type { CCSceneFile, CCSceneNode } from '../../../../../shared/ipc-schema'
-import { getApplicablePlugins } from '../../../domains/cocos'
-import type { BatchPluginProps } from '../../../domains/cocos'
+import { getApplicablePlugins, type BatchPluginProps } from '../../../domains/cocos'
 import { t } from '../../../utils/i18n'
 
 interface Props {

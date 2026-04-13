@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import type { ComponentSectionProps } from './component-shared'
-import { mkBtnS, mkNiS } from './component-shared'
+import { mkBtnS, mkNiS, type ComponentSectionProps } from './component-shared'
 import { t } from '../../../utils/i18n'
 
 export function LabelSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg }: ComponentSectionProps) {

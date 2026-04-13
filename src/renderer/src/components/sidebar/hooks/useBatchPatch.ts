@@ -35,8 +35,8 @@ export function useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMs
         if (!uuidSet.has(n.uuid)) return { ...n, children }
         return { ...patcher(n), children }
       }
-      await saveScene(walk(sceneFile.root))
-      setBatchMsg(`✓ ${label}`)
+      const result = await saveScene(walk(sceneFile.root))
+      setBatchMsg(result.success ? `✓ ${label}` : `✗ 저장 실패: ${result.error ?? '알 수 없는 오류'}`)
       scheduleMsgClear()
     },
     [sceneFile, saveScene, uuidSet, setBatchMsg],
@@ -56,8 +56,8 @@ export function useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMs
         const components = n.components.map(c => compMatcher(c) ? compPatcher(c) : c)
         return { ...n, components, children }
       }
-      await saveScene(walk(sceneFile.root))
-      setBatchMsg(`✓ ${label}`)
+      const result = await saveScene(walk(sceneFile.root))
+      setBatchMsg(result.success ? `✓ ${label}` : `✗ 저장 실패: ${result.error ?? '알 수 없는 오류'}`)
       scheduleMsgClear()
     },
     [sceneFile, saveScene, uuidSet, setBatchMsg],
@@ -84,8 +84,8 @@ export function useBatchPatch({ sceneFile, saveScene, uuidSet, uuids, setBatchMs
         if (idx === undefined) return { ...n, children }
         return { ...orderedPatcher(n, idx, total), children }
       }
-      await saveScene(walk(sceneFile.root))
-      setBatchMsg(`✓ ${label}`)
+      const result = await saveScene(walk(sceneFile.root))
+      setBatchMsg(result.success ? `✓ ${label}` : `✗ 저장 실패: ${result.error ?? '알 수 없는 오류'}`)
       scheduleMsgClear()
     },
     [sceneFile, saveScene, uuidSet, setBatchMsg],

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import type { CCSceneNode } from '@shared/ipc-schema'
-import type { ComponentSectionProps } from './component-shared'
-import { mkBtnS, mkNiS } from './component-shared'
+import { mkBtnS, mkNiS, type ComponentSectionProps } from './component-shared'
 import { t } from '../../../utils/i18n'
 
 export function Cc3xTailSection({ uuids, uuidSet, sceneFile, saveScene, patchNodes, patchComponents, patchOrdered, commonCompTypes, setBatchMsg, onMultiSelectChange }: ComponentSectionProps) {

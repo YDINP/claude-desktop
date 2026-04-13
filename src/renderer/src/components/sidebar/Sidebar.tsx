@@ -1,9 +1,8 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
-import type React from 'react'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { ErrorBoundary } from '../shared/ErrorBoundary'
 import { FileTree } from './FileTree'
 import { SessionList } from './SessionList'
-import { ChangedFilesPanel } from './ChangedFilesPanel'
+import { ChangedFilesPanel, type ChangedFile } from './ChangedFilesPanel'
 import { SearchPanel } from './SearchPanel'
 import { BookmarksPanel } from './BookmarksPanel'
 import { SnippetPanel } from './SnippetPanel'
@@ -20,7 +19,6 @@ const NotesPanel = lazy(() => import('./NotesPanel'))
 const ClipboardPanel = lazy(() => import('./ClipboardPanel').then(m => ({ default: m.ClipboardPanel })))
 const DiffPanel = lazy(() => import('./DiffPanel').then(m => ({ default: m.DiffPanel })))
 const RemotePanel = lazy(() => import('./RemotePanel').then(m => ({ default: m.RemotePanel })))
-import type { ChangedFile } from './ChangedFilesPanel'
 import type { ChatMessage } from '../../domains/chat'
 import { useProject } from '../../stores/project-store'
 import { useFeatureFlags } from '../../hooks/useFeatureFlags'

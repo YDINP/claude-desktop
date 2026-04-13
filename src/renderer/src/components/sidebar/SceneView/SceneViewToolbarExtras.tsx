@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { t } from '../../../utils/i18n'
 import type { SceneNode } from './types'
-import type { ViewportPreset } from './sceneViewConstants'
-import { VP_KEY, NT_KEY, DEFAULT_TEMPLATES } from './sceneViewConstants'
+import { VP_KEY, NT_KEY, DEFAULT_TEMPLATES, type ViewportPreset } from './sceneViewConstants'
 import { useSceneViewCtx } from './SceneViewContext'
 
 /**

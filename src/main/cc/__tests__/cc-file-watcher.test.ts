@@ -476,4 +476,65 @@ describe('CCFileWatcher', () => {
       expect(watcher.watchedCount).toBe(2)
     })
   })
+
+  // ── race condition — concurrent watch() calls ──────────────────────────────
+
+  describe('race condition — concurrent watch()', () => {
+    it('concurrent watch() calls do not create multiple chokidar watchers', async () => {
+      // Fire two watch() calls without awaiting the first
+      const p1 = watcher.watch('/a.fire')
+      const p2 = watcher.watch('/b.fire')
+      await Promise.all([p1, p2])
+
+      const chokidar = await getChokidar()
+      // Only one chokidar.watch() call allowed regardless of concurrency
+      expect(chokidar.watch).toHaveBeenCalledOnce()
+    })
+
+    it('pendingPaths from concurrent call are included in the initial watch', async () => {
+      // First call starts initializing; second call should queue via pendingPaths
+      const p1 = watcher.watch('/a.fire')
+      const p2 = watcher.watch('/b.fire')
+      await Promise.all([p1, p2])
+
+      const chokidar = await getChokidar()
+      // Either /b.fire was passed to chokidar.watch() directly (bundled in allPaths)
+      // or it was added via mockWatcherAdd. Either way both paths must be tracked.
+      expect(watcher.watchedCount).toBe(2)
+      const [watchedPaths] = (chokidar.watch as ReturnType<typeof vi.fn>).mock.calls[0] as [string[]]
+      const allTracked = [...watchedPaths, ...mockWatcherAdd.mock.calls.flatMap(c => c[0] as string[])]
+      expect(allTracked).toContain('/a.fire')
+      expect(allTracked).toContain('/b.fire')
+    })
+
+    it('initializing flag prevents second concurrent watch() from calling chokidar.watch()', async () => {
+      // Start first watch (async — not yet awaited)
+      const p1 = watcher.watch('/first.fire')
+      // Immediately start second watch while first is still initializing
+      const p2 = watcher.watch('/second.fire')
+      await p1
+      await p2
+
+      const chokidar = await getChokidar()
+      // Regardless of timing, chokidar.watch must be called exactly once
+      expect(chokidar.watch).toHaveBeenCalledOnce()
+      // Both paths must end up watched
+      expect(watcher.watchedCount).toBe(2)
+    })
+
+    it('watch() after close() reinitializes cleanly', async () => {
+      await watcher.watch('/a.fire')
+      await watcher.close()
+
+      // Reset mocks for fresh init
+      vi.clearAllMocks()
+      mockWatcherOn.mockReturnValue(mockWatcher)
+
+      await watcher.watch('/b.fire')
+
+      const chokidar = await getChokidar()
+      expect(chokidar.watch).toHaveBeenCalledOnce()
+      expect(watcher.watchedCount).toBe(1)
+    })
+  })
 })
