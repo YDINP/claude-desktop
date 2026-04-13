@@ -275,6 +275,7 @@ function buildNewRawNode3x(node: CCSceneNode, parentIdx: number | null): RawEntr
     _active: node.active ?? true,
     _components: [],
     _prefab: null,
+    _id: node.uuid,
     _lpos: { x: pos.x ?? 0, y: pos.y ?? 0, z: pos.z ?? 0 },
     _lrot: { x: 0, y: 0, z: 0, w: 1 },
     _lscale: { x: sc.x ?? 1, y: sc.y ?? 1, z: sc.z ?? 1 },

@@ -1809,7 +1809,6 @@ export function SceneViewPanel({ connected, port = 9091 }: SceneViewPanelProps) 
                 <NodeRenderer
                   key={uuid}
                   node={node}
-                  nodeMap={nodeMap}
                   view={view}
                   selected={selectedUuid === uuid}
                   hovered={hoveredUuid === uuid}
