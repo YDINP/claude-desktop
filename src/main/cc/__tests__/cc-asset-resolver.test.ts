@@ -377,3 +377,146 @@ describe('getAllTextureUUIDs', () => {
     expect(getAllTextureUUIDs(new Map())).toEqual([])
   })
 })
+
+// ── 압축 UUID 엣지 케이스 ─────────────────────────────────────────────────────
+
+describe('compressCCUuid / decompressCCUuid — edge cases', () => {
+  it('최소 길이 UUID(모두 0) 압축/해제 라운드트립', () => {
+    const uuid = '00000000-0000-0000-0000-000000000000'
+    const compressed = compressCCUuid(uuid)
+    expect(compressed).not.toBeNull()
+    expect(compressed!.length).toBe(23)
+    const decompressed = decompressCCUuid(compressed!)
+    expect(decompressed).toBe(uuid)
+  })
+
+  it('최대 길이 UUID(모두 f) 압축/해제 라운드트립', () => {
+    const uuid = 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+    const compressed = compressCCUuid(uuid)
+    expect(compressed).not.toBeNull()
+    expect(compressed!.length).toBe(23)
+    const decompressed = decompressCCUuid(compressed!)
+    expect(decompressed).toBe(uuid)
+  })
+
+  it('압축 UUID가 정확히 23자여야 함 — 다양한 UUID 샘플', () => {
+    const uuids = [
+      '11111111-1111-1111-1111-111111111111',
+      'abcdef01-2345-6789-abcd-ef0123456789',
+      '12345678-9abc-def0-1234-56789abcdef0',
+    ]
+    for (const uuid of uuids) {
+      const compressed = compressCCUuid(uuid)
+      expect(compressed).not.toBeNull()
+      expect(compressed!.length).toBe(23)
+    }
+  })
+
+  it('22자 입력은 decompressCCUuid에서 null 반환', () => {
+    expect(decompressCCUuid('0000000000000000000000')).toBeNull()
+  })
+
+  it('24자 입력은 decompressCCUuid에서 null 반환', () => {
+    expect(decompressCCUuid('000000000000000000000000')).toBeNull()
+  })
+
+  it('빈 문자열은 null 반환', () => {
+    expect(decompressCCUuid('')).toBeNull()
+    expect(compressCCUuid('')).toBeNull()
+  })
+
+  it('dashes 없는 32자 hex도 압축 성공 (내부적으로 dash 제거 후 처리)', () => {
+    // compressCCUuid는 replace(/-/g, '') 후 32자를 검사하므로
+    // dash 없는 32자 hex는 유효한 입력으로 처리됨
+    const noDash = 'a1b2c3d4e5f678901234567890abcdef'
+    const compressed = compressCCUuid(noDash)
+    expect(compressed).not.toBeNull()
+    expect(compressed!.length).toBe(23)
+  })
+})
+
+// ── 순환 참조 UUID 감지 ────────────────────────────────────────────────────────
+
+describe('buildUUIDMap — 순환 참조 및 자기 참조 UUID', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('uuid가 자기 자신을 subMeta로 참조해도 크래시 없이 처리', async () => {
+    const uuid = 'selfref1-1111-1111-1111-111111111111'
+    // subMeta의 uuid가 메인 uuid와 동일한 자기 참조
+    mockReadFile.mockResolvedValue(
+      makeMetaJson(uuid, { self: { uuid } }) as unknown as Buffer
+    )
+    mockReaddir.mockResolvedValue([makeDirent('self.png.meta', false)])
+
+    const map = await buildUUIDMap('/project/assets')
+    // 크래시 없이 정상 처리, uuid는 등록됨
+    expect(map.has(uuid)).toBe(true)
+  })
+
+  it('두 파일이 서로 같은 uuid를 갖는 충돌 meta는 나중 파일이 덮어씀', async () => {
+    const sharedUuid = 'shared11-1111-1111-1111-111111111111'
+    let callCount = 0
+    mockReaddir.mockResolvedValue([
+      makeDirent('first.png.meta', false),
+      makeDirent('second.png.meta', false),
+    ])
+    mockReadFile.mockImplementation(async () => {
+      callCount++
+      return makeMetaJson(sharedUuid) as unknown as Buffer
+    })
+
+    const map = await buildUUIDMap('/project/assets')
+    // 같은 uuid → map에는 하나만 존재
+    expect(map.has(sharedUuid)).toBe(true)
+    // 두 번 읽었음을 확인
+    expect(callCount).toBe(2)
+  })
+})
+
+// ── 빈 프로젝트 (assets 폴더 없음) ───────────────────────────────────────────
+
+describe('buildUUIDMap — 빈 프로젝트', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('assets 폴더가 비어 있으면 빈 맵 반환', async () => {
+    mockReaddir.mockResolvedValue([])
+    const map = await buildUUIDMap('/empty-project/assets')
+    expect(map.size).toBe(0)
+  })
+
+  it('readdir가 에러를 던지면 빈 맵 반환 (크래시 없음)', async () => {
+    mockReaddir.mockRejectedValue(new Error('ENOENT: no such file or directory'))
+    await expect(buildUUIDMap('/nonexistent/assets')).resolves.toBeDefined()
+  })
+
+  it('assets 폴더에 meta 파일이 전혀 없으면 빈 맵 반환', async () => {
+    mockReaddir.mockImplementation(async (dir) => {
+      const normalized = String(dir).replace(/\\/g, '/')
+      if (normalized === '/project/no-assets') {
+        return [
+          makeDirent('README.md', false),
+          makeDirent('config.json', false),
+        ]
+      }
+      return []
+    })
+
+    const map = await buildUUIDMap('/project/no-assets')
+    expect(map.size).toBe(0)
+  })
+
+  it('중첩 빈 폴더는 순회하지만 아무것도 등록 안 함', async () => {
+    mockReaddir.mockImplementation(async (dir) => {
+      const normalized = String(dir).replace(/\\/g, '/')
+      if (normalized === '/project/assets') return [makeDirent('empty-dir', true)]
+      return []
+    })
+
+    const map = await buildUUIDMap('/project/assets')
+    expect(map.size).toBe(0)
+  })
+})
