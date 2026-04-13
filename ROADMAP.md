@@ -1034,3 +1034,4 @@ AI 데스크탑 앱 2025-2026 트렌드 조사 결과 우선 적용 항목:
 | R2834 | useBatchPatch 결과확인 테스트 + SceneInspector alpha 클램핑 테스트 + i18n 완료 확인 (총 2,650) | ✅ |
 | R2835 | 11차 감사 — NodeRenderer dead prop 제거 + 3.x _id + watcher 정적 import | ✅ |
 | R2836 | watcher race condition + NodeRenderer LOD + 3x _id + deepCopy 엣지 33테스트 (총 2,683) | ✅ |
+| R2837 | Widget 라운드트립 + enabled 키생성 + walkPrefabFiles 8테스트 (총 2,691) + handoff 최종 갱신 | ✅ |
