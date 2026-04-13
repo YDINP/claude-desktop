@@ -64,3 +64,43 @@ export const RESOLUTION_PRESETS = [
 ] as const
 
 export const UUID_RE = /^[0-9a-f]{14,36}$/
+
+export const VIEWPORT_CULL_MARGIN = 100
+
+/**
+ * 뷰포트 컬링: 노드가 화면 밖인지 판단하는 순수 함수
+ *
+ * @param svgPosX - 노드 중심의 SVG x 좌표 (ccToSvg 변환 후)
+ * @param svgPosY - 노드 중심의 SVG y 좌표 (ccToSvg 변환 후)
+ * @param w - 노드 width (size.x)
+ * @param h - 노드 height (size.y)
+ * @param anchorX - 노드 anchor x (0~1)
+ * @param anchorY - 노드 anchor y (0~1)
+ * @param zoom - 뷰 줌 레벨
+ * @param offsetX - 뷰 오프셋 x
+ * @param offsetY - 뷰 오프셋 y
+ * @param vpW - 뷰포트 픽셀 폭 (SVG clientWidth)
+ * @param vpH - 뷰포트 픽셀 높이 (SVG clientHeight)
+ * @param margin - 컬링 여유 픽셀 (기본 VIEWPORT_CULL_MARGIN=100)
+ * @returns true = 화면 안(렌더링 필요), false = 화면 밖(컬링)
+ */
+export function isNodeVisibleInViewport(
+  svgPosX: number,
+  svgPosY: number,
+  w: number,
+  h: number,
+  anchorX: number,
+  anchorY: number,
+  zoom: number,
+  offsetX: number,
+  offsetY: number,
+  vpW: number,
+  vpH: number,
+  margin = VIEWPORT_CULL_MARGIN,
+): boolean {
+  const screenL = (svgPosX - w * anchorX) * zoom + offsetX
+  const screenT = (svgPosY - h * (1 - anchorY)) * zoom + offsetY
+  const screenR = screenL + w * zoom
+  const screenB = screenT + h * zoom
+  return !(screenR < -margin || screenL > vpW + margin || screenB < -margin || screenT > vpH + margin)
+}
